@@ -6,3 +6,8 @@ It uses third-party software under their own permissive licenses: see THIRD_PART
 
 CadCraft and the names of the apps in the CadCraft family are trademarks of The Data Design Group, Inc.
 The Apache License does not grant permission to use them (section 6); a fork must use another name.
+
+Manafe3
+Manafe3 is based on DetailCraft by The Data Design Group, Inc.
+The DetailCraft code in this repository stays under the Apache License, Version 2.0. Files Manafe3 changed are listed
+in MANAFE3-CHANGES.md. Manafe3 is not made or endorsed by The Data Design Group, Inc.

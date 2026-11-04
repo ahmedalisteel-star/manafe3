@@ -42,7 +42,7 @@ A bal és a jobb oldali panel megtartja mindazt, amit a [Panelek elrendezése](c
 
 ## Vissza a klasszikus elrendezéshez
 
-Nyissa meg a {{ui:Beállítások}} › {{ui:Globális}} › {{ui:Elrendezés}} › {{ui:Munkaterület}} részt, és válassza a {{ui:CadCraft klasszikus}} lehetőséget. Minden eszköztár, lap és panel visszakerül oda, ahol volt.
+Nyissa meg a {{ui:Beállítások}} › {{ui:Globális}} › {{ui:Elrendezés}} › {{ui:Munkaterület}} részt, és válassza a {{ui:Manafe3 klasszikus}} lehetőséget. Minden eszköztár, lap és panel visszakerül oda, ahol volt.
 
 :::note
 Telefonon, vagy 760 képpont szélesnél nem szélesebb ablakban az alkalmazás a telefonos elrendezését használja, bármelyiket is választotta. Egy szélesebb ablak visszahozza az Ön elrendezését.

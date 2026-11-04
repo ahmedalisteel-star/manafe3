@@ -1,17 +1,17 @@
 ---
 title: Ekraani tutvustus
-summary: Iga riba, paneel ja vahekaart DetailCraft-is nende ekraanil nähtava nime järgi ning nende otstarve.
+summary: Iga riba, paneel ja vahekaart Manafe3-is nende ekraanil nähtava nime järgi ning nende otstarve.
 keywords: ekraan, paigutus, tööriistariba, paneelid, omadused, olekuriba, aruanded, liides, ui, vahekaardid
 from: 454f74fd
 ---
 
-DetailCraft täidab brauseriakna rakenduseriba all. Ülevalt alla: tööriistariba, siis kolm veergu ({{ui:Mudel}} paneel, vaade, {{ui:Omadused}} paneel), siis aruandevahekaardid ja olekuriba.
+Manafe3 täidab brauseriakna rakenduseriba all. Ülevalt alla: tööriistariba, siis kolm veergu ({{ui:Mudel}} paneel, vaade, {{ui:Omadused}} paneel), siis aruandevahekaardid ja olekuriba.
 
 ## Rakenduseriba
 
-Kõige peenem riba kõige ülaservas kuulub CadCraft-i saidile, mitte mudelile. See näitab rakenduse nime ja versiooni, lingi {{ui:Teave DetailCraft-i kohta}}, nupu {{ui:Abi}} (või {{key:F1}}) selle abi jaoks, nupu {{ui:Salvesta võrguks}}, ekraanirežiimi nupu ja lüliti {{ui:Paber}} / {{ui:Mudel}}.
+Kõige peenem riba kõige ülaservas kuulub Manafe3-i saidile, mitte mudelile. See näitab rakenduse nime ja versiooni, lingi {{ui:Teave Manafe3-i kohta}}, nupu {{ui:Abi}} (või {{key:F1}}) selle abi jaoks, nupu {{ui:Salvesta võrguks}}, ekraanirežiimi nupu ja lüliti {{ui:Paber}} / {{ui:Mudel}}.
 
-- {{ui:Salvesta võrguks}} hoiab DetailCraft-i, selle 3D-vaate ja selle abi sinu brauseris, et see avaneks ilma ühenduseta. Pärast salvestamist loeb see {{ui:Valmis ka võrguta}}; klõpsa siis selle peale, et valida {{ui:Salvesta uuesti (võta uusim versioon)}} või {{ui:Eemalda võrguvälise koopia}}. Vt [Töö võrguta](common:offline).
+- {{ui:Salvesta võrguks}} hoiab Manafe3-i, selle 3D-vaate ja selle abi sinu brauseris, et see avaneks ilma ühenduseta. Pärast salvestamist loeb see {{ui:Valmis ka võrguta}}; klõpsa siis selle peale, et valida {{ui:Salvesta uuesti (võta uusim versioon)}} või {{ui:Eemalda võrguvälise koopia}}. Vt [Töö võrguta](common:offline).
 - {{ui:Paber}} annab heleda ekraani ja {{ui:Mudel}} tumeda. 3D-vaade järgib kohe; sinu mudel ei muutu.
 - Ekraanirežiimi nupp ja {{key:Ctrl+Shift+F}} vahetavad režiime: tavaline, täisekraan ja täisekraan peidetud ribadega. {{key:Ctrl+Shift+F}} kasutab igal arvutil Control-klahvi, Mac kaasa arvatud. Peidetud ribadega vajuta ekraani ülaserva (või puuduta seda), et need tagasi tuua. {{key:Esc}} väljub täisekraanist.
 
@@ -70,7 +70,7 @@ Arvuväljad rakenduvad, kui vajutad {{key:Enter}} või lahkud väljalt. Iga muud
 
 ## Aruandevahekaardid (all)
 
-- {{ui:Probleemid}}: kõik, mida DetailCraft ei saanud ehitada või mida tuleb kontrollida, iga rea juures nupp {{ui:Vali}}. Vahekaart näitab arvu sulgudes.
+- {{ui:Probleemid}}: kõik, mida Manafe3 ei saanud ehitada või mida tuleb kontrollida, iga rea juures nupp {{ui:Vali}}. Vahekaart näitab arvu sulgudes.
 - {{ui:Materjalinimekiri}}: detailid, koostud ning poldid ja ankurvardad koos kaalude ja lingiga {{ui:Laadi alla CSV}}. Klõpsa detailimärgisel, et see detail valida.
 - {{ui:Painutusloend}}: iga armatuurvarda märgis igas vundamendis koos lingiga {{ui:Laadi alla CSV}}.
 
@@ -84,4 +84,4 @@ Brauseri vahekaardi pealkiri algab punktiga (•), kui mudelil on salvestamata m
 
 ## Kitsas ekraan
 
-Alla umbes 760 pikslit laiuse korral paigutuvad veerud üksteise peale: tööriistariba, vaade, olekuriba, {{ui:Omadused}}, aruandevahekaardid ja viimasena {{ui:Mudel}} paneel. Pääsemiseks keri lehte. DetailCraft on kujundatud töölaua- või sülearvutiekraanile; telefonis saab vaadata, mitte detailida.
+Alla umbes 760 pikslit laiuse korral paigutuvad veerud üksteise peale: tööriistariba, vaade, olekuriba, {{ui:Omadused}}, aruandevahekaardid ja viimasena {{ui:Mudel}} paneel. Pääsemiseks keri lehte. Manafe3 on kujundatud töölaua- või sülearvutiekraanile; telefonis saab vaadata, mitte detailida.

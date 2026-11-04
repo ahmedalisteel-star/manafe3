@@ -42,7 +42,7 @@ Para ilabas ang panel sa grupo, piliin ang {{ui:Move out of the tab group}} sa {
 
 ## Piliin kung ilang linya ang gamit ng toolbar
 
-{{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Toolbar rows}} ay may tatlong pagpipilian. Ang {{ui:Wrap}} ang default: lumalabas ang bawat grupo ng tool, sa kung ilang linya man ang kailangan. Pinapanatili ng {{ui:2 rows}} ang toolbar sa dalawang linya at ang {{ui:1 row}} sa isa, para magkaroon ng taas ang drawing; ang mga grupong hindi kasya ay mag-scroll pahalang sa loob ng toolbar (gamitin ang mouse wheel, two-finger swipe, o {{key:Tab}} papunta sa tool). Ang toolbar na kasya na sa dalawang linya ay nananatili ang ayos sa ilalim ng {{ui:2 rows}}, dahil ang grid ay magpapatangkad lang dito. Naka-save ang pinili para sa bawat app. Sariling layout ang gamit ng touch screen at phone. May sariling setting ang CadCraft para sa toolbar nito, sa ilalim ng {{ui:Mga setting}} › {{ui:CadCraft}}.
+{{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Toolbar rows}} ay may tatlong pagpipilian. Ang {{ui:Wrap}} ang default: lumalabas ang bawat grupo ng tool, sa kung ilang linya man ang kailangan. Pinapanatili ng {{ui:2 rows}} ang toolbar sa dalawang linya at ang {{ui:1 row}} sa isa, para magkaroon ng taas ang drawing; ang mga grupong hindi kasya ay mag-scroll pahalang sa loob ng toolbar (gamitin ang mouse wheel, two-finger swipe, o {{key:Tab}} papunta sa tool). Ang toolbar na kasya na sa dalawang linya ay nananatili ang ayos sa ilalim ng {{ui:2 rows}}, dahil ang grid ay magpapatangkad lang dito. Naka-save ang pinili para sa bawat app. Sariling layout ang gamit ng touch screen at phone. May sariling setting ang Manafe3 para sa toolbar nito, sa ilalim ng {{ui:Mga setting}} › {{ui:Manafe3}}.
 
 ## Gamitin ang keyboard
 
@@ -82,7 +82,7 @@ Mula sa keyboard, pindutin ang {{key:Alt}}+{{key:Shift}}+isang arrow key habang 
 
 Sa phone, nananatiling buong lapad na sheet ang mga dialog at hindi inililipat.
 
-Sa CadCraft Studio, ang {{ui:Plot sa PDF}} dialog ng CadCraft, na maaari mong iwan nang bukas habang nagtatrabaho, ay may button sa title bar nito: ang {{ui:Open in its own window}}. Lumilipat ang dialog sa sarili nitong window na maaari mong ilagay sa ibang monitor. Ang pagsara sa dialog ay nagsasara sa window, at ang pagsara sa window ay nagsasara sa dialog.
+Sa Manafe3 Desktop, ang {{ui:Plot sa PDF}} dialog ng Manafe3, na maaari mong iwan nang bukas habang nagtatrabaho, ay may button sa title bar nito: ang {{ui:Open in its own window}}. Lumilipat ang dialog sa sarili nitong window na maaari mong ilagay sa ibang monitor. Ang pagsara sa dialog ay nagsasara sa window, at ang pagsara sa window ay nagsasara sa dialog.
 
 ## Ibalik ang mga panel
 

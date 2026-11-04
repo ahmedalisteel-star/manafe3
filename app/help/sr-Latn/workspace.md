@@ -1,17 +1,17 @@
 ---
 title: Obilazak ekrana
-summary: Svaka traka, panel i kartica u DetailCraft po njihovom nazivu na ekranu i čemu služe.
+summary: Svaka traka, panel i kartica u Manafe3 po njihovom nazivu na ekranu i čemu služe.
 keywords: ekran, raspored, traka sa alatkama, paneli, svojstva, statusna traka, izveštaji, interfejs, ui, kartice
 from: 454f74fd
 ---
 
-DetailCraft ispunjava prozor pregledača ispod trake aplikacije. Odozgo nadole: traka sa alatkama, zatim tri kolone (panel {{ui:Model}}, prikaz, panel {{ui:Svojstva}}), pa kartice izveštaja, pa statusna traka.
+Manafe3 ispunjava prozor pregledača ispod trake aplikacije. Odozgo nadole: traka sa alatkama, zatim tri kolone (panel {{ui:Model}}, prikaz, panel {{ui:Svojstva}}), pa kartice izveštaja, pa statusna traka.
 
 ## Traka aplikacije
 
-Tanka traka na samom vrhu pripada sajtu CadCraft, a ne modelu. Prikazuje naziv i verziju aplikacije, link na {{ui:O programu DetailCraft}}, {{ui:Pomoć}} (ili {{key:F1}}) za ovu pomoć, {{ui:Sačuvaj za rad van mreže}}, dugme režima ekrana i prekidač {{ui:Papir}} / {{ui:Model}}.
+Tanka traka na samom vrhu pripada sajtu Manafe3, a ne modelu. Prikazuje naziv i verziju aplikacije, link na {{ui:O programu Manafe3}}, {{ui:Pomoć}} (ili {{key:F1}}) za ovu pomoć, {{ui:Sačuvaj za rad van mreže}}, dugme režima ekrana i prekidač {{ui:Papir}} / {{ui:Model}}.
 
-- {{ui:Sačuvaj za rad van mreže}} čuva DetailCraft, njegov 3D prikaz i ovu pomoć u vašem pregledaču, pa se otvara bez veze. Kada je sačuvano, prikazuje {{ui:Spremno za rad van mreže}}; tada kliknite na njega za {{ui:Sačuvaj ponovo (preuzmi najnoviju verziju)}} ili {{ui:Ukloni kopiju za rad van mreže}}. Pogledajte [Rad van mreže](common:offline).
+- {{ui:Sačuvaj za rad van mreže}} čuva Manafe3, njegov 3D prikaz i ovu pomoć u vašem pregledaču, pa se otvara bez veze. Kada je sačuvano, prikazuje {{ui:Spremno za rad van mreže}}; tada kliknite na njega za {{ui:Sačuvaj ponovo (preuzmi najnoviju verziju)}} ili {{ui:Ukloni kopiju za rad van mreže}}. Pogledajte [Rad van mreže](common:offline).
 - {{ui:Papir}} daje svetao ekran, a {{ui:Model}} taman. 3D prikaz odmah prati; ništa u vašem modelu se ne menja.
 - Dugme režima ekrana i {{key:Ctrl+Shift+F}} smenjuju normalni prikaz, ceo ekran i ceo ekran sa skrivenim trakama. {{key:Ctrl+Shift+F}} koristi taster Control na svakom računaru, uključujući Mac. Kada su trake skrivene, pokažite na gornju ivicu ekrana (ili je dodirnite) da se vrate. {{key:Esc}} izlazi iz celog ekrana.
 
@@ -70,7 +70,7 @@ Polja za brojeve stupaju na snagu kada pritisnete {{key:Enter}} ili napustite po
 
 ## Kartice izveštaja (dole)
 
-- {{ui:Problemi}}: sve što DetailCraft nije mogao da napravi ili što želi da proverite, sa dugmetom {{ui:Izaberi}} u svakom redu. Kartica pokazuje broj u zagradama.
+- {{ui:Problemi}}: sve što Manafe3 nije mogao da napravi ili što želi da proverite, sa dugmetom {{ui:Izaberi}} u svakom redu. Kartica pokazuje broj u zagradama.
 - {{ui:Spisak materijala}}: delovi, sklopovi, i zavrtnji i sidreni štapovi, sa težinama i linkom {{ui:Preuzmi CSV}}. Kliknite oznaku dela da izaberete taj deo.
 - {{ui:Raspored savijanja}}: svaka oznaka šipke u svakom temelju, sa linkom {{ui:Preuzmi CSV}}.
 
@@ -84,4 +84,4 @@ Naslov kartice pregledača počinje tačkom (•) dok model ima izmene koje nist
 
 ## Na uskom ekranu
 
-Ispod oko 760 piksela širine, kolone se slažu: traka sa alatkama, prikaz, statusna traka, {{ui:Svojstva}}, kartice izveštaja, pa panel {{ui:Model}} na kraju. Pomerajte stranicu da dođete do njih. DetailCraft je postavljen za ekran stonog računara ili laptopa; telefon radi za gledanje, ne za detaljisanje.
+Ispod oko 760 piksela širine, kolone se slažu: traka sa alatkama, prikaz, statusna traka, {{ui:Svojstva}}, kartice izveštaja, pa panel {{ui:Model}} na kraju. Pomerajte stranicu da dođete do njih. Manafe3 je postavljen za ekran stonog računara ili laptopa; telefon radi za gledanje, ne za detaljisanje.

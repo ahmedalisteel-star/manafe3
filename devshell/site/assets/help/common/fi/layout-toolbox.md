@@ -42,7 +42,7 @@ Vasen ja oikea paneeli säilyttävät kaiken, mitä kohdassa [Järjestä paneeli
 
 ## Palaa perinteiseen asetteluun
 
-Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:CadCraft klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa paikalleen.
+Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:Manafe3 klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa paikalleen.
 
 :::note
 Puhelimessa tai ikkunassa, joka on 760 kuvapistettä leveä tai kapeampi, sovellus käyttää puhelinasettelua valinnastasi riippumatta. Leveämpi ikkuna tuo asettelusi takaisin.

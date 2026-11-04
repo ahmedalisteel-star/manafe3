@@ -6,11 +6,11 @@ order: 30
 keywords: constructability, wrench, socket, bolt access, tightening, weld size, fillet weld, minimum weld, maximum weld, water, vent hole, drain hole, galvanising, hollow section, problems
 ---
 
-DetailCraft looks for four kinds of trouble that no strength check finds, and lists them in the {{ui:Problems}} panel. They are warnings and notes to look at, not errors: the model still builds.
+Manafe3 looks for four kinds of trouble that no strength check finds, and lists them in the {{ui:Problems}} panel. They are warnings and notes to look at, not errors: the model still builds.
 
 ## A bolt a wrench cannot reach
 
-For every bolt, DetailCraft puts a socket over the head and over the nut. The socket is a cylinder as wide as the nut across its corners plus a wall of 4 mm, 60 mm long. If a beam web, a flange, a plate or a brace stands inside that cylinder, the problem names the connection, how many bolts, which part is in the way and how far from the bolt it is.
+For every bolt, Manafe3 puts a socket over the head and over the nut. The socket is a cylinder as wide as the nut across its corners plus a wall of 4 mm, 60 mm long. If a beam web, a flange, a plate or a brace stands inside that cylinder, the problem names the connection, how many bolts, which part is in the way and how far from the bolt it is.
 
 The socket is a typical impact socket. A spanner needs less room and a bigger tool more. Ask your connected assistant to run `constructability_check` with another `socketLength` to see how the answer changes.
 

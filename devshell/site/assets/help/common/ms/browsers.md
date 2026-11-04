@@ -54,7 +54,7 @@ Kami membaca ini daripada kod aplikasi 0.7, bukan daripada tekaan: setiap fail d
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS dan iOS 16.4) |
 
-CadCraft Studio membawa enjin web sendiri pada Windows, jadi ia memerlukan Windows 10 atau 11; pada Mac ia menggunakan enjin sistem, jadi ia memerlukan macOS 13.3 atau lebih baharu. Tetapan › Kemas kini dalam Studio menunjukkan sistem yang disokong oleh salinan anda.
+Manafe3 Desktop membawa enjin web sendiri pada Windows, jadi ia memerlukan Windows 10 atau 11; pada Mac ia menggunakan enjin sistem, jadi ia memerlukan macOS 13.3 atau lebih baharu. Tetapan › Kemas kini dalam Studio menunjukkan sistem yang disokong oleh salinan anda.
 
 Ini ialah versi terlama yang *boleh dimulakan*, dibaca daripada kod. Ia bukan senarai pelayar lama yang kami jalankan aplikasi di dalamnya, jadi pelayar lama yang boleh dimulakan mungkin masih tidak menyokong satu-satu ciri.
 

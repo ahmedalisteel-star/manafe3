@@ -42,7 +42,7 @@ For å ta et panel ut av gruppen, velg {{ui:Flytt ut av fanegruppen}} i panelets
 
 ## Velg hvor mange linjer verktøylinjen bruker
 
-{{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Verktøylinjerader}} har tre valg. {{ui:Bryt}} er standard: alle verktøygrupper vises, på så mange linjer som det trengs. {{ui:2 rader}} holder verktøylinjen på to linjer og {{ui:1 rad}} på én, slik at tegningen får høyden. Gruppene som ikke får plass, ruller sideveis inne i verktøylinjen (bruk musehjulet, et tofingersveip eller {{key:Tab}} til et verktøy). En verktøylinje som allerede får plass på to linjer, blir som den er under {{ui:2 rader}}, fordi et rutenett bare ville gjort den høyere. Valget lagres for hver app. En berøringsskjerm og en telefon beholder sitt eget oppsett. CadCraft har en egen innstilling for verktøylinjen, under {{ui:Innstillinger}} › {{ui:CadCraft}}.
+{{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Verktøylinjerader}} har tre valg. {{ui:Bryt}} er standard: alle verktøygrupper vises, på så mange linjer som det trengs. {{ui:2 rader}} holder verktøylinjen på to linjer og {{ui:1 rad}} på én, slik at tegningen får høyden. Gruppene som ikke får plass, ruller sideveis inne i verktøylinjen (bruk musehjulet, et tofingersveip eller {{key:Tab}} til et verktøy). En verktøylinje som allerede får plass på to linjer, blir som den er under {{ui:2 rader}}, fordi et rutenett bare ville gjort den høyere. Valget lagres for hver app. En berøringsskjerm og en telefon beholder sitt eget oppsett. Manafe3 har en egen innstilling for verktøylinjen, under {{ui:Innstillinger}} › {{ui:Manafe3}}.
 
 ## Bruk tastaturet
 
@@ -82,7 +82,7 @@ Fra tastaturet, med fokus inne i dialogen, trykker du {{key:Alt}}+{{key:Shift}}+
 
 På en telefon forblir dialoger fullbredde ark, og de flyttes ikke.
 
-I CadCraft Studio har CadCraft sin dialog {{ui:Plott til PDF}}, som du kan la stå åpen mens du arbeider, en knapp i tittellinjen: {{ui:Åpne i eget vindu}}. Dialogen flyttes inn i et eget vindu som du kan plassere på en annen skjerm. Lukker du dialogen, lukkes vinduet, og lukker du vinduet, lukkes dialogen.
+I Manafe3 Desktop har Manafe3 sin dialog {{ui:Plott til PDF}}, som du kan la stå åpen mens du arbeider, en knapp i tittellinjen: {{ui:Åpne i eget vindu}}. Dialogen flyttes inn i et eget vindu som du kan plassere på en annen skjerm. Lukker du dialogen, lukkes vinduet, og lukker du vinduet, lukkes dialogen.
 
 ## Sett panelene tilbake
 

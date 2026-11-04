@@ -42,7 +42,7 @@ Les panneaux de gauche et de droite conservent tout ce qui est décrit dans [Org
 
 ## Revenir à la disposition classique
 
-Ouvrez {{ui:Paramètres}} › {{ui:Général}} › {{ui:Disposition}} › {{ui:Espace de travail}} et choisissez {{ui:CadCraft classique}}. Chaque barre d'outils, onglet et panneau revient où il était.
+Ouvrez {{ui:Paramètres}} › {{ui:Général}} › {{ui:Disposition}} › {{ui:Espace de travail}} et choisissez {{ui:Manafe3 classique}}. Chaque barre d'outils, onglet et panneau revient où il était.
 
 :::note
 Sur un téléphone, ou dans une fenêtre de 760 pixels de large ou moins, l'application utilise sa disposition pour téléphone quel que soit votre choix. Une fenêtre plus large rétablit votre disposition.

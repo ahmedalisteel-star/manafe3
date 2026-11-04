@@ -1,17 +1,17 @@
 ---
 title: Visite de l'écran
-summary: Chaque barre, panneau et onglet de DetailCraft sous son nom à l'écran, et à quoi chacun sert.
+summary: Chaque barre, panneau et onglet de Manafe3 sous son nom à l'écran, et à quoi chacun sert.
 keywords: écran, disposition, barre d'outils, panneaux, propriétés, barre d'état, rapports, interface, onglets
 from: 454f74fd
 ---
 
-DetailCraft occupe la fenêtre du navigateur sous la barre de l'application. De haut en bas : la barre d'outils, puis trois colonnes (le panneau {{ui:Modèle}}, la vue, le panneau {{ui:Propriétés}}), puis les onglets de rapport, puis la barre d'état.
+Manafe3 occupe la fenêtre du navigateur sous la barre de l'application. De haut en bas : la barre d'outils, puis trois colonnes (le panneau {{ui:Modèle}}, la vue, le panneau {{ui:Propriétés}}), puis les onglets de rapport, puis la barre d'état.
 
 ## La barre de l'application
 
-La fine barre tout en haut appartient au site CadCraft, pas au modèle. Elle affiche le nom et la version de l'application, un lien vers {{ui:À propos de DetailCraft}}, {{ui:Aide}} (ou {{key:F1}}) pour cette aide, {{ui:Enregistrer pour le hors ligne}}, le bouton de mode d'écran et le commutateur {{ui:Papier}} / {{ui:Objet}}.
+La fine barre tout en haut appartient au site Manafe3, pas au modèle. Elle affiche le nom et la version de l'application, un lien vers {{ui:À propos de Manafe3}}, {{ui:Aide}} (ou {{key:F1}}) pour cette aide, {{ui:Enregistrer pour le hors ligne}}, le bouton de mode d'écran et le commutateur {{ui:Papier}} / {{ui:Objet}}.
 
-- {{ui:Enregistrer pour le hors ligne}} conserve DetailCraft, sa vue 3D et cette aide dans votre navigateur, pour qu'il s'ouvre sans connexion. Le bouton affiche {{ui:Prêt hors ligne}} une fois l'enregistrement fait ; cliquez-le alors pour {{ui:Enregistrer à nouveau (obtenir la version la plus récente)}} ou {{ui:Supprimer la copie hors ligne}}. Voir [Travailler hors ligne](common:offline).
+- {{ui:Enregistrer pour le hors ligne}} conserve Manafe3, sa vue 3D et cette aide dans votre navigateur, pour qu'il s'ouvre sans connexion. Le bouton affiche {{ui:Prêt hors ligne}} une fois l'enregistrement fait ; cliquez-le alors pour {{ui:Enregistrer à nouveau (obtenir la version la plus récente)}} ou {{ui:Supprimer la copie hors ligne}}. Voir [Travailler hors ligne](common:offline).
 - {{ui:Papier}} donne un écran clair et {{ui:Objet}} un écran sombre. La vue 3D suit aussitôt ; rien ne change dans votre modèle.
 - Le bouton de mode d'écran et {{key:Ctrl+Shift+F}} font défiler : normal, plein écran, et plein écran avec les barres masquées. {{key:Ctrl+Shift+F}} utilise la touche Ctrl sur tous les ordinateurs, Mac compris. Quand les barres sont masquées, pointez le bord supérieur de l'écran (ou touchez-le) pour les faire revenir. {{key:Esc}} quitte le plein écran.
 
@@ -70,7 +70,7 @@ Les champs numériques prennent effet quand vous appuyez sur {{key:Enter}} ou qu
 
 ## Les onglets de rapport (en bas)
 
-- {{ui:Problèmes}} : tout ce que DetailCraft n'a pas pu construire ou veut que vous vérifiiez, avec un bouton {{ui:Sélectionner}} sur chaque ligne. L'onglet affiche le nombre entre parenthèses.
+- {{ui:Problèmes}} : tout ce que Manafe3 n'a pas pu construire ou veut que vous vérifiiez, avec un bouton {{ui:Sélectionner}} sur chaque ligne. L'onglet affiche le nombre entre parenthèses.
 - {{ui:Nomenclature}} : pièces, assemblages, et boulons et tiges d'ancrage, avec leurs poids et un lien {{ui:Télécharger le CSV}}. Cliquez un repère de pièce pour sélectionner cette pièce.
 - {{ui:Tableau de ferraillage}} : chaque repère de barre dans chaque semelle, avec un lien {{ui:Télécharger le CSV}}.
 
@@ -84,4 +84,4 @@ Le titre de l'onglet du navigateur commence par un point (•) tant que le modè
 
 ## Sur un écran étroit
 
-En dessous d'environ 760 pixels de large, les colonnes s'empilent : barre d'outils, vue, barre d'état, {{ui:Propriétés}}, onglets de rapport, puis le panneau {{ui:Modèle}} en dernier. Faites défiler la page pour les atteindre. DetailCraft est conçu pour un écran d'ordinateur de bureau ou portable ; un téléphone convient pour regarder, pas pour détailler.
+En dessous d'environ 760 pixels de large, les colonnes s'empilent : barre d'outils, vue, barre d'état, {{ui:Propriétés}}, onglets de rapport, puis le panneau {{ui:Modèle}} en dernier. Faites défiler la page pour les atteindre. Manafe3 est conçu pour un écran d'ordinateur de bureau ou portable ; un téléphone convient pour regarder, pas pour détailler.

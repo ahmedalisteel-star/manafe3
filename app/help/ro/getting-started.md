@@ -1,11 +1,11 @@
 ---
-title: Primii pași cu DetailCraft
-summary: Ce face DetailCraft astăzi, cum îl deschideți și un prim model, de la grile până la un desen de execuție, în zece minute.
+title: Primii pași cu Manafe3
+summary: Ce face Manafe3 astăzi, cum îl deschideți și un prim model, de la grile până la un desen de execuție, în zece minute.
 keywords: primii pași, primul model, introducere, detaliere oțel, armătură, pornire rapidă, tutorial, prezentare generală
 from: 3682c0d8
 ---
 
-DetailCraft este aplicația de detaliere a oțelului și a armăturilor din familia CadCraft. Construiți un model 3D al unei structuri metalice pe grile și niveluri, o îmbinați și obțineți ce are nevoie atelierul: marcaje de piese și de ansambluri, o listă de materiale, desene de execuție pentru piese individuale, fișiere DSTV NC, un model IFC și un tabel de întinderi pentru tălpile de fundare.
+Manafe3 este aplicația de detaliere a oțelului și a armăturilor din familia Manafe3. Construiți un model 3D al unei structuri metalice pe grile și niveluri, o îmbinați și obțineți ce are nevoie atelierul: marcaje de piese și de ansambluri, o listă de materiale, desene de execuție pentru piese individuale, fișiere DSTV NC, un model IFC și un tabel de întinderi pentru tălpile de fundare.
 
 Aceasta este o versiune timpurie. Face câteva lucruri scurte, cu grijă, în loc de totul deodată. Citiți [Ce nu este încă realizat](topic:not-built-yet) înainte să planificați lucrări reale în jurul ei.
 
@@ -19,24 +19,24 @@ Aceasta este o versiune timpurie. Face câteva lucruri scurte, cu grijă, în lo
 - Marcaje de piese și de ansambluri care se actualizează singure după fiecare modificare.
 - Exporturi: IFC4, fișiere DSTV NC (profile I și plăci), listă de materiale ca CSV, tabel de întinderi ca CSV și un PDF cu desenul de execuție al unei piese.
 
-## Deschideți DetailCraft
+## Deschideți Manafe3
 
-1. Deschideți DetailCraft într-un browser de calculator: Chrome, Edge, Firefox sau Safari. Vedeți [Browsere și calculatoare](common:browsers).
+1. Deschideți Manafe3 într-un browser de calculator: Chrome, Edge, Firefox sau Safari. Vedeți [Browsere și calculatoare](common:browsers).
 2. Așteptați până când ecranul se umple. Bara de stare din partea de jos spune „Gata. Deschideți Exemplul sau setați grile și niveluri și începeți să plasați elemente.”
 
 Vizualizarea modelului are nevoie de grafică 3D (WebGL). Dacă mijlocul ecranului spune „Acest browser nu a putut porni grafica 3D (WebGL)”, vedeți [Depanare](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Modelele dvs. rămân pe calculatorul dvs. Deschiderea unui model îl citește în browser, iar salvarea descarcă un fișier. Nimic nu este încărcat. Salvarea în cloud nu este disponibilă încă. Vedeți [Unde ajung fișierele dvs.](common:your-files). Ca să folosiți DetailCraft mai târziu fără conexiune, alegeți {{ui:Salvare pentru offline}} din bara aplicației o dată, cât timp sunteți online; vedeți [Lucrul offline](common:offline).
+Modelele dvs. rămân pe calculatorul dvs. Deschiderea unui model îl citește în browser, iar salvarea descarcă un fișier. Nimic nu este încărcat. Salvarea în cloud nu este disponibilă încă. Vedeți [Unde ajung fișierele dvs.](common:your-files). Ca să folosiți Manafe3 mai târziu fără conexiune, alegeți {{ui:Salvare pentru offline}} din bara aplicației o dată, cât timp sunteți online; vedeți [Lucrul offline](common:offline).
 :::
 
 :::offline
-Sunteți offline. DetailCraft funcționează fără conexiune doar dacă a fost salvat pentru utilizare offline mai întâi: butonul {{ui:Salvare pentru offline}} din bara aplicației afișează atunci {{ui:Pregătit pentru offline}}. Vedeți [Lucrul offline](common:offline).
+Sunteți offline. Manafe3 funcționează fără conexiune doar dacă a fost salvat pentru utilizare offline mai întâi: butonul {{ui:Salvare pentru offline}} din bara aplicației afișează atunci {{ui:Pregătit pentru offline}}. Vedeți [Lucrul offline](common:offline).
 :::
 
 ## Priviți mai întâi exemplul
 
-Cel mai rapid mod de a vedea ce creează DetailCraft este cadrul de exemplu.
+Cel mai rapid mod de a vedea ce creează Manafe3 este cadrul de exemplu.
 
 1. Alegeți {{ui:Exemplu}} din grupul {{ui:Fișier}} al barei de instrumente.
 2. Vizualizarea arată un cadru cu două deschideri: șase stâlpi cu plăci de bază, patru grinzi cu plăci de capăt, o contravântuire și șapte tălpi de fundare cu armătură.
@@ -49,7 +49,7 @@ Plimbarea [Explorați cadrul de exemplu](topic:sample-model) parcurge piesele un
 
 Un model nou are deja grilele 1 până la 3 pe A până la B, la 6000 mm, și două niveluri: Nivel 1 la 0 și Nivel 2 la 4000.
 
-1. Alegeți {{ui:Nou}}. Dacă modelul curent are modificări, DetailCraft întreabă dacă doriți să le salvați mai întâi.
+1. Alegeți {{ui:Nou}}. Dacă modelul curent are modificări, Manafe3 întreabă dacă doriți să le salvați mai întâi.
 2. Alegeți {{ui:Plan}} deasupra vizualizării. Lista de niveluri de lângă el alege Nivel 1.
 3. Alegeți {{ui:Stâlp}} din bara de instrumente sau apăsați {{key:C}}.
 4. Faceți clic pe intersecția grilelor A/1. Un stâlp W12x50 apare de la Nivel 1 până la Nivel 2. Bara de stare spune unde a ajuns.

@@ -42,7 +42,7 @@ Paneeli rühmast välja võtmiseks vali selle {{ui:⋯}} menüüst {{ui:Teisalda
 
 ## Vali, mitu rida tööriistariba kasutab
 
-{{ui:Sätted}} › {{ui:Üldine}} › {{ui:Tööriistariba read}} pakub kolme valikut. Vaikimisi on {{ui:Mähi}}: iga tööriistarühm kuvatakse nii mitmel real, kui vaja. {{ui:2 rida}} hoiab tööriistariba kahel real ja {{ui:1 rida}} ühel, nii saab joonis rohkem kõrgust; rühmad, mis ei mahu, kerivad tööriistariba sees külgsuunas (kasuta hiireratast, kahe sõrmega pühkimist või {{key:Tab}} klahvi tööriistani liikumiseks). Tööriistariba, mis juba mahub kahele reale, jääb valiku {{ui:2 rida}} korral samaks, sest ruudustik muudaks selle ainult kõrgemaks. Valik säilib iga rakenduse kohta eraldi. Puuteekraan ja telefon säilitavad oma paigutuse. CadCraftil on oma tööriistariba seadistus jaotises {{ui:Sätted}} › {{ui:CadCraft}}.
+{{ui:Sätted}} › {{ui:Üldine}} › {{ui:Tööriistariba read}} pakub kolme valikut. Vaikimisi on {{ui:Mähi}}: iga tööriistarühm kuvatakse nii mitmel real, kui vaja. {{ui:2 rida}} hoiab tööriistariba kahel real ja {{ui:1 rida}} ühel, nii saab joonis rohkem kõrgust; rühmad, mis ei mahu, kerivad tööriistariba sees külgsuunas (kasuta hiireratast, kahe sõrmega pühkimist või {{key:Tab}} klahvi tööriistani liikumiseks). Tööriistariba, mis juba mahub kahele reale, jääb valiku {{ui:2 rida}} korral samaks, sest ruudustik muudaks selle ainult kõrgemaks. Valik säilib iga rakenduse kohta eraldi. Puuteekraan ja telefon säilitavad oma paigutuse. Manafe3il on oma tööriistariba seadistus jaotises {{ui:Sätted}} › {{ui:Manafe3}}.
 
 ## Klaviatuuri kasutamine
 
@@ -82,7 +82,7 @@ Klaviatuurilt vajuta dialoogi sees fookusega {{key:Alt}}+{{key:Shift}}+noolenupp
 
 Telefonis jäävad dialoogid kogu laiusega lehtedeks ega liigu.
 
-CadCraft Studios on CadCrafti dialoog {{ui:Väljasta PDF-iks}}, mille võid töö ajal lahti hoida, pealkirjaribal nupp {{ui:Ava eraldi aknas}}. Dialoog liigub oma aknasse, mille võid panna teisele monitorile. Dialoogi sulgemine sulgeb akna ja akna sulgemine sulgeb dialoogi.
+Manafe3 Desktops on Manafe3i dialoog {{ui:Väljasta PDF-iks}}, mille võid töö ajal lahti hoida, pealkirjaribal nupp {{ui:Ava eraldi aknas}}. Dialoog liigub oma aknasse, mille võid panna teisele monitorile. Dialoogi sulgemine sulgeb akna ja akna sulgemine sulgeb dialoogi.
 
 ## Paneelide tagasipanemine
 

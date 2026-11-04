@@ -54,7 +54,7 @@ from: a11b09b1
 | Firefox | 93 |
 | Safari（Mac、iPad、iPhone） | 16.4（macOS 13.3、iPadOS 與 iOS 16.4） |
 
-CadCraft Studio 在 Windows 上自帶網頁引擎，所以需要 Windows 10 或 11；在 Mac 上則使用系統內建的引擎，所以需要 macOS 13.3 或更新版本。Studio 中的「設定」›「更新」會顯示這份複本執行於什麼之上。
+Manafe3 Desktop 在 Windows 上自帶網頁引擎，所以需要 Windows 10 或 11；在 Mac 上則使用系統內建的引擎，所以需要 macOS 13.3 或更新版本。Studio 中的「設定」›「更新」會顯示這份複本執行於什麼之上。
 
 這是從程式碼判讀出的、能「啟動」的最舊版本。它並不是我們實際執行過應用程式的舊版瀏覽器清單，因此能啟動的較舊瀏覽器仍可能缺少某些功能。
 

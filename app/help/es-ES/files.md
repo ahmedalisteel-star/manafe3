@@ -1,17 +1,17 @@
 ---
 title: Abrir, guardar y exportar archivos
-summary: El archivo de modelo de DetailCraft, cada exportación que escribe, adónde van los archivos y qué cambia según el navegador y la conexión.
+summary: El archivo de modelo de Manafe3, cada exportación que escribe, adónde van los archivos y qué cambia según el navegador y la conexión.
 keywords: abrir, guardar, exportar, descargar, archivo, json, ifc, nc1, dstv, csv, pdf, zip, formatos, importar
 from: bd715ea3
 ---
 
-DetailCraft tiene un archivo propio, el modelo, y cinco exportaciones. Cada guardado y cada exportación es una descarga. No se sube nada y no se conserva nada en un servidor.
+Manafe3 tiene un archivo propio, el modelo, y cinco exportaciones. Cada guardado y cada exportación es una descarga. No se sube nada y no se conserva nada en un servidor.
 
 ## El archivo de modelo
 
-Un modelo de DetailCraft se guarda como `<nombre>.detailcraft.json`, donde `<nombre>` es el nombre del modelo en el panel {{ui:Modelo}}. Contiene las rejillas, los niveles, los elementos (con sus taladros y despuntes), las conexiones y sus ajustes, las zapatas y sus perfiles a medida.
+Un modelo de Manafe3 se guarda como `<nombre>.detailcraft.json`, donde `<nombre>` es el nombre del modelo en el panel {{ui:Modelo}}. Contiene las rejillas, los niveles, los elementos (con sus taladros y despuntes), las conexiones y sus ajustes, las zapatas y sus perfiles a medida.
 
-Las piezas, marcas, tornillos, soldaduras y barras no se almacenan: DetailCraft las vuelve a calcular a partir del modelo cada vez que lo abre. Por eso un archivo de modelo es pequeño.
+Las piezas, marcas, tornillos, soldaduras y barras no se almacenan: Manafe3 las vuelve a calcular a partir del modelo cada vez que lo abre. Por eso un archivo de modelo es pequeño.
 
 ### Guardar
 
@@ -38,21 +38,21 @@ Safari guarda en su carpeta Descargas. Para cambiar la carpeta, abra **Safari, A
 1. Elija {{ui:Abrir}} en el grupo {{ui:Archivo}}, o pulse {{key:Mod+O}}.
 2. Elija un archivo `.detailcraft.json`.
 
-O arrastre el archivo desde {{pick:mac=Finder|windows=el Explorador de archivos|linux=su gestor de archivos}} y suéltelo en la vista. La vista dice "Drop a DetailCraft model to open it" mientras arrastra.
+O arrastre el archivo desde {{pick:mac=Finder|windows=el Explorador de archivos|linux=su gestor de archivos}} y suéltelo en la vista. La vista dice "Drop a Manafe3 model to open it" mientras arrastra.
 
-Si el modelo abierto tiene cambios sin guardar, DetailCraft pregunta antes: {{ui:Cancelar}}, {{ui:Descartar cambios}} o {{ui:Guardar primero}}.
+Si el modelo abierto tiene cambios sin guardar, Manafe3 pregunta antes: {{ui:Cancelar}}, {{ui:Descartar cambios}} o {{ui:Guardar primero}}.
 
-DetailCraft comprueba cada campo de un archivo antes de usarlo. Todo lo que no puede usar se deja fuera y la barra de estado dice qué, por ejemplo "2 members were not valid and left out." Un modelo guardado por una versión más reciente de DetailCraft se rechaza con un mensaje en lugar de abrirse a medias.
+Manafe3 comprueba cada campo de un archivo antes de usarlo. Todo lo que no puede usar se deja fuera y la barra de estado dice qué, por ejemplo "2 members were not valid and left out." Un modelo guardado por una versión más reciente de Manafe3 se rechaza con un mensaje en lugar de abrirse a medias.
 
 ### Qué abre
 
-Sus propios archivos de modelo (`.json`, hasta 50 MB) y archivos IFC (`.ifc`, IFC2X3 o IFC4, hasta 200 MB). Un archivo IFC, abierto o traído con {{ui:Importar IFC}}, se convierte en un modelo nuevo con sus vigas, pilares, elementos, placas, rejillas y niveles, con los taladros y despuntes cortados en ellos y sus tornillos como tornillos sueltos; un informe enumera lo que se dejó fuera. Consulte [Exportación IFC](topic:ifc-export#import). Todavía no abre DWG, DXF ni el modelo de ningún otro programa de detallado; al intentarlo muestra "DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc)."
+Sus propios archivos de modelo (`.json`, hasta 50 MB) y archivos IFC (`.ifc`, IFC2X3 o IFC4, hasta 200 MB). Un archivo IFC, abierto o traído con {{ui:Importar IFC}}, se convierte en un modelo nuevo con sus vigas, pilares, elementos, placas, rejillas y niveles, con los taladros y despuntes cortados en ellos y sus tornillos como tornillos sueltos; un informe enumera lo que se dejó fuera. Consulte [Exportación IFC](topic:ifc-export#import). Todavía no abre DWG, DXF ni el modelo de ningún otro programa de detallado; al intentarlo muestra "Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc)."
 
 ## Trabajo perdido, archivos recientes, la aplicación de escritorio
 
-- Mientras el modelo tiene cambios sin guardar, DetailCraft conserva una copia en este navegador. Si la pestaña o el navegador se detienen antes de que guarde, la próxima vez que abra DetailCraft pregunta **¿Recuperar su trabajo?**: recupere la copia, o déjela. Consulte [Recuperar su trabajo](common:recover).
-- Los modelos que abrió recientemente se enumeran en la pantalla de inicio cuando el navegador permite que DetailCraft los abra de nuevo; haga clic en uno para reabrirlo.
-- En la aplicación de escritorio, {{ui:Guardar}} escribe el modelo de nuevo en el archivo que abrió (en el navegador descarga una copia), y al hacer doble clic en un modelo de DetailCraft o en un archivo IFC se abre en DetailCraft.
+- Mientras el modelo tiene cambios sin guardar, Manafe3 conserva una copia en este navegador. Si la pestaña o el navegador se detienen antes de que guarde, la próxima vez que abra Manafe3 pregunta **¿Recuperar su trabajo?**: recupere la copia, o déjela. Consulte [Recuperar su trabajo](common:recover).
+- Los modelos que abrió recientemente se enumeran en la pantalla de inicio cuando el navegador permite que Manafe3 los abra de nuevo; haga clic en uno para reabrirlo.
+- En la aplicación de escritorio, {{ui:Guardar}} escribe el modelo de nuevo en el archivo que abrió (en el navegador descarga una copia), y al hacer doble clic en un modelo de Manafe3 o en un archivo IFC se abre en Manafe3.
 
 ## Exportaciones
 
@@ -79,13 +79,13 @@ El texto del PDF usa la fuente estándar Helvetica. Los caracteres que no tiene 
 
 ## Unidades
 
-DetailCraft trabaja en milímetros en todo: rejillas, niveles, coordenadas, perfiles, taladros y cada exportación. Los nombres de perfil conservan su forma publicada (W12x50 es una designación de EE. UU. aunque sus dimensiones se muestren en mm). Todavía no hay entrada en unidades imperiales.
+Manafe3 trabaja en milímetros en todo: rejillas, niveles, coordenadas, perfiles, taladros y cada exportación. Los nombres de perfil conservan su forma publicada (W12x50 es una designación de EE. UU. aunque sus dimensiones se muestren en mm). Todavía no hay entrada en unidades imperiales.
 
 ## Con y sin conexión
 
-Abrir, guardar y exportar ocurren en su navegador, así que funcionan igual con o sin conexión una vez cargado DetailCraft.
+Abrir, guardar y exportar ocurren en su navegador, así que funcionan igual con o sin conexión una vez cargado Manafe3.
 
-Para usar DetailCraft sin conexión más adelante, elija {{ui:Guardar para uso sin conexión}} en la barra de la aplicación mientras está conectado. El botón va contando ("Saving 3 of 20") y después dice {{ui:Listo sin conexión}}. La copia guardada incluye la biblioteca de gráficos 3D (unos 2,6 MB) y esta ayuda, de modo que, una vez guardada, la vista 3D, todas las exportaciones y la ayuda funcionan sin conexión. Los detalles, y lo que aún necesita conexión: [Trabajar sin conexión](common:offline).
+Para usar Manafe3 sin conexión más adelante, elija {{ui:Guardar para uso sin conexión}} en la barra de la aplicación mientras está conectado. El botón va contando ("Saving 3 of 20") y después dice {{ui:Listo sin conexión}}. La copia guardada incluye la biblioteca de gráficos 3D (unos 2,6 MB) y esta ayuda, de modo que, una vez guardada, la vista 3D, todas las exportaciones y la ayuda funcionan sin conexión. Los detalles, y lo que aún necesita conexión: [Trabajar sin conexión](common:offline).
 
 :::offline
 Está sin conexión. Si la barra de la aplicación muestra {{ui:Listo sin conexión}}, abrir, guardar y exportar funcionan como de costumbre. Si no, mantenga abierta esta pestaña, no la recargue hasta que vuelva a tener conexión y guarde su modelo ahora.
@@ -95,4 +95,4 @@ El guardado en la nube aún no está disponible, y todavía no hay versiones de 
 
 ## Trabajo sin guardar
 
-DetailCraft conserva el modelo solo en la pestaña abierta. Si cierra o recarga la pestaña con cambios sin guardar, el navegador pregunta si desea abandonar la página; su redacción es la propia del navegador. Guarde a menudo con {{key:Mod+S}}.
+Manafe3 conserva el modelo solo en la pestaña abierta. Si cierra o recarga la pestaña con cambios sin guardar, el navegador pregunta si desea abandonar la página; su redacción es la propia del navegador. Guarde a menudo con {{key:Mod+S}}.

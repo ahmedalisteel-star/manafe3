@@ -42,7 +42,7 @@ Ili kutoa paneli kwenye kundi, chagua {{ui:Toka kwenye kundi la vichupo}} kwenye
 
 ## Chagua idadi ya safu za upau wa zana
 
-{{ui:Mipangilio}} › {{ui:Kimataifa}} › {{ui:Safu za upau wa zana}} ina chaguo tatu. {{ui:Funga kwenye mstari}} ndiyo ya kawaida: kila kundi la zana linaonyeshwa, kwenye mistari mingi kadri inavyohitajika. {{ui:Safu 2}} inaweka upau wa zana kwenye mistari miwili, na {{ui:Safu 1}} kwenye mstari mmoja, ili mchoro upate urefu; makundi yasiyotoshea yanasogea kando ndani ya upau wa zana (tumia gurudumu la kipanya, kutelezesha vidole viwili, au {{key:Tab}} hadi kwenye zana). Upau wa zana unaotoshea tayari kwenye mistari miwili unabaki kama ulivyo chini ya {{ui:Safu 2}}, kwa sababu gridi ingeufanya mrefu zaidi tu. Chaguo linahifadhiwa kwa kila programu. Skrini ya kugusa na simu zinaendelea na mpangilio wao. CadCraft ina mpangilio wake wa upau wake, chini ya {{ui:Mipangilio}} › {{ui:CadCraft}}.
+{{ui:Mipangilio}} › {{ui:Kimataifa}} › {{ui:Safu za upau wa zana}} ina chaguo tatu. {{ui:Funga kwenye mstari}} ndiyo ya kawaida: kila kundi la zana linaonyeshwa, kwenye mistari mingi kadri inavyohitajika. {{ui:Safu 2}} inaweka upau wa zana kwenye mistari miwili, na {{ui:Safu 1}} kwenye mstari mmoja, ili mchoro upate urefu; makundi yasiyotoshea yanasogea kando ndani ya upau wa zana (tumia gurudumu la kipanya, kutelezesha vidole viwili, au {{key:Tab}} hadi kwenye zana). Upau wa zana unaotoshea tayari kwenye mistari miwili unabaki kama ulivyo chini ya {{ui:Safu 2}}, kwa sababu gridi ingeufanya mrefu zaidi tu. Chaguo linahifadhiwa kwa kila programu. Skrini ya kugusa na simu zinaendelea na mpangilio wao. Manafe3 ina mpangilio wake wa upau wake, chini ya {{ui:Mipangilio}} › {{ui:Manafe3}}.
 
 ## Tumia kibodi
 
@@ -82,7 +82,7 @@ Kwa kibodi, bonyeza {{key:Alt}}+{{key:Shift}}+kitufe cha mshale ukiwa umelenga n
 
 Kwenye simu, visanduku vya mazungumzo vinabaki karatasi kamili za upana wote na havihamishwi.
 
-Katika CadCraft Studio, kisanduku cha {{ui:Chapisha kwenda PDF}} cha CadCraft, ambacho unaweza kukiacha wazi unapofanya kazi, kina kitufe kwenye upau wake wa kichwa, {{ui:Fungua kwenye dirisha lake}}. Kisanduku kinahamia kwenye dirisha lake lenyewe ambalo unaweza kuliweka kwenye skrini nyingine. Kufunga kisanduku kunafunga dirisha, na kufunga dirisha kunafunga kisanduku.
+Katika Manafe3 Desktop, kisanduku cha {{ui:Chapisha kwenda PDF}} cha Manafe3, ambacho unaweza kukiacha wazi unapofanya kazi, kina kitufe kwenye upau wake wa kichwa, {{ui:Fungua kwenye dirisha lake}}. Kisanduku kinahamia kwenye dirisha lake lenyewe ambalo unaweza kuliweka kwenye skrini nyingine. Kufunga kisanduku kunafunga dirisha, na kufunga dirisha kunafunga kisanduku.
 
 ## Rudisha paneli
 

@@ -1,12 +1,12 @@
 ---
 title: NC file fields
-summary: What DetailCraft writes in each DSTV NC file, field by field, and how faces and coordinates are measured.
+summary: What Manafe3 writes in each DSTV NC file, field by field, and how faces and coordinates are measured.
 section: reference
 order: 40
 keywords: nc1, dstv, nc file, st block, ak, bo, header, faces, coordinates, cnc, format
 ---
 
-Each `.nc1` file describes one part mark. Lines end with CR LF. Text fields carry plain ASCII; other characters become "?". The second line is a comment, `** DetailCraft <mark>.nc1`.
+Each `.nc1` file describes one part mark. Lines end with CR LF. Text fields carry plain ASCII; other characters become "?". The second line is a comment, `** Manafe3 <mark>.nc1`.
 
 ## Header (ST)
 
@@ -30,7 +30,7 @@ Each `.nc1` file describes one part mark. Lines end with CR LF. Text fields carr
 | Saw angles (4 fields) | 0 (square) | ← | ← | ← | ← |
 | Text fields (4) | `-` | ← | ← | ← | ← |
 
-Plates follow the standard's column "for the sheets". The standard has no column for round tubes: DetailCraft writes the diameter as both height and flange width and the wall as both thicknesses.
+Plates follow the standard's column "for the sheets". The standard has no column for round tubes: Manafe3 writes the diameter as both height and flange width and the wall as both thicknesses.
 
 ## Outer contours (AK)
 
@@ -48,7 +48,7 @@ One line per hole: face, x, y, diameter, depth 0 (through). All holes are includ
 
 ## Faces and coordinates
 
-Each profile is placed as the standard's figure of profile positions draws it (DSTV 1998, p. 7): x along the part, Y across, Z up from the behind face, with the zero point at the outside corner. DetailCraft never mirrors a part to fit the figure.
+Each profile is placed as the standard's figure of profile positions draws it (DSTV 1998, p. 7): x along the part, Y across, Z up from the behind face, with the zero point at the outside corner. Manafe3 never mirrors a part to fit the figure.
 
 | Face | I-shape | Channel | Angle | Rectangular HSS | Plate |
 |---|---|---|---|---|---|
@@ -67,4 +67,4 @@ Check how your machine software reads channel faces before cutting: some program
 
 ## Not written
 
-Bevels, inner contours, markings (SI), saw angles other than square, slotted holes, holes in round tubes (DetailCraft has none), and copes on angles and round tubes.
+Bevels, inner contours, markings (SI), saw angles other than square, slotted holes, holes in round tubes (Manafe3 has none), and copes on angles and round tubes.

@@ -41,4 +41,4 @@ Jy is nou vanlyn. As hierdie program vir vanlyn gebruik gestoor is, werk alles h
 Safari verwyder gestoorde webwerfdata van webwerwe wat jy vir etlike weke nie besoek het nie. Maak die program van tyd tot tyd oop terwyl jy aanlyn is, of stoor dit weer voor 'n reis.
 :::
 
-- CadCraft Studio, die lessenaarprogram met al agt programme in een installasie, is op getcadcraft.com/download.
+- Manafe3 Desktop, die lessenaarprogram met al agt programme in een installasie, is op getcadcraft.com/download.

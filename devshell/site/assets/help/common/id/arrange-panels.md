@@ -42,7 +42,7 @@ Untuk mengeluarkan panel dari grup, pilih {{ui:Move out of the tab group}} di me
 
 ## Pilih berapa baris yang dipakai bilah alat
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} memiliki tiga pilihan. {{ui:Wrap}} adalah bawaan: setiap grup alat tampil, di sebanyak baris yang dibutuhkan. {{ui:2 rows}} membatasi bilah alat menjadi dua baris dan {{ui:1 row}} menjadi satu baris, sehingga gambar mendapat lebih banyak tinggi; grup yang tidak muat akan digulir ke samping di dalam bilah alat (gunakan roda mouse, geser dua jari, atau {{key:Tab}} ke sebuah alat). Bilah alat yang sudah muat dalam dua baris tetap seperti semula di bawah {{ui:2 rows}}, karena kisi hanya akan membuatnya lebih tinggi. Pilihan ini disimpan untuk setiap aplikasi. Layar sentuh dan ponsel tetap memakai tata letaknya sendiri. CadCraft punya pengaturan sendiri untuk bilah alatnya, di {{ui:Settings}} › {{ui:CadCraft}}.
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} memiliki tiga pilihan. {{ui:Wrap}} adalah bawaan: setiap grup alat tampil, di sebanyak baris yang dibutuhkan. {{ui:2 rows}} membatasi bilah alat menjadi dua baris dan {{ui:1 row}} menjadi satu baris, sehingga gambar mendapat lebih banyak tinggi; grup yang tidak muat akan digulir ke samping di dalam bilah alat (gunakan roda mouse, geser dua jari, atau {{key:Tab}} ke sebuah alat). Bilah alat yang sudah muat dalam dua baris tetap seperti semula di bawah {{ui:2 rows}}, karena kisi hanya akan membuatnya lebih tinggi. Pilihan ini disimpan untuk setiap aplikasi. Layar sentuh dan ponsel tetap memakai tata letaknya sendiri. Manafe3 punya pengaturan sendiri untuk bilah alatnya, di {{ui:Settings}} › {{ui:Manafe3}}.
 
 ## Gunakan keyboard
 
@@ -82,7 +82,7 @@ Dari keyboard, tekan {{key:Alt}}+{{key:Shift}}+tombol panah saat fokus berada di
 
 Di ponsel, dialog tetap berupa lembar lebar penuh dan tidak dapat dipindahkan.
 
-Di CadCraft Studio, dialog {{ui:Plot to PDF}} milik CadCraft, yang boleh Anda biarkan terbuka saat bekerja, memiliki tombol di bilah judulnya, {{ui:Open in its own window}}. Dialog pindah ke jendelanya sendiri yang dapat Anda letakkan di monitor lain. Menutup dialog akan menutup jendela, dan menutup jendela akan menutup dialog.
+Di Manafe3 Desktop, dialog {{ui:Plot to PDF}} milik Manafe3, yang boleh Anda biarkan terbuka saat bekerja, memiliki tombol di bilah judulnya, {{ui:Open in its own window}}. Dialog pindah ke jendelanya sendiri yang dapat Anda letakkan di monitor lain. Menutup dialog akan menutup jendela, dan menutup jendela akan menutup dialog.
 
 ## Kembalikan panel
 

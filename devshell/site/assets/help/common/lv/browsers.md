@@ -54,7 +54,7 @@ Mēs to nolasām no 0.7 lietotņu koda, nevis minam: katrs fails tika apstrādā
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS un iOS 16.4) |
 
-CadCraft Studio pats satur savu tīmekļa dzinēju Windows, tāpēc tam vajag Windows 10 vai 11; Mac tas izmanto sistēmas dzinēju, tāpēc vajag macOS 13.3 vai jaunāku. Studio sadaļā Iestatījumi › Atjauninājumi redzams, uz ko darbojas jūsu kopija.
+Manafe3 Desktop pats satur savu tīmekļa dzinēju Windows, tāpēc tam vajag Windows 10 vai 11; Mac tas izmanto sistēmas dzinēju, tāpēc vajag macOS 13.3 vai jaunāku. Studio sadaļā Iestatījumi › Atjauninājumi redzams, uz ko darbojas jūsu kopija.
 
 Šī ir vecākā versija, kas *sāk darbu*, nolasīta no koda. Tas nav to vecāku pārlūkprogrammu saraksts, kurās mēs lietotnes esam palaiduši, tāpēc vecāka, kas sāk darbu, var joprojām nepazīt kādu iespēju.
 

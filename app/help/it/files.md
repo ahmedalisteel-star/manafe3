@@ -1,17 +1,17 @@
 ---
 title: Aprire, salvare ed esportare i file
-summary: Il file di modello di DetailCraft, ogni esportazione che scrive, dove finiscono i file e cosa cambia in base al browser e alla connessione.
+summary: Il file di modello di Manafe3, ogni esportazione che scrive, dove finiscono i file e cosa cambia in base al browser e alla connessione.
 keywords: aprire, salvare, esportare, scaricare, file, json, ifc, nc1, dstv, csv, pdf, zip, formati, importare
 from: bd715ea3
 ---
 
-DetailCraft ha un solo file proprio, il modello, e cinque esportazioni. Ogni salvataggio e ogni esportazione è un download. Non viene caricato nulla e nulla viene conservato su un server.
+Manafe3 ha un solo file proprio, il modello, e cinque esportazioni. Ogni salvataggio e ogni esportazione è un download. Non viene caricato nulla e nulla viene conservato su un server.
 
 ## Il file di modello
 
-Un modello di DetailCraft viene salvato come `<nome>.detailcraft.json`, dove `<nome>` è il nome del modello nel pannello {{ui:Modello}}. Contiene le griglie, i livelli, le aste (con i loro fori e scassi), le unioni e le relative impostazioni, i plinti e i profili personalizzati.
+Un modello di Manafe3 viene salvato come `<nome>.detailcraft.json`, dove `<nome>` è il nome del modello nel pannello {{ui:Modello}}. Contiene le griglie, i livelli, le aste (con i loro fori e scassi), le unioni e le relative impostazioni, i plinti e i profili personalizzati.
 
-Parti, marche, bulloni, saldature e barre non vengono memorizzati: DetailCraft li ricalcola dal modello a ogni apertura. Per questo un file di modello è piccolo.
+Parti, marche, bulloni, saldature e barre non vengono memorizzati: Manafe3 li ricalcola dal modello a ogni apertura. Per questo un file di modello è piccolo.
 
 ### Salvare
 
@@ -38,21 +38,21 @@ Safari salva nella cartella Download. Per cambiare cartella, aprire **Safari, Im
 1. Scegliere {{ui:Apri}} nel gruppo {{ui:File}}, oppure premere {{key:Mod+O}}.
 2. Selezionare un file `.detailcraft.json`.
 
-In alternativa, trascinare il file da {{pick:mac=Finder|windows=Esplora file|linux=il file manager}} e rilasciarlo sulla vista. Durante il trascinamento la vista indica "Rilasciare un modello DetailCraft per aprirlo".
+In alternativa, trascinare il file da {{pick:mac=Finder|windows=Esplora file|linux=il file manager}} e rilasciarlo sulla vista. Durante il trascinamento la vista indica "Rilasciare un modello Manafe3 per aprirlo".
 
-Se il modello aperto ha modifiche non salvate, DetailCraft chiede prima: {{ui:Annulla}}, {{ui:Scarta le modifiche}} o {{ui:Salva prima}}.
+Se il modello aperto ha modifiche non salvate, Manafe3 chiede prima: {{ui:Annulla}}, {{ui:Scarta le modifiche}} o {{ui:Salva prima}}.
 
-DetailCraft controlla ogni campo di un file prima di usarlo. Ciò che non può usare viene escluso e la barra di stato dice cosa, ad esempio "2 aste non erano valide e sono state escluse." Un modello salvato da una versione più recente di DetailCraft viene rifiutato con un messaggio invece di essere aperto in modo approssimativo.
+Manafe3 controlla ogni campo di un file prima di usarlo. Ciò che non può usare viene escluso e la barra di stato dice cosa, ad esempio "2 aste non erano valide e sono state escluse." Un modello salvato da una versione più recente di Manafe3 viene rifiutato con un messaggio invece di essere aperto in modo approssimativo.
 
 ### Cosa apre
 
-I propri file di modello (`.json`, fino a 50 MB) e i file IFC (`.ifc`, IFC2X3 o IFC4, fino a 200 MB). Un file IFC, aperto o importato con {{ui:Importa IFC}}, diventa un nuovo modello con le sue travi, i pilastri, le aste, le piastre, le griglie e i livelli, con i fori e gli scassi praticati e i bulloni come bulloni singoli; un rapporto elenca ciò che è stato escluso. Vedere [Esportazione IFC](topic:ifc-export#import). Non apre ancora file DWG, DXF né i modelli di altri programmi di dettaglio; il tentativo mostra "DetailCraft apre i propri modelli (.detailcraft.json) e i file IFC (.ifc)."
+I propri file di modello (`.json`, fino a 50 MB) e i file IFC (`.ifc`, IFC2X3 o IFC4, fino a 200 MB). Un file IFC, aperto o importato con {{ui:Importa IFC}}, diventa un nuovo modello con le sue travi, i pilastri, le aste, le piastre, le griglie e i livelli, con i fori e gli scassi praticati e i bulloni come bulloni singoli; un rapporto elenca ciò che è stato escluso. Vedere [Esportazione IFC](topic:ifc-export#import). Non apre ancora file DWG, DXF né i modelli di altri programmi di dettaglio; il tentativo mostra "Manafe3 apre i propri modelli (.detailcraft.json) e i file IFC (.ifc)."
 
 ## Lavoro perso, file recenti, app desktop
 
-- Finché il modello ha modifiche non salvate, DetailCraft ne conserva una copia in questo browser. Se la scheda o il browser si arresta prima del salvataggio, alla successiva apertura di DetailCraft viene chiesto **Recuperare il lavoro?**: recuperare la copia oppure scartarla. Vedere [Recuperare il lavoro](common:recover).
-- I modelli aperti di recente sono elencati nella schermata iniziale quando il browser consente a DetailCraft di riaprirli; fare clic su uno per riaprirlo.
-- Nell'app desktop, {{ui:Salva}} riscrive il modello nel file aperto (nel browser scarica una copia) e un doppio clic su un modello DetailCraft o su un file IFC lo apre in DetailCraft.
+- Finché il modello ha modifiche non salvate, Manafe3 ne conserva una copia in questo browser. Se la scheda o il browser si arresta prima del salvataggio, alla successiva apertura di Manafe3 viene chiesto **Recuperare il lavoro?**: recuperare la copia oppure scartarla. Vedere [Recuperare il lavoro](common:recover).
+- I modelli aperti di recente sono elencati nella schermata iniziale quando il browser consente a Manafe3 di riaprirli; fare clic su uno per riaprirlo.
+- Nell'app desktop, {{ui:Salva}} riscrive il modello nel file aperto (nel browser scarica una copia) e un doppio clic su un modello Manafe3 o su un file IFC lo apre in Manafe3.
 
 ## Esportazioni
 
@@ -79,13 +79,13 @@ Il testo nel PDF usa il carattere standard Helvetica. I caratteri che non contie
 
 ## Unità
 
-DetailCraft lavora ovunque in millimetri: griglie, livelli, coordinate, profili, fori e ogni esportazione. I nomi dei profili mantengono la forma pubblicata (W12x50 è una designazione statunitense anche se le sue dimensioni sono mostrate in mm). Non esiste ancora un input in unità imperiali.
+Manafe3 lavora ovunque in millimetri: griglie, livelli, coordinate, profili, fori e ogni esportazione. I nomi dei profili mantengono la forma pubblicata (W12x50 è una designazione statunitense anche se le sue dimensioni sono mostrate in mm). Non esiste ancora un input in unità imperiali.
 
 ## Online e offline
 
-Aprire, salvare ed esportare avvengono tutti nel browser, quindi funzionano allo stesso modo con o senza connessione dopo il caricamento di DetailCraft.
+Aprire, salvare ed esportare avvengono tutti nel browser, quindi funzionano allo stesso modo con o senza connessione dopo il caricamento di Manafe3.
 
-Per usare DetailCraft in seguito senza connessione, scegliere {{ui:Salva per l'uso offline}} nella barra dell'app mentre si è online. Il pulsante conta ("Salvataggio di 3 su 20") e poi riporta {{ui:Pronto per l'uso offline}}. La copia salvata comprende la libreria grafica 3D (circa 2,6 MB) e questa guida, quindi una volta salvata la vista 3D, ogni esportazione e la guida funzionano offline. Dettagli e cosa richiede ancora una connessione: [Lavorare offline](common:offline).
+Per usare Manafe3 in seguito senza connessione, scegliere {{ui:Salva per l'uso offline}} nella barra dell'app mentre si è online. Il pulsante conta ("Salvataggio di 3 su 20") e poi riporta {{ui:Pronto per l'uso offline}}. La copia salvata comprende la libreria grafica 3D (circa 2,6 MB) e questa guida, quindi una volta salvata la vista 3D, ogni esportazione e la guida funzionano offline. Dettagli e cosa richiede ancora una connessione: [Lavorare offline](common:offline).
 
 :::offline
 Si è offline. Se la barra dell'app mostra {{ui:Pronto per l'uso offline}}, aprire, salvare ed esportare funzionano come al solito. In caso contrario, tenere aperta questa scheda, non ricaricarla finché non si è di nuovo online e salvare subito il modello.
@@ -95,4 +95,4 @@ Il salvataggio nel cloud non è ancora disponibile e non esistono ancora version
 
 ## Lavoro non salvato
 
-DetailCraft conserva il modello solo nella scheda aperta. Se si chiude o si ricarica la scheda con modifiche non salvate, il browser chiede se lasciare la pagina; la formulazione è quella del browser. Salvare spesso con {{key:Mod+S}}.
+Manafe3 conserva il modello solo nella scheda aperta. Se si chiude o si ricarica la scheda con modifiche non salvate, il browser chiede se lasciare la pagina; la formulazione è quella del browser. Salvare spesso con {{key:Mod+S}}.

@@ -43,7 +43,7 @@ Die linker- en regterpaneel hou alles wat in [Rangskik die panele](common:arrang
 
 ## Gaan terug na die klassieke uitleg
 
-Maak {{ui:Instellings}} › {{ui:Globaal}} › {{ui:Uitleg}} › {{ui:Werkruimte}} oop en kies {{ui:CadCraft klassiek}}. Elke nutsbalk, oortjie en paneel gaan terug waar dit was.
+Maak {{ui:Instellings}} › {{ui:Globaal}} › {{ui:Uitleg}} › {{ui:Werkruimte}} oop en kies {{ui:Manafe3 klassiek}}. Elke nutsbalk, oortjie en paneel gaan terug waar dit was.
 
 :::note
 Op 'n foon, of in 'n venster 760 piksels breed of smaller, gebruik die program sy foonuitleg, wat jy ook al gekies het. 'n Wyer venster bring jou uitleg terug.

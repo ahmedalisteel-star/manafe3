@@ -5,7 +5,7 @@ keywords: çfarë është e re, what's new, shënime lëshimi, ndryshimet, ndrys
 from: 17d1e0bb
 ---
 
-Kjo është ajo që ndryshoi në DetailCraft 0.7, krahasuar me 0.6. Analiza e kornizës së 0.6 ka tani një hap të dytë: kontrollimin e elementëve të çelikut sipas një kodi projektimi.
+Kjo është ajo që ndryshoi në Manafe3 0.7, krahasuar me 0.6. Analiza e kornizës së 0.6 ka tani një hap të dytë: kontrollimin e elementëve të çelikut sipas një kodi projektimi.
 
 ## E re
 
@@ -15,7 +15,7 @@ Kjo është ajo që ndryshoi në DetailCraft 0.7, krahasuar me 0.6. Analiza e ko
 
 ### Kontrollet e projektimit
 
-- **Kombinime ngarkesash nga kodi.** Te skeda {{ui:Analysis}}, blloku i ri {{ui:Design checks}} ka një {{ui:Design code}}: ASCE 7 + AISC 360 (SHBA, LRFD) ose EN 1990 + EN 1993-1-1 (Eurocode). Jep çdo rasti ngarkese llojin e vet (e vdekur, e gjallë, ngarkesa e re e gjallë e çatisë, bora, era, sizmike), shtyp {{ui:Make combinations}}, dhe DetailCraft shkruan kombinimet e kodit për forcën dhe shërbimin e rasteve të tua. Kombinimet që shkrove vetë mbeten. Shih [Bëj kombinimet](topic:design-checks#make-the-combinations).
+- **Kombinime ngarkesash nga kodi.** Te skeda {{ui:Analysis}}, blloku i ri {{ui:Design checks}} ka një {{ui:Design code}}: ASCE 7 + AISC 360 (SHBA, LRFD) ose EN 1990 + EN 1993-1-1 (Eurocode). Jep çdo rasti ngarkese llojin e vet (e vdekur, e gjallë, ngarkesa e re e gjallë e çatisë, bora, era, sizmike), shtyp {{ui:Make combinations}}, dhe Manafe3 shkruan kombinimet e kodit për forcën dhe shërbimin e rasteve të tua. Kombinimet që shkrove vetë mbeten. Shih [Bëj kombinimet](topic:design-checks#make-the-combinations).
 - **Vlerat e Shtojcës Kombëtare.** Për Eurokodin faktorët fillojnë me vlerat e rekomanduara; {{ui:National Annex values}} të lejon të shkruash ato të vendit tënd, dhe ruhen në model. Shih [Bëj kombinimet](topic:design-checks#make-the-combinations).
 - **Kontrollo elementët.** {{ui:Check members}} kontrollon çdo profil I çeliku për tërheqje, shtypje me bukling, përkulje me bukling anësor-rrotullues, prerje, përkulje me forcë aksiale dhe deformim kundrejt {{ui:Deflection limit}} që vendose. Tabela shfaq shfrytëzimin e çdo elementi, kontrollin që e udhëheq dhe kombinimin e tij, dhe elementët ngjyrosen në model (blu, jeshile, ocër, e kuqe, gri për ata që nuk u kontrolluan). Shih [Kontrollo elementët](topic:design-checks#check-the-members).
 - **Në raport.** {{ui:Report (PDF)}} dhe {{ui:Report (CSV)}} shtojnë edicionet e kodit, cilësimet, shfrytëzimin sipas elementit dhe çdo klauzolë të përdorur. Shih [Raporti](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Kjo është ajo që ndryshoi në DetailCraft 0.7, krahasuar me 0.6. Analiza e ko
 
 ### Asistentët AI
 
-- **USD për asistentët.** Asistenti yt, i lidhur përmes CadCraft Studio, mund ta eksportojë modelin si USD (`usd_export`), dhe në Studio ta shkruajë në një dosje që ke lejuar. Shih [Çfarë kërkon një asistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD për asistentët.** Asistenti yt, i lidhur përmes Manafe3 Desktop, mund ta eksportojë modelin si USD (`usd_export`), dhe në Studio ta shkruajë në një dosje që ke lejuar. Shih [Çfarë kërkon një asistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Ndryshuar
 
@@ -36,16 +36,16 @@ Kjo është ajo që ndryshoi në DetailCraft 0.7, krahasuar me 0.6. Analiza e ko
 
 ## Në çdo aplikacion
 
-- **Njësitë.** {{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Njësitë}} ka një listë për gjatësinë, sipërfaqen, vëllimin, këndin dhe pjerrësinë, me madhësitë e sakta që japin përkufizimet e njësive (këmba e anketimit të SHBA-së është njësi e vetme). Fik njësitë që nuk i përdor kurrë dhe ato largohen nga listat; vendos yll një dhe puna e re fillon me të. Një skedar gjithmonë mban njësinë e vet. Kutitë e vetë DetailCraft nuk ndjekin ende listat: gjatësitë e tij shkruhen ende në milimetra. Shih [Njësitë, vlerat e shkruara dhe listat e njësive](common:unit-lists).
+- **Njësitë.** {{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Njësitë}} ka një listë për gjatësinë, sipërfaqen, vëllimin, këndin dhe pjerrësinë, me madhësitë e sakta që japin përkufizimet e njësive (këmba e anketimit të SHBA-së është njësi e vetme). Fik njësitë që nuk i përdor kurrë dhe ato largohen nga listat; vendos yll një dhe puna e re fillon me të. Një skedar gjithmonë mban njësinë e vet. Kutitë e vetë Manafe3 nuk ndjekin ende listat: gjatësitë e tij shkruhen ende në milimetra. Shih [Njësitë, vlerat e shkruara dhe listat e njësive](common:unit-lists).
 - **Një paraqitje më e dendur dhe panele që fshihen.** {{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Dendësia e paraqitjes}} › {{ui:Kompakte}} zë më shumë në ekran (ekranet me prekje dhe telefonat mbajnë butonat e tyre të mëdhenj). Çdo panel anësor ka një shirit titulli të hollë: tërhiqe për ta vendosur ose për ta bërë të lundrojë, lëshoje mbi shiritin e një paneli tjetër për të ndarë një kornizë si skeda, fiksoje për ta fshehur në anë, ose fshihe dhe kthe nga anësa. Shih [Rregullo panelet](common:arrange-panels#make-the-layout-denser).
 - **Dialogët lëvizin.** Tërhiq një dialog nga shiriti i titullit jashtë rrugës së vizatimit; kthehet atje ku e le. Klik dy herë mbi shiritin e titullit për ta vendosur përsëri në qendër. Shih [Zhvendos një dialog](common:arrange-panels#move-a-dialog).
 - **Recetat për asistentët AI.** Dhjetë kërkesa të punuara për asistentin tënd (pastro një vizatim, shfaq një grup, kontrollo vizatimet, pyet një model, mblidh një llogaritje sasish, provo një variant pjese…), secila me veglat që thërret dhe lejet që i nevojiten, dhe secila riluhet nga testet tona. Aplikacionet nuk përmbajnë AI. Shih [Recetat për asistentët AI](common:assistants-recipes).
 - **Gjuhët.** **Português (Portugal)** është e re te {{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Gjuha}}. Ajo, **Português (Brasil)**, **Español (México)** dhe **Bahasa Indonesia** kanë tani çdo fjalë të aplikacioneve, si draft të pa rishikuar nga një folës amtar. Faqet e {{ui:Ndihmë}} janë në anglisht.
-- **CadCraft Studio** tregon pse një kontroll përditësimi dështoi (s'ka ende skedar për sistemin tënd, s'ka rrjet, nënshkrim i gabuar), në vend që të thotë vetëm "U krye", dhe ndalon t'i kthehet një kartë Çfarë është e re që ke mbyllur, derisa të ketë një lëshim më të ri.
+- **Manafe3 Desktop** tregon pse një kontroll përditësimi dështoi (s'ka ende skedar për sistemin tënd, s'ka rrjet, nënshkrim i gabuar), në vend që të thotë vetëm "U krye", dhe ndalon t'i kthehet një kartë Çfarë është e re që ke mbyllur, derisa të ketë një lëshim më të ri.
 
 ## Jo ende në këtë version
 
-- **0.7 nuk është e nënshkruar me kod.** Nënshkrimi dhe paketa e Microsoft Store u zhvendosën në 0.8, sepse validimi i certifikatës nuk ka mbërritur ende. Kontrollo SHA-256 pranë çdo skedari në getcadcraft.com/download. Në Windows, nëse SmartScreen ndalon instaluesin, zgjidh {{ui:Më shumë informacion}}, pastaj {{ui:Ekzekuto gjithsesi}}. Në Mac, herën e parë, kliko me të djathtën mbi CadCraft Studio dhe zgjidh {{ui:Hap}}. CadCraft Studio nuk është ende në një dyqan aplikacionesh, dhe nuk ka ende version për iPad ose iPhone.
+- **0.7 nuk është e nënshkruar me kod.** Nënshkrimi dhe paketa e Microsoft Store u zhvendosën në 0.8, sepse validimi i certifikatës nuk ka mbërritur ende. Kontrollo SHA-256 pranë çdo skedari në getcadcraft.com/download. Në Windows, nëse SmartScreen ndalon instaluesin, zgjidh {{ui:Më shumë informacion}}, pastaj {{ui:Ekzekuto gjithsesi}}. Në Mac, herën e parë, kliko me të djathtën mbi Manafe3 Desktop dhe zgjidh {{ui:Hap}}. Manafe3 Desktop nuk është ende në një dyqan aplikacionesh, dhe nuk ka ende version për iPad ose iPhone.
 - Listat e këndit dhe pjerrësisë në {{ui:Njësitë}} ruhen, por asnjë kuti nuk i lexon ende.
 - **Kontrollet e projektimit nuk janë rishikuar ende nga një inxhinier.** Testet tona i krahasojnë me vlerat e printuara të tabelave dhe me formulat e punuara me dorë, jo ende me shembujt e punuar të një udhëzuesi projektimi. Deri në një rishikim, janë një ndihmë: kontrollo me dorë elementët që kanë rëndësi.
 - Kontrollet e projektimit përdorin forca të rendit të parë (pa efekte të rendit të dytë) dhe kontrollojnë vetëm profile I. Nuk janë ndërtuar ende: tubat, këndoret, kanalet, format e saldura, pjesët e holla (AISC) ose të klasës 4 (Eurocode) në përkulje, torsioni, buklimi nga prerja së bashku me përkuljen, lidhjet, lodhja, zjarri, detajimi sizmik dhe betoni. Një pjesë e hollë në shtypje lë jashtë kontrollet e shtypjes, dhe elementi shfaqet "kalon, pjesërisht i kontrolluar".

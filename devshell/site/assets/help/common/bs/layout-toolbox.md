@@ -42,7 +42,7 @@ Lijevi i desni paneli zadržavaju sve što je opisano u [Složi panele](common:a
 
 ## Vrati se na klasični raspored
 
-Otvori {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Raspored}} › {{ui:Radni prostor}} i izaberi {{ui:CadCraft klasični}}. Svaka traka, kartica i panel vraća se na mjesto gdje je bio.
+Otvori {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Raspored}} › {{ui:Radni prostor}} i izaberi {{ui:Manafe3 klasični}}. Svaka traka, kartica i panel vraća se na mjesto gdje je bio.
 
 :::note
 Na telefonu, ili u prozoru širine 760 piksela ili manjem, aplikacija koristi telefonski raspored bez obzira na to što si izabrao. Širi prozor vraća tvoj raspored.

@@ -5,7 +5,7 @@ keywords: nyheter, vad är nytt, versionsanteckningar, ändringslogg, ändringar
 from: 17d1e0bb
 ---
 
-Det här är vad som ändrats i DetailCraft 0.7 jämfört med 0.6. Stomanalysen från 0.6 har nu ett andra steg: att kontrollera stålstängerna mot en dimensioneringsnorm.
+Det här är vad som ändrats i Manafe3 0.7 jämfört med 0.6. Stomanalysen från 0.6 har nu ett andra steg: att kontrollera stålstängerna mot en dimensioneringsnorm.
 
 ## Nytt
 
@@ -15,7 +15,7 @@ Det här är vad som ändrats i DetailCraft 0.7 jämfört med 0.6. Stomanalysen 
 
 ### Dimensioneringskontroller
 
-- **Lastkombinationer från normen.** På fliken {{ui:Analys}} har det nya blocket {{ui:Dimensioneringskontroller}} en {{ui:Dimensioneringsnorm}}: ASCE 7 + AISC 360 (USA, LRFD) eller EN 1990 + EN 1993-1-1 (Eurokod). Ange varje lastfalls slag (egentyngd, nyttig last, den nya nyttiga lasten på tak, snö, vind, seismisk), tryck på {{ui:Skapa kombinationer}}, så skriver DetailCraft normens brottgräns- och bruksgränskombinationer av dina lastfall. De kombinationer du skrivit själv finns kvar. Se [Skapa kombinationerna](topic:design-checks#make-the-combinations).
+- **Lastkombinationer från normen.** På fliken {{ui:Analys}} har det nya blocket {{ui:Dimensioneringskontroller}} en {{ui:Dimensioneringsnorm}}: ASCE 7 + AISC 360 (USA, LRFD) eller EN 1990 + EN 1993-1-1 (Eurokod). Ange varje lastfalls slag (egentyngd, nyttig last, den nya nyttiga lasten på tak, snö, vind, seismisk), tryck på {{ui:Skapa kombinationer}}, så skriver Manafe3 normens brottgräns- och bruksgränskombinationer av dina lastfall. De kombinationer du skrivit själv finns kvar. Se [Skapa kombinationerna](topic:design-checks#make-the-combinations).
 - **Värden i nationell bilaga.** För Eurokod börjar faktorerna på de rekommenderade värdena; med {{ui:Värden i nationell bilaga}} anger du ditt lands värden, och de sparas i modellen. Se [Skapa kombinationerna](topic:design-checks#make-the-combinations).
 - **Kontrollera stänger.** {{ui:Kontrollera stänger}} kontrollerar varje I-profil i stål för drag, tryck med knäckning, böjning med vippning, tvärkraft, böjning med normalkraft och nedböjning mot den {{ui:Nedböjningsgräns}} du anger. Tabellen visar varje stångs utnyttjandegrad, den kontroll som styr och dess kombination, och stängerna färgas i modellen (blå, grön, ockra, röd, grå för ej kontrollerad). Se [Kontrollera stängerna](topic:design-checks#check-the-members).
 - **I rapporten.** {{ui:Rapport (PDF)}} och {{ui:Rapport (CSV)}} lägger till normutgåvorna, inställningarna, utnyttjandegrad per stång och varje paragraf som använts. Se [Rapporten](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Det här är vad som ändrats i DetailCraft 0.7 jämfört med 0.6. Stomanalysen 
 
 ### AI-assistenter
 
-- **USD för assistenter.** Din egen assistent, ansluten via CadCraft Studio, kan exportera modellen som USD (`usd_export`) och i Studio skriva den till en mapp som du har tillåtit. Se [Vad en assistent kan be om](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD för assistenter.** Din egen assistent, ansluten via Manafe3 Desktop, kan exportera modellen som USD (`usd_export`) och i Studio skriva den till en mapp som du har tillåtit. Se [Vad en assistent kan be om](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Ändrat
 
@@ -36,16 +36,16 @@ Det här är vad som ändrats i DetailCraft 0.7 jämfört med 0.6. Stomanalysen 
 
 ## I alla appar
 
-- **Enheter.** {{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Enheter}} har en lista vardera för längd, area, volym, vinkel och lutning, med de exakta storlekar som enheternas definitioner ger (den amerikanska survey-foten är en egen enhet). Stäng av de enheter du aldrig använder så försvinner de ur enhetslistorna; markera en med stjärna så börjar nytt arbete i den. En fil behåller alltid sin egen enhet. DetailCrafts egna fält följer inte listorna ännu: längder skrivs fortfarande i millimeter. Se [Enheter, inskrivna värden och enhetslistorna](common:unit-lists).
+- **Enheter.** {{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Enheter}} har en lista vardera för längd, area, volym, vinkel och lutning, med de exakta storlekar som enheternas definitioner ger (den amerikanska survey-foten är en egen enhet). Stäng av de enheter du aldrig använder så försvinner de ur enhetslistorna; markera en med stjärna så börjar nytt arbete i den. En fil behåller alltid sin egen enhet. Manafe3s egna fält följer inte listorna ännu: längder skrivs fortfarande i millimeter. Se [Enheter, inskrivna värden och enhetslistorna](common:unit-lists).
 - **En tätare layout och paneler som fälls undan.** {{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Layouttäthet}} › {{ui:Kompakt}} ryms mer på skärmen (pekskärmar och telefoner behåller sina stora knappar). Varje sidopanel har ett smalt titelfält: dra det för att docka eller frigöra panelen, släpp det på en annan panels fält för att dela en ram som flikar, fäst det så att det glider undan mot kanten, eller dölj det och hämta tillbaka det från kanten. Se [Ordna panelerna](common:arrange-panels#make-the-layout-denser).
 - **Dialogrutor som går att flytta.** Dra en dialogruta i titelfältet ur vägen för ritningen; den kommer tillbaka där du lämnade den. Dubbelklicka på titelfältet för att centrera den igen. Se [Flytta en dialogruta](common:arrange-panels#move-a-dialog).
 - **Recept för AI-assistenter.** Tio genomarbetade förfrågningar till din egen assistent (städa en ritning, plotta en sats, kontrollera ritningar, ställa frågor till en modell, summera en mängdavtagning, prova en delvariant …), var och en med de verktyg den anropar och de behörigheter den behöver, och var och en återspelad av våra tester. Apparna innehåller ingen AI. Se [Recept för AI-assistenter](common:assistants-recipes).
 - **Språk.** **Português (Portugal)** är nytt under {{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Språk}}. Det, **Português (Brasil)**, **Español (México)** och **Bahasa Indonesia** har nu varje ord i apparna, som utkast som ännu inte granskats av en modersmålstalare. Hjälpämnena är på engelska.
-- **CadCraft Studio** berättar varför en uppdateringskontroll misslyckades (ingen fil för ditt system ännu, inget nätverk, en felaktig signatur) i stället för bara "Done", och slutar ta tillbaka ett Nyheter-kort som du stängt tills det finns en nyare version.
+- **Manafe3 Desktop** berättar varför en uppdateringskontroll misslyckades (ingen fil för ditt system ännu, inget nätverk, en felaktig signatur) i stället för bara "Done", och slutar ta tillbaka ett Nyheter-kort som du stängt tills det finns en nyare version.
 
 ## Finns inte i den här versionen ännu
 
-- **0.7 är inte kodsignerad.** Signering och Microsoft Store-paketet flyttades till 0.8 eftersom certifikatvalideringen inte har kommit ännu. Kontrollera SHA-256 bredvid varje fil på getcadcraft.com/download. I Windows, om SmartScreen stoppar installationsprogrammet, välj {{ui:Mer information}} och sedan {{ui:Kör ändå}}. På en Mac högerklickar du första gången på CadCraft Studio och väljer {{ui:Öppna}}. CadCraft Studio finns inte i någon appbutik ännu, och det finns ingen version för iPad eller iPhone ännu.
+- **0.7 är inte kodsignerad.** Signering och Microsoft Store-paketet flyttades till 0.8 eftersom certifikatvalideringen inte har kommit ännu. Kontrollera SHA-256 bredvid varje fil på getcadcraft.com/download. I Windows, om SmartScreen stoppar installationsprogrammet, välj {{ui:Mer information}} och sedan {{ui:Kör ändå}}. På en Mac högerklickar du första gången på Manafe3 Desktop och väljer {{ui:Öppna}}. Manafe3 Desktop finns inte i någon appbutik ännu, och det finns ingen version för iPad eller iPhone ännu.
 - Listorna för vinkel och lutning under {{ui:Enheter}} sparas, men inget fält läser dem ännu.
 - **Dimensioneringskontrollerna har inte granskats av en ingenjör ännu.** Våra tester jämför dem med tryckta tabellvärden och formler som räknats för hand, ännu inte med en dimensioneringsguides genomräknade exempel. Fram till en granskning är de ett hjälpmedel: kontrollera viktiga stänger för hand.
 - Dimensioneringskontrollerna använder förstaordningens krafter (inga andra ordningens effekter) och kontrollerar bara I-profiler. Inte byggt: rör, vinkelstål, U-profiler, svetsade profiler, slanka (AISC) eller klass 4-delar (Eurokod) i böjning, vridning, skjuvbuckling tillsammans med böjning, förbindelser, utmattning, brand, seismisk detaljering och betong. En slank del i tryck utelämnar tryckkontrollerna, och stången visas som "passes, partly checked".

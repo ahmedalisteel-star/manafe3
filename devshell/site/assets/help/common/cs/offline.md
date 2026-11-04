@@ -41,4 +41,4 @@ Jste nyní offline. Pokud byla tato aplikace uložena pro použití offline, vš
 Safari odstraňuje uložená data webů, které jste několik týdnů nenavštívili. Otevřete aplikaci čas od času online nebo ji před cestou uložte znovu.
 :::
 
-- CadCraft Studio, desktopová aplikace se všemi osmi aplikacemi v jedné instalaci, je na getcadcraft.com/download.
+- Manafe3 Desktop, desktopová aplikace se všemi osmi aplikacemi v jedné instalaci, je na getcadcraft.com/download.

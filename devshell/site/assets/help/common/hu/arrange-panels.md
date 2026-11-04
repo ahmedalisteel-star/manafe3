@@ -42,7 +42,7 @@ A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}
 
 ## Az eszköztár sorainak száma
 
-A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Eszköztársorok}} három lehetőséget kínál. A {{ui:Tördelés}} az alapértelmezett: minden eszközcsoport látszik, annyi sorban, amennyi kell. A {{ui:2 sor}} két sorra, az {{ui:1 sor}} egy sorra korlátozza az eszköztárat, így a rajz több magasságot kap; a nem elférő csoportok oldalirányban görgethetők az eszköztáron belül (használja az egér görgőjét, kétujjas húzást, vagy lépjen egy eszközre a {{key:Tab}} billentyűvel). A két sorban már elférő eszköztár a {{ui:2 sor}} esetén változatlan marad, mert a rács csak magasabbá tenné. A választás alkalmazásonként megmarad. Az érintőképernyő és a telefon a saját elrendezését tartja meg. A CadCraftnak saját beállítása van az eszköztárához a {{ui:Beállítások}} › {{ui:CadCraft}} alatt.
+A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Eszköztársorok}} három lehetőséget kínál. A {{ui:Tördelés}} az alapértelmezett: minden eszközcsoport látszik, annyi sorban, amennyi kell. A {{ui:2 sor}} két sorra, az {{ui:1 sor}} egy sorra korlátozza az eszköztárat, így a rajz több magasságot kap; a nem elférő csoportok oldalirányban görgethetők az eszköztáron belül (használja az egér görgőjét, kétujjas húzást, vagy lépjen egy eszközre a {{key:Tab}} billentyűvel). A két sorban már elférő eszköztár a {{ui:2 sor}} esetén változatlan marad, mert a rács csak magasabbá tenné. A választás alkalmazásonként megmarad. Az érintőképernyő és a telefon a saját elrendezését tartja meg. A Manafe3nak saját beállítása van az eszköztárához a {{ui:Beállítások}} › {{ui:Manafe3}} alatt.
 
 ## Használat billentyűzettel
 
@@ -82,7 +82,7 @@ Billentyűzetről nyomja meg az {{key:Alt}}+{{key:Shift}}+egy nyílbillentyű ko
 
 Telefonon a párbeszédpanelek teljes szélességű lapok maradnak, és nem mozgathatók.
 
-A CadCraft Studióban a CadCraft {{ui:Plottolás PDF-be}} párbeszédpanelje, amelyet munka közben nyitva tarthat, a címsorában egy gombot kap: {{ui:Megnyitás saját ablakban}}. A párbeszédpanel saját ablakba költözik, amelyet egy másik monitorra is tehet. A párbeszédpanel bezárása bezárja az ablakot, az ablak bezárása pedig a párbeszédpanelt.
+A Manafe3 Studióban a Manafe3 {{ui:Plottolás PDF-be}} párbeszédpanelje, amelyet munka közben nyitva tarthat, a címsorában egy gombot kap: {{ui:Megnyitás saját ablakban}}. A párbeszédpanel saját ablakba költözik, amelyet egy másik monitorra is tehet. A párbeszédpanel bezárása bezárja az ablakot, az ablak bezárása pedig a párbeszédpanelt.
 
 ## A panelek visszahelyezése
 

@@ -18,7 +18,7 @@ Draw concrete members as rectangles: a {{ui:Plate}} profile such as `PL400x400` 
 
 ## Set up the sections
 
-The {{ui:Concrete members}} block lists every section the members use. Press {{ui:Set up as concrete…}} on the ones that are concrete. DetailCraft reads the width **b** (along the member's own y axis) and depth **h** (along z) from the drawn profile, then asks for:
+The {{ui:Concrete members}} block lists every section the members use. Press {{ui:Set up as concrete…}} on the ones that are concrete. Manafe3 reads the width **b** (along the member's own y axis) and depth **h** (along z) from the drawn profile, then asks for:
 
 - the **cover** to the centre of the bars, and the **top**, **bottom** and **side** bars (how many and which diameter) for a beam, or a **column cage** (bars along b and along h, which diameter, spiral ties) for a column;
 - the **ties**: legs, diameter and spacing;

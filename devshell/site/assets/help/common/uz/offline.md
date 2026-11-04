@@ -41,4 +41,4 @@ Hozir oflaynsiz. Agar bu ilova oflayn foydalanish uchun saqlangan boʻlsa, pastd
 Safari bir necha hafta tashrif buyurilmagan saytlarning saqlangan maʼlumotlarini oʻchiradi. Ilovani onlayn ekanligingizda vaqti-vaqti bilan oching yoki sayohatdan oldin uni qayta saqlang.
 :::
 
-- CadCraft Studio — bitta oʻrnatishda barcha sakkizta ilovani oʻz ichiga olgan ish stoli ilovasi; getcadcraft.com/download manzilida.
+- Manafe3 Desktop — bitta oʻrnatishda barcha sakkizta ilovani oʻz ichiga olgan ish stoli ilovasi; getcadcraft.com/download manzilida.

@@ -5,7 +5,7 @@ keywords: ano ang bago, what's new, release notes, changelog, mga pagbabago, 0.7
 from: 17d1e0bb
 ---
 
-Ito ang mga nagbago sa DetailCraft 0.7, kumpara sa 0.6. May ikalawang hakbang na ngayon ang frame analysis ng 0.6: ang pagsusuri ng mga steel member ayon sa design code.
+Ito ang mga nagbago sa Manafe3 0.7, kumpara sa 0.6. May ikalawang hakbang na ngayon ang frame analysis ng 0.6: ang pagsusuri ng mga steel member ayon sa design code.
 
 ## Bago
 
@@ -15,7 +15,7 @@ Ito ang mga nagbago sa DetailCraft 0.7, kumpara sa 0.6. May ikalawang hakbang na
 
 ### Design checks
 
-- **Load combination mula sa code.** Sa {{ui:Analysis}} tab, ang bagong {{ui:Mga design check}} block ay may {{ui:Design code}}: ASCE 7 + AISC 360 (US, LRFD) o EN 1990 + EN 1993-1-1 (Eurocode). Bigyan ang bawat load case ng uri nito (dead, live, ang bagong roof live, snow, wind, seismic), pindutin ang {{ui:Gumawa ng combination}}, at isinusulat ng DetailCraft ang strength at serviceability combination ng code para sa mga case mo. Mananatili ang mga combination na ikaw mismo ang nag-type. Tingnan ang [Gawin ang combinations](topic:design-checks#make-the-combinations).
+- **Load combination mula sa code.** Sa {{ui:Analysis}} tab, ang bagong {{ui:Mga design check}} block ay may {{ui:Design code}}: ASCE 7 + AISC 360 (US, LRFD) o EN 1990 + EN 1993-1-1 (Eurocode). Bigyan ang bawat load case ng uri nito (dead, live, ang bagong roof live, snow, wind, seismic), pindutin ang {{ui:Gumawa ng combination}}, at isinusulat ng Manafe3 ang strength at serviceability combination ng code para sa mga case mo. Mananatili ang mga combination na ikaw mismo ang nag-type. Tingnan ang [Gawin ang combinations](topic:design-checks#make-the-combinations).
 - **Mga halaga ng National Annex.** Para sa Eurocode, nagsisimula ang mga factor sa mga inirerekomendang halaga; hinahayaan ka ng {{ui:Mga halaga ng National Annex}} na i-type ang sa bansa mo, at naka-save ang mga ito sa model. Tingnan ang [Gawin ang combinations](topic:design-checks#make-the-combinations).
 - **I-check ang mga member.** Sinusuri ng {{ui:I-check ang mga member}} ang bawat steel I-shape para sa tension, compression na may buckling, bending na may lateral-torsional buckling, shear, bending na may axial force, at deflection laban sa {{ui:Limitasyon ng deflection}} na itinakda mo. Ipinapakita ng table ang utilisation ng bawat member, ang check na nangingibabaw at ang combination nito, at kinukulayan ang mga member sa model (asul, berde, ocher, pula, kulay abo para sa hindi nasuri). Tingnan ang [I-check ang mga member](topic:design-checks#check-the-members).
 - **Sa report.** Dinadagdag ng {{ui:Ulat (PDF)}} at {{ui:Ulat (CSV)}} ang mga edisyon ng code, ang mga setting, utilisation ayon sa member at bawat clause na ginamit. Tingnan ang [Ang report](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Ito ang mga nagbago sa DetailCraft 0.7, kumpara sa 0.6. May ikalawang hakbang na
 
 ### AI assistant
 
-- **USD para sa mga assistant.** Ang sarili mong assistant, na nakakonekta sa pamamagitan ng CadCraft Studio, ay makapag-e-export ng model bilang USD (`usd_export`), at sa Studio, maisusulat ito sa folder na pinayagan mo. Tingnan ang [Ano ang maaaring hilingin ng assistant](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD para sa mga assistant.** Ang sarili mong assistant, na nakakonekta sa pamamagitan ng Manafe3 Desktop, ay makapag-e-export ng model bilang USD (`usd_export`), at sa Studio, maisusulat ito sa folder na pinayagan mo. Tingnan ang [Ano ang maaaring hilingin ng assistant](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Binago
 
@@ -36,16 +36,16 @@ Ito ang mga nagbago sa DetailCraft 0.7, kumpara sa 0.6. May ikalawang hakbang na
 
 ## Sa lahat ng app
 
-- **Mga unit.** {{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Mga unit}} ay may isang list para sa haba, lawak, volume, anggulo at slope, na may eksaktong laki ayon sa depinisyon ng mga unit (ang US survey foot ay sarili nitong unit). Patayin ang mga unit na hindi mo ginagamit at aalis ang mga ito sa mga unit list; i-star ang isa at ang bagong trabaho ay magsisimula roon. Laging pinapanatili ng file ang sarili nitong unit. Hindi pa sumusunod ang mga box ng DetailCraft sa mga list: ang haba nito ay ita-type pa rin sa millimeter. Tingnan ang [Mga unit, typed na halaga at mga unit list](common:unit-lists).
+- **Mga unit.** {{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Mga unit}} ay may isang list para sa haba, lawak, volume, anggulo at slope, na may eksaktong laki ayon sa depinisyon ng mga unit (ang US survey foot ay sarili nitong unit). Patayin ang mga unit na hindi mo ginagamit at aalis ang mga ito sa mga unit list; i-star ang isa at ang bagong trabaho ay magsisimula roon. Laging pinapanatili ng file ang sarili nitong unit. Hindi pa sumusunod ang mga box ng Manafe3 sa mga list: ang haba nito ay ita-type pa rin sa millimeter. Tingnan ang [Mga unit, typed na halaga at mga unit list](common:unit-lists).
 - **Mas siksik na layout at mga panel na kusang nagtatago.** {{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Density ng layout}} › {{ui:Siksik}} ay nagkakasya ng mas marami sa screen (ang touch screen at telepono ay nananatili sa malalaking button). Ang bawat side panel ay may manipis na title bar: i-drag ito para i-dock o ilutang ang panel, i-drop sa title bar ng ibang panel para magbahagi ng isang frame bilang mga tab, i-pin para dumulas papunta sa gilid, o itago ito at ibalik mula sa gilid. Tingnan ang [Ayusin ang mga panel](common:arrange-panels#make-the-layout-denser).
 - **Gumagalaw ang mga dialog.** I-drag ang dialog sa pamamagitan ng title bar nito palayo sa drawing; babalik ito sa kung saan mo ito iniwan. I-double-click ang title bar para ibalik ito sa gitna. Tingnan ang [Ilipat ang dialog](common:arrange-panels#move-a-dialog).
 - **Mga recipe para sa AI assistant.** Sampung halimbawang hiling para sa sarili mong assistant (linisin ang drawing, i-plot ang set, suriin ang mga drawing, magtanong tungkol sa model, sumahin ang takeoff, subukan ang variant ng piyesa…), bawat isa ay may tool na tinatawag nito at permiso na kailangan, at bawat isa ay inuulit ng aming mga test. Walang AI ang mga app. Tingnan ang [Mga recipe para sa AI assistant](common:assistants-recipes).
 - **Mga wika.** Bago sa {{ui:Mga setting}} › {{ui:Pangkalahatan}} › {{ui:Wika}} ang **Português (Portugal)**. Ito, ang **Português (Brasil)**, **Español (México)** at **Bahasa Indonesia** ay mayroon na ngayong bawat salita ng mga app, bilang mga draft na hindi pa nasuri ng katutubong nagsasalita. Nasa Ingles ang mga help topic.
-- **Ipinapaliwanag ng CadCraft Studio** kung bakit nabigo ang pagsusuri ng update (walang file para sa system mo pa, walang network, maling signature) sa halip na "Done" lang, at hindi na ibinabalik ang What's new card na isinara mo hangga't walang mas bagong release.
+- **Ipinapaliwanag ng Manafe3 Desktop** kung bakit nabigo ang pagsusuri ng update (walang file para sa system mo pa, walang network, maling signature) sa halip na "Done" lang, at hindi na ibinabalik ang What's new card na isinara mo hangga't walang mas bagong release.
 
 ## Wala pa sa bersyong ito
 
-- **Hindi pa code-signed ang 0.7.** Ang signing, at ang Microsoft Store package, ay inilipat sa 0.8 dahil hindi pa dumarating ang pag-validate ng certificate. Suriin ang SHA-256 sa tabi ng bawat file sa getcadcraft.com/download. Sa Windows, kung hihinto ang SmartScreen sa installer, piliin ang {{ui:More info}}, saka {{ui:Run anyway}}. Sa Mac, sa unang pagkakataon, i-right-click ang CadCraft Studio at piliin ang {{ui:Open}}. Wala pa sa app store ang CadCraft Studio, at wala pang build para sa iPad o iPhone.
+- **Hindi pa code-signed ang 0.7.** Ang signing, at ang Microsoft Store package, ay inilipat sa 0.8 dahil hindi pa dumarating ang pag-validate ng certificate. Suriin ang SHA-256 sa tabi ng bawat file sa getcadcraft.com/download. Sa Windows, kung hihinto ang SmartScreen sa installer, piliin ang {{ui:More info}}, saka {{ui:Run anyway}}. Sa Mac, sa unang pagkakataon, i-right-click ang Manafe3 Desktop at piliin ang {{ui:Open}}. Wala pa sa app store ang Manafe3 Desktop, at wala pang build para sa iPad o iPhone.
 - Naka-save ang mga anggulo at slope list sa {{ui:Units}}, pero wala pang box na bumabasa sa mga ito.
 - **Hindi pa nasusuri ng engineer ang mga design check.** Ang mga test namin ay nagkukumpara sa mga nakalimbag na halaga ng table at sa mga formula na kinuwenta nang manu-mano, hindi pa sa mga worked example ng design guide. Hanggang sa may review, gabay lang ang mga ito: suriin nang manu-mano ang mga member na mahalaga.
 - First-order na pwersa (walang second-order effect) ang gamit ng design check at I-shape lang ang sinusuri nito. Hindi pa nabubuo: tube, angle, channel, welded shape, payat (AISC) o class 4 (Eurocode) na piyesa sa bending, torsion, shear buckling kasabay ng bending, connection, fatigue, sunog, seismic detailing at concrete. Iniiwan sa labas ng compression check ang payat na piyesa sa compression, at nababasa ang member bilang "passes, partly checked".

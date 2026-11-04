@@ -43,7 +43,7 @@ Panourile din stânga și din dreapta păstrează tot ce este descris în [Aranj
 
 ## Revenirea la aspectul clasic
 
-Deschideți {{ui:Setări}} › {{ui:Global}} › {{ui:Aspect}} › {{ui:Spațiu de lucru}} și alegeți {{ui:CadCraft clasic}}. Fiecare bară de instrumente, filă și panou revine acolo unde era.
+Deschideți {{ui:Setări}} › {{ui:Global}} › {{ui:Aspect}} › {{ui:Spațiu de lucru}} și alegeți {{ui:Manafe3 clasic}}. Fiecare bară de instrumente, filă și panou revine acolo unde era.
 
 :::note
 Pe telefon, sau într-o fereastră de 760 de pixeli lățime sau mai îngustă, aplicația folosește aspectul pentru telefon, orice ați alege. O fereastră mai lată aduce înapoi aspectul ales.

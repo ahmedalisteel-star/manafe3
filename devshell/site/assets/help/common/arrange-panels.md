@@ -43,7 +43,7 @@ To take a panel out of the group, choose {{ui:Move out of the tab group}} in its
 
 ## Choose how many lines the toolbar uses
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} has three choices. {{ui:Wrap}} is the default: every tool group shows, on as many lines as it takes. {{ui:2 rows}} keeps the toolbar to two lines and {{ui:1 row}} to one, so the drawing gets the height; the groups that do not fit scroll sideways inside the toolbar (use the mouse wheel, a two-finger swipe, or {{key:Tab}} to a tool). A toolbar that already fits in two lines stays as it is under {{ui:2 rows}}, because a grid would only make it taller. The choice is kept for each app. A touch screen and a phone keep their own layout. CadCraft has its own setting for its toolbar, under {{ui:Settings}} › {{ui:CadCraft}}.
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} has three choices. {{ui:Wrap}} is the default: every tool group shows, on as many lines as it takes. {{ui:2 rows}} keeps the toolbar to two lines and {{ui:1 row}} to one, so the drawing gets the height; the groups that do not fit scroll sideways inside the toolbar (use the mouse wheel, a two-finger swipe, or {{key:Tab}} to a tool). A toolbar that already fits in two lines stays as it is under {{ui:2 rows}}, because a grid would only make it taller. The choice is kept for each app. A touch screen and a phone keep their own layout. Manafe3 has its own setting for its toolbar, under {{ui:Settings}} › {{ui:Manafe3}}.
 
 ## Use the keyboard
 
@@ -83,7 +83,7 @@ From the keyboard, press {{key:Alt}}+{{key:Shift}}+an arrow key with the focus i
 
 On a phone, dialogs stay full-width sheets and are not moved.
 
-In CadCraft Studio, CadCraft's {{ui:Plot to PDF}} dialog, which you may keep open while you work, has a button in its title bar, {{ui:Open in its own window}}. The dialog moves into a window of its own that you can put on another monitor. Closing the dialog closes the window, and closing the window closes the dialog.
+In Manafe3 Desktop, Manafe3's {{ui:Plot to PDF}} dialog, which you may keep open while you work, has a button in its title bar, {{ui:Open in its own window}}. The dialog moves into a window of its own that you can put on another monitor. Closing the dialog closes the window, and closing the window closes the dialog.
 
 ## Put the panels back
 

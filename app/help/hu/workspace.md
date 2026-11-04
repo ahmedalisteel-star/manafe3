@@ -1,17 +1,17 @@
 ---
 title: A képernyő körútja
-summary: A DetailCraft minden sávja, panelje és lapja a képernyőn látható nevén, és hogy mire való mindegyik.
+summary: A Manafe3 minden sávja, panelje és lapja a képernyőn látható nevén, és hogy mire való mindegyik.
 keywords: képernyő, elrendezés, eszköztár, panelek, tulajdonságok, állapotsor, jelentések, felület, ui, lapok
 from: 454f74fd
 ---
 
-A DetailCraft kitölti a böngészőablakot az alkalmazássáv alatt. Fentről lefelé: az eszköztár, majd három oszlop (a {{ui:Modell}} panel, a nézet, a {{ui:Tulajdonságok}} panel), majd a jelentéslapok, végül az állapotsor.
+A Manafe3 kitölti a böngészőablakot az alkalmazássáv alatt. Fentről lefelé: az eszköztár, majd három oszlop (a {{ui:Modell}} panel, a nézet, a {{ui:Tulajdonságok}} panel), majd a jelentéslapok, végül az állapotsor.
 
 ## Az alkalmazássáv
 
-A legfelső vékony sáv a CadCraft webhelyhez tartozik, nem a modellhez. Megmutatja az alkalmazás nevét és verzióját, egy hivatkozást a {{ui:A DetailCraft névjegye}} oldalra, a {{ui:Súgó}} gombot (vagy az {{key:F1}}-et) ehhez a súgóhoz, a {{ui:Mentés offline használatra}} gombot, a képernyőmód gombot és a {{ui:Papír}} / {{ui:Modell}} kapcsolót.
+A legfelső vékony sáv a Manafe3 webhelyhez tartozik, nem a modellhez. Megmutatja az alkalmazás nevét és verzióját, egy hivatkozást a {{ui:A Manafe3 névjegye}} oldalra, a {{ui:Súgó}} gombot (vagy az {{key:F1}}-et) ehhez a súgóhoz, a {{ui:Mentés offline használatra}} gombot, a képernyőmód gombot és a {{ui:Papír}} / {{ui:Modell}} kapcsolót.
 
-- A {{ui:Mentés offline használatra}} a DetailCraftot, a 3D nézetét és ezt a súgót a böngészőben tartja, hogy kapcsolat nélkül is megnyíljon. Mentés után az {{ui:Offline használatra kész}} feliratot mutatja; ekkor kattintson rá a {{ui:Mentés újra (a legújabb verzió beszerzése)}} vagy az {{ui:Az offline másolat eltávolítása}} lehetőségért. Lásd: [Munka offline](common:offline).
+- A {{ui:Mentés offline használatra}} a Manafe3ot, a 3D nézetét és ezt a súgót a böngészőben tartja, hogy kapcsolat nélkül is megnyíljon. Mentés után az {{ui:Offline használatra kész}} feliratot mutatja; ekkor kattintson rá a {{ui:Mentés újra (a legújabb verzió beszerzése)}} vagy az {{ui:Az offline másolat eltávolítása}} lehetőségért. Lásd: [Munka offline](common:offline).
 - A {{ui:Papír}} világos, a {{ui:Modell}} sötét képernyőt ad. A 3D nézet azonnal követi; a modellben semmi nem változik.
 - A képernyőmód gomb és a {{key:Ctrl+Shift+F}} lépked a normál, a teljes képernyő és az elrejtett sávos teljes képernyő között. A {{key:Ctrl+Shift+F}} minden számítógépen a Control billentyűt használja, Macen is. Elrejtett sávoknál a visszahozásukhoz mutasson a képernyő felső szélére (vagy koppintson oda). Az {{key:Esc}} kilép a teljes képernyőből.
 
@@ -70,7 +70,7 @@ A számmezők az {{key:Enter}} megnyomásakor vagy a mező elhagyásakor lépnek
 
 ## A jelentéslapok (alul)
 
-- {{ui:Problémák}}: minden, amit a DetailCraft nem tudott megépíteni, vagy amit ellenőriznie kell, soronként egy {{ui:Kijelölés}} gombbal. A lap zárójelben mutatja a darabszámot.
+- {{ui:Problémák}}: minden, amit a Manafe3 nem tudott megépíteni, vagy amit ellenőriznie kell, soronként egy {{ui:Kijelölés}} gombbal. A lap zárójelben mutatja a darabszámot.
 - {{ui:Anyagjegyzék}}: alkatrészek, összeállítások, valamint csavarok és horgonyszárak, tömegekkel és egy {{ui:CSV letöltése}} hivatkozással. Egy alkatrészjelre kattintva kijelöli az alkatrészt.
 - {{ui:Hajlítási kimutatás}}: minden alap minden vasjele, egy {{ui:CSV letöltése}} hivatkozással.
 
@@ -84,4 +84,4 @@ A böngészőlap címe ponttal (•) kezdődik, amíg a modellben vannak nem men
 
 ## Keskeny képernyőn
 
-Körülbelül 760 képpontnál keskenyebb szélességnél az oszlopok egymás alá kerülnek: eszköztár, nézet, állapotsor, {{ui:Tulajdonságok}}, jelentéslapok, végül a {{ui:Modell}} panel. Az eléréshez görgesse az oldalt. A DetailCraft asztali vagy laptop képernyőre van kialakítva; telefonon nézni lehet, részletezni nem.
+Körülbelül 760 képpontnál keskenyebb szélességnél az oszlopok egymás alá kerülnek: eszköztár, nézet, állapotsor, {{ui:Tulajdonságok}}, jelentéslapok, végül a {{ui:Modell}} panel. Az eléréshez görgesse az oldalt. A Manafe3 asztali vagy laptop képernyőre van kialakítva; telefonon nézni lehet, részletezni nem.

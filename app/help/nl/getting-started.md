@@ -1,11 +1,11 @@
 ---
-title: Aan de slag met DetailCraft
-summary: Wat DetailCraft nu doet, hoe u het opent en in tien minuten een eerste model, van rasters tot een werkplaatstekening.
+title: Aan de slag met Manafe3
+summary: Wat Manafe3 nu doet, hoe u het opent en in tien minuten een eerste model, van rasters tot een werkplaatstekening.
 keywords: starten, eerste model, introductie, staaldetaillering, wapening, snelstart, handleiding, overzicht
 from: 3682c0d8
 ---
 
-DetailCraft is de app voor staal- en wapeningsdetaillering in de CadCraft-familie. U bouwt een 3D-model van een stalen raamwerk op rasters en niveaus, verbindt het en krijgt wat de werkplaats nodig heeft: onderdeel- en samenstellingsmerken, een stuklijst, werkplaatstekeningen van afzonderlijke onderdelen, DSTV NC-bestanden, een IFC-model en een buigstaat voor de funderingen.
+Manafe3 is de app voor staal- en wapeningsdetaillering in de Manafe3-familie. U bouwt een 3D-model van een stalen raamwerk op rasters en niveaus, verbindt het en krijgt wat de werkplaats nodig heeft: onderdeel- en samenstellingsmerken, een stuklijst, werkplaatstekeningen van afzonderlijke onderdelen, DSTV NC-bestanden, een IFC-model en een buigstaat voor de funderingen.
 
 Dit is een vroege build. Hij doet een korte lijst dingen zorgvuldig in plaats van alles tegelijk. Lees [Wat nog niet is gebouwd](topic:not-built-yet) voordat u echt werk eromheen plant.
 
@@ -19,24 +19,24 @@ Dit is een vroege build. Hij doet een korte lijst dingen zorgvuldig in plaats va
 - Onderdeel- en samenstellingsmerken die na elke wijziging vanzelf bijwerken.
 - Exports: IFC4, DSTV NC-bestanden (I-profielen en platen), stuklijst als CSV, buigstaat als CSV en een werkplaatstekening als PDF van één onderdeel.
 
-## DetailCraft openen
+## Manafe3 openen
 
-1. Open DetailCraft in een desktopbrowser: Chrome, Edge, Firefox of Safari. Zie [Browsers en computers](common:browsers).
+1. Open Manafe3 in een desktopbrowser: Chrome, Edge, Firefox of Safari. Zie [Browsers en computers](common:browsers).
 2. Wacht tot het scherm zich vult. De statusbalk onderaan zegt "Klaar. Open het voorbeeld, of stel rasters en niveaus in en begin met staven plaatsen."
 
 De modelweergave heeft 3D-graphics (WebGL) nodig. Zegt het midden van het scherm "Deze browser kon geen 3D-graphics starten (WebGL)", zie dan [Problemen oplossen](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Uw modellen blijven op uw computer. Een model openen leest het in de browser en opslaan downloadt een bestand. Er wordt niets geüpload. Opslaan in de cloud is nog niet beschikbaar. Zie [Waar uw bestanden heen gaan](common:your-files). Om DetailCraft later zonder verbinding te gebruiken, kiest u eenmalig terwijl u online bent {{ui:Opslaan voor offline gebruik}} in de appbalk; zie [Offline werken](common:offline).
+Uw modellen blijven op uw computer. Een model openen leest het in de browser en opslaan downloadt een bestand. Er wordt niets geüpload. Opslaan in de cloud is nog niet beschikbaar. Zie [Waar uw bestanden heen gaan](common:your-files). Om Manafe3 later zonder verbinding te gebruiken, kiest u eenmalig terwijl u online bent {{ui:Opslaan voor offline gebruik}} in de appbalk; zie [Offline werken](common:offline).
 :::
 
 :::offline
-U bent offline. DetailCraft werkt alleen zonder verbinding als het eerst voor offline gebruik is opgeslagen: de knop {{ui:Opslaan voor offline gebruik}} in de appbalk staat dan op {{ui:Klaar voor offline gebruik}}. Zie [Offline werken](common:offline).
+U bent offline. Manafe3 werkt alleen zonder verbinding als het eerst voor offline gebruik is opgeslagen: de knop {{ui:Opslaan voor offline gebruik}} in de appbalk staat dan op {{ui:Klaar voor offline gebruik}}. Zie [Offline werken](common:offline).
 :::
 
 ## Kijk eerst naar het voorbeeld
 
-De snelste manier om te zien wat DetailCraft maakt, is het voorbeeldraamwerk.
+De snelste manier om te zien wat Manafe3 maakt, is het voorbeeldraamwerk.
 
 1. Kies {{ui:Voorbeeld}} in de groep {{ui:Bestand}} van de werkbalk.
 2. De weergave toont een raamwerk met twee velden: zes kolommen met voetplaten, vier liggers met kopplaten, één verband en zeven funderingen met wapening.
@@ -49,7 +49,7 @@ De rondleiding [Het voorbeeldraamwerk verkennen](topic:sample-model) loopt er st
 
 Een nieuw model heeft al rasters 1 tot 3 bij A tot B op 6000 mm en twee niveaus, Niveau 1 op 0 en Niveau 2 op 4000.
 
-1. Kies {{ui:Nieuw}}. Heeft het huidige model wijzigingen, dan vraagt DetailCraft of u die eerst wilt opslaan.
+1. Kies {{ui:Nieuw}}. Heeft het huidige model wijzigingen, dan vraagt Manafe3 of u die eerst wilt opslaan.
 2. Kies boven de weergave {{ui:Plattegrond}}. De niveaulijst ernaast kiest Niveau 1.
 3. Kies {{ui:Kolom}} in de werkbalk, of druk op {{key:C}}.
 4. Klik op de rasterkruising A/1. Er verschijnt een W12x50-kolom van Niveau 1 tot Niveau 2. De statusbalk zegt waar hij terechtkwam.

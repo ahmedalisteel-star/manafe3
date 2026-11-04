@@ -41,4 +41,4 @@ Anda kini luar talian. Jika aplikasi ini disimpan untuk kegunaan luar talian, se
 Safari mengeluarkan data laman yang disimpan daripada laman yang tidak anda lawati selama beberapa minggu. Buka aplikasi sekali-sekala semasa dalam talian, atau simpan semula sebelum perjalanan.
 :::
 
-- CadCraft Studio, aplikasi desktop dengan kesemua lapan aplikasi dalam satu pemasangan, terdapat di getcadcraft.com/download.
+- Manafe3 Desktop, aplikasi desktop dengan kesemua lapan aplikasi dalam satu pemasangan, terdapat di getcadcraft.com/download.

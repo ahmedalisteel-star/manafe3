@@ -1,17 +1,17 @@
 ---
 title: Un recorregut per la pantalla
-summary: Cada barra, tauler i pestanya de DetailCraft pel seu nom a la pantalla, i per a què serveix cadascun.
+summary: Cada barra, tauler i pestanya de Manafe3 pel seu nom a la pantalla, i per a què serveix cadascun.
 keywords: pantalla, disposició, barra d'eines, taulers, propietats, barra d'estat, informes, interfície, ui, pestanyes
 from: 454f74fd
 ---
 
-DetailCraft omple la finestra del navegador sota la barra de l'aplicació. De dalt a baix: la barra d'eines, després tres columnes (el tauler {{ui:Model}}, la vista i el tauler {{ui:Propietats}}), després les pestanyes d'informe, i després la barra d'estat.
+Manafe3 omple la finestra del navegador sota la barra de l'aplicació. De dalt a baix: la barra d'eines, després tres columnes (el tauler {{ui:Model}}, la vista i el tauler {{ui:Propietats}}), després les pestanyes d'informe, i després la barra d'estat.
 
 ## La barra de l'aplicació
 
-La barra prima de dalt de tot pertany a la pàgina de CadCraft, no al model. Mostra el nom i la versió de l'aplicació, un enllaç a {{ui:Quant a DetailCraft}}, {{ui:Ajuda}} (o {{key:F1}}) per a aquesta ajuda, {{ui:Desa per fer-lo servir sense connexió}}, el botó de mode de pantalla i l'interruptor {{ui:Paper}} / {{ui:Model}}.
+La barra prima de dalt de tot pertany a la pàgina de Manafe3, no al model. Mostra el nom i la versió de l'aplicació, un enllaç a {{ui:Quant a Manafe3}}, {{ui:Ajuda}} (o {{key:F1}}) per a aquesta ajuda, {{ui:Desa per fer-lo servir sense connexió}}, el botó de mode de pantalla i l'interruptor {{ui:Paper}} / {{ui:Model}}.
 
-- {{ui:Desa per fer-lo servir sense connexió}} manté DetailCraft, la vista 3D i aquesta ajuda al navegador perquè s'obrin sense connexió. Quan està desat, mostra {{ui:Disponible sense connexió}}; feu-hi clic llavors per {{ui:Torna a desar (obté la versió més recent)}} o {{ui:Elimina la còpia sense connexió}}. Vegeu [Treballar sense connexió](common:offline).
+- {{ui:Desa per fer-lo servir sense connexió}} manté Manafe3, la vista 3D i aquesta ajuda al navegador perquè s'obrin sense connexió. Quan està desat, mostra {{ui:Disponible sense connexió}}; feu-hi clic llavors per {{ui:Torna a desar (obté la versió més recent)}} o {{ui:Elimina la còpia sense connexió}}. Vegeu [Treballar sense connexió](common:offline).
 - {{ui:Paper}} dona una pantalla clara i {{ui:Model}} una de fosca. La vista 3D se segueix a l'instant; res del vostre model no canvia.
 - El botó de mode de pantalla i {{key:Ctrl+Shift+F}} alternen entre normal, pantalla completa i pantalla completa amb les barres amagades. {{key:Ctrl+Shift+F}} usa la tecla Control en tots els ordinadors, també al Mac. Amb les barres amagades, apunteu a la vora superior de la pantalla (o toqueu-la) per fer-les tornar. {{key:Esc}} surt de la pantalla completa.
 
@@ -70,7 +70,7 @@ Els camps numèrics tenen efecte quan premeu {{key:Enter}} o en sortiu. Cada can
 
 ## Les pestanyes d'informe (a baix)
 
-- {{ui:Problemes}}: tot el que DetailCraft no ha pogut construir o vol que comproveu, amb un botó {{ui:Selecciona}} a cada línia. La pestanya mostra el recompte entre parèntesis.
+- {{ui:Problemes}}: tot el que Manafe3 no ha pogut construir o vol que comproveu, amb un botó {{ui:Selecciona}} a cada línia. La pestanya mostra el recompte entre parèntesis.
 - {{ui:Llista de materials}}: peces, conjunts, i cargols i barres d'ancoratge, amb pesos i un enllaç {{ui:Baixa CSV}}. Feu clic en una marca de peça per seleccionar aquella peça.
 - {{ui:Quadre de doblegat}}: cada marca de barra de cada sabata, amb un enllaç {{ui:Baixa CSV}}.
 
@@ -84,4 +84,4 @@ El títol de la pestanya del navegador comença amb un punt (•) mentre el mode
 
 ## En una pantalla estreta
 
-Per sota d'uns 760 píxels d'amplada, les columnes s'apilen: barra d'eines, vista, barra d'estat, {{ui:Propietats}}, pestanyes d'informe i, l'últim, el tauler {{ui:Model}}. Desplaceu la pàgina per arribar-hi. DetailCraft està dissenyat per a una pantalla d'escriptori o de portàtil; un telèfon serveix per mirar, no per detallar.
+Per sota d'uns 760 píxels d'amplada, les columnes s'apilen: barra d'eines, vista, barra d'estat, {{ui:Propietats}}, pestanyes d'informe i, l'últim, el tauler {{ui:Model}}. Desplaceu la pàgina per arribar-hi. Manafe3 està dissenyat per a una pantalla d'escriptori o de portàtil; un telèfon serveix per mirar, no per detallar.

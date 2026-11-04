@@ -54,7 +54,7 @@ Kai kurios programos priima prisilietimus (vienu pirštu piešiate arba pasirenk
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS ir iOS 16.4) |
 
-CadCraft Studio „Windows“ sistemoje turi savo žiniatinklio variklį, todėl jai reikia Windows 10 arba 11; Mac kompiuteryje ji naudoja sistemos variklį, todėl jai reikia macOS 13.3 arba naujesnės. Parametrai › Naujinimai Studio programoje rodo, kokioje sistemoje veikia jūsų kopija.
+Manafe3 Desktop „Windows“ sistemoje turi savo žiniatinklio variklį, todėl jai reikia Windows 10 arba 11; Mac kompiuteryje ji naudoja sistemos variklį, todėl jai reikia macOS 13.3 arba naujesnės. Parametrai › Naujinimai Studio programoje rodo, kokioje sistemoje veikia jūsų kopija.
 
 Tai seniausia versija, kuri *pasileidžia*, nustatyta iš kodo. Tai nėra sąrašas senų naršyklių, kuriose mes bandėme programas, todėl senesnė naršyklė, kuri pasileidžia, vis tiek gali neturėti kai kurių savybių.
 

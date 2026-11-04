@@ -26,7 +26,7 @@ When a test asks for files, drag them into the framed area (or click it, or pres
 - A result sent while you are signed in carries your account so we can write back. It is never shown on the page.
 - Your first name is shown next to a result only if you tick **Show my first name**.
 - Notes are shown to others only if you tick **Anyone may read my notes**.
-- Files are seen only by the CadCraft team, kept privately and deleted automatically after the number of days the form states. Remove anything private from a file first.
+- Files are seen only by the Manafe3 team, kept privately and deleted automatically after the number of days the form states. Remove anything private from a file first.
 
 ## What counts as "known not to work"
 

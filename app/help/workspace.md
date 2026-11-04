@@ -1,18 +1,18 @@
 ---
 title: A tour of the screen
-summary: Every bar, panel and tab in DetailCraft by its on-screen name, and what each one is for.
+summary: Every bar, panel and tab in Manafe3 by its on-screen name, and what each one is for.
 section: start
 order: 20
 keywords: screen, layout, toolbar, panels, properties, status bar, reports, interface, ui, tabs
 ---
 
-DetailCraft fills the browser window below the app bar. From top to bottom: the toolbar, then three columns (the {{ui:Model}} panel, the view, the {{ui:Properties}} panel), then the report tabs, then the status bar.
+Manafe3 fills the browser window below the app bar. From top to bottom: the toolbar, then three columns (the {{ui:Model}} panel, the view, the {{ui:Properties}} panel), then the report tabs, then the status bar.
 
 ## The app bar
 
-The slim bar at the very top belongs to the CadCraft site, not to the model. It shows the app name and version, a link to {{ui:About DetailCraft}}, {{ui:Help}} (or {{key:F1}}) for this help, {{ui:Save for offline}}, the screen-mode button and the {{ui:Paper}} / {{ui:Model}} switch.
+The slim bar at the very top belongs to the Manafe3 site, not to the model. It shows the app name and version, a link to {{ui:About Manafe3}}, {{ui:Help}} (or {{key:F1}}) for this help, {{ui:Save for offline}}, the screen-mode button and the {{ui:Paper}} / {{ui:Model}} switch.
 
-- {{ui:Save for offline}} keeps DetailCraft, its 3D view and this help in your browser so it opens with no connection. It reads {{ui:Offline ready}} once saved; click it then for {{ui:Save again (get the newest version)}} or {{ui:Remove the offline copy}}. See [Working offline](common:offline).
+- {{ui:Save for offline}} keeps Manafe3, its 3D view and this help in your browser so it opens with no connection. It reads {{ui:Offline ready}} once saved; click it then for {{ui:Save again (get the newest version)}} or {{ui:Remove the offline copy}}. See [Working offline](common:offline).
 - {{ui:Paper}} gives a light screen and {{ui:Model}} a dark one. The 3D view follows at once; nothing in your model changes.
 - The screen-mode button and {{key:Ctrl+Shift+F}} cycle through normal, full screen, and full screen with the bars hidden. {{key:Ctrl+Shift+F}} uses the Control key on every computer, a Mac included. With the bars hidden, point at the top edge of the screen (or tap it) to bring them back. {{key:Esc}} leaves full screen.
 
@@ -71,7 +71,7 @@ Number fields take effect when you press {{key:Enter}} or leave the field. Each 
 
 ## The report tabs (bottom)
 
-- {{ui:Problems}}: everything DetailCraft could not build or wants you to check, with a {{ui:Select}} button on each line. The tab shows the count in brackets.
+- {{ui:Problems}}: everything Manafe3 could not build or wants you to check, with a {{ui:Select}} button on each line. The tab shows the count in brackets.
 - {{ui:Bill of materials}}: parts, assemblies, and bolts and anchor rods, with weights and a {{ui:Download CSV}} link. Click a part mark to select that part.
 - {{ui:Bending schedule}}: every bar mark in every footing, with a {{ui:Download CSV}} link.
 
@@ -85,4 +85,4 @@ The browser tab title starts with a dot (•) while the model has changes you ha
 
 ## On a narrow screen
 
-Below about 760 pixels wide, the columns stack: toolbar, view, status bar, {{ui:Properties}}, report tabs, then the {{ui:Model}} panel last. Scroll the page to reach them. DetailCraft is laid out for a desktop or laptop screen; a phone works for looking, not for detailing.
+Below about 760 pixels wide, the columns stack: toolbar, view, status bar, {{ui:Properties}}, report tabs, then the {{ui:Model}} panel last. Scroll the page to reach them. Manafe3 is laid out for a desktop or laptop screen; a phone works for looking, not for detailing.

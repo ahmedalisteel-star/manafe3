@@ -1,18 +1,18 @@
 ---
 title: Open, save and export files
-summary: The DetailCraft model file, every export it writes, where the files go, and what differs by browser and connection.
+summary: The Manafe3 model file, every export it writes, where the files go, and what differs by browser and connection.
 section: start
 order: 30
 keywords: open, save, export, download, file, json, ifc, nc1, dstv, csv, pdf, zip, formats, import
 ---
 
-DetailCraft has one file of its own, the model, and five exports. Every save and every export is a download. Nothing is uploaded, and nothing is kept on a server.
+Manafe3 has one file of its own, the model, and five exports. Every save and every export is a download. Nothing is uploaded, and nothing is kept on a server.
 
 ## The model file
 
-A DetailCraft model is saved as `<name>.detailcraft.json`, where `<name>` is the model name in the {{ui:Model}} panel. It holds the grids, levels, members (with their holes and copes), connections and their settings, footings and your custom profiles.
+A Manafe3 model is saved as `<name>.detailcraft.json`, where `<name>` is the model name in the {{ui:Model}} panel. It holds the grids, levels, members (with their holes and copes), connections and their settings, footings and your custom profiles.
 
-Parts, marks, bolts, welds and bars are not stored: DetailCraft works them out again from the model every time it opens. That is why a model file is small.
+Parts, marks, bolts, welds and bars are not stored: Manafe3 works them out again from the model every time it opens. That is why a model file is small.
 
 ### Save
 
@@ -39,21 +39,21 @@ Safari saves to your Downloads folder. To change the folder, open **Safari, Sett
 1. Choose {{ui:Open}} in the {{ui:File}} group, or press {{key:Mod+O}}.
 2. Pick a `.detailcraft.json` file.
 
-Or drag the file from {{pick:mac=Finder|windows=File Explorer|linux=your file manager}} and drop it on the view. The view says "Drop a DetailCraft model to open it" while you drag.
+Or drag the file from {{pick:mac=Finder|windows=File Explorer|linux=your file manager}} and drop it on the view. The view says "Drop a Manafe3 model to open it" while you drag.
 
-If the open model has unsaved changes, DetailCraft asks first: {{ui:Cancel}}, {{ui:Discard changes}} or {{ui:Save first}}.
+If the open model has unsaved changes, Manafe3 asks first: {{ui:Cancel}}, {{ui:Discard changes}} or {{ui:Save first}}.
 
-DetailCraft checks every field of a file before it uses it. Anything it cannot use is left out and the status bar says what, for example "2 members were not valid and left out." A model saved by a newer DetailCraft is refused with a message rather than opened half right.
+Manafe3 checks every field of a file before it uses it. Anything it cannot use is left out and the status bar says what, for example "2 members were not valid and left out." A model saved by a newer Manafe3 is refused with a message rather than opened half right.
 
 ### What it opens
 
-Its own model files (`.json`, up to 50 MB) and IFC files (`.ifc`, IFC2X3 or IFC4, up to 200 MB). An IFC file, opened or brought in with {{ui:Import IFC}}, becomes a new model of its beams, columns, members, plates, grids and levels, with the holes and copes cut in them and its bolts as loose bolts; a report lists what was left out. See [IFC export](topic:ifc-export#import). It does not open DWG, DXF or any other detailing program's model yet; trying shows "DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc)."
+Its own model files (`.json`, up to 50 MB) and IFC files (`.ifc`, IFC2X3 or IFC4, up to 200 MB). An IFC file, opened or brought in with {{ui:Import IFC}}, becomes a new model of its beams, columns, members, plates, grids and levels, with the holes and copes cut in them and its bolts as loose bolts; a report lists what was left out. See [IFC export](topic:ifc-export#import). It does not open DWG, DXF or any other detailing program's model yet; trying shows "Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc)."
 
 ## Lost work, recent files, the desktop app
 
-- While the model has changes you have not saved, DetailCraft keeps a copy in this browser. If the tab or the browser stops before you save, the next time you open DetailCraft it asks **Recover your work?**: recover the copy, or let it go. See [Recover your work](common:recover).
-- Models you opened lately are listed on the start screen when the browser lets DetailCraft open them again; click one to reopen it.
-- In the desktop app, {{ui:Save}} writes the model back to the file you opened (in the browser it downloads a copy), and double-clicking a DetailCraft model or an IFC file opens it in DetailCraft.
+- While the model has changes you have not saved, Manafe3 keeps a copy in this browser. If the tab or the browser stops before you save, the next time you open Manafe3 it asks **Recover your work?**: recover the copy, or let it go. See [Recover your work](common:recover).
+- Models you opened lately are listed on the start screen when the browser lets Manafe3 open them again; click one to reopen it.
+- In the desktop app, {{ui:Save}} writes the model back to the file you opened (in the browser it downloads a copy), and double-clicking a Manafe3 model or an IFC file opens it in Manafe3.
 
 ## Exports
 
@@ -80,13 +80,13 @@ Text in the PDF uses the standard Helvetica font. Characters it does not have (o
 
 ## Units
 
-DetailCraft works in millimeters throughout: grids, levels, coordinates, profiles, holes and every export. Profile names keep their published form (W12x50 is a US designation even though its dimensions are shown in mm). There is no imperial input yet.
+Manafe3 works in millimeters throughout: grids, levels, coordinates, profiles, holes and every export. Profile names keep their published form (W12x50 is a US designation even though its dimensions are shown in mm). There is no imperial input yet.
 
 ## Online and offline
 
-Opening, saving and exporting all happen in your browser, so they work the same with or without a connection once DetailCraft has loaded.
+Opening, saving and exporting all happen in your browser, so they work the same with or without a connection once Manafe3 has loaded.
 
-To use DetailCraft with no connection later, choose {{ui:Save for offline}} in the app bar while you are online. The button counts up ("Saving 3 of 20") and then reads {{ui:Offline ready}}. The saved copy includes the 3D graphics library (about 2.6 MB) and this help, so once it is saved the 3D view, every export and the help all work offline. Details, and what still needs a connection: [Working offline](common:offline).
+To use Manafe3 with no connection later, choose {{ui:Save for offline}} in the app bar while you are online. The button counts up ("Saving 3 of 20") and then reads {{ui:Offline ready}}. The saved copy includes the 3D graphics library (about 2.6 MB) and this help, so once it is saved the 3D view, every export and the help all work offline. Details, and what still needs a connection: [Working offline](common:offline).
 
 :::offline
 You are offline. If the app bar shows {{ui:Offline ready}}, opening, saving and exporting work as usual. If it does not, keep this tab open, do not reload it until you are back online, and save your model now.
@@ -96,4 +96,4 @@ Cloud saving is not available yet, and there are no desktop builds yet. Back up 
 
 ## Unsaved work
 
-DetailCraft keeps the model only in the open tab. If you close or reload the tab with unsaved changes, the browser asks whether to leave the page; its wording is the browser's own. Save with {{key:Mod+S}} often.
+Manafe3 keeps the model only in the open tab. If you close or reload the tab with unsaved changes, the browser asks whether to leave the page; its wording is the browser's own. Save with {{key:Mod+S}} often.

@@ -41,4 +41,4 @@ Olet nyt offline. Jos tämä sovellus tallennettiin offline-käyttöön, kaikki 
 Safari poistaa tallennetut sivustotiedot sivustoilta, joilla et ole käynyt useaan viikkoon. Avaa sovellus silloin tällöin online-tilassa tai tallenna se uudelleen ennen matkaa.
 :::
 
-- CadCraft Studio, työpöytäsovellus, jossa kaikki kahdeksan sovellusta ovat yhdessä asennuksessa, löytyy osoitteesta getcadcraft.com/download.
+- Manafe3 Desktop, työpöytäsovellus, jossa kaikki kahdeksan sovellusta ovat yhdessä asennuksessa, löytyy osoitteesta getcadcraft.com/download.

@@ -1,11 +1,11 @@
 ---
-title: Pradžia su DetailCraft
-summary: Ką DetailCraft daro šiandien, kaip jį atidaryti ir pirmasis modelis nuo tinklelių iki dirbtuvių brėžinio per dešimt minučių.
+title: Pradžia su Manafe3
+summary: Ką Manafe3 daro šiandien, kaip jį atidaryti ir pirmasis modelis nuo tinklelių iki dirbtuvių brėžinio per dešimt minučių.
 keywords: pradžia, pirmasis modelis, įvadas, plieno detalizavimas, armatūra, greitas startas, pamoka, apžvalga
 from: 3682c0d8
 ---
 
-DetailCraft yra plieno ir armatūros detalizavimo programa CadCraft produktų šeimoje. Kuriate plieninio karkaso 3D modelį ant tinklelių ir lygių, sujungiate jį ir gaunate tai, ko reikia dirbtuvėms: detalių ir surinkimų žymenis, medžiagų sąrašą, atskirų detalių dirbtuvių brėžinius, DSTV NC failus, IFC modelį ir pamatų lenkimo žiniaraštį.
+Manafe3 yra plieno ir armatūros detalizavimo programa Manafe3 produktų šeimoje. Kuriate plieninio karkaso 3D modelį ant tinklelių ir lygių, sujungiate jį ir gaunate tai, ko reikia dirbtuvėms: detalių ir surinkimų žymenis, medžiagų sąrašą, atskirų detalių dirbtuvių brėžinius, DSTV NC failus, IFC modelį ir pamatų lenkimo žiniaraštį.
 
 Tai ankstyva versija. Ji atlieka trumpą darbų sąrašą kruopščiai, o ne viską iš karto. Prieš planuodami tikrą darbą, perskaitykite [Kas dar neįgyvendinta](topic:not-built-yet).
 
@@ -19,24 +19,24 @@ Tai ankstyva versija. Ji atlieka trumpą darbų sąrašą kruopščiai, o ne vis
 - Detalių ir surinkimų žymenys, kurie po kiekvieno pakeitimo atsinaujina patys.
 - Eksportai: IFC4, DSTV NC failai (I formos profiliams ir plokštėms), medžiagų sąrašas CSV formatu, lenkimo žiniaraštis CSV formatu ir vienos detalės dirbtuvių brėžinio PDF.
 
-## Atidarykite DetailCraft
+## Atidarykite Manafe3
 
-1. Atidarykite DetailCraft darbalaukio naršyklėje: Chrome, Edge, Firefox arba Safari. Žr. [Naršyklės ir kompiuteriai](common:browsers).
+1. Atidarykite Manafe3 darbalaukio naršyklėje: Chrome, Edge, Firefox arba Safari. Žr. [Naršyklės ir kompiuteriai](common:browsers).
 2. Palaukite, kol ekranas užsipildys. Apatinėje būsenos juostoje parašyta: „Paruošta. Atidarykite pavyzdį arba nustatykite tinklelius ir lygius bei pradėkite dėti elementus.“
 
 Modelio vaizdui reikia 3D grafikos (WebGL). Jei ekrano viduryje parašyta: „Ši naršyklė negalėjo paleisti 3D grafikos (WebGL)“, žr. [Trikčių šalinimas](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Jūsų modeliai lieka jūsų kompiuteryje. Modelio atidarymas nuskaito jį naršyklėje, o įrašymas atsisiunčia failą. Nieko neįkeliama. Debesies saugojimas dar nepasiekiamas. Žr. [Kur saugomi jūsų failai](common:your-files). Norėdami vėliau naudoti DetailCraft be ryšio, būdami prisijungę vieną kartą spustelėkite {{ui:Įrašyti neprisijungus}} programos juostoje; žr. [Darbas neprisijungus](common:offline).
+Jūsų modeliai lieka jūsų kompiuteryje. Modelio atidarymas nuskaito jį naršyklėje, o įrašymas atsisiunčia failą. Nieko neįkeliama. Debesies saugojimas dar nepasiekiamas. Žr. [Kur saugomi jūsų failai](common:your-files). Norėdami vėliau naudoti Manafe3 be ryšio, būdami prisijungę vieną kartą spustelėkite {{ui:Įrašyti neprisijungus}} programos juostoje; žr. [Darbas neprisijungus](common:offline).
 :::
 
 :::offline
-Jūs esate neprisijungę. DetailCraft veikia be ryšio tik tuo atveju, jei prieš tai buvo įrašytas darbui neprisijungus: mygtukas {{ui:Įrašyti neprisijungus}} programos juostoje tada rodo {{ui:Paruošta neprisijungus}}. Žr. [Darbas neprisijungus](common:offline).
+Jūs esate neprisijungę. Manafe3 veikia be ryšio tik tuo atveju, jei prieš tai buvo įrašytas darbui neprisijungus: mygtukas {{ui:Įrašyti neprisijungus}} programos juostoje tada rodo {{ui:Paruošta neprisijungus}}. Žr. [Darbas neprisijungus](common:offline).
 :::
 
 ## Pirmiausia pažvelkite į pavyzdį
 
-Greičiausias būdas pamatyti, ką sukuria DetailCraft, – pavyzdinis karkasas.
+Greičiausias būdas pamatyti, ką sukuria Manafe3, – pavyzdinis karkasas.
 
 1. Įrankių juostos grupėje {{ui:Failas}} pasirinkite {{ui:Pavyzdys}}.
 2. Vaizde rodomas dviejų angų karkasas: šeši stulpai su pagrindo plokštėmis, keturios sijos su galinėmis plokštėmis, viena įstrižainė ir septyni pamatai su armatūra.
@@ -49,7 +49,7 @@ Vadovas [Pavyzdinio karkaso apžiūra](topic:sample-model) aprašo jį detalė p
 
 Naujame modelyje jau yra tinkleliai 1–3 pagal A–B po 6000 mm ir du lygiai: Lygis 1 aukštyje 0 ir Lygis 2 – 4000.
 
-1. Pasirinkite {{ui:Naujas}}. Jei dabartiniame modelyje yra pakeitimų, DetailCraft klausia, ar pirmiausia juos įrašyti.
+1. Pasirinkite {{ui:Naujas}}. Jei dabartiniame modelyje yra pakeitimų, Manafe3 klausia, ar pirmiausia juos įrašyti.
 2. Virš vaizdo pasirinkite {{ui:Planas}}. Šalia esantis lygių sąrašas parenka Lygį 1.
 3. Įrankių juostoje pasirinkite {{ui:Kolona}} arba paspauskite {{key:C}}.
 4. Spustelėkite tinklelio susikirtimą A/1. Atsiranda W12x50 kolona nuo Lygio 1 iki Lygio 2. Būsenos juostoje parašyta, kur ji įdėta.

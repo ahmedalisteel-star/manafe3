@@ -41,4 +41,4 @@ Offline ka ngayon. Kung na-save para sa offline na paggamit ang app na ito, guma
 Inaalis ng Safari ang naka-save na site data mula sa mga site na hindi mo nabisita nang ilang linggo. Buksan paminsan-minsan ang app habang online, o i-save muli bago bumiyahe.
 :::
 
-- CadCraft Studio, ang desktop app na may lahat ng walong app sa iisang install, ay nasa getcadcraft.com/download.
+- Manafe3 Desktop, ang desktop app na may lahat ng walong app sa iisang install, ay nasa getcadcraft.com/download.

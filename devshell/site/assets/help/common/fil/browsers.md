@@ -54,7 +54,7 @@ Binasa namin ito mula sa code ng 0.7 apps, hindi hula lang: na-parse ang bawat f
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS at iOS 16.4) |
 
-Tumatakbo ang CadCraft Studio sa sarili nitong web engine sa Windows, kaya kailangan nito ng Windows 10 o 11; sa Mac, ginagamit nito ang sa sistema, kaya kailangan nito ng macOS 13.3 o mas bago. Ipinapakita ng Mga setting › Updates sa Studio kung saang sistema tumatakbo ang kopya mo.
+Tumatakbo ang Manafe3 Desktop sa sarili nitong web engine sa Windows, kaya kailangan nito ng Windows 10 o 11; sa Mac, ginagamit nito ang sa sistema, kaya kailangan nito ng macOS 13.3 o mas bago. Ipinapakita ng Mga setting › Updates sa Studio kung saang sistema tumatakbo ang kopya mo.
 
 Ito ang pinakalumang bersyon na *nagsisimula*, base sa code. Hindi ito listahan ng mga lumang browser na pinatakbuhan namin ng app, kaya ang mas lumang browser na nagsisimula ay maaari pa ring kulang sa ilang feature.
 

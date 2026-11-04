@@ -41,4 +41,4 @@ Sada ste van mreže. Ako je ova aplikacija sačuvana za rad van mreže, sve ispo
 Safari uklanja sačuvane podatke sajta sa sajtova koje niste posetili nekoliko nedelja. Otvorite aplikaciju s vremena na vreme dok ste na mreži, ili je ponovo sačuvajte pre putovanja.
 :::
 
-- CadCraft Studio, desktop aplikacija sa svih osam aplikacija u jednoj instalaciji, nalazi se na getcadcraft.com/download.
+- Manafe3 Desktop, desktop aplikacija sa svih osam aplikacija u jednoj instalaciji, nalazi se na getcadcraft.com/download.

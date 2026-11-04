@@ -1,12 +1,12 @@
 ---
 title: Explore the sample frame
-summary: Open the built-in two-bay frame and use it to learn what DetailCraft makes, from marks to NC files.
+summary: Open the built-in two-bay frame and use it to learn what Manafe3 makes, from marks to NC files.
 section: tasks
 order: 20
 keywords: sample, example, demo, frame, learn, tour, try
 ---
 
-The sample frame is a small, complete model: every kind of thing DetailCraft builds appears at least once. It is the quickest way to learn the app and to test an export before you rely on it.
+The sample frame is a small, complete model: every kind of thing Manafe3 builds appears at least once. It is the quickest way to learn the app and to test an export before you rely on it.
 
 ## Open it
 

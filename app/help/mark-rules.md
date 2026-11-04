@@ -6,7 +6,7 @@ order: 30
 keywords: marks, numbering, part mark, assembly mark, piece mark, prefix, tolerance, identical parts, bar marks, footing marks
 ---
 
-DetailCraft recalculates every mark after every change. Nothing is stored, so the marks always describe the model as it is now. See [Check marks and the bill of materials](topic:marks-and-bom) for how to use them.
+Manafe3 recalculates every mark after every change. Nothing is stored, so the marks always describe the model as it is now. See [Check marks and the bill of materials](topic:marks-and-bom) for how to use them.
 
 ## Part marks
 

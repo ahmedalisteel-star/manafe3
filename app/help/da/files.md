@@ -1,17 +1,17 @@
 ---
 title: Åbn, gem og eksportér filer
-summary: DetailCraft-modelfilen, hver eksport den skriver, hvor filerne havner, og hvad der er forskelligt efter browser og forbindelse.
+summary: Manafe3-modelfilen, hver eksport den skriver, hvor filerne havner, og hvad der er forskelligt efter browser og forbindelse.
 keywords: åbn, gem, eksport, download, fil, json, ifc, nc1, dstv, csv, pdf, zip, formater, import
 from: bd715ea3
 ---
 
-DetailCraft har én fil af sin egen, modellen, og fem eksporter. Hver gemning og hver eksport er en download. Der uploades intet, og intet opbevares på en server.
+Manafe3 har én fil af sin egen, modellen, og fem eksporter. Hver gemning og hver eksport er en download. Der uploades intet, og intet opbevares på en server.
 
 ## Modelfilen
 
-En DetailCraft-model gemmes som `<navn>.detailcraft.json`, hvor `<navn>` er modellens navn i panelet {{ui:Model}}. Den rummer gitrene, niveauerne, stålprofilerne (med deres huller og udskæringer), forbindelserne og deres indstillinger, fundamenterne og dine egne profiler.
+En Manafe3-model gemmes som `<navn>.detailcraft.json`, hvor `<navn>` er modellens navn i panelet {{ui:Model}}. Den rummer gitrene, niveauerne, stålprofilerne (med deres huller og udskæringer), forbindelserne og deres indstillinger, fundamenterne og dine egne profiler.
 
-Dele, positionsnumre, bolte, svejsninger og stænger gemmes ikke: DetailCraft regner dem ud igen fra modellen, hver gang den åbnes. Det er derfor, en modelfil er lille.
+Dele, positionsnumre, bolte, svejsninger og stænger gemmes ikke: Manafe3 regner dem ud igen fra modellen, hver gang den åbnes. Det er derfor, en modelfil er lille.
 
 ### Gem
 
@@ -38,21 +38,21 @@ Safari gemmer i din mappe Downloads. For at ændre mappen åbner du **Safari, In
 1. Vælg {{ui:Åbn}} i gruppen {{ui:Fil}}, eller tryk på {{key:Mod+O}}.
 2. Vælg en `.detailcraft.json`-fil.
 
-Eller træk filen fra {{pick:mac=Finder|windows=Stifinder|linux=filhåndteringen}} og slip den på visningen. Visningen siger "Slip en DetailCraft-model for at åbne den", mens du trækker.
+Eller træk filen fra {{pick:mac=Finder|windows=Stifinder|linux=filhåndteringen}} og slip den på visningen. Visningen siger "Slip en Manafe3-model for at åbne den", mens du trækker.
 
-Hvis den åbne model har ugemte ændringer, spørger DetailCraft først: {{ui:Annuller}}, {{ui:Kassér ændringer}} eller {{ui:Gem først}}.
+Hvis den åbne model har ugemte ændringer, spørger Manafe3 først: {{ui:Annuller}}, {{ui:Kassér ændringer}} eller {{ui:Gem først}}.
 
-DetailCraft kontrollerer hvert felt i en fil, før den bruger den. Alt, den ikke kan bruge, udelades, og statuslinjen siger hvad, for eksempel "2 members were not valid and left out." En model gemt af en nyere DetailCraft afvises med en besked i stedet for at blive åbnet halvt rigtigt.
+Manafe3 kontrollerer hvert felt i en fil, før den bruger den. Alt, den ikke kan bruge, udelades, og statuslinjen siger hvad, for eksempel "2 members were not valid and left out." En model gemt af en nyere Manafe3 afvises med en besked i stedet for at blive åbnet halvt rigtigt.
 
 ### Det den åbner
 
-Sine egne modelfiler (`.json`, op til 50 MB) og IFC-filer (`.ifc`, IFC2X3 eller IFC4, op til 200 MB). En IFC-fil, åbnet eller hentet ind med {{ui:Importér IFC}}, bliver til en ny model af sine bjælker, søjler, stålprofiler, plader, gitre og niveauer, med hullerne og udskæringerne skåret i dem og dens bolte som løse bolte; en rapport viser, hvad der blev udeladt. Se [IFC-eksport](topic:ifc-export#import). Den åbner ikke DWG, DXF eller noget andet detaljeringsprograms model endnu; hvis du prøver, vises "DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc)."
+Sine egne modelfiler (`.json`, op til 50 MB) og IFC-filer (`.ifc`, IFC2X3 eller IFC4, op til 200 MB). En IFC-fil, åbnet eller hentet ind med {{ui:Importér IFC}}, bliver til en ny model af sine bjælker, søjler, stålprofiler, plader, gitre og niveauer, med hullerne og udskæringerne skåret i dem og dens bolte som løse bolte; en rapport viser, hvad der blev udeladt. Se [IFC-eksport](topic:ifc-export#import). Den åbner ikke DWG, DXF eller noget andet detaljeringsprograms model endnu; hvis du prøver, vises "Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc)."
 
 ## Tabt arbejde, seneste filer, skrivebordsappen
 
-- Mens modellen har ændringer, du ikke har gemt, beholder DetailCraft en kopi i denne browser. Hvis fanen eller browseren stopper, før du gemmer, spørger DetailCraft **Gendan dit arbejde?** næste gang, du åbner den: gendan kopien, eller lad den gå. Se [Gendan dit arbejde](common:recover).
-- Modeller, du har åbnet for nylig, står på startskærmen, når browseren lader DetailCraft åbne dem igen; klik på en for at åbne den igen.
-- I skrivebordsappen skriver {{ui:Gem}} modellen tilbage til den fil, du åbnede (i browseren downloader den en kopi), og et dobbeltklik på en DetailCraft-model eller en IFC-fil åbner den i DetailCraft.
+- Mens modellen har ændringer, du ikke har gemt, beholder Manafe3 en kopi i denne browser. Hvis fanen eller browseren stopper, før du gemmer, spørger Manafe3 **Gendan dit arbejde?** næste gang, du åbner den: gendan kopien, eller lad den gå. Se [Gendan dit arbejde](common:recover).
+- Modeller, du har åbnet for nylig, står på startskærmen, når browseren lader Manafe3 åbne dem igen; klik på en for at åbne den igen.
+- I skrivebordsappen skriver {{ui:Gem}} modellen tilbage til den fil, du åbnede (i browseren downloader den en kopi), og et dobbeltklik på en Manafe3-model eller en IFC-fil åbner den i Manafe3.
 
 ## Eksporter
 
@@ -79,13 +79,13 @@ Tekst i PDF'en bruger standardskrifttypen Helvetica. Tegn, den ikke har (uden fo
 
 ## Enheder
 
-DetailCraft arbejder i millimeter overalt: gitre, niveauer, koordinater, profiler, huller og hver eksport. Profilnavne beholder deres offentliggjorte form (W12x50 er en amerikansk betegnelse, selv om dens mål vises i mm). Der er endnu ingen imperial indtastning.
+Manafe3 arbejder i millimeter overalt: gitre, niveauer, koordinater, profiler, huller og hver eksport. Profilnavne beholder deres offentliggjorte form (W12x50 er en amerikansk betegnelse, selv om dens mål vises i mm). Der er endnu ingen imperial indtastning.
 
 ## Online og offline
 
-At åbne, gemme og eksportere sker alt sammen i din browser, så det virker på samme måde med eller uden forbindelse, når DetailCraft først er indlæst.
+At åbne, gemme og eksportere sker alt sammen i din browser, så det virker på samme måde med eller uden forbindelse, når Manafe3 først er indlæst.
 
-For at bruge DetailCraft uden forbindelse senere vælger du {{ui:Gem til offline brug}} i appfeltet, mens du er online. Knappen tæller op ("Saving 3 of 20") og siger derefter {{ui:Klar offline}}. Den gemte kopi indeholder 3D-grafikbiblioteket (omkring 2,6 MB) og denne hjælp, så når den er gemt, virker 3D-visningen, hver eksport og hjælpen alle sammen offline. Detaljer og hvad der stadig kræver forbindelse: [Arbejd offline](common:offline).
+For at bruge Manafe3 uden forbindelse senere vælger du {{ui:Gem til offline brug}} i appfeltet, mens du er online. Knappen tæller op ("Saving 3 of 20") og siger derefter {{ui:Klar offline}}. Den gemte kopi indeholder 3D-grafikbiblioteket (omkring 2,6 MB) og denne hjælp, så når den er gemt, virker 3D-visningen, hver eksport og hjælpen alle sammen offline. Detaljer og hvad der stadig kræver forbindelse: [Arbejd offline](common:offline).
 
 :::offline
 Du er offline. Hvis appfeltet viser {{ui:Klar offline}}, virker det at åbne, gemme og eksportere som sædvanligt. Hvis ikke, så hold denne fane åben, genindlæs den ikke, før du er online igen, og gem din model nu.
@@ -95,4 +95,4 @@ Gemning i skyen er der ikke endnu, og der er ingen skrivebordsbuilds endnu. Tag 
 
 ## Ugemt arbejde
 
-DetailCraft beholder kun modellen i den åbne fane. Hvis du lukker eller genindlæser fanen med ugemte ændringer, spørger browseren, om du vil forlade siden; dens ordlyd er browserens egen. Gem ofte med {{key:Mod+S}}.
+Manafe3 beholder kun modellen i den åbne fane. Hvis du lukker eller genindlæser fanen med ugemte ændringer, spørger browseren, om du vil forlade siden; dens ordlyd er browserens egen. Gem ofte med {{key:Mod+S}}.

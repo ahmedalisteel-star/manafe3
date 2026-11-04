@@ -54,7 +54,7 @@ Kami membacanya dari kode app 0.7, bukan dari perkiraan: setiap file diurai dan 
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS dan iOS 16.4) |
 
-CadCraft Studio membawa mesin webnya sendiri di Windows, jadi membutuhkan Windows 10 atau 11; di Mac memakai mesin milik sistem, jadi membutuhkan macOS 13.3 atau lebih baru. Pengaturan › Pembaruan di Studio menampilkan apa yang dipakai salinan Anda.
+Manafe3 Desktop membawa mesin webnya sendiri di Windows, jadi membutuhkan Windows 10 atau 11; di Mac memakai mesin milik sistem, jadi membutuhkan macOS 13.3 atau lebih baru. Pengaturan › Pembaruan di Studio menampilkan apa yang dipakai salinan Anda.
 
 Ini adalah versi tertua yang *dapat memulai*, dibaca dari kode. Ini bukan daftar peramban lama tempat kami menjalankan app, jadi peramban lebih lama yang bisa memulai mungkin tetap kekurangan suatu fitur.
 

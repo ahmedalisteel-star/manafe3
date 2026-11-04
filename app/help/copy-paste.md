@@ -27,11 +27,11 @@ What comes along:
 
 - Each member whole: profile, material, ends, position, rotation, name, holes and copes. A custom profile it uses is copied too.
 - Each footing whole: size, concrete, bottom mat and starter bars.
-- End plates and base plates, but only when every member a connection joins is copied: a beam's end plate needs the beam and its column. The status bar says how many connections were left out. To leave connections out on purpose, clear **Copy end plates and base plates with their members** in [DetailCraft settings](topic:settings).
+- End plates and base plates, but only when every member a connection joins is copied: a beam's end plate needs the beam and its column. The status bar says how many connections were left out. To leave connections out on purpose, clear **Copy end plates and base plates with their members** in [Manafe3 settings](topic:settings).
 
 A connection on its own cannot be copied; select its members instead. To give other joints the same connection, use {{ui:Similar}} (see [End plates](topic:end-plates#copy-it-to-every-similar-joint)).
 
-The copy stays in this browser until you copy something else. Another DetailCraft tab or window in the same browser can paste it, so you can copy a frame from one model and paste it into another.
+The copy stays in this browser until you copy something else. Another Manafe3 tab or window in the same browser can paste it, so you can copy a frame from one model and paste it into another.
 
 ## Paste on a grid intersection
 
@@ -49,7 +49,7 @@ To repeat a bay, select the bay's members (or everything with {{key:Mod+A}}), co
 
 While pasting, the {{ui:Properties}} panel shows what is on the clipboard and two forms:
 
-- {{ui:Paste by offset (mm, from the original)}}: type x, y and z and choose {{ui:Paste at this offset}}. It starts with the offset from [DetailCraft settings](topic:settings).
+- {{ui:Paste by offset (mm, from the original)}}: type x, y and z and choose {{ui:Paste at this offset}}. It starts with the offset from [Manafe3 settings](topic:settings).
 - {{ui:Paste onto a grid intersection}}: pick a lettered grid, a numbered grid and a level, and choose {{ui:Paste here}}. The base point goes there.
 
 ## Paste in place
@@ -58,7 +58,7 @@ While pasting, the {{ui:Properties}} panel shows what is on the clipboard and tw
 
 ## Duplicate
 
-{{ui:Duplicate}} ({{key:Mod+D}}) copies the selection and pastes it at once, moved by the offset in [DetailCraft settings](topic:settings) (6000 mm along x to start with). It does not change what is on the clipboard. The copies are selected afterwards, so pressing {{key:Mod+D}} again makes the next one from them.
+{{ui:Duplicate}} ({{key:Mod+D}}) copies the selection and pastes it at once, moved by the offset in [Manafe3 settings](topic:settings) (6000 mm along x to start with). It does not change what is on the clipboard. The copies are selected afterwards, so pressing {{key:Mod+D}} again makes the next one from them.
 
 ## Cut and delete
 
@@ -67,7 +67,7 @@ While pasting, the {{ui:Properties}} panel shows what is on the clipboard and tw
 
 ## Marks after a paste
 
-Part and assembly marks are never stored; DetailCraft numbers them again from the model after every change ([How marks are given](topic:mark-rules)). So:
+Part and assembly marks are never stored; Manafe3 numbers them again from the model after every change ([How marks are given](topic:mark-rules)). So:
 
 - A copy that is the same piece as its original (same profile, grade, cut length, holes and copes) shares the original's mark, and the count in {{ui:Part marks}} and the bill of materials goes up.
 - A copy that ends up different gets a mark of its own. A beam pasted without its end plates, for example, is not cut back, so it is a different piece. Marks are numbered again across the whole model, so other parts' numbers can change too.
@@ -76,4 +76,4 @@ Every pasted member, hole, cope, connection and footing gets a new id, so nothin
 
 ## If the clipboard is refused
 
-What is on the clipboard is checked as carefully as a model file you open: anything that is not a valid DetailCraft part is dropped, and the status bar says what. A clipboard filled by a newer DetailCraft, or by something else, is refused with a message and nothing is pasted. If a private window cannot keep the copy in browser storage, the copy still works in that tab.
+What is on the clipboard is checked as carefully as a model file you open: anything that is not a valid Manafe3 part is dropped, and the status bar says what. A clipboard filled by a newer Manafe3, or by something else, is refused with a message and nothing is pasted. If a private window cannot keep the copy in browser storage, the copy still works in that tab.

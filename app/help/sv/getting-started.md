@@ -1,11 +1,11 @@
 ---
-title: Komma igång med DetailCraft
-summary: Vad DetailCraft gör i dag, hur du öppnar det och en första modell från rutnät till verkstadsritning på tio minuter.
+title: Komma igång med Manafe3
+summary: Vad Manafe3 gör i dag, hur du öppnar det och en första modell från rutnät till verkstadsritning på tio minuter.
 keywords: start, första modellen, introduktion, ståldetaljering, armering, snabbstart, handledning, översikt
 from: 3682c0d8
 ---
 
-DetailCraft är appen för stål- och armeringsdetaljering i CadCraft-familjen. Du bygger en 3D-modell av en stålstomme på rutnät och nivåer, förbinder delarna och får det som verkstaden behöver: del- och sammanställningsmärken, en stycklista, verkstadsritningar för enskilda delar, DSTV NC-filer, en IFC-modell och en bockningsförteckning för plintarna.
+Manafe3 är appen för stål- och armeringsdetaljering i Manafe3-familjen. Du bygger en 3D-modell av en stålstomme på rutnät och nivåer, förbinder delarna och får det som verkstaden behöver: del- och sammanställningsmärken, en stycklista, verkstadsritningar för enskilda delar, DSTV NC-filer, en IFC-modell och en bockningsförteckning för plintarna.
 
 Det här är en tidig version. Den gör en kort lista saker noggrant i stället för allt på en gång. Läs [Det som inte finns ännu](topic:not-built-yet) innan du planerar riktigt arbete kring den.
 
@@ -19,24 +19,24 @@ Det här är en tidig version. Den gör en kort lista saker noggrant i stället 
 - Delmärken och sammanställningsmärken som uppdateras av sig själva efter varje ändring.
 - Export: IFC4, DSTV NC-filer (I-profiler och plåtar), stycklista som CSV, bockningsförteckning som CSV och en verkstadsritning som PDF för en del.
 
-## Öppna DetailCraft
+## Öppna Manafe3
 
-1. Öppna DetailCraft i en webbläsare på en dator: Chrome, Edge, Firefox eller Safari. Se [Webbläsare och datorer](common:browsers).
+1. Öppna Manafe3 i en webbläsare på en dator: Chrome, Edge, Firefox eller Safari. Se [Webbläsare och datorer](common:browsers).
 2. Vänta tills skärmen har fyllts. Statusfältet längst ned säger "Ready. Open the Sample, or set grids and levels and start placing members."
 
 Modellvyn kräver 3D-grafik (WebGL). Om mitten av skärmen säger "This browser could not start 3D graphics (WebGL)", se [Felsökning](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Dina modeller stannar på din dator. När du öppnar en modell läses den in i webbläsaren, och när du sparar laddas en fil ner. Ingenting laddas upp. Molnlagring finns inte ännu. Se [Vart dina filer tar vägen](common:your-files). Om du vill använda DetailCraft utan uppkoppling senare väljer du {{ui:Spara för offline}} i appfältet en gång medan du är uppkopplad; se [Arbeta offline](common:offline).
+Dina modeller stannar på din dator. När du öppnar en modell läses den in i webbläsaren, och när du sparar laddas en fil ner. Ingenting laddas upp. Molnlagring finns inte ännu. Se [Vart dina filer tar vägen](common:your-files). Om du vill använda Manafe3 utan uppkoppling senare väljer du {{ui:Spara för offline}} i appfältet en gång medan du är uppkopplad; se [Arbeta offline](common:offline).
 :::
 
 :::offline
-Du är offline. DetailCraft fungerar utan uppkoppling bara om det först har sparats för offline: knappen {{ui:Spara för offline}} i appfältet visar då {{ui:Redo för offline}}. Se [Arbeta offline](common:offline).
+Du är offline. Manafe3 fungerar utan uppkoppling bara om det först har sparats för offline: knappen {{ui:Spara för offline}} i appfältet visar då {{ui:Redo för offline}}. Se [Arbeta offline](common:offline).
 :::
 
 ## Titta på exemplet först
 
-Det snabbaste sättet att se vad DetailCraft gör är exempelstommen.
+Det snabbaste sättet att se vad Manafe3 gör är exempelstommen.
 
 1. Välj {{ui:Exempel}} i gruppen {{ui:Fil}} i verktygsfältet.
 2. Vyn visar en stomme med två fack: sex pelare med fotplåtar, fyra balkar med ändplattor, ett stag och sju plintar med armering.
@@ -49,7 +49,7 @@ Genomgången [Utforska exempelstommen](topic:sample-model) går igenom den bit f
 
 En ny modell har redan rutnät 1 till 3 gånger A till B på 6000 mm och två nivåer, Nivå 1 på 0 och Nivå 2 på 4000.
 
-1. Välj {{ui:Ny}}. Om den aktuella modellen har ändringar frågar DetailCraft om du vill spara dem först.
+1. Välj {{ui:Ny}}. Om den aktuella modellen har ändringar frågar Manafe3 om du vill spara dem först.
 2. Välj {{ui:Planritning}} ovanför vyn. Nivålistan bredvid väljer Nivå 1.
 3. Välj {{ui:Pelare}} i verktygsfältet eller tryck på {{key:C}}.
 4. Klicka på rutnätsskärningen A/1. En W12x50-pelare visas från Nivå 1 till Nivå 2. Statusfältet säger var den hamnade.

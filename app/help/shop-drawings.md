@@ -6,7 +6,7 @@ order: 110
 keywords: shop drawing, single part drawing, fabrication drawing, pdf, detail drawing, piece drawing, print
 ---
 
-DetailCraft draws one sheet per part mark, for I-shapes and plates. The sheet is made on the spot from the model; it is not stored or edited.
+Manafe3 draws one sheet per part mark, for I-shapes and plates. The sheet is made on the spot from the model; it is not stored or edited.
 
 ## Make one
 
@@ -39,8 +39,8 @@ The scale is picked from a list (1:1 up to 1:200) so the part fits the sheet. A 
 ## Things to know
 
 - The quantity is the number of parts with that mark in the model. Marks can renumber after a change; see [Check marks and the bill of materials](topic:marks-and-bom).
-- This is one part on its own, without weld symbols; assembly drawings (with weld symbols) and general arrangement drawings are in [Drawings](topic:drawings). The sheet cannot be edited or annotated in DetailCraft. To mark it up, open the PDF in a PDF markup app such as MarkupCraft.
-- The title block says "DetailCraft lab build — millimeters".
+- This is one part on its own, without weld symbols; assembly drawings (with weld symbols) and general arrangement drawings are in [Drawings](topic:drawings). The sheet cannot be edited or annotated in Manafe3. To mark it up, open the PDF in a PDF markup app such as MarkupCraft.
+- The title block says "Manafe3 lab build — millimeters".
 - Text uses the standard PDF Helvetica font. Characters outside the Western European set print as "?", and the status bar counts them.
 
 ## Print it

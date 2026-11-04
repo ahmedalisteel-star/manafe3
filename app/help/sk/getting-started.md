@@ -1,11 +1,11 @@
 ---
-title: Začíname s DetailCraft
-summary: Čo DetailCraft robí dnes, ako ho otvoriť a prvý model od mriežok po dielenský výkres za desať minút.
+title: Začíname s Manafe3
+summary: Čo Manafe3 robí dnes, ako ho otvoriť a prvý model od mriežok po dielenský výkres za desať minút.
 keywords: začiatok, prvý model, úvod, detailing ocele, výstuž, rýchly štart, návod, prehľad
 from: 3682c0d8
 ---
 
-DetailCraft je aplikácia rodiny CadCraft na vypracovanie oceľových konštrukcií a výstuže. Vytvoríte 3D model oceľového rámu na mriežkach a úrovniach, pospájate ho a dostanete, čo potrebuje dielňa: značky dielcov a zostáv, kusovník, dielenské výkresy jednotlivých dielcov, súbory DSTV NC, model IFC a výkaz ohýbania pre pätky.
+Manafe3 je aplikácia rodiny Manafe3 na vypracovanie oceľových konštrukcií a výstuže. Vytvoríte 3D model oceľového rámu na mriežkach a úrovniach, pospájate ho a dostanete, čo potrebuje dielňa: značky dielcov a zostáv, kusovník, dielenské výkresy jednotlivých dielcov, súbory DSTV NC, model IFC a výkaz ohýbania pre pätky.
 
 Je to skoré zostavenie. Robí krátky zoznam vecí starostlivo namiesto všetkého naraz. Prv než okolo neho naplánujete skutočnú prácu, prečítajte si [Čo ešte nie je vytvorené](topic:not-built-yet).
 
@@ -19,24 +19,24 @@ Je to skoré zostavenie. Robí krátky zoznam vecí starostlivo namiesto všetk�
 - Značky dielcov a zostáv, ktoré sa po každej zmene aktualizujú samy.
 - Exporty: IFC4, súbory DSTV NC (profily I a dosky), kusovník ako CSV, výkaz ohýbania ako CSV a dielenský výkres PDF jedného dielca.
 
-## Otvorenie DetailCraft
+## Otvorenie Manafe3
 
-1. Otvorte DetailCraft v prehliadači pre počítač: Chrome, Edge, Firefox alebo Safari. Pozrite [Prehliadače a počítače](common:browsers).
+1. Otvorte Manafe3 v prehliadači pre počítač: Chrome, Edge, Firefox alebo Safari. Pozrite [Prehliadače a počítače](common:browsers).
 2. Počkajte, kým sa obrazovka zaplní. Riadok stavu dole hovorí „Pripravené. Otvorte Ukážku alebo nastavte mriežky a úrovne a začnite umiestňovať prvky.“
 
 Pohľad na model potrebuje 3D grafiku (WebGL). Ak stred obrazovky hovorí „Tento prehliadač nevedel spustiť 3D grafiku (WebGL)“, pozrite [Riešenie problémov](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Vaše modely zostávajú na vašom počítači. Otvorenie modelu ho číta v prehliadači a uloženie stiahne súbor. Nič sa nenahráva. Ukladanie do cloudu zatiaľ nie je k dispozícii. Pozrite [Kam idú vaše súbory](common:your-files). Ak chcete DetailCraft neskôr používať bez pripojenia, raz, kým ste online, zvoľte na lište aplikácie {{ui:Uložiť na offline použitie}}; pozrite [Práca offline](common:offline).
+Vaše modely zostávajú na vašom počítači. Otvorenie modelu ho číta v prehliadači a uloženie stiahne súbor. Nič sa nenahráva. Ukladanie do cloudu zatiaľ nie je k dispozícii. Pozrite [Kam idú vaše súbory](common:your-files). Ak chcete Manafe3 neskôr používať bez pripojenia, raz, kým ste online, zvoľte na lište aplikácie {{ui:Uložiť na offline použitie}}; pozrite [Práca offline](common:offline).
 :::
 
 :::offline
-Ste offline. DetailCraft funguje bez pripojenia, iba ak bol najprv uložený na offline použitie: tlačidlo {{ui:Uložiť na offline použitie}} na lište aplikácie potom znie {{ui:Pripravené offline}}. Pozrite [Práca offline](common:offline).
+Ste offline. Manafe3 funguje bez pripojenia, iba ak bol najprv uložený na offline použitie: tlačidlo {{ui:Uložiť na offline použitie}} na lište aplikácie potom znie {{ui:Pripravené offline}}. Pozrite [Práca offline](common:offline).
 :::
 
 ## Najprv si pozrite ukážku
 
-Najrýchlejší spôsob, ako zistiť, čo DetailCraft vytvára, je ukážkový rám.
+Najrýchlejší spôsob, ako zistiť, čo Manafe3 vytvára, je ukážkový rám.
 
 1. V skupine {{ui:Súbor}} panela nástrojov zvoľte {{ui:Ukážka}}.
 2. Pohľad zobrazí dvojpoľový rám: šesť stĺpov s pätnými doskami, štyri nosníky s čelnými doskami, jednu diagonálu a sedem pätiek s výstužou.
@@ -49,7 +49,7 @@ Návod [Preskúmanie ukážkového rámu](topic:sample-model) prechádza všetk�
 
 Nový model už má mriežky 1 až 3 krát A až B po 6000 mm a dve úrovne, Level 1 na 0 a Level 2 na 4000.
 
-1. Zvoľte {{ui:Nový}}. Ak má súčasný model zmeny, DetailCraft sa najprv opýta, či ich uložiť.
+1. Zvoľte {{ui:Nový}}. Ak má súčasný model zmeny, Manafe3 sa najprv opýta, či ich uložiť.
 2. Nad pohľadom zvoľte {{ui:Pôdorys}}. Zoznam úrovní vedľa neho vyberie Level 1.
 3. Na paneli nástrojov zvoľte {{ui:Stĺp}} alebo stlačte {{key:C}}.
 4. Kliknite na priesečník mriežok A/1. Objaví sa stĺp W12x50 od Level 1 po Level 2. Riadok stavu hovorí, kam sa dostal.

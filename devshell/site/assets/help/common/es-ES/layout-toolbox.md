@@ -42,7 +42,7 @@ Los paneles izquierdo y derecho conservan todo lo descrito en [Organizar los pan
 
 ## Volver a la disposición clásica
 
-Abra {{ui:Ajustes}} › {{ui:Global}} › {{ui:Disposición}} › {{ui:Espacio de trabajo}} y elija {{ui:CadCraft clásico}}. Cada barra de herramientas, pestaña y panel vuelve a donde estaba.
+Abra {{ui:Ajustes}} › {{ui:Global}} › {{ui:Disposición}} › {{ui:Espacio de trabajo}} y elija {{ui:Manafe3 clásico}}. Cada barra de herramientas, pestaña y panel vuelve a donde estaba.
 
 :::note
 En un móvil, o en una ventana de 760 píxeles de ancho o menos, la aplicación usa su disposición para móvil elija lo que elija. Una ventana más ancha devuelve su disposición.

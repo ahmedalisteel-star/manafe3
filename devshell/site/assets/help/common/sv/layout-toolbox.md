@@ -42,7 +42,7 @@ Den vänstra och den högra panelen behåller allt som beskrivs i [Ordna paneler
 
 ## Gå tillbaka till den klassiska layouten
 
-Öppna {{ui:Inställningar}} › {{ui:Globalt}} › {{ui:Layout}} › {{ui:Arbetsyta}} och välj {{ui:CadCraft klassisk}}. Varje verktygsfält, flik och panel går tillbaka dit den var.
+Öppna {{ui:Inställningar}} › {{ui:Globalt}} › {{ui:Layout}} › {{ui:Arbetsyta}} och välj {{ui:Manafe3 klassisk}}. Varje verktygsfält, flik och panel går tillbaka dit den var.
 
 :::note
 På en telefon, eller i ett fönster som är 760 pixlar brett eller smalare, använder appen sin telefonlayout oavsett vad du valde. Ett bredare fönster ger tillbaka din layout.

@@ -42,7 +42,7 @@ Panel kiri dan kanan mengekalkan segala yang diterangkan dalam [Susun atur panel
 
 ## Kembali ke susun atur klasik
 
-Buka {{ui:Tetapan}} › {{ui:Global}} › {{ui:Susun atur}} › {{ui:Ruang kerja}} dan pilih {{ui:Klasik CadCraft}}. Setiap bar alat, tab dan panel kembali ke tempat asalnya.
+Buka {{ui:Tetapan}} › {{ui:Global}} › {{ui:Susun atur}} › {{ui:Ruang kerja}} dan pilih {{ui:Klasik Manafe3}}. Setiap bar alat, tab dan panel kembali ke tempat asalnya.
 
 :::note
 Pada telefon, atau dalam tetingkap 760 piksel lebar atau kurang, aplikasi menggunakan susun atur telefonnya tanpa mengira pilihan anda. Tetingkap yang lebih lebar akan membawa semula susun atur anda.

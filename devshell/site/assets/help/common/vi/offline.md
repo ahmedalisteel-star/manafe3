@@ -41,4 +41,4 @@ Bạn đang ngoại tuyến. Nếu ứng dụng này đã được lưu để d�
 Safari xóa dữ liệu đã lưu của những trang bạn không ghé thăm trong vài tuần. Hãy thỉnh thoảng mở ứng dụng khi trực tuyến, hoặc lưu lại trước chuyến đi.
 :::
 
-- CadCraft Studio, ứng dụng máy tính để bàn gồm cả tám ứng dụng trong một bản cài, có tại getcadcraft.com/download.
+- Manafe3 Desktop, ứng dụng máy tính để bàn gồm cả tám ứng dụng trong một bản cài, có tại getcadcraft.com/download.

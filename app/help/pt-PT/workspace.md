@@ -1,17 +1,17 @@
 ---
 title: Uma visita ao ecrã
-summary: Todas as barras, painéis e separadores do DetailCraft pelo nome que têm no ecrã, e para que serve cada um.
+summary: Todas as barras, painéis e separadores do Manafe3 pelo nome que têm no ecrã, e para que serve cada um.
 keywords: ecrã, disposição, barra de ferramentas, painéis, propriedades, barra de estado, relatórios, interface, ui, separadores
 from: 454f74fd
 ---
 
-O DetailCraft ocupa a janela do navegador por baixo da barra da aplicação. De cima para baixo: a barra de ferramentas, depois três colunas (o painel {{ui:Modelo}}, a vista, o painel {{ui:Propriedades}}), depois os separadores de relatórios, depois a barra de estado.
+O Manafe3 ocupa a janela do navegador por baixo da barra da aplicação. De cima para baixo: a barra de ferramentas, depois três colunas (o painel {{ui:Modelo}}, a vista, o painel {{ui:Propriedades}}), depois os separadores de relatórios, depois a barra de estado.
 
 ## A barra da aplicação
 
-A barra fina no topo pertence ao site do CadCraft, não ao modelo. Mostra o nome e a versão da aplicação, uma ligação para {{ui:Acerca do DetailCraft}}, {{ui:Ajuda}} (ou {{key:F1}}) para esta ajuda, {{ui:Guardar para offline}}, o botão de modo de ecrã e o interruptor {{ui:Papel}} / {{ui:Modelo}}.
+A barra fina no topo pertence ao site do Manafe3, não ao modelo. Mostra o nome e a versão da aplicação, uma ligação para {{ui:Acerca do Manafe3}}, {{ui:Ajuda}} (ou {{key:F1}}) para esta ajuda, {{ui:Guardar para offline}}, o botão de modo de ecrã e o interruptor {{ui:Papel}} / {{ui:Modelo}}.
 
-- {{ui:Guardar para offline}} mantém o DetailCraft, a sua vista 3D e esta ajuda no navegador para que abra sem ligação. Diz {{ui:Pronto para offline}} depois de guardado; clique então nele para {{ui:Guardar novamente (obter a versão mais recente)}} ou {{ui:Remover a cópia offline}}. Consulte [Trabalhar offline](common:offline).
+- {{ui:Guardar para offline}} mantém o Manafe3, a sua vista 3D e esta ajuda no navegador para que abra sem ligação. Diz {{ui:Pronto para offline}} depois de guardado; clique então nele para {{ui:Guardar novamente (obter a versão mais recente)}} ou {{ui:Remover a cópia offline}}. Consulte [Trabalhar offline](common:offline).
 - {{ui:Papel}} dá um ecrã claro e {{ui:Modelo}} um escuro. A vista 3D acompanha de imediato; nada no seu modelo muda.
 - O botão de modo de ecrã e {{key:Ctrl+Shift+F}} alternam entre normal, ecrã inteiro, e ecrã inteiro com as barras ocultas. {{key:Ctrl+Shift+F}} usa a tecla Control em todos os computadores, incluindo os Mac. Com as barras ocultas, aponte para o limite superior do ecrã (ou toque nele) para as fazer voltar. {{key:Esc}} sai do ecrã inteiro.
 
@@ -70,7 +70,7 @@ Os campos numéricos têm efeito quando prime {{key:Enter}} ou sai do campo. Cad
 
 ## Os separadores de relatórios (em baixo)
 
-- {{ui:Problemas}}: tudo o que o DetailCraft não conseguiu construir ou quer que verifique, com um botão {{ui:Selecionar}} em cada linha. O separador mostra a contagem entre parênteses.
+- {{ui:Problemas}}: tudo o que o Manafe3 não conseguiu construir ou quer que verifique, com um botão {{ui:Selecionar}} em cada linha. O separador mostra a contagem entre parênteses.
 - {{ui:Lista de materiais}}: peças, montagens, e parafusos e chumbadouros, com pesos e uma ligação {{ui:Transferir CSV}}. Clique numa marca de peça para selecionar essa peça.
 - {{ui:Mapa de dobragem}}: todas as marcas de varão em todas as sapatas, com uma ligação {{ui:Transferir CSV}}.
 
@@ -84,4 +84,4 @@ O título do separador do navegador começa com um ponto (•) enquanto o modelo
 
 ## Num ecrã estreito
 
-Abaixo de cerca de 760 píxeis de largura, as colunas empilham-se: barra de ferramentas, vista, barra de estado, {{ui:Propriedades}}, separadores de relatórios e, por fim, o painel {{ui:Modelo}}. Desloque a página para chegar a elas. O DetailCraft está disposto para um ecrã de computador de secretária ou portátil; um telemóvel serve para ver, não para pormenorizar.
+Abaixo de cerca de 760 píxeis de largura, as colunas empilham-se: barra de ferramentas, vista, barra de estado, {{ui:Propriedades}}, separadores de relatórios e, por fim, o painel {{ui:Modelo}}. Desloque a página para chegar a elas. O Manafe3 está disposto para um ecrã de computador de secretária ou portátil; um telemóvel serve para ver, não para pormenorizar.

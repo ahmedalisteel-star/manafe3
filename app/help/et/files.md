@@ -1,17 +1,17 @@
 ---
 title: Failide avamine, salvestamine ja eksportimine
-summary: DetailCraft-i mudelifail, iga eksport, kuhu failid lähevad ning mis erineb brauseri ja ühenduse järgi.
+summary: Manafe3-i mudelifail, iga eksport, kuhu failid lähevad ning mis erineb brauseri ja ühenduse järgi.
 keywords: ava, salvesta, ekspordi, laadi alla, fail, json, ifc, nc1, dstv, csv, pdf, zip, vormingud, impordi
 from: bd715ea3
 ---
 
-DetailCraft-il on oma üks fail, mudel, ja viis eksporti. Iga salvestamine ja iga eksport on allalaadimine. Midagi ei laadita üles ega hoita serveris.
+Manafe3-il on oma üks fail, mudel, ja viis eksporti. Iga salvestamine ja iga eksport on allalaadimine. Midagi ei laadita üles ega hoita serveris.
 
 ## Mudelifail
 
-DetailCraft-i mudel salvestatakse nimega `<name>.detailcraft.json`, kus `<name>` on mudeli nimi paneelil {{ui:Mudel}}. Fail sisaldab ruudustikke, tasandeid, elemente (koos nende aukude ja väljalõigetega), ühendusi ja nende sätteid, vundamente ning sinu kohandatud profiile.
+Manafe3-i mudel salvestatakse nimega `<name>.detailcraft.json`, kus `<name>` on mudeli nimi paneelil {{ui:Mudel}}. Fail sisaldab ruudustikke, tasandeid, elemente (koos nende aukude ja väljalõigetega), ühendusi ja nende sätteid, vundamente ning sinu kohandatud profiile.
 
-Detailid, detailimärgised, poldid, keevised ja armatuurvardad ei ole salvestatud: DetailCraft arvutab need mudelist uuesti iga kord, kui see avaneb. Sellepärast on mudelifail väike.
+Detailid, detailimärgised, poldid, keevised ja armatuurvardad ei ole salvestatud: Manafe3 arvutab need mudelist uuesti iga kord, kui see avaneb. Sellepärast on mudelifail väike.
 
 ### Salvesta
 
@@ -38,21 +38,21 @@ Safari salvestab failid allalaadimiste kausta. Kausta muutmiseks ava **Safari, S
 1. Vali rühmas {{ui:Fail}} {{ui:Ava}} või vajuta {{key:Mod+O}}.
 2. Vali `.detailcraft.json`-fail.
 
-Või lohista fail asukohast {{pick:mac=Finder|windows=File Explorer|linux=sinu failihaldur}} ja lase see vaatesse. Lohistamise ajal ütleb vaade „Lohista DetailCraft-i mudel siia, et see avada“.
+Või lohista fail asukohast {{pick:mac=Finder|windows=File Explorer|linux=sinu failihaldur}} ja lase see vaatesse. Lohistamise ajal ütleb vaade „Lohista Manafe3-i mudel siia, et see avada“.
 
-Kui avatud mudelil on salvestamata muudatusi, küsib DetailCraft enne: {{ui:Loobu}}, {{ui:Loobu muudatustest}} või {{ui:Salvesta esmalt}}.
+Kui avatud mudelil on salvestamata muudatusi, küsib Manafe3 enne: {{ui:Loobu}}, {{ui:Loobu muudatustest}} või {{ui:Salvesta esmalt}}.
 
-DetailCraft kontrollib faili iga välja enne selle kasutamist. Kõik, mida ta ei saa kasutada, jäetakse välja ja olekuriba ütleb, mis see oli, näiteks „2 elementi ei olnud korrektsed ja jäeti välja.“ Uuema DetailCraft-iga salvestatud mudel keeldutakse avamast ja kuvatakse teade, selle asemel et avada pooleldi.
+Manafe3 kontrollib faili iga välja enne selle kasutamist. Kõik, mida ta ei saa kasutada, jäetakse välja ja olekuriba ütleb, mis see oli, näiteks „2 elementi ei olnud korrektsed ja jäeti välja.“ Uuema Manafe3-iga salvestatud mudel keeldutakse avamast ja kuvatakse teade, selle asemel et avada pooleldi.
 
 ### Mida see avab
 
-Oma mudelifaile (`.json`, kuni 50 MB) ja IFC-faile (`.ifc`, IFC2X3 või IFC4, kuni 200 MB). IFC-fail, mis avatakse või tuuakse sisse nupuga {{ui:Impordi IFC}}, muutub uueks mudeliks oma talade, postide, elementide, plaatide, ruudustike ja tasandite põhjal, kusjuures augud ja väljalõiked on sisse lõigatud ning poldid on vabade poltidena; aruanne loetleb, mis jäeti välja. Vt [IFC-eksport](topic:ifc-export#import). DWG-d, DXF-e ega ühegi teise detailimisprogrammi mudeleid see veel ei ava; proovimisel ilmub teade „DetailCraft avab ainult oma mudeleid (.detailcraft.json) ja IFC-faile (.ifc).“
+Oma mudelifaile (`.json`, kuni 50 MB) ja IFC-faile (`.ifc`, IFC2X3 või IFC4, kuni 200 MB). IFC-fail, mis avatakse või tuuakse sisse nupuga {{ui:Impordi IFC}}, muutub uueks mudeliks oma talade, postide, elementide, plaatide, ruudustike ja tasandite põhjal, kusjuures augud ja väljalõiked on sisse lõigatud ning poldid on vabade poltidena; aruanne loetleb, mis jäeti välja. Vt [IFC-eksport](topic:ifc-export#import). DWG-d, DXF-e ega ühegi teise detailimisprogrammi mudeleid see veel ei ava; proovimisel ilmub teade „Manafe3 avab ainult oma mudeleid (.detailcraft.json) ja IFC-faile (.ifc).“
 
 ## Kadunud töö, hiljutised failid, töölauarakendus
 
-- Kui mudelil on salvestamata muudatusi, hoiab DetailCraft selle brauseris koopiat. Kui vahekaart või brauser lakkab enne salvestamist, küsib DetailCraft järgmisel avamisel **Kas taastada sinu töö?**: taasta koopia või loobu sellest. Vt [Töö taastamine](common:recover).
-- Hiljuti avatud mudelid on alustusekraanil loetletud, kui brauser lubab DetailCraft-il need uuesti avada; klõpsa ühel neist, et see uuesti avada.
-- Töölauarakenduses kirjutab {{ui:Salvesta}} mudeli tagasi avatud faili (brauseris laadib alla koopia) ning DetailCraft-i mudeli või IFC-faili topeltklõps avab selle DetailCraft-is.
+- Kui mudelil on salvestamata muudatusi, hoiab Manafe3 selle brauseris koopiat. Kui vahekaart või brauser lakkab enne salvestamist, küsib Manafe3 järgmisel avamisel **Kas taastada sinu töö?**: taasta koopia või loobu sellest. Vt [Töö taastamine](common:recover).
+- Hiljuti avatud mudelid on alustusekraanil loetletud, kui brauser lubab Manafe3-il need uuesti avada; klõpsa ühel neist, et see uuesti avada.
+- Töölauarakenduses kirjutab {{ui:Salvesta}} mudeli tagasi avatud faili (brauseris laadib alla koopia) ning Manafe3-i mudeli või IFC-faili topeltklõps avab selle Manafe3-is.
 
 ## Eksportid
 
@@ -79,13 +79,13 @@ PDF-i tekst kasutab standardset Helvetica fonti. Märgid, mida sellel ei ole (v�
 
 ## Ühikud
 
-DetailCraft töötab kõikjal millimeetrites: ruudustikud, tasandid, koordinaadid, profiilid, augud ja iga eksport. Profiilinimed säilitavad avaldatud kuju (W12x50 on USA tähis, kuigi selle mõõtmed on näidatud mm-des). Tolli-naela sisestust veel ei ole.
+Manafe3 töötab kõikjal millimeetrites: ruudustikud, tasandid, koordinaadid, profiilid, augud ja iga eksport. Profiilinimed säilitavad avaldatud kuju (W12x50 on USA tähis, kuigi selle mõõtmed on näidatud mm-des). Tolli-naela sisestust veel ei ole.
 
 ## Võrgus ja võrguta
 
-Avamine, salvestamine ja eksportimine toimuvad kõik sinu brauseris, seega töötavad need ühtemoodi ühendusega või ilma, kui DetailCraft on laaditud.
+Avamine, salvestamine ja eksportimine toimuvad kõik sinu brauseris, seega töötavad need ühtemoodi ühendusega või ilma, kui Manafe3 on laaditud.
 
-Et DetailCraft-i hiljem ilma ühenduseta kasutada, vali rakenduse ribal võrgus olles {{ui:Salvesta võrguks}}. Nupp loeb „Salvestamine 3 of 20“ ja seejärel loeb {{ui:Valmis ka võrguta}}. Salvestatud koopia sisaldab 3D-graafika teeki (umbes 2.6 MB) ja seda abi, seega kui see on salvestatud, töötavad 3D-vaade, iga eksport ja abi ilma võrguta. Üksikasjad ja see, mis vajab ikka ühendust: [Töö võrguta](common:offline).
+Et Manafe3-i hiljem ilma ühenduseta kasutada, vali rakenduse ribal võrgus olles {{ui:Salvesta võrguks}}. Nupp loeb „Salvestamine 3 of 20“ ja seejärel loeb {{ui:Valmis ka võrguta}}. Salvestatud koopia sisaldab 3D-graafika teeki (umbes 2.6 MB) ja seda abi, seega kui see on salvestatud, töötavad 3D-vaade, iga eksport ja abi ilma võrguta. Üksikasjad ja see, mis vajab ikka ühendust: [Töö võrguta](common:offline).
 
 :::offline
 Oled võrguta. Kui rakenduse riba näitab {{ui:Valmis ka võrguta}}, töötavad avamine, salvestamine ja eksportimine tavapäraselt. Kui ei näita, jäta see vahekaart lahti, ära laadi seda uuesti enne, kui oled taas võrgus, ja salvesta oma mudel kohe.
@@ -95,4 +95,4 @@ Pilvesalvestus ei ole veel saadaval ja töölaudversioone ei ole veel. Varunda o
 
 ## Salvestamata töö
 
-DetailCraft hoiab mudelit ainult avatud vahekaardil. Kui sulged või laadid vahekaardi salvestamata muudatustega, küsib brauser, kas lahkuda lehelt; selle sõnastus on brauseri enda. Salvesta sageli klahviga {{key:Mod+S}}.
+Manafe3 hoiab mudelit ainult avatud vahekaardil. Kui sulged või laadid vahekaardi salvestamata muudatustega, küsib brauser, kas lahkuda lehelt; selle sõnastus on brauseri enda. Salvesta sageli klahviga {{key:Mod+S}}.

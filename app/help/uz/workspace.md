@@ -1,17 +1,17 @@
 ---
 title: Ekran boʻylab sayohat
-summary: DetailCraftdagi har bir panel, yorliq va tabulyator ekrandagi nomi bilan va ularning vazifasi.
+summary: Manafe3dagi har bir panel, yorliq va tabulyator ekrandagi nomi bilan va ularning vazifasi.
 keywords: ekran, tartib, asboblar paneli, xususiyatlar, holat satri, hisobotlar, interfeys, ui, yorliqlar
 from: 454f74fd
 ---
 
-DetailCraft ilova panelidan pastdagi brauzer oynasini toʻldiradi. Yuqoridan pastga: asboblar paneli, soʻng uch ustun ({{ui:Model}} paneli, koʻrinish, {{ui:Properties}} paneli), soʻng hisobot yorliqlari va holat satri.
+Manafe3 ilova panelidan pastdagi brauzer oynasini toʻldiradi. Yuqoridan pastga: asboblar paneli, soʻng uch ustun ({{ui:Model}} paneli, koʻrinish, {{ui:Properties}} paneli), soʻng hisobot yorliqlari va holat satri.
 
 ## Ilova paneli
 
-Eng yuqoridagi ingichka panel modelga emas, CadCraft saytiga tegishli. U ilova nomi va versiyasini, {{ui:About DetailCraft}} havolasini, bu yordam uchun {{ui:Help}} ({{key:F1}} bilan), {{ui:Save for offline}} tugmasini, ekran rejimi tugmasini va {{ui:Paper}} / {{ui:Model}} almashtirgichini koʻrsatadi.
+Eng yuqoridagi ingichka panel modelga emas, Manafe3 saytiga tegishli. U ilova nomi va versiyasini, {{ui:About Manafe3}} havolasini, bu yordam uchun {{ui:Help}} ({{key:F1}} bilan), {{ui:Save for offline}} tugmasini, ekran rejimi tugmasini va {{ui:Paper}} / {{ui:Model}} almashtirgichini koʻrsatadi.
 
-- {{ui:Save for offline}} DetailCraftni, uning 3D koʻrinishini va bu yordamni brauzeringizda saqlaydi, shunda u ulanishsiz ochiladi. Saqlangandan keyin u {{ui:Offline ready}} deb yozadi; keyin bosilganda {{ui:Save again (get the newest version)}} yoki {{ui:Remove the offline copy}} tanlovlari chiqadi. Qarang: [Oflaynda ishlash](common:offline).
+- {{ui:Save for offline}} Manafe3ni, uning 3D koʻrinishini va bu yordamni brauzeringizda saqlaydi, shunda u ulanishsiz ochiladi. Saqlangandan keyin u {{ui:Offline ready}} deb yozadi; keyin bosilganda {{ui:Save again (get the newest version)}} yoki {{ui:Remove the offline copy}} tanlovlari chiqadi. Qarang: [Oflaynda ishlash](common:offline).
 - {{ui:Paper}} yorugʻ ekran, {{ui:Model}} esa qorongʻi ekran beradi. 3D koʻrinish darhol oʻzgaradi; modelingizdagi hech narsa oʻzgarmaydi.
 - Ekran rejimi tugmasi va {{key:Ctrl+Shift+F}} oddiy, toʻliq ekran va panellari yashirilgan toʻliq ekran rejimlari boʻylab aylanadi. {{key:Ctrl+Shift+F}} har qanday kompyuterda, shu jumladan Macda ham Control tugmasini ishlatadi. Panellar yashirilganda, ularni qaytarish uchun koʻrsatkichni ekranning yuqori chetiga olib boring (yoki unga teging). {{key:Esc}} toʻliq ekrandan chiqaradi.
 
@@ -70,7 +70,7 @@ Raqamli maydonlar {{key:Enter}} bosilganda yoki maydondan chiqilganda kuchga kir
 
 ## Hisobot yorliqlari (pastda)
 
-- {{ui:Problems}}: DetailCraft qura olmagan yoki tekshirishingizni xohlagan hamma narsa, har bir qatorda {{ui:Select}} tugmasi bilan. Yorliq qavs ichida sonini koʻrsatadi.
+- {{ui:Problems}}: Manafe3 qura olmagan yoki tekshirishingizni xohlagan hamma narsa, har bir qatorda {{ui:Select}} tugmasi bilan. Yorliq qavs ichida sonini koʻrsatadi.
 - {{ui:Bill of materials}}: detallar, yigʻmalar, boltlar va ankerli sterjenlar, ogʻirliklar va {{ui:Download CSV}} havolasi bilan. Oʻsha detalni tanlash uchun detal belgisini bosing.
 - {{ui:Bending schedule}}: har bir poydevordagi har bir armatura belgisi, {{ui:Download CSV}} havolasi bilan.
 
@@ -84,4 +84,4 @@ Brauzer yorligʻi sarlavhasi model saqlanmagan oʻzgarishlarga ega boʻlganda nu
 
 ## Tor ekran
 
-Taxminan 760 pikseldan tor ekranlarda ustunlar bir-birining ustiga joylashadi: asboblar paneli, koʻrinish, holat satri, {{ui:Properties}}, hisobot yorliqlari, soʻng oxirida {{ui:Model}} paneli. Ularga yetish uchun sahifani aylantiring. DetailCraft kompyuter yoki noutbuk ekrani uchun moslangan; telefon faqat koʻrish uchun yaroqli, detallashtirish uchun emas.
+Taxminan 760 pikseldan tor ekranlarda ustunlar bir-birining ustiga joylashadi: asboblar paneli, koʻrinish, holat satri, {{ui:Properties}}, hisobot yorliqlari, soʻng oxirida {{ui:Model}} paneli. Ularga yetish uchun sahifani aylantiring. Manafe3 kompyuter yoki noutbuk ekrani uchun moslangan; telefon faqat koʻrish uchun yaroqli, detallashtirish uchun emas.

@@ -41,4 +41,4 @@ Sie sind jetzt offline. Wenn diese App für die Offline-Nutzung gespeichert wurd
 Safari entfernt gespeicherte Websitedaten von Websites, die Sie mehrere Wochen nicht besucht haben. Öffnen Sie die App ab und zu online oder speichern Sie sie vor einer Reise erneut.
 :::
 
-- CadCraft Studio, die Desktop-App mit allen acht Apps in einer Installation, gibt es unter getcadcraft.com/download.
+- Manafe3 Desktop, die Desktop-App mit allen acht Apps in einer Installation, gibt es unter getcadcraft.com/download.

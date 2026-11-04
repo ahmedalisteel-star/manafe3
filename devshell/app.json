@@ -3,11 +3,11 @@
     "version": 1,
     "app": {
         "slug": "detailcraft",
-        "name": "DetailCraft",
+        "name": "Manafe3",
         "layer": "violet",
-        "role": "Steel & rebar detailing",
-        "tagline": "Model it once. Every shop drawing follows.",
-        "short": "Structural steel members and connections, rebar placement and bending schedules, shop drawings and NC files from one model."
+        "role": "PEB and steel design and detailing",
+        "tagline": "Design the PEB building. Every shop drawing follows.",
+        "short": "Pre-engineered steel buildings: frames, secondary steel, loads, design, connections, shop drawings and NC files from one model. Based on DetailCraft by The Data Design Group, Inc."
     },
     "others": {
         "cadcraft": "CadCraft",

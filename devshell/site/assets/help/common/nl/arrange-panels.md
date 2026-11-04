@@ -42,7 +42,7 @@ Om een paneel uit de groep te halen, kiest u {{ui:Uit de tabbladgroep halen}} in
 
 ## Kies hoeveel regels de werkbalk gebruikt
 
-{{ui:Instellingen}} › {{ui:Algemeen}} › {{ui:Werkbalkrijen}} heeft drie keuzes. {{ui:Omslaan}} is de standaard: elke gereedschapsgroep wordt getoond, op zoveel regels als nodig is. {{ui:2 rijen}} houdt de werkbalk op twee regels en {{ui:1 rij}} op één, zodat de tekening meer hoogte krijgt; de groepen die niet passen, scrollen zijwaarts binnen de werkbalk (gebruik het scrollwiel, een swipe met twee vingers, of {{key:Tab}} naar een gereedschap). Een werkbalk die al in twee regels past, blijft bij {{ui:2 rijen}} zoals hij is, omdat een raster hem alleen hoger zou maken. De keuze wordt per app bewaard. Een touchscreen en een telefoon behouden hun eigen indeling. CadCraft heeft een eigen instelling voor zijn werkbalk, onder {{ui:Instellingen}} › {{ui:CadCraft}}.
+{{ui:Instellingen}} › {{ui:Algemeen}} › {{ui:Werkbalkrijen}} heeft drie keuzes. {{ui:Omslaan}} is de standaard: elke gereedschapsgroep wordt getoond, op zoveel regels als nodig is. {{ui:2 rijen}} houdt de werkbalk op twee regels en {{ui:1 rij}} op één, zodat de tekening meer hoogte krijgt; de groepen die niet passen, scrollen zijwaarts binnen de werkbalk (gebruik het scrollwiel, een swipe met twee vingers, of {{key:Tab}} naar een gereedschap). Een werkbalk die al in twee regels past, blijft bij {{ui:2 rijen}} zoals hij is, omdat een raster hem alleen hoger zou maken. De keuze wordt per app bewaard. Een touchscreen en een telefoon behouden hun eigen indeling. Manafe3 heeft een eigen instelling voor zijn werkbalk, onder {{ui:Instellingen}} › {{ui:Manafe3}}.
 
 ## Het toetsenbord gebruiken
 
@@ -82,7 +82,7 @@ Vanaf het toetsenbord: druk op {{key:Alt}}+{{key:Shift}}+een pijltjestoets terwi
 
 Op een telefoon blijven dialoogvensters volledige schermbreedte en worden ze niet verplaatst.
 
-In CadCraft Studio heeft het dialoogvenster {{ui:Plotten naar PDF}} van CadCraft, dat u open kunt houden terwijl u werkt, in de titelbalk een knop: {{ui:Openen in een eigen venster}}. Het dialoogvenster verhuist naar een eigen venster dat u op een andere monitor kunt zetten. Het dialoogvenster sluiten sluit het venster, en het venster sluiten sluit het dialoogvenster.
+In Manafe3 Desktop heeft het dialoogvenster {{ui:Plotten naar PDF}} van Manafe3, dat u open kunt houden terwijl u werkt, in de titelbalk een knop: {{ui:Openen in een eigen venster}}. Het dialoogvenster verhuist naar een eigen venster dat u op een andere monitor kunt zetten. Het dialoogvenster sluiten sluit het venster, en het venster sluiten sluit het dialoogvenster.
 
 ## De panelen terugzetten
 

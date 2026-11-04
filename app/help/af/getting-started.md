@@ -1,11 +1,11 @@
 ---
-title: Aan die gang met DetailCraft
-summary: Wat DetailCraft vandag doen, hoe om dit oop te maak, en 'n eerste model van roosters tot 'n werkswinkeltekening in tien minute.
+title: Aan die gang met Manafe3
+summary: Wat Manafe3 vandag doen, hoe om dit oop te maak, en 'n eerste model van roosters tot 'n werkswinkeltekening in tien minute.
 keywords: begin, eerste model, inleiding, staaldetaillering, wapening, vinnige begin, handleiding, oorsig
 from: 3682c0d8
 ---
 
-DetailCraft is die staal- en wapeningsdetailleringsprogram in die CadCraft-familie. Jy bou 'n 3D-model van 'n staalraam op roosters en vlakke, koppel dit, en kry wat die werkswinkel nodig het: deel- en samestellingsmerke, 'n materiaallys, enkeldeel-werkswinkeltekeninge, DSTV NC-lêers, 'n IFC-model, en 'n buigskedule vir die fondasies.
+Manafe3 is die staal- en wapeningsdetailleringsprogram in die Manafe3-familie. Jy bou 'n 3D-model van 'n staalraam op roosters en vlakke, koppel dit, en kry wat die werkswinkel nodig het: deel- en samestellingsmerke, 'n materiaallys, enkeldeel-werkswinkeltekeninge, DSTV NC-lêers, 'n IFC-model, en 'n buigskedule vir die fondasies.
 
 Dit is 'n vroeë weergawe. Dit doen 'n kort lys dinge noukeurig eerder as alles op een keer. Lees [Wat nog nie gebou is nie](topic:not-built-yet) voordat jy werklike werk daaromheen beplan.
 
@@ -19,24 +19,24 @@ Dit is 'n vroeë weergawe. Dit doen 'n kort lys dinge noukeurig eerder as alles 
 - Deel- en samestellingsmerke wat hulself na elke verandering bywerk.
 - Uitvoere: IFC4, DSTV NC-lêers (I-profiele en plate), materiaallys as CSV, buigskedule as CSV, en 'n werkswinkeltekening-PDF van een deel.
 
-## Maak DetailCraft oop
+## Maak Manafe3 oop
 
-1. Maak DetailCraft oop in 'n rekenaarblaaier: Chrome, Edge, Firefox of Safari. Sien [Blaaiers en rekenaars](common:browsers).
+1. Maak Manafe3 oop in 'n rekenaarblaaier: Chrome, Edge, Firefox of Safari. Sien [Blaaiers en rekenaars](common:browsers).
 2. Wag tot die skerm vul. Die statusbalk onderaan sê "Gereed. Maak die Voorbeeld oop, of stel roosters en vlakke in en begin lede plaas."
 
 Die modelaansig het 3D-grafika (WebGL) nodig. As die middel van die skerm sê "Hierdie blaaier kon nie 3D-grafika (WebGL) begin nie", sien [Probleemoplossing](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Jou modelle bly op jou rekenaar. Om 'n model oop te maak, lees dit in die blaaier, en stoor laai 'n lêer af. Niks word opgelaai nie. Wolkstoor is nog nie beskikbaar nie. Sien [Waar jou lêers heen gaan](common:your-files). Om DetailCraft later sonder verbinding te gebruik, kies een keer terwyl jy aanlyn is {{ui:Stoor vir vanlyn}} in die programbalk; sien [Werk vanlyn](common:offline).
+Jou modelle bly op jou rekenaar. Om 'n model oop te maak, lees dit in die blaaier, en stoor laai 'n lêer af. Niks word opgelaai nie. Wolkstoor is nog nie beskikbaar nie. Sien [Waar jou lêers heen gaan](common:your-files). Om Manafe3 later sonder verbinding te gebruik, kies een keer terwyl jy aanlyn is {{ui:Stoor vir vanlyn}} in die programbalk; sien [Werk vanlyn](common:offline).
 :::
 
 :::offline
-Jy is vanlyn. DetailCraft werk sonder 'n verbinding slegs as dit eers vir gebruik vanlyn gestoor is: die {{ui:Stoor vir vanlyn}}-knoppie in die programbalk lees dan {{ui:Vanlyn gereed}}. Sien [Werk vanlyn](common:offline).
+Jy is vanlyn. Manafe3 werk sonder 'n verbinding slegs as dit eers vir gebruik vanlyn gestoor is: die {{ui:Stoor vir vanlyn}}-knoppie in die programbalk lees dan {{ui:Vanlyn gereed}}. Sien [Werk vanlyn](common:offline).
 :::
 
 ## Kyk eers na die voorbeeld
 
-Die vinnigste manier om te sien wat DetailCraft maak, is die voorbeeldraam.
+Die vinnigste manier om te sien wat Manafe3 maak, is die voorbeeldraam.
 
 1. Kies {{ui:Voorbeeld}} in die {{ui:Lêer}}-groep van die nutsbalk.
 2. Die aansig wys 'n raam met twee baaie: ses kolomme met basisplate, vier balke met eindplate, een skoor en sewe fondasies met wapening.
@@ -49,7 +49,7 @@ Die handleiding [Verken die voorbeeldraam](topic:sample-model) gaan dit stuk vir
 
 'n Nuwe model het reeds roosters 1 tot 3 by A tot B op 6000 mm en twee vlakke: Vlak 1 op 0 en Vlak 2 op 4000.
 
-1. Kies {{ui:Nuut}}. As die huidige model veranderinge het, vra DetailCraft of hulle eers gestoor moet word.
+1. Kies {{ui:Nuut}}. As die huidige model veranderinge het, vra Manafe3 of hulle eers gestoor moet word.
 2. Kies {{ui:Plan}} bo die aansig. Die vlaklys langs dit kies Vlak 1.
 3. Kies {{ui:Kolom}} in die nutsbalk, of druk {{key:C}}.
 4. Klik op die roosterkruising A/1. 'n W12x50-kolom verskyn van Vlak 1 tot Vlak 2. Die statusbalk sê waar dit gekom het.

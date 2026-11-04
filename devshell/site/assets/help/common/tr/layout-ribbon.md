@@ -43,7 +43,7 @@ Sol ve sağ paneller [Panelleri düzenleyin](common:arrange-panels) konusunda an
 
 ## Klasik düzene dönün
 
-{{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Düzen}} › {{ui:Çalışma alanı}} bölümünü açın ve {{ui:CadCraft klasik}} öğesini seçin. Her araç çubuğu, sekme ve panel eski yerine döner.
+{{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Düzen}} › {{ui:Çalışma alanı}} bölümünü açın ve {{ui:Manafe3 klasik}} öğesini seçin. Her araç çubuğu, sekme ve panel eski yerine döner.
 
 :::note
 Telefonda ya da 760 piksel veya daha dar bir pencerede, ne seçmiş olursanız olun uygulama telefon düzenini kullanır. Daha geniş bir pencere düzeninizi geri getirir.

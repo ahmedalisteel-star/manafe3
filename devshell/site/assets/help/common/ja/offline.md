@@ -41,4 +41,4 @@ from: 04f8bc5b
 Safariは、数週間訪れていないサイトの保存データを削除します。ときどきオンラインでアプリを開くか、出かける前にもう一度保存してください。
 :::
 
-- 8つのアプリをまとめて1回でインストールできるデスクトップアプリ、CadCraft Studio は、getcadcraft.com/download にあります。
+- 8つのアプリをまとめて1回でインストールできるデスクトップアプリ、Manafe3 Desktop は、getcadcraft.com/download にあります。

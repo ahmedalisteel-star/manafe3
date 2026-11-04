@@ -7,7 +7,7 @@ keywords: foundation, footing, combined footing, mat, settlement, subgrade modul
 ---
 
 :::warning
-These are first-order checks for an engineer to review, not a design sign-off. The allowable bearing pressure and the friction coefficient are yours: DetailCraft does not know your soil.
+These are first-order checks for an engineer to review, not a design sign-off. The allowable bearing pressure and the friction coefficient are yours: Manafe3 does not know your soil.
 :::
 
 The {{ui:Foundation}} tab checks the footings in the model against the column loads you give them.

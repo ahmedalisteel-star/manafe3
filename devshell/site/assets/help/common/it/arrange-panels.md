@@ -42,7 +42,7 @@ Per far uscire un pannello dal gruppo, scegliere {{ui:Esci dal gruppo di schede}
 
 ## Scegliere quante righe usa la barra degli strumenti
 
-{{ui:Impostazioni}} › {{ui:Generali}} › {{ui:Righe della barra degli strumenti}} offre tre scelte. {{ui:A capo}} è il valore predefinito: ogni gruppo di strumenti è visibile, su tutte le righe necessarie. {{ui:2 righe}} mantiene la barra su due righe e {{ui:1 riga}} su una sola, così il disegno ha più altezza; i gruppi che non entrano scorrono lateralmente all'interno della barra (usare la rotella del mouse, uno scorrimento a due dita, oppure {{key:Tab}} fino a uno strumento). Una barra che già entra in due righe resta com'è con {{ui:2 righe}}, perché una griglia la renderebbe solo più alta. L'impostazione è mantenuta per ogni app. Uno schermo touch e un telefono mantengono il proprio layout. CadCraft ha una propria impostazione per la sua barra, in {{ui:Impostazioni}} › {{ui:CadCraft}}.
+{{ui:Impostazioni}} › {{ui:Generali}} › {{ui:Righe della barra degli strumenti}} offre tre scelte. {{ui:A capo}} è il valore predefinito: ogni gruppo di strumenti è visibile, su tutte le righe necessarie. {{ui:2 righe}} mantiene la barra su due righe e {{ui:1 riga}} su una sola, così il disegno ha più altezza; i gruppi che non entrano scorrono lateralmente all'interno della barra (usare la rotella del mouse, uno scorrimento a due dita, oppure {{key:Tab}} fino a uno strumento). Una barra che già entra in due righe resta com'è con {{ui:2 righe}}, perché una griglia la renderebbe solo più alta. L'impostazione è mantenuta per ogni app. Uno schermo touch e un telefono mantengono il proprio layout. Manafe3 ha una propria impostazione per la sua barra, in {{ui:Impostazioni}} › {{ui:Manafe3}}.
 
 ## Usare la tastiera
 
@@ -82,7 +82,7 @@ Dalla tastiera, con il fuoco dentro la finestra di dialogo, premere {{key:Alt}}+
 
 Su un telefono le finestre di dialogo restano fogli a tutta larghezza e non vengono spostate.
 
-In CadCraft Studio, la finestra {{ui:Stampa in PDF}} di CadCraft, che si può tenere aperta mentre si lavora, ha nella sua barra del titolo un pulsante, {{ui:Apri in una finestra separata}}. La finestra di dialogo passa in una finestra propria che si può mettere su un altro monitor. Chiudere la finestra di dialogo chiude la finestra, e chiudere la finestra chiude anche la finestra di dialogo.
+In Manafe3 Desktop, la finestra {{ui:Stampa in PDF}} di Manafe3, che si può tenere aperta mentre si lavora, ha nella sua barra del titolo un pulsante, {{ui:Apri in una finestra separata}}. La finestra di dialogo passa in una finestra propria che si può mettere su un altro monitor. Chiudere la finestra di dialogo chiude la finestra, e chiudere la finestra chiude anche la finestra di dialogo.
 
 ## Rimettere a posto i pannelli
 

@@ -1,11 +1,11 @@
 ---
-title: Pierwsze kroki w DetailCraft
-summary: Co DetailCraft potrafi dziś, jak go otworzyć i jak w dziesięć minut przejść od pierwszego modelu na siatkach do rysunku warsztatowego.
+title: Pierwsze kroki w Manafe3
+summary: Co Manafe3 potrafi dziś, jak go otworzyć i jak w dziesięć minut przejść od pierwszego modelu na siatkach do rysunku warsztatowego.
 keywords: start, pierwszy model, wprowadzenie, detalowanie stali, zbrojenie, szybki start, samouczek, przegląd
 from: 3682c0d8
 ---
 
-DetailCraft to aplikacja do detalowania stali i zbrojenia w rodzinie CadCraft. Budujesz model 3D stalowej ramy na siatkach i poziomach, łączysz ją i dostajesz to, czego potrzebuje warsztat: znaczniki części i zespołów, zestawienie materiałów, rysunki warsztatowe pojedynczych części, pliki DSTV NC, model IFC i zestawienie gięcia dla ław.
+Manafe3 to aplikacja do detalowania stali i zbrojenia w rodzinie Manafe3. Budujesz model 3D stalowej ramy na siatkach i poziomach, łączysz ją i dostajesz to, czego potrzebuje warsztat: znaczniki części i zespołów, zestawienie materiałów, rysunki warsztatowe pojedynczych części, pliki DSTV NC, model IFC i zestawienie gięcia dla ław.
 
 To wczesna wersja. Robi starannie krótką listę rzeczy zamiast wszystkiego naraz. Zanim zaplanujesz na niej prawdziwą pracę, przeczytaj [Czego jeszcze nie zbudowano](topic:not-built-yet).
 
@@ -19,24 +19,24 @@ To wczesna wersja. Robi starannie krótką listę rzeczy zamiast wszystkiego nar
 - Znaczniki części i zespołów, które same się aktualizują po każdej zmianie.
 - Eksporty: IFC4, pliki DSTV NC (kształtowniki dwuteowe i blachy), zestawienie materiałów jako CSV, zestawienie gięcia jako CSV i PDF z rysunkiem warsztatowym jednej części.
 
-## Otwórz DetailCraft
+## Otwórz Manafe3
 
-1. Otwórz DetailCraft w przeglądarce na komputerze: Chrome, Edge, Firefox lub Safari. Zobacz [Przeglądarki i komputery](common:browsers).
+1. Otwórz Manafe3 w przeglądarce na komputerze: Chrome, Edge, Firefox lub Safari. Zobacz [Przeglądarki i komputery](common:browsers).
 2. Poczekaj, aż ekran się wypełni. Pasek stanu na dole podaje „Ready. Open the Sample, or set grids and levels and start placing members.”
 
 Widok modelu wymaga grafiki 3D (WebGL). Jeśli środek ekranu podaje „This browser could not start 3D graphics (WebGL)”, zobacz [Rozwiązywanie problemów](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Twoje modele zostają na Twoim komputerze. Otwarcie modelu odczytuje go w przeglądarce, a zapis pobiera plik. Nic nie jest wysyłane. Zapis w chmurze nie jest jeszcze dostępny. Zobacz [Dokąd trafiają Twoje pliki](common:your-files). Aby później używać DetailCraft bez połączenia, wybierz raz, będąc online, {{ui:Zapisz do pracy offline}} na pasku aplikacji; zobacz [Praca offline](common:offline).
+Twoje modele zostają na Twoim komputerze. Otwarcie modelu odczytuje go w przeglądarce, a zapis pobiera plik. Nic nie jest wysyłane. Zapis w chmurze nie jest jeszcze dostępny. Zobacz [Dokąd trafiają Twoje pliki](common:your-files). Aby później używać Manafe3 bez połączenia, wybierz raz, będąc online, {{ui:Zapisz do pracy offline}} na pasku aplikacji; zobacz [Praca offline](common:offline).
 :::
 
 :::offline
-Jesteś offline. DetailCraft działa bez połączenia tylko wtedy, gdy został wcześniej zapisany do pracy offline: przycisk {{ui:Zapisz do pracy offline}} na pasku aplikacji pokazuje wtedy {{ui:Gotowe offline}}. Zobacz [Praca offline](common:offline).
+Jesteś offline. Manafe3 działa bez połączenia tylko wtedy, gdy został wcześniej zapisany do pracy offline: przycisk {{ui:Zapisz do pracy offline}} na pasku aplikacji pokazuje wtedy {{ui:Gotowe offline}}. Zobacz [Praca offline](common:offline).
 :::
 
 ## Najpierw obejrzyj przykład
 
-Najszybszy sposób, by zobaczyć, co tworzy DetailCraft, to przykładowa rama.
+Najszybszy sposób, by zobaczyć, co tworzy Manafe3, to przykładowa rama.
 
 1. Wybierz {{ui:Przykład}} w grupie {{ui:Plik}} paska narzędzi.
 2. Widok pokazuje ramę dwunawową: sześć słupów z blachami podstawy, cztery belki z blachami czołowymi, jedno stężenie i siedem ław ze zbrojeniem.
@@ -49,7 +49,7 @@ Przewodnik [Poznaj przykładową ramę](topic:sample-model) omawia ją element p
 
 Nowy model ma już siatki od 1 do 3 oraz od A do B co 6000 mm i dwa poziomy: Poziom 1 na 0 i Poziom 2 na 4000.
 
-1. Wybierz {{ui:Nowy}}. Jeśli bieżący model ma zmiany, DetailCraft zapyta, czy najpierw je zapisać.
+1. Wybierz {{ui:Nowy}}. Jeśli bieżący model ma zmiany, Manafe3 zapyta, czy najpierw je zapisać.
 2. Wybierz {{ui:Rzut}} nad widokiem. Lista poziomów obok wybiera Poziom 1.
 3. Wybierz {{ui:Słup}} na pasku narzędzi albo naciśnij {{key:C}}.
 4. Kliknij przecięcie siatek A/1. Pojawi się słup W12x50 od Poziomu 1 do Poziomu 2. Pasek stanu podaje, gdzie trafił.

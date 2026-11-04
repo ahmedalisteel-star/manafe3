@@ -54,7 +54,7 @@ Tyto údaje jsme zjistili z kódu aplikací 0.7, nehádali jsme: každý soubor 
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS a iOS 16.4) |
 
-CadCraft Studio má ve Windows vlastní webové jádro, takže vyžaduje Windows 10 nebo 11; na Macu používá systémové, takže vyžaduje macOS 13.3 nebo novější. Nastavení › Aktualizace ve Studiu ukazuje, na čem vaše kopie běží.
+Manafe3 Desktop má ve Windows vlastní webové jádro, takže vyžaduje Windows 10 nebo 11; na Macu používá systémové, takže vyžaduje macOS 13.3 nebo novější. Nastavení › Aktualizace ve Studiu ukazuje, na čem vaše kopie běží.
 
 Je to nejstarší verze, která se *spustí*, zjištěná z kódu. Není to seznam starých prohlížečů, ve kterých jsme aplikace spouštěli, takže starší prohlížeč, který se spustí, může některou funkci stále postrádat.
 

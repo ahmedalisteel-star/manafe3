@@ -42,7 +42,7 @@ Kad išimtumėte skydelį iš grupės, jo {{ui:⋯}} meniu pasirinkite {{ui:Perk
 
 ## Pasirinkite, kiek eilučių naudoja įrankių juosta
 
-{{ui:Parametrai}} › {{ui:Bendra}} › {{ui:Įrankių juostos eilutės}} turi tris pasirinkimus. Numatytasis – {{ui:Kelios eilutės}}: rodomos visos įrankių grupės, kiek eilučių joms reikia. {{ui:2 eilutės}} palieka įrankių juostą dviejų eilučių, o {{ui:1 eilutė}} – vienos eilutės, todėl brėžiniui lieka daugiau aukščio; grupės, kurios netelpa, slenka į šonus pačioje įrankių juostoje (naudokite pelės ratuką, dviejų pirštų braukimą arba klavišą {{key:Tab}}, kad pereitumėte prie įrankio). Įrankių juosta, kuri jau telpa dviejose eilutėse, pasirinkus {{ui:2 eilutės}} lieka tokia pati, nes tinklelis ją tik padidintų. Pasirinkimas išsaugomas kiekvienai programai atskirai. Jutiklinis ekranas ir telefonas palieka savo išdėstymą. {{ui:CadCraft}} turi savo įrankių juostos parametrą, esantį {{ui:Parametrai}} › CadCraft.
+{{ui:Parametrai}} › {{ui:Bendra}} › {{ui:Įrankių juostos eilutės}} turi tris pasirinkimus. Numatytasis – {{ui:Kelios eilutės}}: rodomos visos įrankių grupės, kiek eilučių joms reikia. {{ui:2 eilutės}} palieka įrankių juostą dviejų eilučių, o {{ui:1 eilutė}} – vienos eilutės, todėl brėžiniui lieka daugiau aukščio; grupės, kurios netelpa, slenka į šonus pačioje įrankių juostoje (naudokite pelės ratuką, dviejų pirštų braukimą arba klavišą {{key:Tab}}, kad pereitumėte prie įrankio). Įrankių juosta, kuri jau telpa dviejose eilutėse, pasirinkus {{ui:2 eilutės}} lieka tokia pati, nes tinklelis ją tik padidintų. Pasirinkimas išsaugomas kiekvienai programai atskirai. Jutiklinis ekranas ir telefonas palieka savo išdėstymą. {{ui:Manafe3}} turi savo įrankių juostos parametrą, esantį {{ui:Parametrai}} › Manafe3.
 
 ## Klaviatūros naudojimas
 
@@ -82,7 +82,7 @@ Klaviatūra: kai dėmesys yra dialoge, paspauskite {{key:Alt}}+{{key:Shift}}+rod
 
 Telefone dialogai lieka per visą plotį ir nekeliami.
 
-CadCraft Studio programoje dialogo {{ui:Spausdinti į PDF}}, kurį galite palikti atidarytą dirbdami, antraštės juostoje yra mygtukas {{ui:Atidaryti atskirame lange}}. Dialogas persikelia į savo langą, kurį galite perkelti į kitą ekraną. Uždarius dialogą užsidaro langas, o uždarius langą – dialogas.
+Manafe3 Desktop programoje dialogo {{ui:Spausdinti į PDF}}, kurį galite palikti atidarytą dirbdami, antraštės juostoje yra mygtukas {{ui:Atidaryti atskirame lange}}. Dialogas persikelia į savo langą, kurį galite perkelti į kitą ekraną. Uždarius dialogą užsidaro langas, o uždarius langą – dialogas.
 
 ## Skydelių grąžinimas atgal
 

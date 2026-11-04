@@ -41,4 +41,4 @@ Jūs tagad esat bezsaistē. Ja šī lietotne ir saglabāta lietošanai bezsaist�
 Safari noņem saglabātos vietnes datus no vietnēm, kurās neesat bijis vairākas nedēļas. Atveriet lietotni laiku pa laikam, kamēr esat tiešsaistē, vai saglabājiet to vēlreiz pirms ceļojuma.
 :::
 
-- CadCraft Studio, darbvirsmas lietotne ar visām astoņām lietotnēm vienā instalācijā, ir pieejama adresē getcadcraft.com/download.
+- Manafe3 Desktop, darbvirsmas lietotne ar visām astoņām lietotnēm vienā instalācijā, ir pieejama adresē getcadcraft.com/download.

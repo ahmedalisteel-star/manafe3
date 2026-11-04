@@ -42,7 +42,7 @@ Para tirar um painel do grupo, escolha {{ui:Sair do grupo de guias}} no menu {{u
 
 ## Escolher quantas linhas a barra de ferramentas usa
 
-{{ui:Configurações}} › {{ui:Geral}} › {{ui:Linhas da barra de ferramentas}} tem três opções. {{ui:Quebrar}} é o padrão: todos os grupos de ferramentas aparecem, em quantas linhas forem necessárias. {{ui:2 linhas}} mantém a barra de ferramentas em duas linhas e {{ui:1 linha}} em uma, para que o desenho ganhe altura; os grupos que não cabem rolam para o lado dentro da barra (use a roda do mouse, um deslize com dois dedos ou {{key:Tab}} até uma ferramenta). Uma barra que já cabe em duas linhas continua como está com {{ui:2 linhas}}, porque uma grade só a deixaria mais alta. A escolha é mantida em cada aplicativo. Uma tela de toque e um celular mantêm o próprio layout. O CadCraft tem uma configuração própria para a barra de ferramentas, em {{ui:Configurações}} › {{ui:CadCraft}}.
+{{ui:Configurações}} › {{ui:Geral}} › {{ui:Linhas da barra de ferramentas}} tem três opções. {{ui:Quebrar}} é o padrão: todos os grupos de ferramentas aparecem, em quantas linhas forem necessárias. {{ui:2 linhas}} mantém a barra de ferramentas em duas linhas e {{ui:1 linha}} em uma, para que o desenho ganhe altura; os grupos que não cabem rolam para o lado dentro da barra (use a roda do mouse, um deslize com dois dedos ou {{key:Tab}} até uma ferramenta). Uma barra que já cabe em duas linhas continua como está com {{ui:2 linhas}}, porque uma grade só a deixaria mais alta. A escolha é mantida em cada aplicativo. Uma tela de toque e um celular mantêm o próprio layout. O Manafe3 tem uma configuração própria para a barra de ferramentas, em {{ui:Configurações}} › {{ui:Manafe3}}.
 
 ## Usar o teclado
 
@@ -82,7 +82,7 @@ Pelo teclado, pressione {{key:Alt}}+{{key:Shift}}+uma tecla de seta, com o foco 
 
 Em um celular, as caixas de diálogo continuam ocupando a largura toda e não são movidas.
 
-No CadCraft Studio, a caixa {{ui:Plotar para PDF}} do CadCraft, que você pode deixar aberta enquanto trabalha, tem um botão na barra de título, {{ui:Abrir em uma janela própria}}. A caixa passa para uma janela própria, que você pode colocar em outro monitor. Fechar a caixa fecha a janela, e fechar a janela fecha a caixa.
+No Manafe3 Desktop, a caixa {{ui:Plotar para PDF}} do Manafe3, que você pode deixar aberta enquanto trabalha, tem um botão na barra de título, {{ui:Abrir em uma janela própria}}. A caixa passa para uma janela própria, que você pode colocar em outro monitor. Fechar a caixa fecha a janela, e fechar a janela fecha a caixa.
 
 ## Recolocar os painéis
 

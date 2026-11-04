@@ -1,17 +1,17 @@
 ---
 title: Un giro della schermata
-summary: Ogni barra, pannello e scheda di DetailCraft con il nome che ha sullo schermo e a cosa serve.
+summary: Ogni barra, pannello e scheda di Manafe3 con il nome che ha sullo schermo e a cosa serve.
 keywords: schermata, disposizione, barra degli strumenti, pannelli, proprietà, barra di stato, rapporti, interfaccia, ui, schede
 from: 454f74fd
 ---
 
-DetailCraft riempie la finestra del browser sotto la barra dell'app. Dall'alto in basso: la barra degli strumenti, poi tre colonne (il pannello {{ui:Modello}}, la vista, il pannello {{ui:Proprietà}}), poi le schede dei rapporti, poi la barra di stato.
+Manafe3 riempie la finestra del browser sotto la barra dell'app. Dall'alto in basso: la barra degli strumenti, poi tre colonne (il pannello {{ui:Modello}}, la vista, il pannello {{ui:Proprietà}}), poi le schede dei rapporti, poi la barra di stato.
 
 ## La barra dell'app
 
-La barra sottile in cima appartiene al sito CadCraft, non al modello. Mostra il nome e la versione dell'app, un collegamento a {{ui:Informazioni su DetailCraft}}, {{ui:Guida}} (o {{key:F1}}) per questa guida, {{ui:Salva per l'uso offline}}, il pulsante della modalità schermo e il selettore {{ui:Carta}} / {{ui:Modello}}.
+La barra sottile in cima appartiene al sito Manafe3, non al modello. Mostra il nome e la versione dell'app, un collegamento a {{ui:Informazioni su Manafe3}}, {{ui:Guida}} (o {{key:F1}}) per questa guida, {{ui:Salva per l'uso offline}}, il pulsante della modalità schermo e il selettore {{ui:Carta}} / {{ui:Modello}}.
 
-- {{ui:Salva per l'uso offline}} conserva DetailCraft, la sua vista 3D e questa guida nel browser, così si apre senza connessione. Una volta salvato riporta {{ui:Pronto per l'uso offline}}; fare clic allora per {{ui:Salva di nuovo (scarica la versione più recente)}} o {{ui:Rimuovi la copia offline}}. Vedere [Lavorare offline](common:offline).
+- {{ui:Salva per l'uso offline}} conserva Manafe3, la sua vista 3D e questa guida nel browser, così si apre senza connessione. Una volta salvato riporta {{ui:Pronto per l'uso offline}}; fare clic allora per {{ui:Salva di nuovo (scarica la versione più recente)}} o {{ui:Rimuovi la copia offline}}. Vedere [Lavorare offline](common:offline).
 - {{ui:Carta}} dà una schermata chiara e {{ui:Modello}} una scura. La vista 3D si adegua subito; nulla nel modello cambia.
 - Il pulsante della modalità schermo e {{key:Ctrl+Shift+F}} alternano schermo normale, schermo intero e schermo intero con le barre nascoste. {{key:Ctrl+Shift+F}} usa il tasto Control su ogni computer, Mac compreso. Con le barre nascoste, puntare il bordo superiore dello schermo (o toccarlo) per farle riapparire. {{key:Esc}} esce dallo schermo intero.
 
@@ -70,7 +70,7 @@ I campi numerici hanno effetto quando si preme {{key:Enter}} o si esce dal campo
 
 ## Le schede dei rapporti (in basso)
 
-- {{ui:Problemi}}: tutto ciò che DetailCraft non ha potuto costruire o che vuole far verificare, con un pulsante {{ui:Seleziona}} su ogni riga. La scheda mostra il conteggio tra parentesi.
+- {{ui:Problemi}}: tutto ciò che Manafe3 non ha potuto costruire o che vuole far verificare, con un pulsante {{ui:Seleziona}} su ogni riga. La scheda mostra il conteggio tra parentesi.
 - {{ui:Distinta dei materiali}}: parti, assiemi, e bulloni e tirafondi, con pesi e un collegamento {{ui:Scarica CSV}}. Fare clic su una marca di parte per selezionarla.
 - {{ui:Distinta di piegatura}}: ogni posizione di barra in ogni plinto, con un collegamento {{ui:Scarica CSV}}.
 
@@ -84,4 +84,4 @@ Il titolo della scheda del browser inizia con un punto (•) finché il modello 
 
 ## Su uno schermo stretto
 
-Sotto circa 760 pixel di larghezza le colonne si impilano: barra degli strumenti, vista, barra di stato, {{ui:Proprietà}}, schede dei rapporti e, per ultimo, il pannello {{ui:Modello}}. Scorrere la pagina per raggiungerli. DetailCraft è pensato per uno schermo di desktop o portatile; un telefono va bene per guardare, non per dettagliare.
+Sotto circa 760 pixel di larghezza le colonne si impilano: barra degli strumenti, vista, barra di stato, {{ui:Proprietà}}, schede dei rapporti e, per ultimo, il pannello {{ui:Modello}}. Scorrere la pagina per raggiungerli. Manafe3 è pensato per uno schermo di desktop o portatile; un telefono va bene per guardare, non per dettagliare.

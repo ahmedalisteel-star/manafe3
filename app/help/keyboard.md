@@ -1,6 +1,6 @@
 ---
 title: Keys and mouse actions
-summary: Every keyboard shortcut and mouse, trackpad and touch action in DetailCraft, from the code.
+summary: Every keyboard shortcut and mouse, trackpad and touch action in Manafe3, from the code.
 section: reference
 order: 10
 keywords: keyboard, shortcuts, hotkeys, keys, mouse, trackpad, touch, ctrl, command, cheat sheet
@@ -44,7 +44,7 @@ These work when the cursor is not in a text or number field (there they copy, pa
 | {{key:Mod+X}} | {{ui:Cut}}: copy the selection, then delete it |
 | {{key:Mod+V}} | {{ui:Paste}}: the copy follows the pointer; click a grid intersection for it |
 | {{key:Mod+Shift+V}} | {{ui:Paste in place}}: at the coordinates it was copied from |
-| {{key:Mod+D}} | {{ui:Duplicate}}: a copy at once, moved by the offset in [DetailCraft settings](topic:settings) |
+| {{key:Mod+D}} | {{ui:Duplicate}}: a copy at once, moved by the offset in [Manafe3 settings](topic:settings) |
 | {{key:Mod+A}} | {{ui:Select all}}: every member, connection and footing |
 | {{key:Esc}} | {{ui:Select none}} |
 
@@ -68,7 +68,7 @@ None of these keys do anything while a dialog (the shop drawing preview or a que
 | Key | Does |
 |---|---|
 | {{key:Ctrl+Shift+F}} | Cycle normal, full screen, full screen with the bars hidden. Control on every computer, a Mac included |
-| {{key:Mod+,}} | Open {{ui:Settings}} ([DetailCraft settings](topic:settings)) |
+| {{key:Mod+,}} | Open {{ui:Settings}} ([Manafe3 settings](topic:settings)) |
 | {{key:Esc}} | Leave full screen |
 | {{key:F1}} | Open this help |
 
@@ -116,7 +116,7 @@ Buttons, lists and fields are larger when the screen is touch only. Selection wi
 
 Some shortcuts belong to the browser and no page can use them, for example {{key:Mod+W}} (close tab), {{key:Mod+T}} (new tab) and {{key:Mod+N}} (new window). If {{key:Mod+Y}} opens your browser's history instead of redoing, use {{key:Mod+Shift+Z}}.
 
-Shortcuts reach DetailCraft only when the page has the keyboard. If a key does nothing, or the browser acts on it instead, click an empty part of the DetailCraft window first (for example after typing in the address bar).
+Shortcuts reach Manafe3 only when the page has the keyboard. If a key does nothing, or the browser acts on it instead, click an empty part of the Manafe3 window first (for example after typing in the address bar).
 
 ## Where Move lives
 

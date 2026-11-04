@@ -1,11 +1,11 @@
 ---
-title: Bermula dengan DetailCraft
-summary: Apa yang DetailCraft lakukan hari ini, cara membukanya, dan model pertama daripada grid hingga lukisan bengkel dalam sepuluh minit.
+title: Bermula dengan Manafe3
+summary: Apa yang Manafe3 lakukan hari ini, cara membukanya, dan model pertama daripada grid hingga lukisan bengkel dalam sepuluh minit.
 keywords: mula, model pertama, pengenalan, perincian keluli, tetulang, mula pantas, tutorial, gambaran keseluruhan
 from: 3682c0d8
 ---
 
-DetailCraft ialah aplikasi perincian keluli dan tetulang dalam keluarga CadCraft. Anda membina model 3D rangka keluli pada grid dan aras, menyambungkannya, dan mendapatkan apa yang diperlukan bengkel: tanda bahagian dan himpunan, senarai bahan, lukisan bengkel bagi satu bahagian, fail NC DSTV, model IFC, dan jadual lenturan untuk tapak asas.
+Manafe3 ialah aplikasi perincian keluli dan tetulang dalam keluarga Manafe3. Anda membina model 3D rangka keluli pada grid dan aras, menyambungkannya, dan mendapatkan apa yang diperlukan bengkel: tanda bahagian dan himpunan, senarai bahan, lukisan bengkel bagi satu bahagian, fail NC DSTV, model IFC, dan jadual lenturan untuk tapak asas.
 
 Ini ialah binaan awal. Ia melakukan senarai pendek perkara dengan teliti dan bukannya semua sekaligus. Baca [Apa yang belum dibina](topic:not-built-yet) sebelum anda merancang kerja sebenar berdasarkannya.
 
@@ -19,24 +19,24 @@ Ini ialah binaan awal. Ia melakukan senarai pendek perkara dengan teliti dan buk
 - Tanda bahagian dan himpunan yang dikemas kini sendiri selepas setiap perubahan.
 - Eksport: IFC4, fail NC DSTV (bentuk-I dan plat), senarai bahan sebagai CSV, jadual lenturan sebagai CSV, dan PDF lukisan bengkel bagi satu bahagian.
 
-## Buka DetailCraft
+## Buka Manafe3
 
-1. Buka DetailCraft dalam pelayar desktop: Chrome, Edge, Firefox atau Safari. Lihat [Pelayar dan komputer](common:browsers).
+1. Buka Manafe3 dalam pelayar desktop: Chrome, Edge, Firefox atau Safari. Lihat [Pelayar dan komputer](common:browsers).
 2. Tunggu sehingga skrin penuh. Bar status di bahagian bawah menunjukkan "Sedia. Buka Sampel, atau tetapkan grid dan aras dan mula meletakkan ahli."
 
 Paparan model memerlukan grafik 3D (WebGL). Jika bahagian tengah skrin menunjukkan "Pelayar ini tidak dapat memulakan grafik 3D (WebGL)", lihat [Penyelesaian masalah](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Model anda kekal dalam komputer anda. Membuka model membacanya dalam pelayar, dan menyimpan memuat turun fail. Tiada apa-apa dimuat naik. Simpanan awan belum tersedia. Lihat [Di mana fail anda pergi](common:your-files). Untuk menggunakan DetailCraft tanpa sambungan kemudian, pilih {{ui:Simpan untuk luar talian}} dalam bar aplikasi sekali semasa dalam talian; lihat [Bekerja luar talian](common:offline).
+Model anda kekal dalam komputer anda. Membuka model membacanya dalam pelayar, dan menyimpan memuat turun fail. Tiada apa-apa dimuat naik. Simpanan awan belum tersedia. Lihat [Di mana fail anda pergi](common:your-files). Untuk menggunakan Manafe3 tanpa sambungan kemudian, pilih {{ui:Simpan untuk luar talian}} dalam bar aplikasi sekali semasa dalam talian; lihat [Bekerja luar talian](common:offline).
 :::
 
 :::offline
-Anda luar talian. DetailCraft berfungsi tanpa sambungan hanya jika ia disimpan untuk kegunaan luar talian dahulu: butang {{ui:Simpan untuk luar talian}} dalam bar aplikasi kemudian memaparkan {{ui:Sedia untuk luar talian}}. Lihat [Bekerja luar talian](common:offline).
+Anda luar talian. Manafe3 berfungsi tanpa sambungan hanya jika ia disimpan untuk kegunaan luar talian dahulu: butang {{ui:Simpan untuk luar talian}} dalam bar aplikasi kemudian memaparkan {{ui:Sedia untuk luar talian}}. Lihat [Bekerja luar talian](common:offline).
 :::
 
 ## Lihat sampel dahulu
 
-Cara terpantas untuk melihat apa yang DetailCraft hasilkan ialah rangka sampel.
+Cara terpantas untuk melihat apa yang Manafe3 hasilkan ialah rangka sampel.
 
 1. Pilih {{ui:Sampel}} dalam kumpulan {{ui:Fail}} pada bar alat.
 2. Paparan menunjukkan rangka dua bay: enam tiang dengan plat tapak, empat rasuk dengan plat hujung, satu tupang dan tujuh tapak asas dengan tetulang.
@@ -49,7 +49,7 @@ Panduan langkah demi langkah [Teroka rangka sampel](topic:sample-model) membinca
 
 Model baharu sudah mempunyai grid 1 hingga 3 mengikut A hingga B pada 6000 mm dan dua aras, Aras 1 pada 0 dan Aras 2 pada 4000.
 
-1. Pilih {{ui:Baharu}}. Jika model semasa mempunyai perubahan, DetailCraft bertanya sama ada hendak menyimpannya dahulu.
+1. Pilih {{ui:Baharu}}. Jika model semasa mempunyai perubahan, Manafe3 bertanya sama ada hendak menyimpannya dahulu.
 2. Pilih {{ui:Pelan}} di atas paparan. Senarai aras di sebelahnya memilih Aras 1.
 3. Pilih {{ui:Tiang}} pada bar alat, atau tekan {{key:C}}.
 4. Klik persilangan grid A/1. Tiang W12x50 muncul dari Aras 1 ke Aras 2. Bar status menyatakan ke mana ia pergi.

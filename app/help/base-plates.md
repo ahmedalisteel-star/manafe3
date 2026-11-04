@@ -9,7 +9,7 @@ keywords: base plate, baseplate, anchor rods, anchor bolts, holding down bolts, 
 A base plate connection puts a plate under the column, cuts the column short by the plate thickness, welds the two together, and adds four anchor rods through holes in the plate.
 
 :::warning
-The sizes are starting values, not a design. DetailCraft does not check bearing, rod strength or embedment.
+The sizes are starting values, not a design. Manafe3 does not check bearing, rod strength or embedment.
 :::
 
 ## Add a base plate
@@ -50,14 +50,14 @@ Rod length = embedment + grout gap + plate thickness + projection. With the defa
 
 ## Base details: grout, stiffeners, shear lug, washers
 
-All four are off on a new base plate, and on base plates from models made before DetailCraft 0.4.
+All four are off on a new base plate, and on base plates from models made before Manafe3 0.4.
 
 - **Grout gap.** The plate sits this far above the top of concrete, and the rods get longer by it. AISC Design Guide 1 (2.10) suggests 1 in. on a finished floor and 1½ to 2 in. on a footing or pier; more for large plates and plates with a shear lug.
 - **Stiffeners.** Vertical plates welded to the column and the plate, from the column face out to the plate edge, as rectangles (no chamfer or taper yet). **2** stand in line with the web, beyond each flange; **4** add two square to the web, between the flanges, out to the plate sides. On a tube column they stand at the middle of each face. Each is welded to the column and the plate on both sides.
-- **Shear lug.** A plate welded all round under the base plate, in line with the column depth, centered. DetailCraft warns if it is no deeper than the grout gap. It does not cut the pocket in the footing; the [clash check](topic:clash-check) leaves the lug and the footing out for that reason.
-- **Plate washers.** A square plate washer on each rod, sitting on the base plate, listed in the column's assembly as loose (shipped with the column, not welded: Design Guide 1, 2.6). With size and thickness 0, DetailCraft takes the minimum washer from AISC Design Guide 1, 2nd ed., Table 2.3 for the rod; a metric rod takes the next inch size up (an M20 rod gets the 7/8 in. row: 2½ in. × 5/16 in.). The properties panel shows the size used. The washer's hole is the rod diameter + 1/16 in.: that is DetailCraft's choice, the table does not give one. DetailCraft warns when the rods may not stick out far enough for the washer and a nut (projection less than washer thickness + rod diameter).
+- **Shear lug.** A plate welded all round under the base plate, in line with the column depth, centered. Manafe3 warns if it is no deeper than the grout gap. It does not cut the pocket in the footing; the [clash check](topic:clash-check) leaves the lug and the footing out for that reason.
+- **Plate washers.** A square plate washer on each rod, sitting on the base plate, listed in the column's assembly as loose (shipped with the column, not welded: Design Guide 1, 2.6). With size and thickness 0, Manafe3 takes the minimum washer from AISC Design Guide 1, 2nd ed., Table 2.3 for the rod; a metric rod takes the next inch size up (an M20 rod gets the 7/8 in. row: 2½ in. × 5/16 in.). The properties panel shows the size used. The washer's hole is the rod diameter + 1/16 in.: that is Manafe3's choice, the table does not give one. Manafe3 warns when the rods may not stick out far enough for the washer and a nut (projection less than washer thickness + rod diameter).
 
-Design Guide 1, Table 2.3, also recommends the rod hole in the plate: 1-5/16 in. for a ¾ in. rod, 1-9/16 in. for ⅞ in., 1-13/16 in. for 1 in. DetailCraft does not change your hole size.
+Design Guide 1, Table 2.3, also recommends the rod hole in the plate: 1-5/16 in. for a ¾ in. rod, 1-9/16 in. for ⅞ in., 1-13/16 in. for 1 in. Manafe3 does not change your hole size.
 
 Warnings also appear when the rod holes are closer than 1.2 × the hole diameter to the plate edge, when the rods fall inside the column outline, or when the plate is smaller than the column.
 

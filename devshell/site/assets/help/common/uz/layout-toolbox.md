@@ -42,7 +42,7 @@ Chap va oʻng panellar [Panellarni joylashtirish](common:arrange-panels) da tasv
 
 ## Klassik joylashuvga qaytish
 
-{{ui:Sozlamalar}} › {{ui:Global}} › {{ui:Joylashuv}} › {{ui:Ish joyi}} ni oching va {{ui:CadCraft klassik}} ni tanlang. Har bir asboblar paneli, yorliq va panel avval turgan joyiga qaytadi.
+{{ui:Sozlamalar}} › {{ui:Global}} › {{ui:Joylashuv}} › {{ui:Ish joyi}} ni oching va {{ui:Manafe3 klassik}} ni tanlang. Har bir asboblar paneli, yorliq va panel avval turgan joyiga qaytadi.
 
 :::note
 Telefonda yoki 760 pikseldan kichik yoki teng kenglikdagi oynada ilova tanlaganingizni inobatga olmay telefon joylashuvidan foydalanadi. Kengroq oyna sizning joylashuvingizni qaytaradi.

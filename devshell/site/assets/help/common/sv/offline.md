@@ -41,4 +41,4 @@ Du är offline nu. Om den här appen sparades för offlineanvändning fungerar a
 Safari tar bort sparad webbplatsdata från webbplatser du inte har besökt på flera veckor. Öppna appen då och då medan du är online, eller spara den igen före en resa.
 :::
 
-- CadCraft Studio, skrivbordsappen med alla åtta apparna i en installation, finns på getcadcraft.com/download.
+- Manafe3 Desktop, skrivbordsappen med alla åtta apparna i en installation, finns på getcadcraft.com/download.

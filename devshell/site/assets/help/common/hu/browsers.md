@@ -54,7 +54,7 @@ Ezeket a 0.7-es alkalmazások kódjából olvastuk ki, nem találgatásból: min
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS és iOS 16.4) |
 
-A CadCraft Studio Windowson saját webmotort hoz magával, ezért Windows 10 vagy 11 kell hozzá; Mac-en a rendszer motorját használja, ezért macOS 13.3 vagy újabb kell hozzá. A Studio Beállítások › Frissítések oldala megmutatja, min fut az Ön példánya.
+A Manafe3 Desktop Windowson saját webmotort hoz magával, ezért Windows 10 vagy 11 kell hozzá; Mac-en a rendszer motorját használja, ezért macOS 13.3 vagy újabb kell hozzá. A Studio Beállítások › Frissítések oldala megmutatja, min fut az Ön példánya.
 
 Ez a legrégebbi verzió, amely *elindul*, a kódból kiolvasva. Nem azon régi böngészők listája, amelyekben kipróbáltuk az alkalmazásokat, ezért egy régebbi, de elinduló böngészőből még hiányozhat egy funkció.
 

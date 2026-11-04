@@ -1,17 +1,17 @@
 ---
 title: Otwieranie, zapisywanie i eksport plików
-summary: Plik modelu DetailCraft, każdy eksport, który zapisuje, dokąd trafiają pliki i co różni się zależnie od przeglądarki i połączenia.
+summary: Plik modelu Manafe3, każdy eksport, który zapisuje, dokąd trafiają pliki i co różni się zależnie od przeglądarki i połączenia.
 keywords: otwórz, zapisz, eksport, pobieranie, plik, json, ifc, nc1, dstv, csv, pdf, zip, formaty, import
 from: bd715ea3
 ---
 
-DetailCraft ma jeden własny plik, model, i pięć eksportów. Każdy zapis i każdy eksport to pobranie. Nic nie jest wysyłane i nic nie jest przechowywane na serwerze.
+Manafe3 ma jeden własny plik, model, i pięć eksportów. Każdy zapis i każdy eksport to pobranie. Nic nie jest wysyłane i nic nie jest przechowywane na serwerze.
 
 ## Plik modelu
 
-Model DetailCraft jest zapisywany jako `<nazwa>.detailcraft.json`, gdzie `<nazwa>` to nazwa modelu w panelu {{ui:Model}}. Zawiera siatki, poziomy, elementy (z otworami i wycięciami), połączenia i ich ustawienia, ławy oraz Twoje własne profile.
+Model Manafe3 jest zapisywany jako `<nazwa>.detailcraft.json`, gdzie `<nazwa>` to nazwa modelu w panelu {{ui:Model}}. Zawiera siatki, poziomy, elementy (z otworami i wycięciami), połączenia i ich ustawienia, ławy oraz Twoje własne profile.
 
-Części, znaczniki, śruby, spoiny i pręty nie są zapisywane: DetailCraft wylicza je od nowa z modelu przy każdym otwarciu. Dlatego plik modelu jest mały.
+Części, znaczniki, śruby, spoiny i pręty nie są zapisywane: Manafe3 wylicza je od nowa z modelu przy każdym otwarciu. Dlatego plik modelu jest mały.
 
 ### Zapis
 
@@ -38,21 +38,21 @@ Safari zapisuje w folderze Pobrane. Aby zmienić folder, otwórz **Safari, Ustaw
 1. Wybierz {{ui:Otwórz}} w grupie {{ui:Plik}} albo naciśnij {{key:Mod+O}}.
 2. Wskaż plik `.detailcraft.json`.
 
-Albo przeciągnij plik z {{pick:mac=Findera|windows=Eksploratora plików|linux=menedżera plików}} i upuść go na widoku. Podczas przeciągania widok podaje „Drop a DetailCraft model to open it”.
+Albo przeciągnij plik z {{pick:mac=Findera|windows=Eksploratora plików|linux=menedżera plików}} i upuść go na widoku. Podczas przeciągania widok podaje „Drop a Manafe3 model to open it”.
 
-Jeśli otwarty model ma niezapisane zmiany, DetailCraft najpierw zapyta: {{ui:Anuluj}}, {{ui:Odrzuć zmiany}} lub {{ui:Najpierw zapisz}}.
+Jeśli otwarty model ma niezapisane zmiany, Manafe3 najpierw zapyta: {{ui:Anuluj}}, {{ui:Odrzuć zmiany}} lub {{ui:Najpierw zapisz}}.
 
-DetailCraft sprawdza każde pole pliku, zanim go użyje. Wszystko, czego nie może użyć, jest pomijane, a pasek stanu mówi co, na przykład „2 members were not valid and left out.” Model zapisany przez nowszy DetailCraft jest odrzucany z komunikatem zamiast otwierany w połowie poprawnie.
+Manafe3 sprawdza każde pole pliku, zanim go użyje. Wszystko, czego nie może użyć, jest pomijane, a pasek stanu mówi co, na przykład „2 members were not valid and left out.” Model zapisany przez nowszy Manafe3 jest odrzucany z komunikatem zamiast otwierany w połowie poprawnie.
 
 ### Co otwiera
 
-Własne pliki modeli (`.json`, do 50 MB) i pliki IFC (`.ifc`, IFC2X3 lub IFC4, do 200 MB). Plik IFC, otwarty lub wprowadzony przez {{ui:Importuj IFC}}, staje się nowym modelem z jego belek, słupów, elementów, blach, siatek i poziomów, z wyciętymi w nich otworami i wycięciami, a jego śruby są luźnymi śrubami; raport wymienia, co pominięto. Zobacz [Eksport IFC](topic:ifc-export#import). Nie otwiera jeszcze DWG, DXF ani modelu z żadnego innego programu do detalowania; próba pokazuje „DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc).”
+Własne pliki modeli (`.json`, do 50 MB) i pliki IFC (`.ifc`, IFC2X3 lub IFC4, do 200 MB). Plik IFC, otwarty lub wprowadzony przez {{ui:Importuj IFC}}, staje się nowym modelem z jego belek, słupów, elementów, blach, siatek i poziomów, z wyciętymi w nich otworami i wycięciami, a jego śruby są luźnymi śrubami; raport wymienia, co pominięto. Zobacz [Eksport IFC](topic:ifc-export#import). Nie otwiera jeszcze DWG, DXF ani modelu z żadnego innego programu do detalowania; próba pokazuje „Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc).”
 
 ## Utracona praca, ostatnie pliki, aplikacja na komputer
 
-- Gdy model ma niezapisane zmiany, DetailCraft przechowuje kopię w tej przeglądarce. Jeśli karta albo przeglądarka przestanie działać przed zapisem, przy następnym otwarciu DetailCraft zapyta **Recover your work?**: odzyskaj kopię albo ją porzuć. Zobacz [Odzyskaj swoją pracę](common:recover).
-- Modele otwierane ostatnio są wymienione na ekranie startowym, gdy przeglądarka pozwala DetailCraft otworzyć je ponownie; naciśnij jeden, aby otworzyć go ponownie.
-- W aplikacji na komputer {{ui:Zapisz}} zapisuje model z powrotem do otwartego pliku (w przeglądarce pobiera kopię), a dwukrotne kliknięcie modelu DetailCraft lub pliku IFC otwiera go w DetailCraft.
+- Gdy model ma niezapisane zmiany, Manafe3 przechowuje kopię w tej przeglądarce. Jeśli karta albo przeglądarka przestanie działać przed zapisem, przy następnym otwarciu Manafe3 zapyta **Recover your work?**: odzyskaj kopię albo ją porzuć. Zobacz [Odzyskaj swoją pracę](common:recover).
+- Modele otwierane ostatnio są wymienione na ekranie startowym, gdy przeglądarka pozwala Manafe3 otworzyć je ponownie; naciśnij jeden, aby otworzyć go ponownie.
+- W aplikacji na komputer {{ui:Zapisz}} zapisuje model z powrotem do otwartego pliku (w przeglądarce pobiera kopię), a dwukrotne kliknięcie modelu Manafe3 lub pliku IFC otwiera go w Manafe3.
 
 ## Eksporty
 
@@ -79,13 +79,13 @@ Tekst w PDF używa standardowej czcionki Helvetica. Znaki, których w niej nie m
 
 ## Jednostki
 
-DetailCraft pracuje wszędzie w milimetrach: siatki, poziomy, współrzędne, profile, otwory i każdy eksport. Nazwy profili zachowują opublikowaną postać (W12x50 to oznaczenie amerykańskie, choć jego wymiary są pokazywane w mm). Nie ma jeszcze wprowadzania w jednostkach imperialnych.
+Manafe3 pracuje wszędzie w milimetrach: siatki, poziomy, współrzędne, profile, otwory i każdy eksport. Nazwy profili zachowują opublikowaną postać (W12x50 to oznaczenie amerykańskie, choć jego wymiary są pokazywane w mm). Nie ma jeszcze wprowadzania w jednostkach imperialnych.
 
 ## Online i offline
 
-Otwieranie, zapisywanie i eksport odbywają się w Twojej przeglądarce, więc działają tak samo z połączeniem i bez, gdy DetailCraft już się załaduje.
+Otwieranie, zapisywanie i eksport odbywają się w Twojej przeglądarce, więc działają tak samo z połączeniem i bez, gdy Manafe3 już się załaduje.
 
-Aby później używać DetailCraft bez połączenia, wybierz {{ui:Zapisz do pracy offline}} na pasku aplikacji, gdy jesteś online. Przycisk liczy w górę („Saving 3 of 20”), a potem pokazuje {{ui:Gotowe offline}}. Zapisana kopia zawiera bibliotekę grafiki 3D (około 2,6 MB) i tę pomoc, więc po zapisie widok 3D, każdy eksport i pomoc działają offline. Szczegóły i to, co nadal wymaga połączenia: [Praca offline](common:offline).
+Aby później używać Manafe3 bez połączenia, wybierz {{ui:Zapisz do pracy offline}} na pasku aplikacji, gdy jesteś online. Przycisk liczy w górę („Saving 3 of 20”), a potem pokazuje {{ui:Gotowe offline}}. Zapisana kopia zawiera bibliotekę grafiki 3D (około 2,6 MB) i tę pomoc, więc po zapisie widok 3D, każdy eksport i pomoc działają offline. Szczegóły i to, co nadal wymaga połączenia: [Praca offline](common:offline).
 
 :::offline
 Jesteś offline. Jeśli pasek aplikacji pokazuje {{ui:Gotowe offline}}, otwieranie, zapisywanie i eksport działają jak zwykle. Jeśli nie, zostaw tę kartę otwartą, nie przeładowuj jej, dopóki nie wrócisz online, i zapisz model teraz.
@@ -95,4 +95,4 @@ Zapis w chmurze nie jest jeszcze dostępny i nie ma jeszcze wersji na komputer. 
 
 ## Niezapisana praca
 
-DetailCraft trzyma model tylko w otwartej karcie. Jeśli zamkniesz lub przeładujesz kartę z niezapisanymi zmianami, przeglądarka zapyta, czy opuścić stronę; jej sformułowanie jest własnością przeglądarki. Zapisuj często przez {{key:Mod+S}}.
+Manafe3 trzyma model tylko w otwartej karcie. Jeśli zamkniesz lub przeładujesz kartę z niezapisanymi zmianami, przeglądarka zapyta, czy opuścić stronę; jej sformułowanie jest własnością przeglądarki. Zapisuj często przez {{key:Mod+S}}.

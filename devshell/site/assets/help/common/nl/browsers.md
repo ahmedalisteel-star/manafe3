@@ -54,7 +54,7 @@ Dit lezen we uit de code van de 0.7-apps, niet uit een gok: elk bestand is gepar
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS en iOS 16.4) |
 
-CadCraft Studio heeft onder Windows zijn eigen webengine, dus het vereist Windows 10 of 11; op een Mac gebruikt het die van het systeem, dus het vereist macOS 13.3 of later. Instellingen › Updates in Studio toont waarop uw exemplaar draait.
+Manafe3 Desktop heeft onder Windows zijn eigen webengine, dus het vereist Windows 10 of 11; op een Mac gebruikt het die van het systeem, dus het vereist macOS 13.3 of later. Instellingen › Updates in Studio toont waarop uw exemplaar draait.
 
 Dit is de oudste versie die *start*, gelezen uit de code. Het is geen lijst van oude browsers waarin we de apps hebben uitgevoerd, dus een oudere die start, kan nog steeds een functie missen.
 

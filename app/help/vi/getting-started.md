@@ -1,11 +1,11 @@
 ---
-title: Bắt đầu với DetailCraft
-summary: DetailCraft hiện làm được gì, cách mở nó, và mô hình đầu tiên từ lưới trục đến bản vẽ thi công trong mười phút.
+title: Bắt đầu với Manafe3
+summary: Manafe3 hiện làm được gì, cách mở nó, và mô hình đầu tiên từ lưới trục đến bản vẽ thi công trong mười phút.
 keywords: bắt đầu, mô hình đầu tiên, giới thiệu, triển khai chi tiết thép, thép thanh, bắt đầu nhanh, hướng dẫn, tổng quan
 from: 3682c0d8
 ---
 
-DetailCraft là ứng dụng triển khai chi tiết thép và thép thanh trong họ CadCraft. Bạn dựng mô hình 3D của khung thép trên lưới trục và các tầng, nối chúng lại, và nhận những gì xưởng cần: ký hiệu chi tiết và cụm lắp ráp, bảng kê vật tư, bản vẽ thi công từng chi tiết, tệp DSTV NC, mô hình IFC, và bảng uốn thép cho các móng.
+Manafe3 là ứng dụng triển khai chi tiết thép và thép thanh trong họ Manafe3. Bạn dựng mô hình 3D của khung thép trên lưới trục và các tầng, nối chúng lại, và nhận những gì xưởng cần: ký hiệu chi tiết và cụm lắp ráp, bảng kê vật tư, bản vẽ thi công từng chi tiết, tệp DSTV NC, mô hình IFC, và bảng uốn thép cho các móng.
 
 Đây là một bản dựng sớm. Nó làm một danh sách ngắn các việc một cách cẩn thận thay vì làm mọi thứ cùng lúc. Hãy đọc [Những gì chưa được xây dựng](topic:not-built-yet) trước khi bạn lên kế hoạch công việc thật xoay quanh nó.
 
@@ -19,24 +19,24 @@ DetailCraft là ứng dụng triển khai chi tiết thép và thép thanh trong
 - Ký hiệu chi tiết và cụm lắp ráp tự cập nhật sau mỗi thay đổi.
 - Xuất: IFC4, tệp DSTV NC (thép hình chữ I và bản), bảng kê vật tư dạng CSV, bảng uốn thép dạng CSV, và PDF bản vẽ thi công của một chi tiết.
 
-## Mở DetailCraft
+## Mở Manafe3
 
-1. Mở DetailCraft trong trình duyệt máy tính: Chrome, Edge, Firefox hoặc Safari. Xem [Trình duyệt và máy tính](common:browsers).
+1. Mở Manafe3 trong trình duyệt máy tính: Chrome, Edge, Firefox hoặc Safari. Xem [Trình duyệt và máy tính](common:browsers).
 2. Chờ màn hình đầy đủ. Thanh trạng thái ở dưới ghi "Ready. Open the Sample, or set grids and levels and start placing members."
 
 Khung nhìn mô hình cần đồ họa 3D (WebGL). Nếu giữa màn hình ghi "This browser could not start 3D graphics (WebGL)", xem [Khắc phục sự cố](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Mô hình của bạn ở lại trên máy tính của bạn. Mở một mô hình là đọc nó trong trình duyệt, và lưu là tải một tệp xuống. Không có gì được tải lên. Chưa có tính năng lưu lên đám mây. Xem [Tệp của bạn đi đâu](common:your-files). Để dùng DetailCraft khi không có kết nối sau này, hãy chọn {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng một lần khi đang trực tuyến; xem [Làm việc ngoại tuyến](common:offline).
+Mô hình của bạn ở lại trên máy tính của bạn. Mở một mô hình là đọc nó trong trình duyệt, và lưu là tải một tệp xuống. Không có gì được tải lên. Chưa có tính năng lưu lên đám mây. Xem [Tệp của bạn đi đâu](common:your-files). Để dùng Manafe3 khi không có kết nối sau này, hãy chọn {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng một lần khi đang trực tuyến; xem [Làm việc ngoại tuyến](common:offline).
 :::
 
 :::offline
-Bạn đang ngoại tuyến. DetailCraft chỉ hoạt động khi không có kết nối nếu trước đó nó đã được lưu để dùng ngoại tuyến: khi đó nút {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng ghi {{ui:Sẵn sàng ngoại tuyến}}. Xem [Làm việc ngoại tuyến](common:offline).
+Bạn đang ngoại tuyến. Manafe3 chỉ hoạt động khi không có kết nối nếu trước đó nó đã được lưu để dùng ngoại tuyến: khi đó nút {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng ghi {{ui:Sẵn sàng ngoại tuyến}}. Xem [Làm việc ngoại tuyến](common:offline).
 :::
 
 ## Xem mẫu trước
 
-Cách nhanh nhất để thấy DetailCraft tạo ra gì là khung mẫu.
+Cách nhanh nhất để thấy Manafe3 tạo ra gì là khung mẫu.
 
 1. Chọn {{ui:Mẫu}} trong nhóm {{ui:Tệp}} của thanh công cụ.
 2. Khung nhìn hiện một khung hai nhịp: sáu cột có bản chân cột, bốn dầm có bản đầu, một thanh giằng và bảy móng có thép.
@@ -49,7 +49,7 @@ Bài hướng dẫn [Khám phá khung mẫu](topic:sample-model) đi qua nó t�
 
 Một mô hình mới đã có lưới trục 1 đến 3 theo A đến B cách nhau 6000 mm và hai tầng, Level 1 ở 0 và Level 2 ở 4000.
 
-1. Chọn {{ui:Mới}}. Nếu mô hình hiện tại có thay đổi, DetailCraft hỏi có lưu trước không.
+1. Chọn {{ui:Mới}}. Nếu mô hình hiện tại có thay đổi, Manafe3 hỏi có lưu trước không.
 2. Chọn {{ui:Mặt bằng}} phía trên khung nhìn. Danh sách tầng bên cạnh chọn Level 1.
 3. Chọn {{ui:Cột}} trên thanh công cụ, hoặc nhấn {{key:C}}.
 4. Nhấp giao điểm lưới trục A/1. Một cột W12x50 xuất hiện từ Level 1 đến Level 2. Thanh trạng thái cho biết nó nằm ở đâu.

@@ -42,7 +42,7 @@ Kreisais un labais panelis saglabā visu, kas aprakstīts sadaļā [Paneļu izk�
 
 ## Atgriezieties pie klasiskā izkārtojuma
 
-Atveriet {{ui:Iestatījumi}} › {{ui:Visur}} › {{ui:Izkārtojums}} › {{ui:Darbvieta}} un izvēlieties {{ui:CadCraft klasiskais}}. Katra rīkjosla, cilne un panelis atgriežas tur, kur bija.
+Atveriet {{ui:Iestatījumi}} › {{ui:Visur}} › {{ui:Izkārtojums}} › {{ui:Darbvieta}} un izvēlieties {{ui:Manafe3 klasiskais}}. Katra rīkjosla, cilne un panelis atgriežas tur, kur bija.
 
 :::note
 Tālrunī vai logā, kas ir 760 pikseļus plats vai šaurāks, lietotne izmanto tālruņa izkārtojumu neatkarīgi no tā, ko izvēlējāties. Platāks logs atjauno jūsu izkārtojumu.

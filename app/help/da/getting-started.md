@@ -1,11 +1,11 @@
 ---
-title: Kom i gang med DetailCraft
-summary: Hvad DetailCraft gør i dag, hvordan du åbner den, og en første model fra gitre til en værkstedstegning på ti minutter.
+title: Kom i gang med Manafe3
+summary: Hvad Manafe3 gør i dag, hvordan du åbner den, og en første model fra gitre til en værkstedstegning på ti minutter.
 keywords: start, første model, introduktion, ståldetaljering, armering, hurtig start, vejledning, overblik
 from: 3682c0d8
 ---
 
-DetailCraft er appen til detaljering af stål og armering i CadCraft-familien. Du bygger en 3D-model af en stålramme på gitre og niveauer, forbinder den og får det, værkstedet har brug for: positions- og samlingsnumre, en stykliste, værkstedstegninger af enkeltdele, DSTV NC-filer, en IFC-model og en bukkeliste til fundamenterne.
+Manafe3 er appen til detaljering af stål og armering i Manafe3-familien. Du bygger en 3D-model af en stålramme på gitre og niveauer, forbinder den og får det, værkstedet har brug for: positions- og samlingsnumre, en stykliste, værkstedstegninger af enkeltdele, DSTV NC-filer, en IFC-model og en bukkeliste til fundamenterne.
 
 Det er en tidlig build. Den gør en kort liste af ting omhyggeligt i stedet for alt på én gang. Læs [Hvad der ikke er bygget endnu](topic:not-built-yet), før du planlægger rigtigt arbejde omkring den.
 
@@ -19,24 +19,24 @@ Det er en tidlig build. Den gør en kort liste af ting omhyggeligt i stedet for 
 - Positions- og samlingsnumre, der opdaterer sig selv efter hver ændring.
 - Eksporter: IFC4, DSTV NC-filer (I-profiler og plader), stykliste som CSV, bukkeliste som CSV og en værkstedstegning som PDF af én del.
 
-## Åbn DetailCraft
+## Åbn Manafe3
 
-1. Åbn DetailCraft i en browser på computer: Chrome, Edge, Firefox eller Safari. Se [Browsere og computere](common:browsers).
+1. Åbn Manafe3 i en browser på computer: Chrome, Edge, Firefox eller Safari. Se [Browsere og computere](common:browsers).
 2. Vent på, at skærmen fyldes. Statuslinjen nederst siger "Klar. Åbn Eksempel, eller angiv gitre og niveauer og begynd at placere stålprofiler."
 
 Modelvisningen kræver 3D-grafik (WebGL). Hvis midten af skærmen siger "This browser could not start 3D graphics (WebGL)", så se [Fejlfinding](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Dine modeller bliver på din computer. At åbne en model læser den i browseren, og at gemme downloader en fil. Der uploades ikke noget. Gemning i skyen er der ikke endnu. Se [Hvor dine filer havner](common:your-files). For at bruge DetailCraft uden forbindelse senere vælger du {{ui:Gem til offline brug}} i appfeltet én gang, mens du er online; se [Arbejd offline](common:offline).
+Dine modeller bliver på din computer. At åbne en model læser den i browseren, og at gemme downloader en fil. Der uploades ikke noget. Gemning i skyen er der ikke endnu. Se [Hvor dine filer havner](common:your-files). For at bruge Manafe3 uden forbindelse senere vælger du {{ui:Gem til offline brug}} i appfeltet én gang, mens du er online; se [Arbejd offline](common:offline).
 :::
 
 :::offline
-Du er offline. DetailCraft virker uden forbindelse kun, hvis den først er gemt til offline brug: knappen {{ui:Gem til offline brug}} i appfeltet siger så {{ui:Klar offline}}. Se [Arbejd offline](common:offline).
+Du er offline. Manafe3 virker uden forbindelse kun, hvis den først er gemt til offline brug: knappen {{ui:Gem til offline brug}} i appfeltet siger så {{ui:Klar offline}}. Se [Arbejd offline](common:offline).
 :::
 
 ## Se først på eksemplet
 
-Den hurtigste måde at se, hvad DetailCraft laver, er eksempelrammen.
+Den hurtigste måde at se, hvad Manafe3 laver, er eksempelrammen.
 
 1. Vælg {{ui:Eksempel}} i gruppen {{ui:Fil}} på værktøjslinjen.
 2. Visningen viser en ramme med to fag: seks søjler med fodplader, fire bjælker med endeplader, én afstivning og syv fundamenter med armering.
@@ -49,7 +49,7 @@ Gennemgangen [Udforsk eksempelrammen](topic:sample-model) går den igennem stykk
 
 En ny model har allerede gitre 1 til 3 gange A til B ved 6000 mm og to niveauer, Level 1 ved 0 og Level 2 ved 4000.
 
-1. Vælg {{ui:Ny}}. Hvis den nuværende model har ændringer, spørger DetailCraft, om de skal gemmes først.
+1. Vælg {{ui:Ny}}. Hvis den nuværende model har ændringer, spørger Manafe3, om de skal gemmes først.
 2. Vælg {{ui:Plan}} over visningen. Niveaulisten ved siden af vælger Level 1.
 3. Vælg {{ui:Søjle}} på værktøjslinjen, eller tryk på {{key:C}}.
 4. Klik på gitterskæringen A/1. En W12x50-søjle dukker op fra Level 1 til Level 2. Statuslinjen siger, hvor den havnede.

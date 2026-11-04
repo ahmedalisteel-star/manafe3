@@ -1,17 +1,17 @@
 ---
 title: Abrir, guardar e exportar ficheiros
-summary: O ficheiro de modelo do DetailCraft, todas as exportações que escreve, para onde vão os ficheiros e o que difere consoante o navegador e a ligação.
+summary: O ficheiro de modelo do Manafe3, todas as exportações que escreve, para onde vão os ficheiros e o que difere consoante o navegador e a ligação.
 keywords: abrir, guardar, exportar, transferir, ficheiro, json, ifc, nc1, dstv, csv, pdf, zip, formatos, importar
 from: bd715ea3
 ---
 
-O DetailCraft tem um ficheiro próprio, o modelo, e cinco exportações. Cada gravação e cada exportação é uma transferência. Nada é carregado, e nada é mantido num servidor.
+O Manafe3 tem um ficheiro próprio, o modelo, e cinco exportações. Cada gravação e cada exportação é uma transferência. Nada é carregado, e nada é mantido num servidor.
 
 ## O ficheiro de modelo
 
-Um modelo do DetailCraft é guardado como `<nome>.detailcraft.json`, em que `<nome>` é o nome do modelo no painel {{ui:Modelo}}. Contém os eixos, níveis, barras (com os seus furos e recortes), ligações e as suas definições, sapatas e os seus perfis personalizados.
+Um modelo do Manafe3 é guardado como `<nome>.detailcraft.json`, em que `<nome>` é o nome do modelo no painel {{ui:Modelo}}. Contém os eixos, níveis, barras (com os seus furos e recortes), ligações e as suas definições, sapatas e os seus perfis personalizados.
 
-As peças, marcas, parafusos, soldaduras e varões não são guardados: o DetailCraft volta a calculá-los a partir do modelo sempre que o abre. É por isso que um ficheiro de modelo é pequeno.
+As peças, marcas, parafusos, soldaduras e varões não são guardados: o Manafe3 volta a calculá-los a partir do modelo sempre que o abre. É por isso que um ficheiro de modelo é pequeno.
 
 ### Guardar
 
@@ -38,21 +38,21 @@ O Safari guarda na pasta Transferências. Para mudar a pasta, abra **Safari, Def
 1. Escolha {{ui:Abrir}} no grupo {{ui:Ficheiro}}, ou prima {{key:Mod+O}}.
 2. Escolha um ficheiro `.detailcraft.json`.
 
-Ou arraste o ficheiro {{pick:mac=do Finder|windows=do Explorador de Ficheiros|linux=do seu gestor de ficheiros}} e largue-o na vista. A vista diz "Largue um modelo do DetailCraft ou um ficheiro IFC para o abrir" enquanto arrasta.
+Ou arraste o ficheiro {{pick:mac=do Finder|windows=do Explorador de Ficheiros|linux=do seu gestor de ficheiros}} e largue-o na vista. A vista diz "Largue um modelo do Manafe3 ou um ficheiro IFC para o abrir" enquanto arrasta.
 
-Se o modelo aberto tiver alterações não guardadas, o DetailCraft pergunta primeiro: {{ui:Cancelar}}, {{ui:Descartar alterações}} ou {{ui:Guardar primeiro}}.
+Se o modelo aberto tiver alterações não guardadas, o Manafe3 pergunta primeiro: {{ui:Cancelar}}, {{ui:Descartar alterações}} ou {{ui:Guardar primeiro}}.
 
-O DetailCraft verifica todos os campos de um ficheiro antes de o utilizar. Tudo o que não consegue usar é deixado de fora e a barra de estado diz o quê, por exemplo "2 barras não eram válidas e ficaram de fora." Um modelo guardado por um DetailCraft mais recente é recusado com uma mensagem em vez de ser aberto de forma incorreta.
+O Manafe3 verifica todos os campos de um ficheiro antes de o utilizar. Tudo o que não consegue usar é deixado de fora e a barra de estado diz o quê, por exemplo "2 barras não eram válidas e ficaram de fora." Um modelo guardado por um Manafe3 mais recente é recusado com uma mensagem em vez de ser aberto de forma incorreta.
 
 ### O que abre
 
-Os seus próprios ficheiros de modelo (`.json`, até 50 MB) e ficheiros IFC (`.ifc`, IFC2X3 ou IFC4, até 200 MB). Um ficheiro IFC, aberto ou trazido com {{ui:Importar IFC}}, torna-se um modelo novo com as suas vigas, pilares, barras, chapas, eixos e níveis, com os furos e recortes neles cortados e os seus parafusos como parafusos soltos; um relatório lista o que ficou de fora. Consulte [Exportação IFC](topic:ifc-export#import). Ainda não abre DWG, DXF nem o modelo de qualquer outro programa de pormenorização; tentar mostra "O DetailCraft abre os seus próprios modelos (.detailcraft.json) e ficheiros IFC (.ifc)."
+Os seus próprios ficheiros de modelo (`.json`, até 50 MB) e ficheiros IFC (`.ifc`, IFC2X3 ou IFC4, até 200 MB). Um ficheiro IFC, aberto ou trazido com {{ui:Importar IFC}}, torna-se um modelo novo com as suas vigas, pilares, barras, chapas, eixos e níveis, com os furos e recortes neles cortados e os seus parafusos como parafusos soltos; um relatório lista o que ficou de fora. Consulte [Exportação IFC](topic:ifc-export#import). Ainda não abre DWG, DXF nem o modelo de qualquer outro programa de pormenorização; tentar mostra "O Manafe3 abre os seus próprios modelos (.detailcraft.json) e ficheiros IFC (.ifc)."
 
 ## Trabalho perdido, ficheiros recentes, a aplicação de ambiente de trabalho
 
-- Enquanto o modelo tem alterações que não guardou, o DetailCraft mantém uma cópia neste navegador. Se o separador ou o navegador pararem antes de guardar, da próxima vez que abrir o DetailCraft ele pergunta **Recuperar o seu trabalho?**: recupere a cópia, ou deixe-a ir. Consulte [Recuperar o seu trabalho](common:recover).
-- Os modelos que abriu recentemente são listados no ecrã inicial quando o navegador deixa o DetailCraft abri-los de novo; clique num para o reabrir.
-- Na aplicação de ambiente de trabalho, {{ui:Guardar}} escreve o modelo de volta no ficheiro que abriu (no navegador transfere uma cópia), e fazer duplo clique num modelo do DetailCraft ou num ficheiro IFC abre-o no DetailCraft.
+- Enquanto o modelo tem alterações que não guardou, o Manafe3 mantém uma cópia neste navegador. Se o separador ou o navegador pararem antes de guardar, da próxima vez que abrir o Manafe3 ele pergunta **Recuperar o seu trabalho?**: recupere a cópia, ou deixe-a ir. Consulte [Recuperar o seu trabalho](common:recover).
+- Os modelos que abriu recentemente são listados no ecrã inicial quando o navegador deixa o Manafe3 abri-los de novo; clique num para o reabrir.
+- Na aplicação de ambiente de trabalho, {{ui:Guardar}} escreve o modelo de volta no ficheiro que abriu (no navegador transfere uma cópia), e fazer duplo clique num modelo do Manafe3 ou num ficheiro IFC abre-o no Manafe3.
 
 ## Exportações
 
@@ -79,13 +79,13 @@ O texto do PDF usa o tipo de letra Helvetica normalizado. Os carateres que ele n
 
 ## Unidades
 
-O DetailCraft trabalha em milímetros em todo o lado: eixos, níveis, coordenadas, perfis, furos e todas as exportações. Os nomes dos perfis mantêm a forma publicada (W12x50 é uma designação dos EUA, ainda que as suas dimensões sejam mostradas em mm). Ainda não há introdução em unidades imperiais.
+O Manafe3 trabalha em milímetros em todo o lado: eixos, níveis, coordenadas, perfis, furos e todas as exportações. Os nomes dos perfis mantêm a forma publicada (W12x50 é uma designação dos EUA, ainda que as suas dimensões sejam mostradas em mm). Ainda não há introdução em unidades imperiais.
 
 ## Online e offline
 
-Abrir, guardar e exportar acontecem todos no navegador, pelo que funcionam da mesma forma com ou sem ligação depois de o DetailCraft carregar.
+Abrir, guardar e exportar acontecem todos no navegador, pelo que funcionam da mesma forma com ou sem ligação depois de o Manafe3 carregar.
 
-Para utilizar o DetailCraft mais tarde sem ligação, escolha {{ui:Guardar para offline}} na barra da aplicação enquanto estiver online. O botão vai contando ("A guardar 3 de 20") e depois diz {{ui:Pronto para offline}}. A cópia guardada inclui a biblioteca de gráficos 3D (cerca de 2,6 MB) e esta ajuda, pelo que, depois de guardada, a vista 3D, todas as exportações e a ajuda funcionam offline. Pormenores, e o que ainda precisa de ligação: [Trabalhar offline](common:offline).
+Para utilizar o Manafe3 mais tarde sem ligação, escolha {{ui:Guardar para offline}} na barra da aplicação enquanto estiver online. O botão vai contando ("A guardar 3 de 20") e depois diz {{ui:Pronto para offline}}. A cópia guardada inclui a biblioteca de gráficos 3D (cerca de 2,6 MB) e esta ajuda, pelo que, depois de guardada, a vista 3D, todas as exportações e a ajuda funcionam offline. Pormenores, e o que ainda precisa de ligação: [Trabalhar offline](common:offline).
 
 :::offline
 Está offline. Se a barra da aplicação mostrar {{ui:Pronto para offline}}, abrir, guardar e exportar funcionam como habitualmente. Se não, mantenha este separador aberto, não o recarregue até voltar a estar online e guarde agora o seu modelo.
@@ -95,4 +95,4 @@ A gravação na nuvem ainda não está disponível, e ainda não há versões pa
 
 ## Trabalho não guardado
 
-O DetailCraft mantém o modelo apenas no separador aberto. Se fechar ou recarregar o separador com alterações não guardadas, o navegador pergunta se quer sair da página; a redação é do próprio navegador. Guarde muitas vezes com {{key:Mod+S}}.
+O Manafe3 mantém o modelo apenas no separador aberto. Se fechar ou recarregar o separador com alterações não guardadas, o navegador pergunta se quer sair da página; a redação é do próprio navegador. Guarde muitas vezes com {{key:Mod+S}}.

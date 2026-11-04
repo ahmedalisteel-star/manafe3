@@ -42,7 +42,7 @@ Para sacar un panel del grupo, elija {{ui:Sacar del grupo de pestañas}} en su m
 
 ## Elegir cuántas líneas usa la barra de herramientas
 
-{{ui:Ajustes}} › {{ui:General}} › {{ui:Filas de la barra de herramientas}} ofrece tres opciones. {{ui:Ajustar}} es la predeterminada: se muestran todos los grupos de herramientas, en tantas líneas como haga falta. {{ui:2 filas}} limita la barra de herramientas a dos líneas y {{ui:1 fila}} a una, para dar altura al dibujo; los grupos que no caben se desplazan lateralmente dentro de la barra (use la rueda del ratón, un deslizamiento con dos dedos, o {{key:Tab}} hasta una herramienta). Una barra que ya cabe en dos líneas se mantiene igual con {{ui:2 filas}}, porque una cuadrícula solo la haría más alta. La elección se guarda para cada aplicación. Una pantalla táctil y un móvil mantienen su propia disposición. CadCraft tiene su propio ajuste para su barra de herramientas, en {{ui:Ajustes}} › {{ui:CadCraft}}.
+{{ui:Ajustes}} › {{ui:General}} › {{ui:Filas de la barra de herramientas}} ofrece tres opciones. {{ui:Ajustar}} es la predeterminada: se muestran todos los grupos de herramientas, en tantas líneas como haga falta. {{ui:2 filas}} limita la barra de herramientas a dos líneas y {{ui:1 fila}} a una, para dar altura al dibujo; los grupos que no caben se desplazan lateralmente dentro de la barra (use la rueda del ratón, un deslizamiento con dos dedos, o {{key:Tab}} hasta una herramienta). Una barra que ya cabe en dos líneas se mantiene igual con {{ui:2 filas}}, porque una cuadrícula solo la haría más alta. La elección se guarda para cada aplicación. Una pantalla táctil y un móvil mantienen su propia disposición. Manafe3 tiene su propio ajuste para su barra de herramientas, en {{ui:Ajustes}} › {{ui:Manafe3}}.
 
 ## Usar el teclado
 
@@ -82,7 +82,7 @@ Desde el teclado, con el foco dentro del cuadro, pulse {{key:Alt}}+{{key:Shift}}
 
 En un móvil, los cuadros de diálogo siguen siendo hojas a todo el ancho y no se mueven.
 
-En CadCraft Studio, el cuadro {{ui:Trazar a PDF}} de CadCraft, que puede dejar abierto mientras trabaja, tiene en su barra de título un botón, {{ui:Abrir en su propia ventana}}. El cuadro pasa a una ventana propia que puede colocar en otro monitor. Al cerrar el cuadro se cierra la ventana, y al cerrar la ventana se cierra el cuadro.
+En Manafe3 Desktop, el cuadro {{ui:Trazar a PDF}} de Manafe3, que puede dejar abierto mientras trabaja, tiene en su barra de título un botón, {{ui:Abrir en su propia ventana}}. El cuadro pasa a una ventana propia que puede colocar en otro monitor. Al cerrar el cuadro se cierra la ventana, y al cerrar la ventana se cierra el cuadro.
 
 ## Devolver los paneles
 

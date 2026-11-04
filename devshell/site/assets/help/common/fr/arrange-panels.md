@@ -42,7 +42,7 @@ Pour sortir un panneau du groupe, choisissez {{ui:Sortir du groupe d'onglets}} d
 
 ## Choisir le nombre de lignes de la barre d'outils
 
-{{ui:Paramètres}} › {{ui:Général}} › {{ui:Lignes de la barre d'outils}} propose trois choix. {{ui:Retour à la ligne}} est la valeur par défaut : chaque groupe d'outils s'affiche, sur autant de lignes que nécessaire. {{ui:2 lignes}} limite la barre d'outils à deux lignes, et {{ui:1 ligne}} à une seule, pour laisser plus de hauteur au dessin ; les groupes qui ne tiennent pas défilent latéralement dans la barre d'outils (avec la molette de la souris, un glissement à deux doigts, ou {{key:Tab}} jusqu'à un outil). Une barre d'outils qui tient déjà sur deux lignes reste telle quelle avec {{ui:2 lignes}}, car une grille ne ferait que la rendre plus haute. Ce choix est conservé pour chaque application. Un écran tactile et un téléphone conservent leur propre mise en page. CadCraft a son propre réglage pour sa barre d'outils, sous {{ui:Paramètres}} › {{ui:CadCraft}}.
+{{ui:Paramètres}} › {{ui:Général}} › {{ui:Lignes de la barre d'outils}} propose trois choix. {{ui:Retour à la ligne}} est la valeur par défaut : chaque groupe d'outils s'affiche, sur autant de lignes que nécessaire. {{ui:2 lignes}} limite la barre d'outils à deux lignes, et {{ui:1 ligne}} à une seule, pour laisser plus de hauteur au dessin ; les groupes qui ne tiennent pas défilent latéralement dans la barre d'outils (avec la molette de la souris, un glissement à deux doigts, ou {{key:Tab}} jusqu'à un outil). Une barre d'outils qui tient déjà sur deux lignes reste telle quelle avec {{ui:2 lignes}}, car une grille ne ferait que la rendre plus haute. Ce choix est conservé pour chaque application. Un écran tactile et un téléphone conservent leur propre mise en page. Manafe3 a son propre réglage pour sa barre d'outils, sous {{ui:Paramètres}} › {{ui:Manafe3}}.
 
 ## Utiliser le clavier
 
@@ -82,7 +82,7 @@ Au clavier, appuyez sur {{key:Alt}}+{{key:Shift}}+une touche fléchée, la boît
 
 Sur téléphone, les boîtes de dialogue restent en feuilles pleine largeur et ne se déplacent pas.
 
-Dans CadCraft Studio, la boîte de dialogue {{ui:Tracer en PDF}} de CadCraft, que vous pouvez garder ouverte pendant votre travail, comporte dans sa barre de titre un bouton {{ui:Ouvrir dans sa propre fenêtre}}. La boîte de dialogue passe dans une fenêtre propre, que vous pouvez placer sur un autre écran. Fermer la boîte de dialogue ferme la fenêtre, et fermer la fenêtre ferme la boîte de dialogue.
+Dans Manafe3 Desktop, la boîte de dialogue {{ui:Tracer en PDF}} de Manafe3, que vous pouvez garder ouverte pendant votre travail, comporte dans sa barre de titre un bouton {{ui:Ouvrir dans sa propre fenêtre}}. La boîte de dialogue passe dans une fenêtre propre, que vous pouvez placer sur un autre écran. Fermer la boîte de dialogue ferme la fenêtre, et fermer la fenêtre ferme la boîte de dialogue.
 
 ## Remettre les panneaux en place
 

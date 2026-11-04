@@ -42,7 +42,7 @@ Panelni guruhdan chiqarish uchun uning {{ui:⋯}} menyusida {{ui:Yorliqlar guruh
 
 ## Asboblar paneli necha qatorda boʻlishini tanlash
 
-{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Asboblar paneli qatorlari}} da uchta tanlov bor. {{ui:Oʻrash}} standart: har bir asboblar guruhi koʻrinadi, kerak boʻlsa bir necha qatorda. {{ui:2 qator}} asboblar panelini ikki qatorda, {{ui:1 qator}} esa bir qatorda ushlaydi, shunda chizmaga balandlik beriladi; sigʻmagan guruhlar asboblar paneli ichida yon tomonga aylanadi (sichqoncha gʻildiragi, ikki barmoq bilan surish yoki asbobga {{key:Tab}} bilan oʻtish orqali). Asboblar paneli allaqachon ikki qatorga sigʻsa, {{ui:2 qator}} tanlovida u oʻzgarmaydi, chunki panjara uni faqat balandroq qilardi. Tanlov har bir ilova uchun saqlanadi. Sensorli ekran va telefon oʻz tartibini saqlaydi. CadCraft asboblar paneli uchun alohida sozlamaga ega: {{ui:Sozlamalar}} › {{ui:CadCraft}}.
+{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Asboblar paneli qatorlari}} da uchta tanlov bor. {{ui:Oʻrash}} standart: har bir asboblar guruhi koʻrinadi, kerak boʻlsa bir necha qatorda. {{ui:2 qator}} asboblar panelini ikki qatorda, {{ui:1 qator}} esa bir qatorda ushlaydi, shunda chizmaga balandlik beriladi; sigʻmagan guruhlar asboblar paneli ichida yon tomonga aylanadi (sichqoncha gʻildiragi, ikki barmoq bilan surish yoki asbobga {{key:Tab}} bilan oʻtish orqali). Asboblar paneli allaqachon ikki qatorga sigʻsa, {{ui:2 qator}} tanlovida u oʻzgarmaydi, chunki panjara uni faqat balandroq qilardi. Tanlov har bir ilova uchun saqlanadi. Sensorli ekran va telefon oʻz tartibini saqlaydi. Manafe3 asboblar paneli uchun alohida sozlamaga ega: {{ui:Sozlamalar}} › {{ui:Manafe3}}.
 
 ## Klaviaturadan foydalanish
 
@@ -82,7 +82,7 @@ Klaviaturadan, muloqot ichida fokus boʻlganda, {{key:Alt}}+{{key:Shift}} va str
 
 Telefonda muloqot oynalari toʻliq kenglikdagi varaqlar boʻlib qoladi va koʻchirilmaydi.
 
-CadCraft Studio da CadCraft ning {{ui:PDF fayl sifatida chiqarish}} muloqot oynasi — ishlash paytida ochiq qoldirishingiz mumkin — sarlavha satrida {{ui:Oʻz oynasida ochish}} tugmasiga ega. Muloqot oʻz oynasiga koʻchadi, uni ikkinchi monitorga qoʻyishingiz mumkin. Muloqotni yopish oynani yopadi, oynani yopish esa muloqotni yopadi.
+Manafe3 Desktop da Manafe3 ning {{ui:PDF fayl sifatida chiqarish}} muloqot oynasi — ishlash paytida ochiq qoldirishingiz mumkin — sarlavha satrida {{ui:Oʻz oynasida ochish}} tugmasiga ega. Muloqot oʻz oynasiga koʻchadi, uni ikkinchi monitorga qoʻyishingiz mumkin. Muloqotni yopish oynani yopadi, oynani yopish esa muloqotni yopadi.
 
 ## Panellarni joyiga qaytarish
 

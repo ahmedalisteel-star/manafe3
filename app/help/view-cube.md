@@ -52,8 +52,8 @@ The house button at the top left of the cube goes back to the starting three-qua
 | {{key:Home}} | the home view |
 | {{key:Esc}} | leave the cube |
 
-Keys pressed on the cube stay with the cube: they do not start DetailCraft tools.
+Keys pressed on the cube stay with the cube: they do not start Manafe3 tools.
 
 ## Axis icon or nothing instead
 
-Open {{ui:Settings}} ({{key:Mod+,}}), the {{ui:DetailCraft}} tab, and set **Corner indicator** to {{ui:View cube}} (the start), {{ui:Axis icon}} (a small X, Y, Z marker at the bottom left: X red, Y green, Z blue) or {{ui:None}}. This browser remembers the choice. See [DetailCraft settings](topic:settings#corner-indicator).
+Open {{ui:Settings}} ({{key:Mod+,}}), the {{ui:Manafe3}} tab, and set **Corner indicator** to {{ui:View cube}} (the start), {{ui:Axis icon}} (a small X, Y, Z marker at the bottom left: X red, Y green, Z blue) or {{ui:None}}. This browser remembers the choice. See [Manafe3 settings](topic:settings#corner-indicator).

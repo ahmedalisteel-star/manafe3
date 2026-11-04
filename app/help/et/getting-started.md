@@ -1,11 +1,11 @@
 ---
-title: Alustamine rakendusega DetailCraft
-summary: Mida DetailCraft praegu teeb, kuidas seda avada ning esimene mudel ruudustikest tööjoonisteni kümne minutiga.
+title: Alustamine rakendusega Manafe3
+summary: Mida Manafe3 praegu teeb, kuidas seda avada ning esimene mudel ruudustikest tööjoonisteni kümne minutiga.
 keywords: alusta, esimene mudel, sissejuhatus, terasdetailid, armatuur, kiirstart, õpetus, ülevaade
 from: 3682c0d8
 ---
 
-DetailCraft on terasdetailide ja armatuuri detailimise rakendus CadCraft-perekonnas. Sa koostad ruudustikel ja tasanditel põhineva terasraami 3D-mudeli, ühendad selle ja saad, mida tootmine vajab: detailide ja koostude märgised, materjalinimekirja, üksikute detailide tööjoonised, DSTV NC-failid, IFC-mudeli ja vundamentide painutusloendi.
+Manafe3 on terasdetailide ja armatuuri detailimise rakendus Manafe3-perekonnas. Sa koostad ruudustikel ja tasanditel põhineva terasraami 3D-mudeli, ühendad selle ja saad, mida tootmine vajab: detailide ja koostude märgised, materjalinimekirja, üksikute detailide tööjoonised, DSTV NC-failid, IFC-mudeli ja vundamentide painutusloendi.
 
 See on varajane versioon. See teeb lühikese loetelu asju hoolikalt, mitte kõike korraga. Enne tõelise töö planeerimist loe [Mida veel ei ole](topic:not-built-yet).
 
@@ -19,24 +19,24 @@ See on varajane versioon. See teeb lühikese loetelu asju hoolikalt, mitte kõik
 - Detailide ja koostude märgised, mis uuenevad iga muudatuse järel ise.
 - Eksport: IFC4, DSTV NC-failid (I-profiilid ja plaadid), materjalinimekiri CSV-na, painutusloend CSV-na ja ühe detaili tööjoonise PDF.
 
-## Ava DetailCraft
+## Ava Manafe3
 
-1. Ava DetailCraft töölauabrauseris: Chrome, Edge, Firefox või Safari. Vt [Brauserid ja arvutid](common:browsers).
+1. Ava Manafe3 töölauabrauseris: Chrome, Edge, Firefox või Safari. Vt [Brauserid ja arvutid](common:browsers).
 2. Oota, kuni ekraan täitub. Allservas olev olekuriba ütleb: „Valmis. Ava Näidis või määra ruudustikud ja tasandid ning alusta elementide paigutamist.“
 
 Mudelivaade vajab 3D-graafikat (WebGL). Kui ekraani keskel on tekst „Brauser ei saanud 3D-graafikat (WebGL) käivitada“, vt [Probleemide lahendamine](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Sinu mudelid jäävad sinu arvutisse. Mudeli avamine loeb selle brauseris ja salvestamine laadib faili alla. Midagi ei laadita üles. Pilvesalvestus ei ole veel saadaval. Vt [Kuhu sinu failid lähevad](common:your-files). Et DetailCraft-i hiljem ilma ühenduseta kasutada, vali rakenduse ribal kord võrgus olles {{ui:Salvesta võrguks}}; vt [Töö võrguta](common:offline).
+Sinu mudelid jäävad sinu arvutisse. Mudeli avamine loeb selle brauseris ja salvestamine laadib faili alla. Midagi ei laadita üles. Pilvesalvestus ei ole veel saadaval. Vt [Kuhu sinu failid lähevad](common:your-files). Et Manafe3-i hiljem ilma ühenduseta kasutada, vali rakenduse ribal kord võrgus olles {{ui:Salvesta võrguks}}; vt [Töö võrguta](common:offline).
 :::
 
 :::offline
-Oled võrguta. DetailCraft töötab ilma ühenduseta ainult siis, kui see on enne võrguks salvestatud: rakenduse riba nupp {{ui:Salvesta võrguks}} loeb siis {{ui:Valmis ka võrguta}}. Vt [Töö võrguta](common:offline).
+Oled võrguta. Manafe3 töötab ilma ühenduseta ainult siis, kui see on enne võrguks salvestatud: rakenduse riba nupp {{ui:Salvesta võrguks}} loeb siis {{ui:Valmis ka võrguta}}. Vt [Töö võrguta](common:offline).
 :::
 
 ## Vaata kõigepealt näidist
 
-Kiireim viis näha, mida DetailCraft teeb, on näidisraam.
+Kiireim viis näha, mida Manafe3 teeb, on näidisraam.
 
 1. Vali tööriistariba rühmas {{ui:Fail}} {{ui:Näidis}}.
 2. Vaade näitab kahe väljaga raami: kuus posti koos aluseplaatidega, neli tala koos otsaplaatidega, üks diagonaal ja seitse vundamenti armatuuriga.
@@ -49,7 +49,7 @@ Juhend [Uuri näidisraami](topic:sample-model) käib selle läbi tükkhaaval.
 
 Uuel mudelil on juba ruudustikud 1 kuni 3 ja A kuni B vahega 6000 mm ning kaks tasandit: Tasand 1 kõrgusel 0 ja Tasand 2 kõrgusel 4000.
 
-1. Vali {{ui:Uus}}. Kui praegusel mudelil on muudatusi, küsib DetailCraft enne, kas need salvestada.
+1. Vali {{ui:Uus}}. Kui praegusel mudelil on muudatusi, küsib Manafe3 enne, kas need salvestada.
 2. Vali vaate kohal {{ui:Plaan}}. Selle kõrval olev tasandite loend valib Tasand 1.
 3. Vali tööriistaribal {{ui:Post}} või vajuta {{key:C}}.
 4. Klõpsa ruudustiku ristumiskohal A/1. Post W12x50 ilmub tasandilt 1 tasandile 2. Olekuriba ütleb, kuhu see läks.

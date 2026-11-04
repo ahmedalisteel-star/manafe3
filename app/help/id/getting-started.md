@@ -1,11 +1,11 @@
 ---
-title: Memulai DetailCraft
-summary: Apa yang dilakukan DetailCraft saat ini, cara membukanya, dan model pertama dari grid sampai gambar kerja dalam sepuluh menit.
+title: Memulai Manafe3
+summary: Apa yang dilakukan Manafe3 saat ini, cara membukanya, dan model pertama dari grid sampai gambar kerja dalam sepuluh menit.
 keywords: mulai, model pertama, pengantar, detailing baja, tulangan, panduan cepat, tutorial, ikhtisar
 from: 3682c0d8
 ---
 
-DetailCraft adalah aplikasi detailing baja dan tulangan dalam keluarga CadCraft. Anda membangun model 3D rangka baja pada grid dan level, menyambungnya, dan mendapatkan apa yang diperlukan bengkel: tanda part dan rakitan, daftar material, gambar kerja per part, file NC DSTV, model IFC, dan daftar pembengkokan untuk fondasi.
+Manafe3 adalah aplikasi detailing baja dan tulangan dalam keluarga Manafe3. Anda membangun model 3D rangka baja pada grid dan level, menyambungnya, dan mendapatkan apa yang diperlukan bengkel: tanda part dan rakitan, daftar material, gambar kerja per part, file NC DSTV, model IFC, dan daftar pembengkokan untuk fondasi.
 
 Ini adalah build awal. Build ini mengerjakan daftar pendek dengan cermat, bukan semuanya sekaligus. Baca [Apa yang belum dibuat](topic:not-built-yet) sebelum Anda merencanakan pekerjaan nyata di sekitarnya.
 
@@ -19,24 +19,24 @@ Ini adalah build awal. Build ini mengerjakan daftar pendek dengan cermat, bukan 
 - Tanda part dan rakitan yang diperbarui sendiri setelah setiap perubahan.
 - Ekspor: IFC4, file NC DSTV (profil I dan pelat), daftar material sebagai CSV, daftar pembengkokan sebagai CSV, dan PDF gambar kerja satu part.
 
-## Membuka DetailCraft
+## Membuka Manafe3
 
-1. Buka DetailCraft di peramban desktop: Chrome, Edge, Firefox, atau Safari. Lihat [Peramban dan komputer](common:browsers).
+1. Buka Manafe3 di peramban desktop: Chrome, Edge, Firefox, atau Safari. Lihat [Peramban dan komputer](common:browsers).
 2. Tunggu layar terisi. Bilah status di bagian bawah menyatakan "Siap. Buka Contoh, atau atur grid dan level lalu mulai menempatkan batang."
 
 Tampilan model memerlukan grafis 3D (WebGL). Jika bagian tengah layar menyatakan "Peramban ini tidak dapat memulai grafis 3D (WebGL)", lihat [Pemecahan masalah](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Model Anda tetap berada di komputer Anda. Membuka model membacanya di peramban, dan menyimpan mengunduh sebuah file. Tidak ada yang diunggah. Penyimpanan cloud belum tersedia. Lihat [Ke mana file Anda pergi](common:your-files). Untuk memakai DetailCraft tanpa koneksi nanti, pilih {{ui:Simpan untuk offline}} di bilah aplikasi sekali saat online; lihat [Bekerja offline](common:offline).
+Model Anda tetap berada di komputer Anda. Membuka model membacanya di peramban, dan menyimpan mengunduh sebuah file. Tidak ada yang diunggah. Penyimpanan cloud belum tersedia. Lihat [Ke mana file Anda pergi](common:your-files). Untuk memakai Manafe3 tanpa koneksi nanti, pilih {{ui:Simpan untuk offline}} di bilah aplikasi sekali saat online; lihat [Bekerja offline](common:offline).
 :::
 
 :::offline
-Anda sedang offline. DetailCraft berfungsi tanpa koneksi hanya jika sudah disimpan untuk penggunaan offline lebih dulu: tombol {{ui:Simpan untuk offline}} di bilah aplikasi lalu bertuliskan {{ui:Siap offline}}. Lihat [Bekerja offline](common:offline).
+Anda sedang offline. Manafe3 berfungsi tanpa koneksi hanya jika sudah disimpan untuk penggunaan offline lebih dulu: tombol {{ui:Simpan untuk offline}} di bilah aplikasi lalu bertuliskan {{ui:Siap offline}}. Lihat [Bekerja offline](common:offline).
 :::
 
 ## Lihat contohnya dahulu
 
-Cara tercepat untuk melihat apa yang dihasilkan DetailCraft adalah rangka contoh.
+Cara tercepat untuk melihat apa yang dihasilkan Manafe3 adalah rangka contoh.
 
 1. Pilih {{ui:Contoh}} di grup {{ui:File}} pada bilah alat.
 2. Tampilan menunjukkan rangka dua bentang: enam kolom dengan pelat dasar, empat balok dengan pelat ujung, satu bresing, dan tujuh fondasi dengan tulangan.
@@ -49,7 +49,7 @@ Panduan [Menjelajahi rangka contoh](topic:sample-model) menelusurinya bagian dem
 
 Model baru sudah memiliki grid 1 sampai 3 kali A sampai B pada 6000 mm dan dua level, Level 1 pada 0 dan Level 2 pada 4000.
 
-1. Pilih {{ui:Baru}}. Jika model saat ini memiliki perubahan, DetailCraft bertanya apakah akan menyimpannya lebih dulu.
+1. Pilih {{ui:Baru}}. Jika model saat ini memiliki perubahan, Manafe3 bertanya apakah akan menyimpannya lebih dulu.
 2. Pilih {{ui:Denah}} di atas tampilan. Daftar level di sampingnya memilih Level 1.
 3. Pilih {{ui:Kolom}} di bilah alat, atau tekan {{key:C}}.
 4. Klik perpotongan grid A/1. Kolom W12x50 muncul dari Level 1 sampai Level 2. Bilah status menyatakan di mana kolom itu berada.

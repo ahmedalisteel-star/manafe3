@@ -1,17 +1,17 @@
 ---
 title: Një shfletim i ekranit
-summary: Çdo shirit, panel dhe skedë e DetailCraft me emrin e tij në ekran, dhe për çfarë shërben secili.
+summary: Çdo shirit, panel dhe skedë e Manafe3 me emrin e tij në ekran, dhe për çfarë shërben secili.
 keywords: ekrani, paraqitja, shiriti i veglave, panelet, vetitë, shiriti i statusit, raportet, ndërfaqja, ui, skedat
 from: 454f74fd
 ---
 
-DetailCraft mbush dritaren e shfletuesit nën shiritin e aplikacionit. Nga lart poshtë: shiriti i veglave, pastaj tre kolona (paneli {{ui:Model}}, pamja, paneli {{ui:Properties}}), pastaj skedat e raportit, pastaj shiriti i statusit.
+Manafe3 mbush dritaren e shfletuesit nën shiritin e aplikacionit. Nga lart poshtë: shiriti i veglave, pastaj tre kolona (paneli {{ui:Model}}, pamja, paneli {{ui:Properties}}), pastaj skedat e raportit, pastaj shiriti i statusit.
 
 ## Shiriti i aplikacionit
 
-Shiriti i hollë në krye i takon sajtit CadCraft, jo modelit. Shfaq emrin e aplikacionit dhe versionin, një lidhje për {{ui:Rreth DetailCraft}}, {{ui:Help}} (ose {{key:F1}}) për këtë ndihmë, {{ui:Save for offline}}, butonin e mënyrës së ekranit dhe ndërruesin {{ui:Paper}} / {{ui:Model}}.
+Shiriti i hollë në krye i takon sajtit Manafe3, jo modelit. Shfaq emrin e aplikacionit dhe versionin, një lidhje për {{ui:Rreth Manafe3}}, {{ui:Help}} (ose {{key:F1}}) për këtë ndihmë, {{ui:Save for offline}}, butonin e mënyrës së ekranit dhe ndërruesin {{ui:Paper}} / {{ui:Model}}.
 
-- {{ui:Save for offline}} e mban DetailCraft, pamjen e tij 3D dhe këtë ndihmë në shfletues, që të hapet pa lidhje. Shfaq {{ui:Offline ready}} sapo ruhet; kliko pastaj për {{ui:Save again (get the newest version)}} ose {{ui:Remove the offline copy}}. Shih [Puna offline](common:offline).
+- {{ui:Save for offline}} e mban Manafe3, pamjen e tij 3D dhe këtë ndihmë në shfletues, që të hapet pa lidhje. Shfaq {{ui:Offline ready}} sapo ruhet; kliko pastaj për {{ui:Save again (get the newest version)}} ose {{ui:Remove the offline copy}}. Shih [Puna offline](common:offline).
 - {{ui:Paper}} jep një ekran të ndritshëm dhe {{ui:Model}} një të errët. Pamja 3D ndiqet menjëherë; asgjë në modelin tënd nuk ndryshon.
 - Butoni i mënyrës së ekranit dhe {{key:Ctrl+Shift+F}} kalojnë midis normal, ekran i plotë dhe ekran i plotë me shiritat e fshehur. {{key:Ctrl+Shift+F}} përdor tastin Control në çdo kompjuter, përfshirë Mac. Me shiritat të fshehur, shiko buzën e sipërme të ekranit (ose prek) për t'i kthyer. {{key:Esc}} del nga ekrani i plotë.
 
@@ -70,7 +70,7 @@ Fushat numerike hyjnë në fuqi kur shtyp {{key:Enter}} ose del nga fusha. Çdo 
 
 ## Skedat e raportit (poshtë)
 
-- {{ui:Problems}}: çdo gjë që DetailCraft nuk mundi ta ndërtojë ose do që ta kontrollosh, me një buton {{ui:Select}} në çdo rresht. Skeda shfaq numrin në kllapa.
+- {{ui:Problems}}: çdo gjë që Manafe3 nuk mundi ta ndërtojë ose do që ta kontrollosh, me një buton {{ui:Select}} në çdo rresht. Skeda shfaq numrin në kllapa.
 - {{ui:Bill of materials}}: pjesët, montimet, dhe bulonat dhe shufrat e ankorimit, me peshat dhe një lidhje {{ui:Download CSV}}. Kliko një shenjë pjese për të zgjedhur atë pjesë.
 - {{ui:Bending schedule}}: çdo shenjë shufre në çdo themel, me një lidhje {{ui:Download CSV}}.
 
@@ -84,4 +84,4 @@ Titulli i skedës së shfletuesit fillon me një pikë (•) ndërkohë që mode
 
 ## Në një ekran të ngushtë
 
-Nën rreth 760 piksel gjerësi, kolonat renditen njëra nën tjetrën: shiriti i veglave, pamja, shiriti i statusit, {{ui:Properties}}, skedat e raportit, pastaj paneli {{ui:Model}} i fundit. Lëviz faqen për t'i arritur. DetailCraft është përshtatur për ekran desktop ose laptop; një telefon shërben për ta parë, jo për detajim.
+Nën rreth 760 piksel gjerësi, kolonat renditen njëra nën tjetrën: shiriti i veglave, pamja, shiriti i statusit, {{ui:Properties}}, skedat e raportit, pastaj paneli {{ui:Model}} i fundit. Lëviz faqen për t'i arritur. Manafe3 është përshtatur për ekran desktop ose laptop; një telefon shërben për ta parë, jo për detajim.

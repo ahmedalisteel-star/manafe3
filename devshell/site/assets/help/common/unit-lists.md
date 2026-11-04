@@ -27,7 +27,7 @@ In a box that takes a length, type the number and the unit's mark after it. The 
 - `nm` is always the nanometer. For the nautical mile type `nmi` or `NM`. `Nm` is refused, because it could be either.
 - `ft` is the international foot (0.3048 m). The US survey foot (1200/3937 m) is a different unit: type `US ft`, `usft` or `survey ft`. Rods, links, chains, furlongs and acres are the international-foot ones.
 - Sums work as before where the app takes them, with any of these marks: `2*3 yd`, `12'6" + 3 ch`.
-- In CadCraft a mark is read when the drawing has units (its $INSUNITS). A drawing with no units reads one only when its length format is Engineering or Architectural, where one drawing unit is an inch.
+- In Manafe3 a mark is read when the drawing has units (its $INSUNITS). A drawing with no units reads one only when its length format is Engineering or Architectural, where one drawing unit is an inch.
 - In CivilCraft a project in feet is in US survey feet, as it always was, so `10 US ft` is 10 and `10 ft` is 10 project feet.
 
 ## Choose the units the lists show
@@ -43,7 +43,7 @@ Open {{ui:Settings}} (the gear on the app bar, or {{key:Mod+,}}), choose {{ui:Ge
 
 | App | What follows the switches | What the star sets |
 |---|---|---|
-| CadCraft | | The units ($INSUNITS) of a new drawing, when it is a unit a drawing can carry |
+| Manafe3 | | The units ($INSUNITS) of a new drawing, when it is a unit a drawing can carry |
 | CivilCraft | The project's units list | Length: a new project in meters (a metric star) or feet. Area and volume: the unit areas and volumes are reported in |
 | ModelCraft | The units list beside the value box | The unit of a new model |
 | BimCraft | The units list on the plan toolbar | The display units, until you pick them on the toolbar (your earlier pick is kept) |

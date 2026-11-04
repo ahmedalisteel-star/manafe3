@@ -17,7 +17,7 @@ If the model has no parts and no footings, the status bar says "Nothing to expor
 
 ## What is in the file
 
-| In DetailCraft | In the IFC file |
+| In Manafe3 | In the IFC file |
 |---|---|
 | Each level | A building storey (IfcBuildingStorey), under one project, site and building |
 | Grids | An IfcGrid with its axes and labels |
@@ -29,7 +29,7 @@ If the model has no parts and no footings, the status bar says "Nothing to expor
 | Footings | IfcFooting (pad footing), with the concrete text as its material |
 | Each bar | IfcReinforcingBar with its bar mark, diameter, area and length, swept along its true centerline with real arcs at the bends |
 
-Each part's tag is its part mark. Each element also carries a "DetailCraft" property set with its marks, profile and weight. Each element sits in the highest storey at or below its lowest point. Materials are grouped by grade.
+Each part's tag is its part mark. Each element also carries a "Manafe3" property set with its marks, profile and weight. Each element sits in the highest storey at or below its lowest point. Materials are grouped by grade.
 
 ## Stable ids for re-exports
 
@@ -41,7 +41,7 @@ Renaming the model changes every id. Keep the model name the same between issues
 
 ## Check it
 
-DetailCraft's IFC files are read back by an independent IFC reader in its test suite. Programs differ in how they read IFC, so open the file in the software your team uses before you rely on it. CadCraft's BimCraft app opens IFC files too.
+Manafe3's IFC files are read back by an independent IFC reader in its test suite. Programs differ in how they read IFC, so open the file in the software your team uses before you rely on it. Manafe3's BimCraft app opens IFC files too.
 
 ## Not yet
 
@@ -53,7 +53,7 @@ DetailCraft's IFC files are read back by an independent IFC reader in its test s
 
 {{ui:Import IFC}} in the {{ui:File}} group (or dropping an `.ifc` file on the view) makes a new model from an IFC2X3 or IFC4 file:
 
-- **Beams, columns, members (braces) and plates** whose body is one extruded profile DetailCraft knows, matched to the catalog or kept as a custom profile; **grids** and **levels** from the file's grid and storeys.
+- **Beams, columns, members (braces) and plates** whose body is one extruded profile Manafe3 knows, matched to the catalog or kept as a custom profile; **grids** and **levels** from the file's grid and storeys.
 - **Holes:** every round opening (IfcOpeningElement voiding a part that came in) square to one of the part's faces: an I-shape's or channel's web or flanges, a tube's walls, a plate, an angle's legs. A hole through both walls of a tube comes in once.
 - **Copes:** a rectangular opening that takes the full width of an I-shape or channel from one end, down from the top or up from the bottom.
 - **Bolts:** every IfcMechanicalFastener or IfcFastener, with its diameter, length, grade and kind (bolt or anchor rod), as a **loose bolt**. Loose bolts show in the view, the bill of materials and the IFC export, and stay where they are when you move members. The {{ui:Properties}} panel, with nothing selected, counts them and has {{ui:Remove loose bolts}} for when you add connections instead.

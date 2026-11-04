@@ -42,7 +42,7 @@ For at tage et panel ud af gruppen vælger du {{ui:Flyt ud af fanegruppen}} i de
 
 ## Vælg hvor mange linjer værktøjslinjen bruger
 
-{{ui:Indstillinger}} › {{ui:Generelt}} › {{ui:Værktøjslinjens rækker}} har tre valg. {{ui:Ombryd}} er standard: hver værktøjsgruppe vises, på så mange linjer som der skal til. {{ui:2 rækker}} holder værktøjslinjen på to linjer og {{ui:1 række}} på én, så tegningen får højden; de grupper, der ikke kan være der, ruller sidelæns inde i værktøjslinjen (brug musehjulet, et stryg med to fingre, eller {{key:Tab}} til et værktøj). En værktøjslinje, der allerede kan være på to linjer, bliver, som den er, under {{ui:2 rækker}}, for et gitter ville kun gøre den højere. Valget gemmes for hver app. En touchskærm og en telefon beholder deres eget layout. CadCraft har sin egen indstilling til sin værktøjslinje under {{ui:Indstillinger}} › {{ui:CadCraft}}.
+{{ui:Indstillinger}} › {{ui:Generelt}} › {{ui:Værktøjslinjens rækker}} har tre valg. {{ui:Ombryd}} er standard: hver værktøjsgruppe vises, på så mange linjer som der skal til. {{ui:2 rækker}} holder værktøjslinjen på to linjer og {{ui:1 række}} på én, så tegningen får højden; de grupper, der ikke kan være der, ruller sidelæns inde i værktøjslinjen (brug musehjulet, et stryg med to fingre, eller {{key:Tab}} til et værktøj). En værktøjslinje, der allerede kan være på to linjer, bliver, som den er, under {{ui:2 rækker}}, for et gitter ville kun gøre den højere. Valget gemmes for hver app. En touchskærm og en telefon beholder deres eget layout. Manafe3 har sin egen indstilling til sin værktøjslinje under {{ui:Indstillinger}} › {{ui:Manafe3}}.
 
 ## Brug tastaturet
 
@@ -82,7 +82,7 @@ Fra tastaturet trykker du på {{key:Alt}}+{{key:Shift}}+en piletast med fokus in
 
 På en telefon forbliver dialogbokse ark i fuld bredde og flyttes ikke.
 
-I CadCraft Studio har CadCrafts dialogboks {{ui:Plot til PDF}}, som du kan have åben, mens du arbejder, en knap i titellinjen, {{ui:Åbn i eget vindue}}. Dialogboksen flyttes til et eget vindue, som du kan lægge på en anden skærm. Lukker du dialogboksen, lukkes vinduet, og lukker du vinduet, lukkes dialogboksen.
+I Manafe3 Desktop har Manafe3s dialogboks {{ui:Plot til PDF}}, som du kan have åben, mens du arbejder, en knap i titellinjen, {{ui:Åbn i eget vindue}}. Dialogboksen flyttes til et eget vindue, som du kan lægge på en anden skærm. Lukker du dialogboksen, lukkes vinduet, og lukker du vinduet, lukkes dialogboksen.
 
 ## Sæt panelerne tilbage
 

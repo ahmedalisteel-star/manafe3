@@ -1,17 +1,17 @@
 ---
 title: Buksan, i-save at i-export ang mga file
-summary: Ang DetailCraft model file, bawat export na isinusulat nito, kung saan napupunta ang mga file, at kung ano ang nagkakaiba ayon sa browser at koneksyon.
+summary: Ang Manafe3 model file, bawat export na isinusulat nito, kung saan napupunta ang mga file, at kung ano ang nagkakaiba ayon sa browser at koneksyon.
 keywords: buksan, i-save, export, download, file, json, ifc, nc1, dstv, csv, pdf, zip, mga format, import
 from: bd715ea3
 ---
 
-May sarili itong isang file ang DetailCraft, ang model, at limang export. Ang bawat save at bawat export ay isang download. Walangina-upload, at walang itinatago sa server.
+May sarili itong isang file ang Manafe3, ang model, at limang export. Ang bawat save at bawat export ay isang download. Walangina-upload, at walang itinatago sa server.
 
 ## Ang model file
 
-Sine-save ang DetailCraft model bilang `<name>.detailcraft.json`, kung saan ang `<name>` ay ang model name sa {{ui:Model}} panel. Kasama rito ang mga grid, level, member (kasama ang mga butas at cope nito), connection at ang mga setting nito, footing, at ang mga custom profile mo.
+Sine-save ang Manafe3 model bilang `<name>.detailcraft.json`, kung saan ang `<name>` ay ang model name sa {{ui:Model}} panel. Kasama rito ang mga grid, level, member (kasama ang mga butas at cope nito), connection at ang mga setting nito, footing, at ang mga custom profile mo.
 
-Hindi naka-store ang mga piyesa, mark, bolt, weld at bar: kinukuwenta ulit ng DetailCraft ang mga ito mula sa model sa bawat pagbukas. Kaya maliit ang model file.
+Hindi naka-store ang mga piyesa, mark, bolt, weld at bar: kinukuwenta ulit ng Manafe3 ang mga ito mula sa model sa bawat pagbukas. Kaya maliit ang model file.
 
 ### Save
 
@@ -38,21 +38,21 @@ Sa Downloads folder mo sine-save ang Safari. Para baguhin ang folder, buksan ang
 1. Piliin ang {{ui:Open}} sa {{ui:File}} group, o pindutin ang {{key:Mod+O}}.
 2. Pumili ng `.detailcraft.json` na file.
 
-O i-drag ang file mula sa {{pick:mac=Finder|windows=File Explorer|linux=ang file manager mo}} at i-drop ito sa view. Sinasabi ng view ang "I-drop ang DetailCraft model para buksan ito" habang nagdi-drag ka.
+O i-drag ang file mula sa {{pick:mac=Finder|windows=File Explorer|linux=ang file manager mo}} at i-drop ito sa view. Sinasabi ng view ang "I-drop ang Manafe3 model para buksan ito" habang nagdi-drag ka.
 
-Kung may hindi pa na-save na pagbabago ang bukas na model, unang nagtatanong ang DetailCraft: {{ui:Cancel}}, {{ui:Discard changes}} o {{ui:Save first}}.
+Kung may hindi pa na-save na pagbabago ang bukas na model, unang nagtatanong ang Manafe3: {{ui:Cancel}}, {{ui:Discard changes}} o {{ui:Save first}}.
 
-Sinusuri ng DetailCraft ang bawat field ng file bago ito gamitin. Anumang hindi nito magamit ay inaalis, at sinasabi ng status bar kung ano, halimbawa "2 member ang hindi valid at inalis." Tinatanggihan ng mensahe ang model na na-save ng mas bagong DetailCraft sa halip na buksan itong kalahating tama.
+Sinusuri ng Manafe3 ang bawat field ng file bago ito gamitin. Anumang hindi nito magamit ay inaalis, at sinasabi ng status bar kung ano, halimbawa "2 member ang hindi valid at inalis." Tinatanggihan ng mensahe ang model na na-save ng mas bagong Manafe3 sa halip na buksan itong kalahating tama.
 
 ### Ano ang nabubuksan
 
-Ang sarili nitong model file (`.json`, hanggang 50 MB) at IFC file (`.ifc`, IFC2X3 o IFC4, hanggang 200 MB). Ang IFC file, na binuksan o dinala gamit ang {{ui:Import IFC}}, ay nagiging bagong model ng mga beam, column, member, plato, grid at level nito, kasama ang mga butas at cope na naputol dito, at ang mga bolt nito bilang loose bolts; may report na naglilista ng mga hindi naisama. Tingnan ang [IFC export](topic:ifc-export#import). Hindi pa nito binubuksan ang DWG, DXF o model ng ibang detailing program; kapag sinubukan, lalabas ang "Ang DetailCraft ay nagbubukas ng sarili nitong model (.detailcraft.json) at IFC file (.ifc)."
+Ang sarili nitong model file (`.json`, hanggang 50 MB) at IFC file (`.ifc`, IFC2X3 o IFC4, hanggang 200 MB). Ang IFC file, na binuksan o dinala gamit ang {{ui:Import IFC}}, ay nagiging bagong model ng mga beam, column, member, plato, grid at level nito, kasama ang mga butas at cope na naputol dito, at ang mga bolt nito bilang loose bolts; may report na naglilista ng mga hindi naisama. Tingnan ang [IFC export](topic:ifc-export#import). Hindi pa nito binubuksan ang DWG, DXF o model ng ibang detailing program; kapag sinubukan, lalabas ang "Ang Manafe3 ay nagbubukas ng sarili nitong model (.detailcraft.json) at IFC file (.ifc)."
 
 ## Nawalang trabaho, mga kamakailang file, ang desktop app
 
-- Habang may pagbabago sa model na hindi mo pa na-save, nagtatabi ang DetailCraft ng kopya sa browser na ito. Kung huminto ang tab o ang browser bago mo i-save, sa susunod na buksan mo ang DetailCraft, magtatanong ito ng **Ibalik ang trabaho mo?**: ibalik ang kopya, o hayaan itong mawala. Tingnan ang [Ibalik ang trabaho mo](common:recover).
-- Nakalista sa start screen ang mga model na kamakailan mong binuksan kapag pinapayagan ng browser ang DetailCraft na buksan ulit ang mga ito; i-click ang isa para buksan ulit.
-- Sa desktop app, isinusulat ng {{ui:Save}} ang model pabalik sa file na binuksan mo (sa browser, nagda-download ito ng kopya), at ang pag-double-click sa DetailCraft model o IFC file ay bubuksan ito sa DetailCraft.
+- Habang may pagbabago sa model na hindi mo pa na-save, nagtatabi ang Manafe3 ng kopya sa browser na ito. Kung huminto ang tab o ang browser bago mo i-save, sa susunod na buksan mo ang Manafe3, magtatanong ito ng **Ibalik ang trabaho mo?**: ibalik ang kopya, o hayaan itong mawala. Tingnan ang [Ibalik ang trabaho mo](common:recover).
+- Nakalista sa start screen ang mga model na kamakailan mong binuksan kapag pinapayagan ng browser ang Manafe3 na buksan ulit ang mga ito; i-click ang isa para buksan ulit.
+- Sa desktop app, isinusulat ng {{ui:Save}} ang model pabalik sa file na binuksan mo (sa browser, nagda-download ito ng kopya), at ang pag-double-click sa Manafe3 model o IFC file ay bubuksan ito sa Manafe3.
 
 ## Mga export
 
@@ -79,13 +79,13 @@ Ginagamit ng teksto sa PDF ang karaniwang Helvetica font. Ang mga karakter na wa
 
 ## Mga unit
 
-Millimeter ang gamit ng DetailCraft sa buong paligid: grid, level, coordinate, profile, butas at bawat export. Pinananatili ng mga pangalan ng profile ang nakalathalang anyo (ang W12x50 ay pangalang US kahit ipinapakita ang sukat nito sa mm). Wala pang imperial input.
+Millimeter ang gamit ng Manafe3 sa buong paligid: grid, level, coordinate, profile, butas at bawat export. Pinananatili ng mga pangalan ng profile ang nakalathalang anyo (ang W12x50 ay pangalang US kahit ipinapakita ang sukat nito sa mm). Wala pang imperial input.
 
 ## Online at offline
 
-Sa browser mo nangyayari ang pagbubukas, pag-save at pag-export, kaya pareho ang takbo ng mga ito may koneksyon man o wala, kapag na-load na ang DetailCraft.
+Sa browser mo nangyayari ang pagbubukas, pag-save at pag-export, kaya pareho ang takbo ng mga ito may koneksyon man o wala, kapag na-load na ang Manafe3.
 
-Para magamit ang DetailCraft nang walang koneksyon sa susunod, piliin ang {{ui:Save for offline}} sa app bar habang online ka. Nagbibilang pataas ang button ("Sine-save 3 sa 20") at saka magbabasa ng {{ui:Handa offline}}. Kasama sa na-save na kopya ang 3D graphics library (mga 2.6 MB) at ang help na ito, kaya kapag na-save na, gumagana na offline ang 3D view, bawat export at ang help. Mga detalye, at ano pa ang nangangailangan ng koneksyon: [Pagtatrabaho offline](common:offline).
+Para magamit ang Manafe3 nang walang koneksyon sa susunod, piliin ang {{ui:Save for offline}} sa app bar habang online ka. Nagbibilang pataas ang button ("Sine-save 3 sa 20") at saka magbabasa ng {{ui:Handa offline}}. Kasama sa na-save na kopya ang 3D graphics library (mga 2.6 MB) at ang help na ito, kaya kapag na-save na, gumagana na offline ang 3D view, bawat export at ang help. Mga detalye, at ano pa ang nangangailangan ng koneksyon: [Pagtatrabaho offline](common:offline).
 
 :::offline
 Offline ka. Kung ipinapakita ng app bar ang {{ui:Handa offline}}, gumagana gaya ng dati ang pagbubukas, pag-save at pag-export. Kung hindi, panatilihing bukas ang tab na ito, huwag itong i-reload hanggang bumalik ang koneksyon, at i-save na ngayon ang model mo.
@@ -95,4 +95,4 @@ Hindi pa available ang cloud saving, at wala pa ring desktop build. I-back up an
 
 ## Hindi pa na-save na trabaho
 
-Sa bukas na tab lang itinatago ng DetailCraft ang model. Kung isasara o ire-reload mo ang tab na may hindi pa na-save na pagbabago, magtatanong ang browser kung aalis sa pahina; sarili ng browser ang pagkakasulat nito. I-save madalas gamit ang {{key:Mod+S}}.
+Sa bukas na tab lang itinatago ng Manafe3 ang model. Kung isasara o ire-reload mo ang tab na may hindi pa na-save na pagbabago, magtatanong ang browser kung aalis sa pahina; sarili ng browser ang pagkakasulat nito. I-save madalas gamit ang {{key:Mod+S}}.

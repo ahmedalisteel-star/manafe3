@@ -1,12 +1,12 @@
 ---
 title: Check marks and the bill of materials
-summary: Read the part and assembly marks DetailCraft gives every piece, check the bill of materials, and download it as CSV.
+summary: Read the part and assembly marks Manafe3 gives every piece, check the bill of materials, and download it as CSV.
 section: tasks
 order: 100
 keywords: marks, numbering, part mark, assembly mark, piece mark, bom, bill of materials, material list, weights, bolt list, csv, numbering
 ---
 
-DetailCraft marks the model by itself. There is no numbering command and nothing to run: after every change it works out which parts are the same piece of steel and gives them one mark.
+Manafe3 marks the model by itself. There is no numbering command and nothing to run: after every change it works out which parts are the same piece of steel and gives them one mark.
 
 ## Where marks show
 

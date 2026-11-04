@@ -1,17 +1,17 @@
 ---
 title: O prezentare a ecranului
-summary: Fiecare bară, panou și filă din DetailCraft, după numele lor de pe ecran, și la ce folosește fiecare.
+summary: Fiecare bară, panou și filă din Manafe3, după numele lor de pe ecran, și la ce folosește fiecare.
 keywords: ecran, aranjare, bară de instrumente, panouri, proprietăți, bară de stare, rapoarte, interfață, ui, file
 from: 454f74fd
 ---
 
-DetailCraft umple fereastra browserului sub bara aplicației. De sus în jos: bara de instrumente, apoi trei coloane (panoul {{ui:Model}}, vizualizarea, panoul {{ui:Proprietăți}}), apoi filele de rapoarte, apoi bara de stare.
+Manafe3 umple fereastra browserului sub bara aplicației. De sus în jos: bara de instrumente, apoi trei coloane (panoul {{ui:Model}}, vizualizarea, panoul {{ui:Proprietăți}}), apoi filele de rapoarte, apoi bara de stare.
 
 ## Bara aplicației
 
-Bara subțire din partea de sus aparține site-ului CadCraft, nu modelului. Ea arată numele și versiunea aplicației, un link către {{ui:Despre DetailCraft}}, {{ui:Ajutor}} (sau {{key:F1}}) pentru acest ajutor, {{ui:Salvare pentru offline}}, butonul modului de afișare și comutatorul {{ui:Hârtie}} / {{ui:Model}}.
+Bara subțire din partea de sus aparține site-ului Manafe3, nu modelului. Ea arată numele și versiunea aplicației, un link către {{ui:Despre Manafe3}}, {{ui:Ajutor}} (sau {{key:F1}}) pentru acest ajutor, {{ui:Salvare pentru offline}}, butonul modului de afișare și comutatorul {{ui:Hârtie}} / {{ui:Model}}.
 
-- {{ui:Salvare pentru offline}} păstrează DetailCraft, vizualizarea 3D și acest ajutor în browser, ca să se deschidă fără conexiune. Afișează {{ui:Pregătit pentru offline}} odată salvat; apoi faceți clic pe el pentru {{ui:Salvare din nou (obținere a celei mai noi versiuni)}} sau {{ui:Eliminare a copiei offline}}. Vedeți [Lucrul offline](common:offline).
+- {{ui:Salvare pentru offline}} păstrează Manafe3, vizualizarea 3D și acest ajutor în browser, ca să se deschidă fără conexiune. Afișează {{ui:Pregătit pentru offline}} odată salvat; apoi faceți clic pe el pentru {{ui:Salvare din nou (obținere a celei mai noi versiuni)}} sau {{ui:Eliminare a copiei offline}}. Vedeți [Lucrul offline](common:offline).
 - {{ui:Hârtie}} dă un ecran luminos, iar {{ui:Model}} unul întunecat. Vizualizarea 3D urmează imediat; nimic din model nu se schimbă.
 - Butonul modului de afișare și {{key:Ctrl+Shift+F}} trec pe rând prin normal, ecran complet și ecran complet cu barele ascunse. {{key:Ctrl+Shift+F}} folosește tasta Ctrl pe orice calculator, inclusiv pe Mac. Cu barele ascunse, indicați marginea de sus a ecranului (sau atingeți-o) ca să le aduceți înapoi. {{key:Esc}} iese din ecranul complet.
 
@@ -70,7 +70,7 @@ Câmpurile numerice iau efect când apăsați {{key:Enter}} sau părăsiți câm
 
 ## Filele de rapoarte (jos)
 
-- {{ui:Probleme}}: tot ce DetailCraft n-a putut realiza sau ce vrea să verificați, cu un buton {{ui:Selectare}} la fiecare rând. Fila arată numărul între paranteze.
+- {{ui:Probleme}}: tot ce Manafe3 n-a putut realiza sau ce vrea să verificați, cu un buton {{ui:Selectare}} la fiecare rând. Fila arată numărul între paranteze.
 - {{ui:Listă de materiale}}: piese, ansambluri, șuruburi și tije de ancorare, cu greutăți și un link {{ui:Descărcare CSV}}. Faceți clic pe un marcaj de piesă ca să selectați acea piesă.
 - {{ui:Tabel de întinderi}}: fiecare marcă de armătură din fiecare talpă, cu un link {{ui:Descărcare CSV}}.
 
@@ -84,4 +84,4 @@ Titlul filei browserului începe cu un punct (•) cât timp modelul are modific
 
 ## Pe un ecran îngust
 
-Sub aproximativ 760 de pixeli lățime, coloanele se așază una sub alta: bara de instrumente, vizualizarea, bara de stare, {{ui:Proprietăți}}, filele de rapoarte, apoi panoul {{ui:Model}} la urmă. Derulați pagina ca să ajungeți la ele. DetailCraft este aranjat pentru ecranul unui calculator de birou sau laptop; un telefon este bun pentru vizualizare, nu pentru detaliere.
+Sub aproximativ 760 de pixeli lățime, coloanele se așază una sub alta: bara de instrumente, vizualizarea, bara de stare, {{ui:Proprietăți}}, filele de rapoarte, apoi panoul {{ui:Model}} la urmă. Derulați pagina ca să ajungeți la ele. Manafe3 este aranjat pentru ecranul unui calculator de birou sau laptop; un telefon este bun pentru vizualizare, nu pentru detaliere.

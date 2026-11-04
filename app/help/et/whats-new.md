@@ -5,7 +5,7 @@ keywords: mis on uut, väljalaske märkmed, muudatuste logi, muudatused, 0.7, ve
 from: 17d1e0bb
 ---
 
-Siin on, mis muutus versioonis DetailCraft 0.7 võrreldes versiooniga 0.6. Versiooni 0.6 raamanalüüsil on nüüd teine samm: terasest elementide kontroll projekteerimisnormi järgi.
+Siin on, mis muutus versioonis Manafe3 0.7 võrreldes versiooniga 0.6. Versiooni 0.6 raamanalüüsil on nüüd teine samm: terasest elementide kontroll projekteerimisnormi järgi.
 
 ## Uus
 
@@ -15,7 +15,7 @@ Siin on, mis muutus versioonis DetailCraft 0.7 võrreldes versiooniga 0.6. Versi
 
 ### Projekteerimiskontrollid
 
-- **Koormuskombinatsioonid normist.** Vahekaardil {{ui:Analüüs}} on uus plokk {{ui:Projekteerimiskontrollid}}, millel on {{ui:Projekteerimisnorm}}: ASCE 7 + AISC 360 (USA, LRFD) või EN 1990 + EN 1993-1-1 (Eurocode). Anna igale koormusjuhule liik (alaline, muutuv, uus katuse muutuv koormus, lumi, tuul, seismiline), vajuta {{ui:Koosta kombinatsioonid}} ja DetailCraft kirjutab normi tugevus- ja kasutuspiirseisundi kombinatsioonid sinu koormusjuhtude põhjal. Kombinatsioonid, mille ise sisestasid, jäävad alles. Vt [Kombinatsioonide koostamine](topic:design-checks#make-the-combinations).
+- **Koormuskombinatsioonid normist.** Vahekaardil {{ui:Analüüs}} on uus plokk {{ui:Projekteerimiskontrollid}}, millel on {{ui:Projekteerimisnorm}}: ASCE 7 + AISC 360 (USA, LRFD) või EN 1990 + EN 1993-1-1 (Eurocode). Anna igale koormusjuhule liik (alaline, muutuv, uus katuse muutuv koormus, lumi, tuul, seismiline), vajuta {{ui:Koosta kombinatsioonid}} ja Manafe3 kirjutab normi tugevus- ja kasutuspiirseisundi kombinatsioonid sinu koormusjuhtude põhjal. Kombinatsioonid, mille ise sisestasid, jäävad alles. Vt [Kombinatsioonide koostamine](topic:design-checks#make-the-combinations).
 - **Rahvusliku lisa väärtused.** Eurocode puhul alustavad tegurid soovitatud väärtustest; {{ui:Rahvusliku lisa väärtused}} lubab sisestada oma riigi väärtused ning need salvestatakse mudelisse. Vt [Kombinatsioonide koostamine](topic:design-checks#make-the-combinations).
 - **Kontrolli elemente.** {{ui:Kontrolli elemendid}} kontrollib iga terasest I-profiili pingele, survele koos väänduvusega, paindele koos külgmise väändega, nihkele, paindele koos normaaljõuga ja läbipainde järgi, võrreldes sinu seatud {{ui:Läbipainde piirang}}ga. Tabel näitab iga elemendi kasutusastet, määravat kontrolli ja selle kombinatsiooni ning elemendid on mudelil värvitud (sinine, roheline, oker, punane, hall kontrollimata). Vt [Elementide kontrollimine](topic:design-checks#check-the-members).
 - **Aruandes.** {{ui:Aruanne (PDF)}} ja {{ui:Aruanne (CSV)}} lisavad normide väljaanded, seaded, kasutusastme elemendi kaupa ja iga kasutatud punkti. Vt [Aruanne](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Siin on, mis muutus versioonis DetailCraft 0.7 võrreldes versiooniga 0.6. Versi
 
 ### Tehisintellekti assistendid
 
-- **USD assistentidele.** Sinu enda assistent, mis on ühendatud CadCraft Studio kaudu, saab mudelit USD-na eksportida (`usd_export`) ning Studios kirjutada selle kausta, mille lubasid. Vt [Mida assistent võib paluda](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD assistentidele.** Sinu enda assistent, mis on ühendatud Manafe3 Desktop kaudu, saab mudelit USD-na eksportida (`usd_export`) ning Studios kirjutada selle kausta, mille lubasid. Vt [Mida assistent võib paluda](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Muudetud
 
@@ -36,16 +36,16 @@ Siin on, mis muutus versioonis DetailCraft 0.7 võrreldes versiooniga 0.6. Versi
 
 ## Kõigis rakendustes
 
-- **Ühikud.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Ühikud}} sisaldab iga pikkuse, pindala, mahu, nurga ja kalde jaoks ühte loendit, täpsete suurustega, mille ühikute definitsioonid annavad (USA mõõdistusjalg on oma ühik). Lülita välja ühikud, mida ei kasuta, ja need kaovad ühikute loenditest; märgi üks tärniga ja uus töö algab sellest. Fail hoiab alati oma ühikut. DetailCraft-i enda väljad ei järgi veel loendeid: selle pikkused sisestatakse endiselt mm-des. Vt [Ühikud, sisestatud väärtused ja ühikute loendid](common:unit-lists).
+- **Ühikud.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Ühikud}} sisaldab iga pikkuse, pindala, mahu, nurga ja kalde jaoks ühte loendit, täpsete suurustega, mille ühikute definitsioonid annavad (USA mõõdistusjalg on oma ühik). Lülita välja ühikud, mida ei kasuta, ja need kaovad ühikute loenditest; märgi üks tärniga ja uus töö algab sellest. Fail hoiab alati oma ühikut. Manafe3-i enda väljad ei järgi veel loendeid: selle pikkused sisestatakse endiselt mm-des. Vt [Ühikud, sisestatud väärtused ja ühikute loendid](common:unit-lists).
 - **Tihedam paigutus ja paneelid, mis end ära peidavad.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Paigutuse tihedus}} › {{ui:Tihe}} mahutab ekraanile rohkem (puuteekraanid ja telefonid säilitavad oma suured nupud). Igal külgpaneelil on kitsas pealkirjariba: lohista see, et paneel dokkida või ujuvaks teha; lase see teise paneeli ribale, et jagada üks raam vahekaartidena; kinnita see, et see libiseks servale ära; või peida see ja too servast tagasi. Vt [Paneelide paigutamine](common:arrange-panels#make-the-layout-denser).
 - **Dialoogid liiguvad.** Lohista dialoogi selle pealkirjaribast joonise eest eemale; see tuleb tagasi sinna, kust lahkusid. Topeltklõps pealkirjaribal tsentreerib selle uuesti. Vt [Dialoogi liigutamine](common:arrange-panels#move-a-dialog).
 - **Retseptid tehisintellekti assistentidele.** Kümme läbitöötatud päringut sinu enda assistendile (korrasta joonis, joonista komplekt, kontrolli jooniseid, küsi mudelilt küsimusi, summeeri koguste arvestus, proovi detaili varianti…), igaüks koos tööriistadega, mida ta kutsub, ja õigustega, mida ta vajab; iga üks on meie testidega uuesti läbi mängitud. Rakendused ei sisalda tehisintellekti. Vt [Retseptid tehisintellekti assistentidele](common:assistants-recipes).
 - **Keeled.** **Português (Portugal)** on uus valik {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Keel}} all. See, **Português (Brasil)**, **Español (México)** ja **Bahasa Indonesia** on nüüd kõigi rakenduste sõnadega, mustanditena, mida emakeelne kasutaja pole veel üle vaadanud. Abi teemad on inglise keeles.
-- **CadCraft Studio** ütleb, miks värskenduse kontroll ebaõnnestus (failid sinu süsteemi jaoks pole veel valmis, võrk puudub, allkiri on vale), mitte lihtsalt „Valmis“, ning ei too enam tagasi kaarti Mis on uut, mille suleti, kuni on uuem versioon.
+- **Manafe3 Desktop** ütleb, miks värskenduse kontroll ebaõnnestus (failid sinu süsteemi jaoks pole veel valmis, võrk puudub, allkiri on vale), mitte lihtsalt „Valmis“, ning ei too enam tagasi kaarti Mis on uut, mille suleti, kuni on uuem versioon.
 
 ## Pole selles versioonis veel
 
-- **0.7 ei ole koodiga allkirjastatud.** Allkirjastamine ja Microsoft Store'i pakk liikusid versioonile 0.8, sest sertifikaadi kinnitus ei ole veel tulnud. Kontrolli iga faili kõrval olevat SHA-256 lehel getcadcraft.com/download. Windowsis, kui SmartScreen peatab paigaldaja, vali {{ui:Rohkem infot}}, siis {{ui:Käivita siiski}}. Macis vali esimesel korral CadCraft Studio paremklõpsuga ja {{ui:Ava}}. CadCraft Studio ei ole veel rakenduste poes ning iPadi ega iPhone'i versiooni ei ole veel.
+- **0.7 ei ole koodiga allkirjastatud.** Allkirjastamine ja Microsoft Store'i pakk liikusid versioonile 0.8, sest sertifikaadi kinnitus ei ole veel tulnud. Kontrolli iga faili kõrval olevat SHA-256 lehel getcadcraft.com/download. Windowsis, kui SmartScreen peatab paigaldaja, vali {{ui:Rohkem infot}}, siis {{ui:Käivita siiski}}. Macis vali esimesel korral Manafe3 Desktop paremklõpsuga ja {{ui:Ava}}. Manafe3 Desktop ei ole veel rakenduste poes ning iPadi ega iPhone'i versiooni ei ole veel.
 - Nurga ja kalde loendid vahekaardil {{ui:Ühikud}} salvestatakse, aga ükski väli neid veel ei loe.
 - **Projekteerimiskontrollid ei ole veel insener üle vaadanud.** Meie testid võrdlevad neid trükitud tabeliväärtuste ja käsitsi arvutatud valemitega, mitte veel projekteerimisjuhendi töötatud näidetega. Kuni ülevaatuseni on need abivahendid: kontrolli käsitsi olulisi elemente.
 - Projekteerimiskontrollid kasutavad esimese järgu jõude (ilma teise järgu mõjudeta) ning kontrollivad ainult I-profiile. Ei ole tehtud: torud, nurkprofiilid, kanalid, keevitatud kujud, karksed (AISC) või 4. klassi (Eurocode) osad paindel, väändel, nihkel koos paindega, ühendused, väsimus, tulekindlus, seismiline detailimine ja betoon. Karge osa survel jätab survekontrollid välja ja element näidatakse „läbib, osaliselt kontrollitud“.

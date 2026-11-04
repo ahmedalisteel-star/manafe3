@@ -41,4 +41,4 @@ Está offline neste momento. Se esta aplicação foi guardada para utilização 
 O Safari remove os dados guardados dos sites que não visita há várias semanas. Abra a aplicação de vez em quando enquanto está online, ou guarde-a de novo antes de uma viagem.
 :::
 
-- O CadCraft Studio, a aplicação de ambiente de trabalho com as oito aplicações numa só instalação, está em getcadcraft.com/download.
+- O Manafe3 Desktop, a aplicação de ambiente de trabalho com as oito aplicações numa só instalação, está em getcadcraft.com/download.

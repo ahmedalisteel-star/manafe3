@@ -1,11 +1,11 @@
 ---
-title: Erste Schritte mit DetailCraft
-summary: Was DetailCraft heute kann, wie Sie es öffnen und ein erstes Modell von den Rastern bis zur Werkstattzeichnung in zehn Minuten.
+title: Erste Schritte mit Manafe3
+summary: Was Manafe3 heute kann, wie Sie es öffnen und ein erstes Modell von den Rastern bis zur Werkstattzeichnung in zehn Minuten.
 from: 3682c0d8
 keywords: Start, erstes Modell, Einführung, Stahlbau-Detaillierung, Bewehrung, Schnellstart, Tutorial, Überblick
 ---
 
-DetailCraft ist die App für Stahl- und Bewehrungsdetaillierung in der CadCraft-Familie. Sie bauen ein 3D-Modell eines Stahlrahmens auf Rastern und Ebenen, verbinden es und erhalten, was die Werkstatt braucht: Positions- und Baugruppennummern, eine Stückliste, Werkstattzeichnungen einzelner Bauteile, DSTV-NC-Dateien, ein IFC-Modell und eine Biegeliste für die Fundamente.
+Manafe3 ist die App für Stahl- und Bewehrungsdetaillierung in der Manafe3-Familie. Sie bauen ein 3D-Modell eines Stahlrahmens auf Rastern und Ebenen, verbinden es und erhalten, was die Werkstatt braucht: Positions- und Baugruppennummern, eine Stückliste, Werkstattzeichnungen einzelner Bauteile, DSTV-NC-Dateien, ein IFC-Modell und eine Biegeliste für die Fundamente.
 
 Dies ist ein früher Build. Er erledigt eine kurze Liste von Dingen sorgfältig, statt alles auf einmal. Lesen Sie [Was noch nicht umgesetzt ist](topic:not-built-yet), bevor Sie echte Arbeit darauf planen.
 
@@ -19,24 +19,24 @@ Dies ist ein früher Build. Er erledigt eine kurze Liste von Dingen sorgfältig,
 - Positions- und Baugruppennummern, die sich nach jeder Änderung selbst aktualisieren.
 - Exporte: IFC4, DSTV-NC-Dateien (I-Profile und Bleche), Stückliste als CSV, Biegeliste als CSV und eine Werkstattzeichnung eines Bauteils als PDF.
 
-## DetailCraft öffnen
+## Manafe3 öffnen
 
-1. Öffnen Sie DetailCraft in einem Desktop-Browser: Chrome, Edge, Firefox oder Safari. Siehe [Browser und Computer](common:browsers).
+1. Öffnen Sie Manafe3 in einem Desktop-Browser: Chrome, Edge, Firefox oder Safari. Siehe [Browser und Computer](common:browsers).
 2. Warten Sie, bis sich der Bildschirm füllt. Die Statusleiste unten meldet „Ready. Open the Sample, or set grids and levels and start placing members.“
 
 Die Modellansicht braucht 3D-Grafik (WebGL). Steht in der Mitte des Bildschirms „This browser could not start 3D graphics (WebGL)“, siehe [Fehlerbehebung](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Ihre Modelle bleiben auf Ihrem Computer. Das Öffnen eines Modells liest es im Browser, und das Speichern lädt eine Datei herunter. Nichts wird hochgeladen. Speichern in der Cloud gibt es noch nicht. Siehe [Wohin Ihre Dateien gehen](common:your-files). Um DetailCraft später ohne Verbindung zu nutzen, wählen Sie einmal online in der Anwendungsleiste {{ui:Für Offline speichern}}; siehe [Offline arbeiten](common:offline).
+Ihre Modelle bleiben auf Ihrem Computer. Das Öffnen eines Modells liest es im Browser, und das Speichern lädt eine Datei herunter. Nichts wird hochgeladen. Speichern in der Cloud gibt es noch nicht. Siehe [Wohin Ihre Dateien gehen](common:your-files). Um Manafe3 später ohne Verbindung zu nutzen, wählen Sie einmal online in der Anwendungsleiste {{ui:Für Offline speichern}}; siehe [Offline arbeiten](common:offline).
 :::
 
 :::offline
-Sie sind offline. DetailCraft funktioniert ohne Verbindung nur, wenn es vorher für die Offline-Nutzung gespeichert wurde: Die Schaltfläche {{ui:Für Offline speichern}} in der Anwendungsleiste zeigt dann {{ui:Offline bereit}}. Siehe [Offline arbeiten](common:offline).
+Sie sind offline. Manafe3 funktioniert ohne Verbindung nur, wenn es vorher für die Offline-Nutzung gespeichert wurde: Die Schaltfläche {{ui:Für Offline speichern}} in der Anwendungsleiste zeigt dann {{ui:Offline bereit}}. Siehe [Offline arbeiten](common:offline).
 :::
 
 ## Zuerst das Beispiel ansehen
 
-Am schnellsten sehen Sie am Beispielrahmen, was DetailCraft erzeugt.
+Am schnellsten sehen Sie am Beispielrahmen, was Manafe3 erzeugt.
 
 1. Wählen Sie in der Gruppe {{ui:Datei}} der Symbolleiste {{ui:Beispiel}}.
 2. Die Ansicht zeigt einen Rahmen mit zwei Feldern: sechs Stützen mit Fußplatten, vier Träger mit Kopfplatten, eine Aussteifung und sieben Fundamente mit Bewehrung.
@@ -49,7 +49,7 @@ Die Schritt-für-Schritt-Anleitung [Den Beispielrahmen erkunden](topic:sample-mo
 
 Ein neues Modell hat bereits die Raster 1 bis 3 mal A bis B mit 6000 mm und zwei Ebenen, Ebene 1 bei 0 und Ebene 2 bei 4000.
 
-1. Wählen Sie {{ui:Neu}}. Hat das aktuelle Modell Änderungen, fragt DetailCraft, ob es sie vorher speichern soll.
+1. Wählen Sie {{ui:Neu}}. Hat das aktuelle Modell Änderungen, fragt Manafe3, ob es sie vorher speichern soll.
 2. Wählen Sie über der Ansicht {{ui:Grundriss}}. Die Ebenenliste daneben wählt Ebene 1.
 3. Wählen Sie in der Symbolleiste {{ui:Stütze}} oder drücken Sie {{key:C}}.
 4. Klicken Sie auf den Rasterschnittpunkt A/1. Eine Stütze W12x50 erscheint von Ebene 1 bis Ebene 2. Die Statusleiste sagt, wohin sie gekommen ist.

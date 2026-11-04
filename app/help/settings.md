@@ -1,12 +1,12 @@
 ---
-title: DetailCraft settings
+title: Manafe3 settings
 summary: Start new members as US or European shapes, set how far Duplicate moves a copy, choose whether copies bring their connections, and show or hide bolts in the 3D view.
 section: reference
 order: 5
 keywords: settings, preferences, sheet size, paper size, drawings, options, steel, aisc, en, european, us shapes, metric shapes, default profile, grade, s355, a992, duplicate offset, paste offset, copy connections, bolts, anchor rods, hide bolts, reset
 ---
 
-Open {{ui:Settings}} with the gear in the app bar or {{key:Mod+,}}. The first tab, {{ui:DetailCraft}}, holds the settings that belong to this app; {{ui:General}} holds the ones every CadCraft app shares (theme, toolbar, panels). DetailCraft's settings exist only in the app: you change them here, they take effect at once, and this browser remembers them. They are not saved in your model file.
+Open {{ui:Settings}} with the gear in the app bar or {{key:Mod+,}}. The first tab, {{ui:Manafe3}}, holds the settings that belong to this app; {{ui:General}} holds the ones every Manafe3 app shares (theme, toolbar, panels). Manafe3's settings exist only in the app: you change them here, they take effect at once, and this browser remembers them. They are not saved in your model file.
 
 ## New members
 
@@ -19,7 +19,7 @@ Which profiles and grades the placing tools start with:
 | {{ui:Brace}} | HSS6x6x1/4, A500 Gr C | HEA160, S355 |
 | {{ui:Plate}} | A36 | S355 |
 
-US shapes is the start. The European choice uses an HEA160 for braces because DetailCraft's EN catalog has no hollow sections yet ([Profile catalog](topic:profile-catalog)). You can still pick any profile and grade for the next piece in the {{ui:Properties}} panel while a placing tool is on. Members already in the model keep their own profile and grade.
+US shapes is the start. The European choice uses an HEA160 for braces because Manafe3's EN catalog has no hollow sections yet ([Profile catalog](topic:profile-catalog)). You can still pick any profile and grade for the next piece in the {{ui:Properties}} panel while a placing tool is on. Members already in the model keep their own profile and grade.
 
 ## Duplicate and paste
 
@@ -38,7 +38,7 @@ What shows in the corner of the 3D view: **View cube** (the start; top right —
 
 ## Reset
 
-{{ui:Reset DetailCraft settings}} at the bottom of the dialog puts these back to the start (US shapes, offset 6000, 0, 0, connections copied, bolts shown), along with the {{ui:General}} ones.
+{{ui:Reset Manafe3 settings}} at the bottom of the dialog puts these back to the start (US shapes, offset 6000, 0, 0, connections copied, bolts shown), along with the {{ui:General}} ones.
 
 ## Drawings
 
@@ -47,7 +47,7 @@ What shows in the corner of the 3D view: **View cube** (the start; top right —
 ## Rebar
 
 - **ASTM bar names**: #3 to #11, or the soft-metric #10 to #36 for the same bars.
-- **Bending schedule shape codes**: DetailCraft's S, L, U; ACI 315 types; or BS 8666 shape codes. See [Rebar reference](topic:rebar-reference).
+- **Bending schedule shape codes**: Manafe3's S, L, U; ACI 315 types; or BS 8666 shape codes. See [Rebar reference](topic:rebar-reference).
 
 ## Dragging to select
 

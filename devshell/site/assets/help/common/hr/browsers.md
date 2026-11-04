@@ -54,7 +54,7 @@ Ovo smo pročitali iz koda aplikacija 0.7, ne pogodili: svaka je datoteka rašč
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS i iOS 16.4) |
 
-CadCraft Studio na Windowsima nosi vlastiti web-pogon, pa treba Windows 10 ili 11; na Macu koristi sistemski, pa treba macOS 13.3 ili noviji. Postavke › Ažuriranja u Studiju pokazuju na čemu radi vaša kopija.
+Manafe3 Desktop na Windowsima nosi vlastiti web-pogon, pa treba Windows 10 ili 11; na Macu koristi sistemski, pa treba macOS 13.3 ili noviji. Postavke › Ažuriranja u Studiju pokazuju na čemu radi vaša kopija.
 
 Ovo je najstarija verzija koja *se pokreće*, pročitana iz koda. Nije popis starih preglednika u kojima smo pokretali aplikacije, pa starijem koji se pokrene i dalje može nedostajati neka značajka.
 

@@ -1,20 +1,20 @@
 ---
 title: Coming from other detailing software
-summary: How the habits of a full detailing package map to DetailCraft, and the differences that catch experienced detailers out.
+summary: How the habits of a full detailing package map to Manafe3, and the differences that catch experienced detailers out.
 section: switching
 order: 10
 keywords: switching, migrate, familiar, workflow, comparison, differences, numbering, components, catalog, drawings, habits
 ---
 
-If you detail in Tekla Structures, most of DetailCraft will look familiar: grids, levels, profiles from a catalog, parts and assemblies, connections, numbering, NC files, IFC. The scale is very different: Tekla Structures is a full production system, and DetailCraft is a small, early browser app that does a few jobs end to end. This page tells you where your habits carry over and where they do not.
+If you detail in Tekla Structures, most of Manafe3 will look familiar: grids, levels, profiles from a catalog, parts and assemblies, connections, numbering, NC files, IFC. The scale is very different: Tekla Structures is a full production system, and Manafe3 is a small, early browser app that does a few jobs end to end. This page tells you where your habits carry over and where they do not.
 
 :::tip
-If your hands know the ribbon of Tekla Structures, pick the {{ui:Steel ribbon}} menu style in {{ui:Settings}} › {{ui:DetailCraft}} › {{ui:Menus, keys and mouse}}: Modeling, Detailing, Edit, Drawings, Fabrication and View tabs, and the middle button pans. If you come from AutoCAD and like to type commands, {{ui:Drafting classic}} adds a command line (BEAM, COLUMN, ENDPLATE, ZOOM …). See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+If your hands know the ribbon of Tekla Structures, pick the {{ui:Steel ribbon}} menu style in {{ui:Settings}} › {{ui:Manafe3}} › {{ui:Menus, keys and mouse}}: Modeling, Detailing, Edit, Drawings, Fabrication and View tabs, and the middle button pans. If you come from AutoCAD and like to type commands, {{ui:Drafting classic}} adds a command line (BEAM, COLUMN, ENDPLATE, ZOOM …). See [Menus, keys and mouse](topic:menus-keys-and-mouse).
 :::
 
 ## Quick map
 
-| You are used to | In DetailCraft |
+| You are used to | In Manafe3 |
 |---|---|
 | Creating grids with coordinates in a grid dialog | {{ui:Grids}} in the left panel: labels and the spacings between lines, not absolute coordinates. Numbered lines run one way, lettered lines the other |
 | Levels as grid Z coordinates | A separate {{ui:Levels}} list, name and elevation per row, applied with {{ui:Apply levels}} |
@@ -89,4 +89,4 @@ Saving downloads a file. Keyboard shortcuts that the browser keeps for itself ca
 
 ## What to keep doing in your current software
 
-Today DetailCraft suits small frames, checking an idea, teaching, or producing NC files and shop drawings for simple beam and column work. Keep complex connections, general arrangement drawings, erection drawings, multi-user projects and anything listed in [What is not built yet](topic:not-built-yet) in the software you use now.
+Today Manafe3 suits small frames, checking an idea, teaching, or producing NC files and shop drawings for simple beam and column work. Keep complex connections, general arrangement drawings, erection drawings, multi-user projects and anything listed in [What is not built yet](topic:not-built-yet) in the software you use now.

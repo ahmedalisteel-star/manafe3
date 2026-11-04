@@ -41,4 +41,4 @@ Anda sedang offline. Jika app ini sudah disimpan untuk offline, semua yang di ba
 Safari menghapus data situs yang tersimpan dari situs yang tidak Anda kunjungi selama beberapa minggu. Buka app sesekali saat online, atau simpan lagi sebelum bepergian.
 :::
 
-- CadCraft Studio, app desktop dengan kedelapan app dalam satu pemasangan, ada di getcadcraft.com/download.
+- Manafe3 Desktop, app desktop dengan kedelapan app dalam satu pemasangan, ada di getcadcraft.com/download.

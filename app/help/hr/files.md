@@ -1,17 +1,17 @@
 ---
 title: Otvaranje, spremanje i izvoz datoteka
-summary: DetailCraftova datoteka modela, svaki izvoz koji zapisuje, kamo datoteke idu i što se razlikuje po pregledniku i vezi.
+summary: Manafe3ova datoteka modela, svaki izvoz koji zapisuje, kamo datoteke idu i što se razlikuje po pregledniku i vezi.
 keywords: otvori, spremi, izvoz, preuzimanje, datoteka, json, ifc, nc1, dstv, csv, pdf, zip, formati, uvoz
 from: bd715ea3
 ---
 
-DetailCraft ima jednu vlastitu datoteku, model, i pet izvoza. Svako spremanje i svaki izvoz je preuzimanje. Ništa se ne učitava i ništa se ne čuva na poslužitelju.
+Manafe3 ima jednu vlastitu datoteku, model, i pet izvoza. Svako spremanje i svaki izvoz je preuzimanje. Ništa se ne učitava i ništa se ne čuva na poslužitelju.
 
 ## Datoteka modela
 
-DetailCraft model sprema se kao `<naziv>.detailcraft.json`, gdje je `<naziv>` naziv modela na ploči {{ui:Model}}. Sadrži mreže, razine, štapove (s njihovim provrtima i izrezima), spojeve i njihove postavke, temelje i vaše prilagođene profile.
+Manafe3 model sprema se kao `<naziv>.detailcraft.json`, gdje je `<naziv>` naziv modela na ploči {{ui:Model}}. Sadrži mreže, razine, štapove (s njihovim provrtima i izrezima), spojeve i njihove postavke, temelje i vaše prilagođene profile.
 
-Dijelovi, oznake, vijci, zavari i šipke se ne pohranjuju: DetailCraft ih ponovno izračunava iz modela svaki put kad se otvori. Zato je datoteka modela mala.
+Dijelovi, oznake, vijci, zavari i šipke se ne pohranjuju: Manafe3 ih ponovno izračunava iz modela svaki put kad se otvori. Zato je datoteka modela mala.
 
 ### Spremanje
 
@@ -38,21 +38,21 @@ Safari sprema u vašu mapu Preuzimanja. Da promijenite mapu, otvorite **Safari, 
 1. Odaberite {{ui:Otvori}} u skupini {{ui:Datoteka}} ili pritisnite {{key:Mod+O}}.
 2. Odaberite `.detailcraft.json` datoteku.
 
-Ili povucite datoteku iz {{pick:mac=Findera|windows=Explorera|linux=vašeg upravitelja datoteka}} i ispustite je na prikaz. Prikaz kaže „Ispustite DetailCraft model ili IFC datoteku da je otvorite“ dok povlačite.
+Ili povucite datoteku iz {{pick:mac=Findera|windows=Explorera|linux=vašeg upravitelja datoteka}} i ispustite je na prikaz. Prikaz kaže „Ispustite Manafe3 model ili IFC datoteku da je otvorite“ dok povlačite.
 
-Ako otvoreni model ima nespremljenih promjena, DetailCraft prvo pita: {{ui:Odustani}}, {{ui:Odbaci promjene}} ili {{ui:Prvo spremi}}.
+Ako otvoreni model ima nespremljenih promjena, Manafe3 prvo pita: {{ui:Odustani}}, {{ui:Odbaci promjene}} ili {{ui:Prvo spremi}}.
 
-DetailCraft provjerava svako polje datoteke prije nego što je upotrijebi. Sve što ne može upotrijebiti izostavlja se, a statusna traka kaže što, na primjer „2 štapa nisu bila valjana i izostavljena su.“ Model spremljen novijim DetailCraftom odbija se porukom umjesto da se otvori napola ispravno.
+Manafe3 provjerava svako polje datoteke prije nego što je upotrijebi. Sve što ne može upotrijebiti izostavlja se, a statusna traka kaže što, na primjer „2 štapa nisu bila valjana i izostavljena su.“ Model spremljen novijim Manafe3om odbija se porukom umjesto da se otvori napola ispravno.
 
 ### Što otvara
 
-Vlastite datoteke modela (`.json`, do 50 MB) i IFC datoteke (`.ifc`, IFC2X3 ili IFC4, do 200 MB). IFC datoteka, otvorena ili unesena s {{ui:Uvezi IFC}}, postaje novi model njezinih greda, stupova, štapova, ploča, mreža i razina, s provrtima i izrezima urezanima u njih i njezinim vijcima kao slobodnim vijcima; izvješće navodi što je izostavljeno. Vidi [IFC izvoz](topic:ifc-export#import). Još ne otvara DWG, DXF ni model bilo kojeg drugog programa za detaljiranje; pokušaj prikazuje „DetailCraft otvara vlastite modele (.detailcraft.json) i IFC datoteke (.ifc).“
+Vlastite datoteke modela (`.json`, do 50 MB) i IFC datoteke (`.ifc`, IFC2X3 ili IFC4, do 200 MB). IFC datoteka, otvorena ili unesena s {{ui:Uvezi IFC}}, postaje novi model njezinih greda, stupova, štapova, ploča, mreža i razina, s provrtima i izrezima urezanima u njih i njezinim vijcima kao slobodnim vijcima; izvješće navodi što je izostavljeno. Vidi [IFC izvoz](topic:ifc-export#import). Još ne otvara DWG, DXF ni model bilo kojeg drugog programa za detaljiranje; pokušaj prikazuje „Manafe3 otvara vlastite modele (.detailcraft.json) i IFC datoteke (.ifc).“
 
 ## Izgubljeni rad, nedavne datoteke, aplikacija za radnu površinu
 
-- Dok model ima promjena koje niste spremili, DetailCraft čuva kopiju u ovom pregledniku. Ako se kartica ili preglednik zaustave prije nego što spremite, pri sljedećem otvaranju DetailCrafta pita **Oporaviti svoj rad?**: oporavite kopiju ili je pustite. Vidi [Oporavak vašeg rada](common:recover).
-- Modeli koje ste nedavno otvarali navedeni su na početnom zaslonu kada preglednik dopušta DetailCraftu da ih ponovno otvori; kliknite jedan da ga ponovno otvorite.
-- U aplikaciji za radnu površinu {{ui:Spremi}} zapisuje model natrag u datoteku koju ste otvorili (u pregledniku preuzima kopiju), a dvostruki klik na DetailCraft model ili IFC datoteku otvara je u DetailCraftu.
+- Dok model ima promjena koje niste spremili, Manafe3 čuva kopiju u ovom pregledniku. Ako se kartica ili preglednik zaustave prije nego što spremite, pri sljedećem otvaranju Manafe3a pita **Oporaviti svoj rad?**: oporavite kopiju ili je pustite. Vidi [Oporavak vašeg rada](common:recover).
+- Modeli koje ste nedavno otvarali navedeni su na početnom zaslonu kada preglednik dopušta Manafe3u da ih ponovno otvori; kliknite jedan da ga ponovno otvorite.
+- U aplikaciji za radnu površinu {{ui:Spremi}} zapisuje model natrag u datoteku koju ste otvorili (u pregledniku preuzima kopiju), a dvostruki klik na Manafe3 model ili IFC datoteku otvara je u Manafe3u.
 
 ## Izvozi
 
@@ -79,13 +79,13 @@ Tekst u PDF-u koristi standardni font Helvetica. Znakovi koje nema (izvan zapadn
 
 ## Jedinice
 
-DetailCraft radi u milimetrima posvuda: mreže, razine, koordinate, profili, provrti i svaki izvoz. Nazivi profila zadržavaju objavljeni oblik (W12x50 je američka oznaka iako su njegove dimenzije prikazane u mm). Još nema unosa u imperijalnim jedinicama.
+Manafe3 radi u milimetrima posvuda: mreže, razine, koordinate, profili, provrti i svaki izvoz. Nazivi profila zadržavaju objavljeni oblik (W12x50 je američka oznaka iako su njegove dimenzije prikazane u mm). Još nema unosa u imperijalnim jedinicama.
 
 ## Online i offline
 
-Otvaranje, spremanje i izvoz događaju se u vašem pregledniku, pa rade jednako sa vezom i bez nje nakon što se DetailCraft učita.
+Otvaranje, spremanje i izvoz događaju se u vašem pregledniku, pa rade jednako sa vezom i bez nje nakon što se Manafe3 učita.
 
-Da DetailCraft kasnije koristite bez veze, odaberite {{ui:Spremi za offline}} na traci aplikacije dok ste online. Gumb broji naprijed („Spremanje 3 od 20“) i zatim glasi {{ui:Spremno za offline}}. Spremljena kopija uključuje knjižnicu 3D grafike (oko 2,6 MB) i ovu pomoć, pa kad je spremljena, 3D prikaz, svaki izvoz i pomoć rade offline. Pojedinosti i što i dalje treba vezu: [Rad offline](common:offline).
+Da Manafe3 kasnije koristite bez veze, odaberite {{ui:Spremi za offline}} na traci aplikacije dok ste online. Gumb broji naprijed („Spremanje 3 od 20“) i zatim glasi {{ui:Spremno za offline}}. Spremljena kopija uključuje knjižnicu 3D grafike (oko 2,6 MB) i ovu pomoć, pa kad je spremljena, 3D prikaz, svaki izvoz i pomoć rade offline. Pojedinosti i što i dalje treba vezu: [Rad offline](common:offline).
 
 :::offline
 Offline ste. Ako traka aplikacije prikazuje {{ui:Spremno za offline}}, otvaranje, spremanje i izvoz rade kao i inače. Ako ne, ostavite ovu karticu otvorenom, ne osvježavajte je dok se ne vratite online i odmah spremite svoj model.
@@ -95,4 +95,4 @@ Spremanje u oblaku još nije dostupno, a verzije za radnu površinu još ne post
 
 ## Nespremljen rad
 
-DetailCraft čuva model samo u otvorenoj kartici. Ako zatvorite ili osvježite karticu s nespremljenim promjenama, preglednik pita želite li napustiti stranicu; njegov tekst je tekst samog preglednika. Često spremajte s {{key:Mod+S}}.
+Manafe3 čuva model samo u otvorenoj kartici. Ako zatvorite ili osvježite karticu s nespremljenim promjenama, preglednik pita želite li napustiti stranicu; njegov tekst je tekst samog preglednika. Često spremajte s {{key:Mod+S}}.

@@ -41,4 +41,4 @@ U bent nu offline. Als deze app is opgeslagen voor offline gebruik, werkt alles 
 Safari verwijdert opgeslagen sitegegevens van sites die u enkele weken niet hebt bezocht. Open de app af en toe terwijl u online bent, of sla hem opnieuw op voor een reis.
 :::
 
-- CadCraft Studio, de desktop-app met alle acht apps in één installatie, staat op getcadcraft.com/download.
+- Manafe3 Desktop, de desktop-app met alle acht apps in één installatie, staat op getcadcraft.com/download.

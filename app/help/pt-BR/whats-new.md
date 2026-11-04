@@ -5,7 +5,7 @@ keywords: novidades, notas de versão, registro de alterações, alterações, 0
 from: 17d1e0bb
 ---
 
-Isto é o que mudou no DetailCraft 0.7, em comparação com a 0.6. A análise de pórtico da 0.6 agora tem um segundo passo: verificar as barras de aço segundo uma norma de projeto.
+Isto é o que mudou no Manafe3 0.7, em comparação com a 0.6. A análise de pórtico da 0.6 agora tem um segundo passo: verificar as barras de aço segundo uma norma de projeto.
 
 ## Novo
 
@@ -15,7 +15,7 @@ Isto é o que mudou no DetailCraft 0.7, em comparação com a 0.6. A análise de
 
 ### Verificações de dimensionamento
 
-- **Combinações de carga pela norma.** Na guia {{ui:Análise}}, o novo bloco {{ui:Verificações de dimensionamento}} tem uma {{ui:Norma de projeto}}: ASCE 7 + AISC 360 (EUA, LRFD) ou EN 1990 + EN 1993-1-1 (Eurocode). Dê a cada caso de carga o seu tipo (permanente, variável, a nova sobrecarga de telhado, neve, vento, sísmico), pressione {{ui:Criar combinações}}, e o DetailCraft escreve as combinações de resistência e de serviço da norma para os seus casos. As combinações que você digitou continuam. Veja [Crie as combinações](topic:design-checks#make-the-combinations).
+- **Combinações de carga pela norma.** Na guia {{ui:Análise}}, o novo bloco {{ui:Verificações de dimensionamento}} tem uma {{ui:Norma de projeto}}: ASCE 7 + AISC 360 (EUA, LRFD) ou EN 1990 + EN 1993-1-1 (Eurocode). Dê a cada caso de carga o seu tipo (permanente, variável, a nova sobrecarga de telhado, neve, vento, sísmico), pressione {{ui:Criar combinações}}, e o Manafe3 escreve as combinações de resistência e de serviço da norma para os seus casos. As combinações que você digitou continuam. Veja [Crie as combinações](topic:design-checks#make-the-combinations).
 - **Valores do Anexo Nacional.** No Eurocode, os fatores começam nos valores recomendados; {{ui:Valores do Anexo Nacional}} permite digitar os do seu país, e eles são salvos no modelo. Veja [Crie as combinações](topic:design-checks#make-the-combinations).
 - **Verificar barras.** {{ui:Verificar barras}} verifica cada perfil I de aço quanto a tração, compressão com flambagem, flexão com flambagem lateral com torção, cisalhamento, flexão com força axial e flecha contra o {{ui:Limite de flecha}} que você definir. A tabela mostra a taxa de utilização de cada barra, a verificação que governa e a sua combinação, e as barras são coloridas no modelo (azul, verde, ocre, vermelho, cinza para não verificada). Veja [Verifique as barras](topic:design-checks#check-the-members).
 - **No relatório.** {{ui:Relatório (PDF)}} e {{ui:Relatório (CSV)}} acrescentam as edições das normas, os ajustes, a taxa de utilização por barra e cada item de norma usado. Veja [O relatório](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Isto é o que mudou no DetailCraft 0.7, em comparação com a 0.6. A análise de
 
 ### Assistentes de IA
 
-- **USD para assistentes.** Seu próprio assistente, conectado pelo CadCraft Studio, pode exportar o modelo como USD (`usd_export`) e, no Studio, gravá-lo em uma pasta que você autorizou. Veja [O que um assistente pode pedir](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD para assistentes.** Seu próprio assistente, conectado pelo Manafe3 Desktop, pode exportar o modelo como USD (`usd_export`) e, no Studio, gravá-lo em uma pasta que você autorizou. Veja [O que um assistente pode pedir](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Alterado
 
@@ -36,16 +36,16 @@ Isto é o que mudou no DetailCraft 0.7, em comparação com a 0.6. A análise de
 
 ## Em todos os aplicativos
 
-- **Unidades.** {{ui:Configurações}} › {{ui:Geral}} › {{ui:Unidades}} tem uma lista cada para comprimento, área, volume, ângulo e declividade, com os tamanhos exatos que as definições das unidades dão (o pé de levantamento dos EUA é uma unidade à parte). Desligue as unidades que você nunca usa e elas saem das listas; marque uma com estrela e o trabalho novo começa nela. Um arquivo sempre mantém a sua própria unidade. As caixas do próprio DetailCraft ainda não seguem as listas: os comprimentos ainda são digitados em milímetros. Veja [Unidades, valores digitados e as listas de unidades](common:unit-lists).
+- **Unidades.** {{ui:Configurações}} › {{ui:Geral}} › {{ui:Unidades}} tem uma lista cada para comprimento, área, volume, ângulo e declividade, com os tamanhos exatos que as definições das unidades dão (o pé de levantamento dos EUA é uma unidade à parte). Desligue as unidades que você nunca usa e elas saem das listas; marque uma com estrela e o trabalho novo começa nela. Um arquivo sempre mantém a sua própria unidade. As caixas do próprio Manafe3 ainda não seguem as listas: os comprimentos ainda são digitados em milímetros. Veja [Unidades, valores digitados e as listas de unidades](common:unit-lists).
 - **Um layout mais denso e painéis que se recolhem.** {{ui:Configurações}} › {{ui:Geral}} › {{ui:Densidade do layout}} › {{ui:Compacto}} coloca mais coisas na tela (telas de toque e celulares mantêm os botões grandes). Cada painel lateral tem uma barra de título fina: arraste-a para acoplar ou flutuar o painel, solte-a na barra de outro painel para dividir um quadro como guias, fixe-a para deslizar até a borda ou oculte-a e traga-a de volta pela borda. Veja [Organize os painéis](common:arrange-panels#make-the-layout-denser).
 - **As caixas de diálogo se movem.** Arraste uma caixa de diálogo pela barra de título para tirá-la da frente do desenho; ela volta onde você a deixou. Dê um clique duplo na barra de título para centralizá-la de novo. Veja [Mova uma caixa de diálogo](common:arrange-panels#move-a-dialog).
 - **Receitas para assistentes de IA.** Dez pedidos completos para o seu próprio assistente (arrumar um desenho, plotar um conjunto, verificar desenhos, fazer perguntas a um modelo, totalizar um levantamento de quantitativos, testar uma variante de peça…), cada um com as ferramentas que chama e as permissões de que precisa, e cada um reproduzido pelos nossos testes. Os aplicativos não contêm IA. Veja [Receitas para assistentes de IA](common:assistants-recipes).
 - **Idiomas.** **Português (Portugal)** é novo em {{ui:Configurações}} › {{ui:Geral}} › {{ui:Idioma}}. Ele, **Português (Brasil)**, **Español (México)** e **Bahasa Indonesia** agora têm todas as palavras dos aplicativos, como rascunhos ainda não revisados por um falante nativo. Os tópicos da ajuda estão em inglês.
-- **O CadCraft Studio** diz por que uma busca de atualização falhou (ainda não há arquivo para o seu sistema, sem rede, assinatura inválida) em vez de apenas "Concluído", e deixa de trazer de volta um cartão Novidades que você fechou até haver uma versão mais nova.
+- **O Manafe3 Desktop** diz por que uma busca de atualização falhou (ainda não há arquivo para o seu sistema, sem rede, assinatura inválida) em vez de apenas "Concluído", e deixa de trazer de volta um cartão Novidades que você fechou até haver uma versão mais nova.
 
 ## Ainda não nesta versão
 
-- **A 0.7 não tem assinatura de código.** A assinatura e o pacote da Microsoft Store passaram para a 0.8 porque a validação do certificado ainda não saiu. Confira o SHA-256 ao lado de cada arquivo em getcadcraft.com/download. No Windows, se o SmartScreen barrar o instalador, escolha {{ui:Mais informações}} e depois {{ui:Executar assim mesmo}}. No Mac, na primeira vez, clique com o botão direito em CadCraft Studio e escolha {{ui:Abrir}}. O CadCraft Studio ainda não está em uma loja de aplicativos, e ainda não há versão para iPad ou iPhone.
+- **A 0.7 não tem assinatura de código.** A assinatura e o pacote da Microsoft Store passaram para a 0.8 porque a validação do certificado ainda não saiu. Confira o SHA-256 ao lado de cada arquivo em getcadcraft.com/download. No Windows, se o SmartScreen barrar o instalador, escolha {{ui:Mais informações}} e depois {{ui:Executar assim mesmo}}. No Mac, na primeira vez, clique com o botão direito em Manafe3 Desktop e escolha {{ui:Abrir}}. O Manafe3 Desktop ainda não está em uma loja de aplicativos, e ainda não há versão para iPad ou iPhone.
 - As listas de ângulo e declividade em {{ui:Unidades}} são salvas, mas nenhuma caixa as lê ainda.
 - **As verificações de dimensionamento ainda não foram revisadas por um engenheiro.** Nossos testes as comparam com valores de tabelas impressas e fórmulas resolvidas à mão, ainda não com os exemplos resolvidos de um guia de projeto. Até uma revisão, são uma ajuda: confira à mão as barras que importam.
 - As verificações de dimensionamento usam esforços de primeira ordem (sem efeitos de segunda ordem) e verificam apenas perfis I. Não implementado: tubos, cantoneiras, perfis U, perfis soldados, peças esbeltas (AISC) ou de classe 4 (Eurocode) em flexão, torção, flambagem por cisalhamento junto com flexão, ligações, fadiga, incêndio, detalhamento sísmico e concreto. Uma peça esbelta em compressão fica de fora das verificações de compressão, e a barra aparece como "passa, verificada em parte".

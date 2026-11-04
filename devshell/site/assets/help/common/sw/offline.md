@@ -41,4 +41,4 @@ Sasa hivi uko nje ya mtandao. Ikiwa programu hii ilihifadhiwa kwa matumizi nje y
 Safari huondoa data ya tovuti iliyohifadhiwa kwa tovuti ambazo hujazitembelea kwa wiki kadhaa. Fungua programu mara kwa mara ukiwa mtandaoni, au ihifadhi tena kabla ya safari.
 :::
 
-- CadCraft Studio, programu ya eneo-kazi yenye programu zote nane kwenye usakinishaji mmoja, inapatikana kwenye getcadcraft.com/download.
+- Manafe3 Desktop, programu ya eneo-kazi yenye programu zote nane kwenye usakinishaji mmoja, inapatikana kwenye getcadcraft.com/download.

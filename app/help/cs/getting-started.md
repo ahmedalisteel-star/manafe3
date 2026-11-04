@@ -1,11 +1,11 @@
 ---
-title: Začínáme s DetailCraftem
-summary: Co DetailCraft dnes umí, jak jej otevřít a první model od os po dílenský výkres za deset minut.
+title: Začínáme s Manafe3em
+summary: Co Manafe3 dnes umí, jak jej otevřít a první model od os po dílenský výkres za deset minut.
 keywords: start, první model, úvod, detailování oceli, výztuž, rychlý start, návod, přehled
 from: 3682c0d8
 ---
 
-DetailCraft je aplikace rodiny CadCraft pro detailování oceli a výztuže. Postavíte 3D model ocelového rámu na osách a úrovních, spojíte jej a získáte, co potřebuje dílna: označení dílů a sestav, kusovník, dílenské výkresy jednotlivých dílů, soubory DSTV NC, model IFC a výkaz ohybů pro patky.
+Manafe3 je aplikace rodiny Manafe3 pro detailování oceli a výztuže. Postavíte 3D model ocelového rámu na osách a úrovních, spojíte jej a získáte, co potřebuje dílna: označení dílů a sestav, kusovník, dílenské výkresy jednotlivých dílů, soubory DSTV NC, model IFC a výkaz ohybů pro patky.
 
 Toto je raná verze. Dělá pečlivě krátký seznam věcí místo všeho najednou. Než kolem ní naplánujete skutečnou práci, přečtěte si [Co ještě není hotovo](topic:not-built-yet).
 
@@ -19,24 +19,24 @@ Toto je raná verze. Dělá pečlivě krátký seznam věcí místo všeho najed
 - Označení dílů a sestav, která se po každé změně aktualizují sama.
 - Exporty: IFC4, soubory DSTV NC (I-profily a plechy), kusovník jako CSV, výkaz ohybů jako CSV a dílenský výkres jednoho dílu jako PDF.
 
-## Otevření DetailCraftu
+## Otevření Manafe3u
 
-1. Otevřete DetailCraft v prohlížeči pro počítač: Chrome, Edge, Firefox nebo Safari. Viz [Prohlížeče a počítače](common:browsers).
+1. Otevřete Manafe3 v prohlížeči pro počítač: Chrome, Edge, Firefox nebo Safari. Viz [Prohlížeče a počítače](common:browsers).
 2. Počkejte, až se obrazovka naplní. Stavový řádek dole říká „Připraveno. Otevřete Ukázku, nebo nastavte osy a úrovně a začněte umisťovat pruty.“
 
 Pohled na model vyžaduje 3D grafiku (WebGL). Pokud střed obrazovky říká „Tento prohlížeč nemohl spustit 3D grafiku (WebGL)“, viz [Řešení potíží](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Vaše modely zůstávají na Vašem počítači. Otevření modelu jej čte v prohlížeči a uložení stahuje soubor. Nic se nenahrává. Ukládání do cloudu zatím není k dispozici. Viz [Kam Vaše soubory putují](common:your-files). Chcete-li DetailCraft později používat bez připojení, zvolte jednou při připojení {{ui:Uložit pro offline}} v liště aplikace; viz [Práce offline](common:offline).
+Vaše modely zůstávají na Vašem počítači. Otevření modelu jej čte v prohlížeči a uložení stahuje soubor. Nic se nenahrává. Ukládání do cloudu zatím není k dispozici. Viz [Kam Vaše soubory putují](common:your-files). Chcete-li Manafe3 později používat bez připojení, zvolte jednou při připojení {{ui:Uložit pro offline}} v liště aplikace; viz [Práce offline](common:offline).
 :::
 
 :::offline
-Jste offline. DetailCraft funguje bez připojení, jen pokud byl předtím uložen pro použití offline: tlačítko {{ui:Uložit pro offline}} v liště aplikace pak zobrazuje {{ui:Připraveno offline}}. Viz [Práce offline](common:offline).
+Jste offline. Manafe3 funguje bez připojení, jen pokud byl předtím uložen pro použití offline: tlačítko {{ui:Uložit pro offline}} v liště aplikace pak zobrazuje {{ui:Připraveno offline}}. Viz [Práce offline](common:offline).
 :::
 
 ## Nejdřív se podívejte na ukázku
 
-Nejrychlejší způsob, jak zjistit, co DetailCraft vytváří, je ukázkový rám.
+Nejrychlejší způsob, jak zjistit, co Manafe3 vytváří, je ukázkový rám.
 
 1. Zvolte {{ui:Ukázka}} ve skupině {{ui:Soubor}} panelu nástrojů.
 2. Pohled zobrazí dvoupolový rám: šest sloupů s patními plechy, čtyři nosníky s čelními deskami, jedno ztužidlo a sedm patek s výztuží.
@@ -49,7 +49,7 @@ Postup [Prozkoumání ukázkového rámu](topic:sample-model) projde ukázku kus
 
 Nový model již má osy 1 až 3 krát A až B po 6000 mm a dvě úrovně, Level 1 na 0 a Level 2 na 4000.
 
-1. Zvolte {{ui:Nový}}. Má-li stávající model změny, DetailCraft se zeptá, zda je nejdřív uložit.
+1. Zvolte {{ui:Nový}}. Má-li stávající model změny, Manafe3 se zeptá, zda je nejdřív uložit.
 2. Zvolte {{ui:Půdorys}} nad pohledem. Seznam úrovní vedle něj vybere Level 1.
 3. Zvolte {{ui:Sloup}} na panelu nástrojů, nebo stiskněte {{key:C}}.
 4. Klikněte na průsečík os A/1. Sloup W12x50 se objeví od Level 1 do Level 2. Stavový řádek říká, kam šel.

@@ -5,7 +5,7 @@ keywords: kipya, nini kipya, maelezo ya toleo, mabadiliko, mabadiliko ya toleo, 
 from: 17d1e0bb
 ---
 
-Haya ndiyo yaliyobadilika katika DetailCraft 0.7, ikilinganishwa na 0.6. Uchanganuzi wa fremu wa 0.6 sasa una hatua ya pili: kukagua vipengele vya chuma kulingana na kanuni ya muundo.
+Haya ndiyo yaliyobadilika katika Manafe3 0.7, ikilinganishwa na 0.6. Uchanganuzi wa fremu wa 0.6 sasa una hatua ya pili: kukagua vipengele vya chuma kulingana na kanuni ya muundo.
 
 ## Mpya
 
@@ -15,7 +15,7 @@ Haya ndiyo yaliyobadilika katika DetailCraft 0.7, ikilinganishwa na 0.6. Uchanga
 
 ### Ukaguzi wa muundo
 
-- **Michanganyiko ya mizigo kutoka kwenye kanuni.** Kwenye kichupo cha {{ui:Uchanganuzi}}, kizuizi kipya cha {{ui:Ukaguzi wa muundo}} kina {{ui:Kanuni ya muundo}}: ASCE 7 + AISC 360 (Marekani, LRFD) au EN 1990 + EN 1993-1-1 (Eurocode). Mpe kila kesi ya mzigo aina yake (tuli, hai, mzigo hai wa paa mpya, theluji, upepo, tetemeko), bonyeza {{ui:Tengeneza michanganyiko}}, na DetailCraft inaandika michanganyiko ya nguvu na ya huduma ya kanuni kwa kesi zako. Michanganyiko uliyoandika mwenyewe inabaki. Tazama [Tengeneza michanganyiko](topic:design-checks#make-the-combinations).
+- **Michanganyiko ya mizigo kutoka kwenye kanuni.** Kwenye kichupo cha {{ui:Uchanganuzi}}, kizuizi kipya cha {{ui:Ukaguzi wa muundo}} kina {{ui:Kanuni ya muundo}}: ASCE 7 + AISC 360 (Marekani, LRFD) au EN 1990 + EN 1993-1-1 (Eurocode). Mpe kila kesi ya mzigo aina yake (tuli, hai, mzigo hai wa paa mpya, theluji, upepo, tetemeko), bonyeza {{ui:Tengeneza michanganyiko}}, na Manafe3 inaandika michanganyiko ya nguvu na ya huduma ya kanuni kwa kesi zako. Michanganyiko uliyoandika mwenyewe inabaki. Tazama [Tengeneza michanganyiko](topic:design-checks#make-the-combinations).
 - **Thamani za Kiambatisho cha Kitaifa.** Kwa Eurocode vipengele huanza kwenye thamani zilizopendekezwa; {{ui:Thamani za Kiambatisho cha Kitaifa}} inakuruhusu kuandika za nchi yako, na zinahifadhiwa kwenye modeli. Tazama [Tengeneza michanganyiko](topic:design-checks#make-the-combinations).
 - **Kagua vipengele.** {{ui:Kagua vipengele}} inakagua kila umbo-I la chuma kwa mvutano, mgandamizo pamoja na kujikunja, kupinda pamoja na kujikunja kwa kando na msokoto, kukata, kupinda pamoja na nguvu ya mhimili, na mkengeuko dhidi ya {{ui:Kikomo cha mkengeuko}} unachoweka. Jedwali linaonyesha matumizi ya kila kipengele, ukaguzi unaotawala na mchanganyiko wake, na vipengele vinapakwa rangi kwenye modeli (bluu, kijani, ocha, nyekundu, kijivu kwa ambavyo havijakaguliwa). Tazama [Kagua vipengele](topic:design-checks#check-the-members).
 - **Katika ripoti.** {{ui:Ripoti (PDF)}} na {{ui:Ripoti (CSV)}} zinaongeza matoleo ya kanuni, mipangilio, matumizi kwa kila kipengele na kila kifungu kilichotumika. Tazama [Ripoti](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Haya ndiyo yaliyobadilika katika DetailCraft 0.7, ikilinganishwa na 0.6. Uchanga
 
 ### Visaidizi vya AI
 
-- **USD kwa visaidizi.** Msaidizi wako mwenyewe, aliyeunganishwa kupitia CadCraft Studio, anaweza kuhamisha modeli kama USD (`usd_export`), na kwenye Studio kuiandika kwenye folda uliyoruhusu. Tazama [Msaidizi anaweza kuomba nini](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD kwa visaidizi.** Msaidizi wako mwenyewe, aliyeunganishwa kupitia Manafe3 Desktop, anaweza kuhamisha modeli kama USD (`usd_export`), na kwenye Studio kuiandika kwenye folda uliyoruhusu. Tazama [Msaidizi anaweza kuomba nini](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Imebadilika
 
@@ -36,16 +36,16 @@ Haya ndiyo yaliyobadilika katika DetailCraft 0.7, ikilinganishwa na 0.6. Uchanga
 
 ## Katika kila programu
 
-- **Vipimo.** {{ui:Mipangilio}} › {{ui:Kwa ujumla}} › {{ui:Vipimo}} ina orodha moja kila moja kwa urefu, eneo, ujazo, pembe na mteremko, pamoja na ukubwa kamili ambao ufafanuzi wa vipimo hutoa (futi ya utafiti ya Marekani ni kipimo chake yenyewe). Zima vipimo usivyotumia kamwe nazo zinaondoka kwenye orodha za vipimo; weka nyota kwa moja na kazi mpya inaanza nacho. Faili daima inabakiza kipimo chake. Visanduku vya DetailCraft havifuati orodha bado: urefu wake bado unaandikwa kwa milimita. Tazama [Vipimo, thamani zilizoandikwa na orodha za vipimo](common:unit-lists).
+- **Vipimo.** {{ui:Mipangilio}} › {{ui:Kwa ujumla}} › {{ui:Vipimo}} ina orodha moja kila moja kwa urefu, eneo, ujazo, pembe na mteremko, pamoja na ukubwa kamili ambao ufafanuzi wa vipimo hutoa (futi ya utafiti ya Marekani ni kipimo chake yenyewe). Zima vipimo usivyotumia kamwe nazo zinaondoka kwenye orodha za vipimo; weka nyota kwa moja na kazi mpya inaanza nacho. Faili daima inabakiza kipimo chake. Visanduku vya Manafe3 havifuati orodha bado: urefu wake bado unaandikwa kwa milimita. Tazama [Vipimo, thamani zilizoandikwa na orodha za vipimo](common:unit-lists).
 - **Mpangilio mnene zaidi na vidirisha vinavyojikunja.** {{ui:Mipangilio}} › {{ui:Kwa ujumla}} › {{ui:Msongamano wa mpangilio}} › {{ui:Kubana}} inatoshea zaidi kwenye skrini (skrini za kugusa na simu zinabaki na vitufe vyake vikubwa). Kila kidirisha cha pembeni kina upau mwembamba wa kichwa: buruta ili kukiweka au kukielea, dondosha kwenye upau wa kidirisha kingine ili kushiriki fremu moja kama vichupo, bandika ili kiteleze hadi ukingoni, au kifiche na kukirudisha kutoka ukingoni. Tazama [Panga vidirisha](common:arrange-panels#make-the-layout-denser).
 - **Mazungumzo yanahamishika.** Buruta mazungumzo kwa upau wake wa kichwa uyatoe kwenye njia ya mchoro; yanarudi pale ulipoyaacha. Bofya mara mbili upau wa kichwa ili kuyaweka katikati tena. Tazama [Hamisha mazungumzo](common:arrange-panels#move-a-dialog).
 - **Mapishi kwa visaidizi vya AI.** Maombi kumi yaliyofanyiwa kazi kwa msaidizi wako mwenyewe (panga mchoro, chapisha seti, kagua michoro, uliza maswali kuhusu modeli, jumlisha ukadiriaji wa kiasi, jaribu lahaja la sehemu…), kila moja na zana inazoita na ruhusa inazohitaji, na kila moja inarudiwa na majaribio yetu. Programu hazina AI ndani yake. Tazama [Mapishi kwa visaidizi vya AI](common:assistants-recipes).
 - **Lugha.** **Português (Portugal)** ni mpya katika {{ui:Mipangilio}} › {{ui:Kwa ujumla}} › {{ui:Lugha}}. Yenyewe, **Português (Brasil)**, **Español (México)** na **Bahasa Indonesia** sasa zina kila neno la programu, kama rasimu ambazo bado hazijakaguliwa na mzungumzaji asilia. Mada za msaada ziko kwa Kiingereza.
-- **CadCraft Studio** inasema kwa nini ukaguzi wa sasisho ulishindwa (hakuna faili ya mfumo wako bado, hakuna mtandao, sahihi mbaya) badala ya "Imekamilika" tu, na inaacha kurudisha kadi ya Kipya ulioifunga hadi kuwe na toleo jipya zaidi.
+- **Manafe3 Desktop** inasema kwa nini ukaguzi wa sasisho ulishindwa (hakuna faili ya mfumo wako bado, hakuna mtandao, sahihi mbaya) badala ya "Imekamilika" tu, na inaacha kurudisha kadi ya Kipya ulioifunga hadi kuwe na toleo jipya zaidi.
 
 ## Bado si katika toleo hili
 
-- **0.7 haijasainiwa kidijitali.** Usainishaji, pamoja na kifurushi cha Microsoft Store, vilihamia 0.8 kwa sababu uthibitishaji wa cheti bado haujafika. Angalia SHA-256 karibu na kila faili kwenye getcadcraft.com/download. Kwenye Windows, ikiwa SmartScreen itasimamisha kisakinishi, chagua {{ui:Maelezo zaidi}}, kisha {{ui:Endesha hata hivyo}}. Kwenye Mac, mara ya kwanza, bofya kulia CadCraft Studio na uchague {{ui:Fungua}}. CadCraft Studio bado haipo kwenye duka lolote la programu, na bado hakuna toleo la iPad wala iPhone.
+- **0.7 haijasainiwa kidijitali.** Usainishaji, pamoja na kifurushi cha Microsoft Store, vilihamia 0.8 kwa sababu uthibitishaji wa cheti bado haujafika. Angalia SHA-256 karibu na kila faili kwenye getcadcraft.com/download. Kwenye Windows, ikiwa SmartScreen itasimamisha kisakinishi, chagua {{ui:Maelezo zaidi}}, kisha {{ui:Endesha hata hivyo}}. Kwenye Mac, mara ya kwanza, bofya kulia Manafe3 Desktop na uchague {{ui:Fungua}}. Manafe3 Desktop bado haipo kwenye duka lolote la programu, na bado hakuna toleo la iPad wala iPhone.
 - Orodha za pembe na mteremko katika {{ui:Vipimo}} zinahifadhiwa, lakini hakuna kisanduku kinazisoma bado.
 - **Ukaguzi wa muundo bado haujakaguliwa na mhandisi.** Majaribio yetu yanayalinganisha na thamani za jedwali zilizochapishwa na fomula zilizofanyiwa kazi kwa mkono, si bado na mifano iliyofanyiwa kazi ya mwongozo wa muundo. Hadi ukaguzi, ni msaada tu: kagua vipengele vyenye umuhimu kwa mkono.
 - Ukaguzi wa muundo unatumia nguvu za mpangilio wa kwanza (bila athari za mpangilio wa pili) na unakagua maumbo-I pekee. Havijajengwa: mirija, pembe, chaneli, maumbo yaliyochomelewa, sehemu nyembamba (AISC) au za daraja la 4 (Eurocode) katika kupinda, msokoto, kujikunja kwa kukata pamoja na kupinda, miunganiko, uchovu, moto, usanifu wa tetemeko na zege. Sehemu nyembamba iliyo chini ya mgandamizo huacha ukaguzi wa mgandamizo nje, na kipengele kinasoma "imepita, imekaguliwa kwa sehemu".

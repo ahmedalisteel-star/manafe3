@@ -11,7 +11,7 @@ In the {{ui:Output}} group, open {{ui:More}} and choose {{ui:Weight report by ph
 - **Summary by phase**: for each phase, the number of parts, the steel weight, the paint area, the bolts and anchor rods, and the rebar; then the totals.
 - **One table per phase**: each part mark in it with its type, profile, material, cut length, count, weight each, weight, and paint area; then its bolts and anchor rods.
 
-{{ui:Download CSV}} saves the same tables in one CSV file (`<name> weight report.csv`). {{ui:Download PDF}} makes a report on the sheet size from [DetailCraft settings](topic:settings#drawings), with the summary first, each phase after, long tables carried over to the next page, and every page numbered.
+{{ui:Download CSV}} saves the same tables in one CSV file (`<name> weight report.csv`). {{ui:Download PDF}} makes a report on the sheet size from [Manafe3 settings](topic:settings#drawings), with the summary first, each phase after, long tables carried over to the next page, and every page numbered.
 
 ## How the figures are worked out
 

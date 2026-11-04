@@ -42,7 +42,7 @@ Panel kiri dan kanan mempertahankan semua yang dijelaskan di [Atur panel](common
 
 ## Kembali ke tata letak klasik
 
-Buka {{ui:Pengaturan}} › {{ui:Global}} › {{ui:Tata letak}} › {{ui:Ruang kerja}} dan pilih {{ui:CadCraft klasik}}. Setiap bilah alat, tab, dan panel kembali ke tempatnya semula.
+Buka {{ui:Pengaturan}} › {{ui:Global}} › {{ui:Tata letak}} › {{ui:Ruang kerja}} dan pilih {{ui:Manafe3 klasik}}. Setiap bilah alat, tab, dan panel kembali ke tempatnya semula.
 
 :::note
 Di ponsel, atau di jendela selebar 760 piksel atau kurang, app memakai tata letak ponselnya apa pun yang Anda pilih. Jendela yang lebih lebar mengembalikan tata letak Anda.

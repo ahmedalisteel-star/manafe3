@@ -41,4 +41,4 @@ Jesteś teraz offline. Jeśli ta aplikacja została zapisana do pracy offline, w
 Safari usuwa zapisane dane witryn, które nie były odwiedzane od kilku tygodni. Od czasu do czasu otwórz aplikację online albo zapisz ją ponownie przed podróżą.
 :::
 
-- CadCraft Studio, aplikacja na komputer ze wszystkimi ośmioma aplikacjami w jednej instalacji, jest na getcadcraft.com/download.
+- Manafe3 Desktop, aplikacja na komputer ze wszystkimi ośmioma aplikacjami w jednej instalacji, jest na getcadcraft.com/download.

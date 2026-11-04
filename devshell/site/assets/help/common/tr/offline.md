@@ -41,4 +41,4 @@ Bunu her uygulama için, kullandığınız her tarayıcıda bir kez yapın. Sonr
 Safari, birkaç haftadır ziyaret etmediğiniz sitelerin kaydedilmiş site verilerini siler. Uygulamayı arada bir çevrimiçiyken açın ya da bir geziden önce yeniden kaydedin.
 :::
 
-- Sekiz uygulamanın hepsini tek kurulumda sunan masaüstü uygulaması CadCraft Studio, getcadcraft.com/download adresindedir.
+- Sekiz uygulamanın hepsini tek kurulumda sunan masaüstü uygulaması Manafe3 Desktop, getcadcraft.com/download adresindedir.

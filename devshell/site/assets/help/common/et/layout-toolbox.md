@@ -42,7 +42,7 @@ Vasak ja parem paneel säilitavad kõik, mida kirjeldatakse jaotises [Paneelide 
 
 ## Mine tagasi klassikalisele paigutusele
 
-Ava {{ui:Sätted}} › {{ui:Globaalne}} › {{ui:Paigutus}} › {{ui:Tööruum}} ja vali {{ui:CadCraft klassika}}. Iga tööriistariba, sakk ja paneel läheb tagasi sinna, kus oli.
+Ava {{ui:Sätted}} › {{ui:Globaalne}} › {{ui:Paigutus}} › {{ui:Tööruum}} ja vali {{ui:Manafe3 klassika}}. Iga tööriistariba, sakk ja paneel läheb tagasi sinna, kus oli.
 
 :::note
 Telefonis või akna laiusega 760 pikslit või vähem kasutab rakendus sõltumata sinu valikust telefonipaigutust. Laiem aken toob sinu paigutuse tagasi.

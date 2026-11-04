@@ -1,17 +1,17 @@
 ---
 title: Öppna, spara och exportera filer
-summary: DetailCrafts modellfil, varje export den skriver, vart filerna tar vägen och vad som skiljer beroende på webbläsare och uppkoppling.
+summary: Manafe3s modellfil, varje export den skriver, vart filerna tar vägen och vad som skiljer beroende på webbläsare och uppkoppling.
 keywords: öppna, spara, exportera, nedladdning, fil, json, ifc, nc1, dstv, csv, pdf, zip, format, importera
 from: bd715ea3
 ---
 
-DetailCraft har en egen fil, modellen, och fem exporter. Varje sparning och varje export är en nedladdning. Ingenting laddas upp och ingenting lagras på en server.
+Manafe3 har en egen fil, modellen, och fem exporter. Varje sparning och varje export är en nedladdning. Ingenting laddas upp och ingenting lagras på en server.
 
 ## Modellfilen
 
-En DetailCraft-modell sparas som `<name>.detailcraft.json`, där `<name>` är modellnamnet i panelen {{ui:Modell}}. Den innehåller rutnät, nivåer, stänger (med hål och urtag), förbindelser och deras inställningar, plintar och dina egna profiler.
+En Manafe3-modell sparas som `<name>.detailcraft.json`, där `<name>` är modellnamnet i panelen {{ui:Modell}}. Den innehåller rutnät, nivåer, stänger (med hål och urtag), förbindelser och deras inställningar, plintar och dina egna profiler.
 
-Delar, märken, bultar, svetsar och armeringsjärn lagras inte: DetailCraft räknar fram dem på nytt från modellen varje gång den öppnas. Därför är en modellfil liten.
+Delar, märken, bultar, svetsar och armeringsjärn lagras inte: Manafe3 räknar fram dem på nytt från modellen varje gång den öppnas. Därför är en modellfil liten.
 
 ### Spara
 
@@ -38,21 +38,21 @@ Safari sparar i mappen Hämtade filer. Om du vill ändra mappen öppnar du **Saf
 1. Välj {{ui:Öppna}} i gruppen {{ui:Fil}} eller tryck på {{key:Mod+O}}.
 2. Välj en `.detailcraft.json`-fil.
 
-Eller dra filen från {{pick:mac=Finder|windows=Utforskaren|linux=din filhanterare}} och släpp den på vyn. Vyn säger "Drop a DetailCraft model to open it" medan du drar.
+Eller dra filen från {{pick:mac=Finder|windows=Utforskaren|linux=din filhanterare}} och släpp den på vyn. Vyn säger "Drop a Manafe3 model to open it" medan du drar.
 
-Om den öppna modellen har osparade ändringar frågar DetailCraft först: {{ui:Avbryt}}, {{ui:Kassera ändringar}} eller {{ui:Spara först}}.
+Om den öppna modellen har osparade ändringar frågar Manafe3 först: {{ui:Avbryt}}, {{ui:Kassera ändringar}} eller {{ui:Spara först}}.
 
-DetailCraft kontrollerar varje fält i en fil innan den används. Allt som inte går att använda utelämnas och statusfältet säger vad, till exempel "2 members were not valid and left out." En modell som sparats av en nyare DetailCraft avvisas med ett meddelande i stället för att öppnas halvrätt.
+Manafe3 kontrollerar varje fält i en fil innan den används. Allt som inte går att använda utelämnas och statusfältet säger vad, till exempel "2 members were not valid and left out." En modell som sparats av en nyare Manafe3 avvisas med ett meddelande i stället för att öppnas halvrätt.
 
 ### Vad den öppnar
 
-Sina egna modellfiler (`.json`, upp till 50 MB) och IFC-filer (`.ifc`, IFC2X3 eller IFC4, upp till 200 MB). En IFC-fil, öppnad eller inläst med {{ui:Importera IFC}}, blir en ny modell av sina balkar, pelare, stänger, plåtar, rutnät och nivåer, med hål och urtag utskurna i dem och sina bultar som lösa bultar; en rapport listar vad som utelämnades. Se [IFC-export](topic:ifc-export#import). Den öppnar inte DWG, DXF eller någon annan detaljeringsprograms modell ännu; om du försöker visas "DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc)."
+Sina egna modellfiler (`.json`, upp till 50 MB) och IFC-filer (`.ifc`, IFC2X3 eller IFC4, upp till 200 MB). En IFC-fil, öppnad eller inläst med {{ui:Importera IFC}}, blir en ny modell av sina balkar, pelare, stänger, plåtar, rutnät och nivåer, med hål och urtag utskurna i dem och sina bultar som lösa bultar; en rapport listar vad som utelämnades. Se [IFC-export](topic:ifc-export#import). Den öppnar inte DWG, DXF eller någon annan detaljeringsprograms modell ännu; om du försöker visas "Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc)."
 
 ## Förlorat arbete, senaste filer, skrivbordsappen
 
-- Medan modellen har ändringar som du inte har sparat behåller DetailCraft en kopia i den här webbläsaren. Om fliken eller webbläsaren stoppar innan du sparar frågar DetailCraft nästa gång du öppnar det **Recover your work?**: återställ kopian eller släpp den. Se [Återställ ditt arbete](common:recover).
-- Modeller du nyligen öppnat listas på startskärmen när webbläsaren låter DetailCraft öppna dem igen; klicka på en för att öppna den på nytt.
-- I skrivbordsappen skriver {{ui:Spara}} tillbaka modellen till filen du öppnade (i webbläsaren laddas en kopia ner), och ett dubbelklick på en DetailCraft-modell eller en IFC-fil öppnar den i DetailCraft.
+- Medan modellen har ändringar som du inte har sparat behåller Manafe3 en kopia i den här webbläsaren. Om fliken eller webbläsaren stoppar innan du sparar frågar Manafe3 nästa gång du öppnar det **Recover your work?**: återställ kopian eller släpp den. Se [Återställ ditt arbete](common:recover).
+- Modeller du nyligen öppnat listas på startskärmen när webbläsaren låter Manafe3 öppna dem igen; klicka på en för att öppna den på nytt.
+- I skrivbordsappen skriver {{ui:Spara}} tillbaka modellen till filen du öppnade (i webbläsaren laddas en kopia ner), och ett dubbelklick på en Manafe3-modell eller en IFC-fil öppnar den i Manafe3.
 
 ## Exporter
 
@@ -79,13 +79,13 @@ Text i PDF-filen använder standardteckensnittet Helvetica. Tecken som den sakna
 
 ## Enheter
 
-DetailCraft arbetar i millimeter genomgående: rutnät, nivåer, koordinater, profiler, hål och varje export. Profilnamn behåller sin publicerade form (W12x50 är en amerikansk beteckning även om måtten visas i mm). Det finns ingen imperial inmatning ännu.
+Manafe3 arbetar i millimeter genomgående: rutnät, nivåer, koordinater, profiler, hål och varje export. Profilnamn behåller sin publicerade form (W12x50 är en amerikansk beteckning även om måtten visas i mm). Det finns ingen imperial inmatning ännu.
 
 ## Online och offline
 
-Att öppna, spara och exportera sker allt i webbläsaren, så det fungerar likadant med eller utan uppkoppling när DetailCraft väl har laddats.
+Att öppna, spara och exportera sker allt i webbläsaren, så det fungerar likadant med eller utan uppkoppling när Manafe3 väl har laddats.
 
-Om du vill använda DetailCraft utan uppkoppling senare väljer du {{ui:Spara för offline}} i appfältet medan du är uppkopplad. Knappen räknar upp ("Saving 3 of 20") och visar sedan {{ui:Redo för offline}}. Den sparade kopian innehåller 3D-grafikbiblioteket (cirka 2,6 MB) och den här hjälpen, så när den är sparad fungerar 3D-vyn, varje export och hjälpen offline. Detaljer, och vad som fortfarande kräver uppkoppling: [Arbeta offline](common:offline).
+Om du vill använda Manafe3 utan uppkoppling senare väljer du {{ui:Spara för offline}} i appfältet medan du är uppkopplad. Knappen räknar upp ("Saving 3 of 20") och visar sedan {{ui:Redo för offline}}. Den sparade kopian innehåller 3D-grafikbiblioteket (cirka 2,6 MB) och den här hjälpen, så när den är sparad fungerar 3D-vyn, varje export och hjälpen offline. Detaljer, och vad som fortfarande kräver uppkoppling: [Arbeta offline](common:offline).
 
 :::offline
 Du är offline. Om appfältet visar {{ui:Redo för offline}} fungerar öppna, spara och exportera som vanligt. Om det inte gör det, håll den här fliken öppen, ladda inte om den förrän du är uppkopplad igen och spara din modell nu.
@@ -95,4 +95,4 @@ Molnlagring finns inte ännu, och det finns inga skrivbordsversioner ännu. Säk
 
 ## Osparat arbete
 
-DetailCraft håller modellen bara i den öppna fliken. Om du stänger eller laddar om fliken med osparade ändringar frågar webbläsaren om du vill lämna sidan; ordalydelsen är webbläsarens egen. Spara ofta med {{key:Mod+S}}.
+Manafe3 håller modellen bara i den öppna fliken. Om du stänger eller laddar om fliken med osparade ändringar frågar webbläsaren om du vill lämna sidan; ordalydelsen är webbläsarens egen. Spara ofta med {{key:Mod+S}}.

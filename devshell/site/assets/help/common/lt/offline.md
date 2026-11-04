@@ -41,4 +41,4 @@ Dabar esate neprisijungę. Jei ši programa įrašyta darbui neprisijungus, veik
 Safari pašalina įrašytus svetainės duomenis iš svetainių, kuriose nelankėte kelias savaites. Retkarčiais atidarykite programą, kai esate prisijungę, arba įrašykite ją iš naujo prieš kelionę.
 :::
 
-- CadCraft Studio – darbalaukio programa su visomis aštuoniomis programomis vienoje diegimo versijoje – yra adresu getcadcraft.com/download.
+- Manafe3 Desktop – darbalaukio programa su visomis aštuoniomis programomis vienoje diegimo versijoje – yra adresu getcadcraft.com/download.

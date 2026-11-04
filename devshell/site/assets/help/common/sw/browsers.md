@@ -54,7 +54,7 @@ Tunasoma hizi kutoka kwenye msimbo wa programu toleo la 0.7, si kubahatisha: kil
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS na iOS 16.4) |
 
-CadCraft Studio ina injini yake ya wavuti kwenye Windows, kwa hiyo inahitaji Windows 10 au 11; kwenye Mac inatumia ya mfumo, kwa hiyo inahitaji macOS 13.3 au mpya zaidi. Mipangilio › Masasisho katika Studio inaonyesha nakala yako inaendeshwa kwenye nini.
+Manafe3 Desktop ina injini yake ya wavuti kwenye Windows, kwa hiyo inahitaji Windows 10 au 11; kwenye Mac inatumia ya mfumo, kwa hiyo inahitaji macOS 13.3 au mpya zaidi. Mipangilio › Masasisho katika Studio inaonyesha nakala yako inaendeshwa kwenye nini.
 
 Hii ni toleo la zamani kabisa linalo*anza*, kulingana na msimbo. Si orodha ya vivinjari vya zamani ambavyo tuliendesha programu ndani yake, kwa hiyo kivinjari cha zamani kinachoanza kinaweza bado kukosa kipengele.
 

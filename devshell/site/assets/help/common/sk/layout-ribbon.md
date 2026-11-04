@@ -43,7 +43,7 @@ Nastavenia panela nástrojov platia aj pre pás kariet: {{ui:Nastavenia}} › {{
 
 ## Návrat ku klasickému rozloženiu
 
-Otvorte {{ui:Nastavenia}} › {{ui:Globálne}} › {{ui:Rozloženie}} › {{ui:Pracovný priestor}} a vyberte {{ui:Klasické CadCraft}}. Každý panel nástrojov, karta a panel sa vráti tam, kde bol.
+Otvorte {{ui:Nastavenia}} › {{ui:Globálne}} › {{ui:Rozloženie}} › {{ui:Pracovný priestor}} a vyberte {{ui:Klasické Manafe3}}. Každý panel nástrojov, karta a panel sa vráti tam, kde bol.
 
 :::note
 Na telefóne alebo v okne širokom 760 pixelov alebo menej aplikácia používa svoje rozloženie pre telefón bez ohľadu na to, čo ste vybrali. Širšie okno Vaše rozloženie vráti.

@@ -42,7 +42,7 @@ Untuk mengeluarkan panel daripada kumpulan, pilih {{ui:Alih keluar daripada kump
 
 ## Pilih berapa baris yang digunakan bar alat
 
-{{ui:Tetapan}} › {{ui:Umum}} › {{ui:Baris bar alat}} mempunyai tiga pilihan. {{ui:Balut}} ialah lalai: setiap kumpulan alat dipaparkan, dalam seberapa banyak baris yang diperlukan. {{ui:2 baris}} memastikan bar alat kekal dalam dua baris dan {{ui:1 baris}} dalam satu baris, supaya lukisan mendapat ketinggian; kumpulan yang tidak muat akan ditatal ke sisi dalam bar alat (guna roda tetikus, leret dua jari, atau {{key:Tab}} ke alat). Bar alat yang sudah muat dalam dua baris kekal seperti sedia ada di bawah {{ui:2 baris}}, kerana grid hanya akan menjadikannya lebih tinggi. Pilihan ini disimpan untuk setiap aplikasi. Skrin sentuh dan telefon mengekalkan susun atur sendiri. CadCraft mempunyai tetapan sendiri untuk bar alatnya, di bawah {{ui:Tetapan}} › {{ui:CadCraft}}.
+{{ui:Tetapan}} › {{ui:Umum}} › {{ui:Baris bar alat}} mempunyai tiga pilihan. {{ui:Balut}} ialah lalai: setiap kumpulan alat dipaparkan, dalam seberapa banyak baris yang diperlukan. {{ui:2 baris}} memastikan bar alat kekal dalam dua baris dan {{ui:1 baris}} dalam satu baris, supaya lukisan mendapat ketinggian; kumpulan yang tidak muat akan ditatal ke sisi dalam bar alat (guna roda tetikus, leret dua jari, atau {{key:Tab}} ke alat). Bar alat yang sudah muat dalam dua baris kekal seperti sedia ada di bawah {{ui:2 baris}}, kerana grid hanya akan menjadikannya lebih tinggi. Pilihan ini disimpan untuk setiap aplikasi. Skrin sentuh dan telefon mengekalkan susun atur sendiri. Manafe3 mempunyai tetapan sendiri untuk bar alatnya, di bawah {{ui:Tetapan}} › {{ui:Manafe3}}.
 
 ## Guna papan kekunci
 
@@ -82,7 +82,7 @@ Dari papan kekunci, tekan {{key:Alt}}+{{key:Shift}}+kekunci anak panah dengan fo
 
 Pada telefon, dialog kekal sebagai helaian lebar penuh dan tidak dialihkan.
 
-Dalam CadCraft Studio, dialog {{ui:Plot ke PDF}} CadCraft, yang boleh anda biarkan terbuka semasa bekerja, mempunyai butang di bar tajuknya, {{ui:Buka dalam tetingkapnya sendiri}}. Dialog itu berpindah ke dalam tetingkap sendiri yang boleh anda letakkan pada monitor lain. Menutup dialog akan menutup tetingkap, dan menutup tetingkap akan menutup dialog.
+Dalam Manafe3 Desktop, dialog {{ui:Plot ke PDF}} Manafe3, yang boleh anda biarkan terbuka semasa bekerja, mempunyai butang di bar tajuknya, {{ui:Buka dalam tetingkapnya sendiri}}. Dialog itu berpindah ke dalam tetingkap sendiri yang boleh anda letakkan pada monitor lain. Menutup dialog akan menutup tetingkap, dan menutup tetingkap akan menutup dialog.
 
 ## Letakkan panel semula
 

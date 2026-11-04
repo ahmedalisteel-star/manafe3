@@ -54,7 +54,7 @@ Wir lesen diese Angaben aus dem Code der Apps der Version 0.7, nicht aus einer S
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS und iOS 16.4) |
 
-CadCraft Studio bringt unter Windows seine eigene Web-Engine mit und braucht daher Windows 10 oder 11. Auf einem Mac benutzt es die des Systems und braucht daher macOS 13.3 oder neuer. Einstellungen › Updates in Studio zeigt, worauf Ihre Kopie läuft.
+Manafe3 Desktop bringt unter Windows seine eigene Web-Engine mit und braucht daher Windows 10 oder 11. Auf einem Mac benutzt es die des Systems und braucht daher macOS 13.3 oder neuer. Einstellungen › Updates in Studio zeigt, worauf Ihre Kopie läuft.
 
 Das ist die älteste Version, die *startet*, aus dem Code gelesen. Es ist keine Liste alter Browser, in denen wir die Apps ausgeführt haben. Ein älterer Browser, der startet, kann deshalb trotzdem ein Feature vermissen.
 

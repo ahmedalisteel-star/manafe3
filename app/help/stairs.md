@@ -6,7 +6,7 @@ order: 36
 keywords: stair, stairs, staircase, stringer, tread, riser, going, nosing, flight, steel stair, ibc 1011, blondel
 ---
 
-A straight steel stair: two stringers (channels with their toes in, or flat bars on edge) and a plate tread at every step, welded between them. DetailCraft works out the number of risers from the rise, checks them against the building code's limits, and makes the stair one shop assembly.
+A straight steel stair: two stringers (channels with their toes in, or flat bars on edge) and a plate tread at every step, welded between them. Manafe3 works out the number of risers from the rise, checks them against the building code's limits, and makes the stair one shop assembly.
 
 ## Place a stair
 
@@ -16,7 +16,7 @@ A straight steel stair: two stringers (channels with their toes in, or flat bars
 
 The status bar says how many risers it made. Select the stair (click a stringer or a tread) to change any of its settings, its position or its phase; the properties also show the risers, treads, run, pitch and 2 × riser + going.
 
-## What DetailCraft works out
+## What Manafe3 works out
 
 - **Risers.** As few as keep each riser at or under the highest allowed: a 3000 mm rise at 178 mm or less gives 17 risers of 176.5 mm. There is one tread fewer than risers (the top floor is the last step).
 - **Treads.** A plate going + nosing deep (280 + 25 = PL6x305 by default) and as long as the clear width, its top at each riser height, its front edge (the nosing) in front of the riser line.
@@ -29,4 +29,4 @@ The status bar says how many risers it made. Select the stair (click a stringer 
 - Move, rotate, mirror, copy, paste, delete and phases work on a stair as on a member. A rotation turns the climb; a mirror sends it the mirrored way.
 - Stringers export to IFC as IfcMember and treads as IfcPlate; both go to NC files and the bill of materials. The clash check leaves a stair's own parts alone (they are welded together).
 - The stringers are cut square: their end cuts against the floors, landings, handrails, a toe plate and grating treads are not made yet.
-- DetailCraft does not design the stair: the stringers and treads are not checked for strength or deflection.
+- Manafe3 does not design the stair: the stringers and treads are not checked for strength or deflection.

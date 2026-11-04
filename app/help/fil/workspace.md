@@ -1,17 +1,17 @@
 ---
 title: Paglilibot sa screen
-summary: Bawat bar, panel at tab sa DetailCraft ayon sa pangalan nito sa screen, at kung para saan ang bawat isa.
+summary: Bawat bar, panel at tab sa Manafe3 ayon sa pangalan nito sa screen, at kung para saan ang bawat isa.
 keywords: screen, layout, toolbar, panel, properties, status bar, report, interface, ui, tab
 from: 454f74fd
 ---
 
-Pinupuno ng DetailCraft ang window ng browser sa ibaba ng app bar. Mula itaas hanggang ibaba: ang toolbar, saka tatlong column (ang {{ui:Model}} panel, ang view, ang {{ui:Properties}} panel), saka ang report tab, saka ang status bar.
+Pinupuno ng Manafe3 ang window ng browser sa ibaba ng app bar. Mula itaas hanggang ibaba: ang toolbar, saka tatlong column (ang {{ui:Model}} panel, ang view, ang {{ui:Properties}} panel), saka ang report tab, saka ang status bar.
 
 ## Ang app bar
 
-Ang manipis na bar sa pinakataas ay pag-aari ng site ng CadCraft, hindi ng model. Ipinapakita nito ang pangalan at bersyon ng app, link papunta sa Tungkol sa DetailCraft, {{ui:Help}} (o {{key:F1}}) para sa help na ito, {{ui:Save for offline}}, ang button ng screen mode at ang switch na {{ui:Paper}} / {{ui:Model}}.
+Ang manipis na bar sa pinakataas ay pag-aari ng site ng Manafe3, hindi ng model. Ipinapakita nito ang pangalan at bersyon ng app, link papunta sa Tungkol sa Manafe3, {{ui:Help}} (o {{key:F1}}) para sa help na ito, {{ui:Save for offline}}, ang button ng screen mode at ang switch na {{ui:Paper}} / {{ui:Model}}.
 
-- Itinatabi ng {{ui:Save for offline}} ang DetailCraft, ang 3D view nito at ang help na ito sa browser mo para magbukas ito nang walang koneksyon. Nagbabasa ito ng {{ui:Handa offline}} kapag na-save na; i-click ito pagkatapos para sa {{ui:I-save ulit (kunin ang pinakabagong bersyon)}} o {{ui:Alisin ang offline copy}}. Tingnan ang [Pagtatrabaho offline](common:offline).
+- Itinatabi ng {{ui:Save for offline}} ang Manafe3, ang 3D view nito at ang help na ito sa browser mo para magbukas ito nang walang koneksyon. Nagbabasa ito ng {{ui:Handa offline}} kapag na-save na; i-click ito pagkatapos para sa {{ui:I-save ulit (kunin ang pinakabagong bersyon)}} o {{ui:Alisin ang offline copy}}. Tingnan ang [Pagtatrabaho offline](common:offline).
 - Ang {{ui:Paper}} ay nagbibigay ng maliwanag na screen at ang {{ui:Model}} ng madilim. Agad sumusunod ang 3D view; walang nagbabago sa model mo.
 - Pinapalipat-lipat ng button ng screen mode at ng {{key:Ctrl+Shift+F}} ang normal, full screen, at full screen na nakatago ang mga bar. Gumagamit ang {{key:Ctrl+Shift+F}} ng Control key sa bawat computer, kasama ang Mac. Kapag nakatago ang mga bar, ituro ang itaas na gilid ng screen (o i-tap ito) para maibalik ang mga ito. Ang {{key:Esc}} ang nagla-labas sa full screen.
 
@@ -70,7 +70,7 @@ Nagkakabisa ang mga number field kapag pinindot mo ang {{key:Enter}} o umalis sa
 
 ## Ang report tab (ibaba)
 
-- {{ui:Mga problema}}: lahat ng hindi nabuo ng DetailCraft o gustong suriin mo, na may {{ui:Select}} button sa bawat linya. Ipinapakita ng tab ang bilang sa loob ng bracket.
+- {{ui:Mga problema}}: lahat ng hindi nabuo ng Manafe3 o gustong suriin mo, na may {{ui:Select}} button sa bawat linya. Ipinapakita ng tab ang bilang sa loob ng bracket.
 - {{ui:Bill of materials}}: mga piyesa, assembly, at bolt at anchor rod, kasama ang timbang at ang link na {{ui:I-download ang CSV}}. I-click ang part mark para piliin ang piyesang iyon.
 - {{ui:Bending schedule}}: bawat bar mark sa bawat footing, kasama ang link na {{ui:I-download ang CSV}}.
 
@@ -84,4 +84,4 @@ Nagsisimula sa tuldok (•) ang title ng browser tab habang may pagbabago sa mod
 
 ## Sa makitid na screen
 
-Kapag mas makitid sa mga 760 pixel, pinagsasama-sama ang mga column: toolbar, view, status bar, {{ui:Properties}}, report tab, at ang {{ui:Model}} panel sa huli. I-scroll ang pahina para maabot ang mga ito. Ginawa ang layout ng DetailCraft para sa desktop o laptop na screen; pwedeng pang-tingin lang ang telepono, hindi pang-detailing.
+Kapag mas makitid sa mga 760 pixel, pinagsasama-sama ang mga column: toolbar, view, status bar, {{ui:Properties}}, report tab, at ang {{ui:Model}} panel sa huli. I-scroll ang pahina para maabot ang mga ito. Ginawa ang layout ng Manafe3 para sa desktop o laptop na screen; pwedeng pang-tingin lang ang telepono, hindi pang-detailing.

@@ -54,7 +54,7 @@ Bunları tahminle değil, 0.7 uygulamalarının kodundan okuduk: her dosya ayrı
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS ve iOS 16.4) |
 
-CadCraft Studio, Windows'ta kendi web motorunu taşır; bu yüzden Windows 10 ya da 11 gerekir. Mac'te sistemin motorunu kullanır; bu yüzden macOS 13.3 veya sonrası gerekir. Studio'daki Ayarlar › Güncellemeler, kopyanızın neyin üzerinde çalıştığını gösterir.
+Manafe3 Desktop, Windows'ta kendi web motorunu taşır; bu yüzden Windows 10 ya da 11 gerekir. Mac'te sistemin motorunu kullanır; bu yüzden macOS 13.3 veya sonrası gerekir. Studio'daki Ayarlar › Güncellemeler, kopyanızın neyin üzerinde çalıştığını gösterir.
 
 Bu, koddan okunan, *başlayabilen* en eski sürümdür. Uygulamaları içinde çalıştırdığımız eski tarayıcıların listesi değildir; bu yüzden başlayan daha eski bir tarayıcıda yine de bir özellik eksik olabilir.
 

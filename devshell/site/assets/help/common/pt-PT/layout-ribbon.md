@@ -43,7 +43,7 @@ Os painéis esquerdo e direito mantêm tudo o que está descrito em [Organizar o
 
 ## Voltar à disposição clássica
 
-Abra {{ui:Definições}} › {{ui:Global}} › {{ui:Esquema}} › {{ui:Área de trabalho}} e escolha {{ui:CadCraft clássico}}. Todas as barras de ferramentas, separadores e painéis voltam para onde estavam.
+Abra {{ui:Definições}} › {{ui:Global}} › {{ui:Esquema}} › {{ui:Área de trabalho}} e escolha {{ui:Manafe3 clássico}}. Todas as barras de ferramentas, separadores e painéis voltam para onde estavam.
 
 :::note
 Num telemóvel, ou numa janela com 760 píxeis de largura ou menos, a aplicação usa a disposição para telemóvel, seja qual for a sua escolha. Uma janela mais larga traz a sua disposição de volta.

@@ -42,7 +42,7 @@ Levý a pravý panel zachovávají vše, co je popsáno v části [Uspořádán�
 
 ## Návrat ke klasickému rozvržení
 
-Otevřete {{ui:Nastavení}} › {{ui:Globální}} › {{ui:Rozložení}} › {{ui:Pracovní prostor}} a zvolte {{ui:Klasický CadCraft}}. Každý panel nástrojů, karta i panel se vrátí, kde byly.
+Otevřete {{ui:Nastavení}} › {{ui:Globální}} › {{ui:Rozložení}} › {{ui:Pracovní prostor}} a zvolte {{ui:Klasický Manafe3}}. Každý panel nástrojů, karta i panel se vrátí, kde byly.
 
 :::note
 Na telefonu nebo v okně širokém 760 pixelů či méně aplikace použije rozvržení pro telefon, ať jste zvolili cokoli. Širší okno vaše rozvržení vrátí.

@@ -1,18 +1,18 @@
 ---
 title: Troubleshooting
-summary: What DetailCraft's messages mean and what to do, from a missing 3D view to connections that will not build.
+summary: What Manafe3's messages mean and what to do, from a missing 3D view to connections that will not build.
 section: trouble
 order: 10
 keywords: problem, error, not working, help, fix, message, refused, webgl, blank, warning, cannot, issue
 ---
 
-Most refusals are explained in the status bar at the bottom of the screen, or in the {{ui:Problems}} tab. Read those first. The messages below are quoted as DetailCraft shows them.
+Most refusals are explained in the status bar at the bottom of the screen, or in the {{ui:Problems}} tab. Read those first. The messages below are quoted as Manafe3 shows them.
 
 ## The 3D view is missing
 
 **"This browser could not start 3D graphics (WebGL). The model, reports and exports still work."**
 
-The browser could not start WebGL, the 3D graphics DetailCraft draws with.
+The browser could not start WebGL, the 3D graphics Manafe3 draws with.
 
 1. Update the browser to its latest version.
 2. Turn on hardware acceleration and restart the browser (see below).
@@ -94,7 +94,7 @@ Select the existing connection to change it, or delete it first.
 
 ## Warnings in the Problems tab
 
-Warnings do not stop a connection or footing from building; they ask you to check it. The edge and spacing ones use the EN 1993-1-8 Table 3.3 minimums (edge 1.2 × hole, pitch 2.2 × hole, gauge 2.4 × hole). If your project uses other rules, the warning may not apply; DetailCraft does not design connections.
+Warnings do not stop a connection or footing from building; they ask you to check it. The edge and spacing ones use the EN 1993-1-8 Table 3.3 minimums (edge 1.2 × hole, pitch 2.2 × hole, gauge 2.4 × hole). If your project uses other rules, the warning may not apply; Manafe3 does not design connections.
 
 "a hole is off the end of the part" means a hole's x is less than 0 or more than the cut length. Remember x is from the cut start, after connections cut the part back.
 
@@ -123,11 +123,11 @@ Warnings do not stop a connection or footing from building; they ask you to chec
 
 | Message | Cause |
 |---|---|
-| DetailCraft opens its own models (.detailcraft.json). IFC import is not built yet. | The file is not a `.json` file |
-| This is not a DetailCraft model (not JSON). | The file is damaged or is some other JSON |
-| This is not a DetailCraft model. | A JSON file from another program |
-| This model was saved by a newer DetailCraft (format 2). | Open it in the newer DetailCraft that saved it |
-| That file is too big to be a DetailCraft model. | Over 50 MB |
+| Manafe3 opens its own models (.detailcraft.json). IFC import is not built yet. | The file is not a `.json` file |
+| This is not a Manafe3 model (not JSON). | The file is damaged or is some other JSON |
+| This is not a Manafe3 model. | A JSON file from another program |
+| This model was saved by a newer Manafe3 (format 2). | Open it in the newer Manafe3 that saved it |
+| That file is too big to be a Manafe3 model. | Over 50 MB |
 
 When a file opens with warnings such as "2 members were not valid and left out.", the rest of the model is fine. Do not save over the original until you have checked what was left out.
 
@@ -151,7 +151,7 @@ Every save and export is a browser download. Check your browser's downloads list
 
 - The cursor is in a text or number field: tool keys and {{key:Delete}} are ignored there so you can type. Press {{key:Tab}} or click the view.
 - A dialog is open: close it first.
-- The browser has the keyboard (for example the address bar): click inside DetailCraft.
+- The browser has the keyboard (for example the address bar): click inside Manafe3.
 - {{key:Ctrl+Shift+F}} uses Control even on a Mac.
 
 ## Offline problems
@@ -162,7 +162,7 @@ The {{ui:Save for offline}} button in the app bar shows what state the offline c
 |---|---|---|
 | {{ui:Save for offline}} | No offline copy in this browser yet | Choose it while online |
 | Saving 5 of 20 | Saving is under way | Wait for {{ui:Offline ready}}; keep the tab open |
-| {{ui:Offline ready}} | DetailCraft, its 3D view, every export and this help work with no connection | Nothing. Click it for {{ui:Save again (get the newest version)}} or {{ui:Remove the offline copy}} |
+| {{ui:Offline ready}} | Manafe3, its 3D view, every export and this help work with no connection | Nothing. Click it for {{ui:Save again (get the newest version)}} or {{ui:Remove the offline copy}} |
 | {{ui:Could not save}} | Some files did not download | Check your connection and click it to try again |
 | {{ui:Offline not available}} | This window cannot keep an offline copy: private windows and some managed computers block it | Use a normal window, or work online |
 
@@ -170,7 +170,7 @@ If you are offline and the button does not read {{ui:Offline ready}}, do not rel
 
 ## Unsaved work
 
-If the browser asks whether to leave the page, DetailCraft has unsaved changes. Choose to stay, then press {{key:Mod+S}}. DetailCraft cannot recover a model after the tab is closed.
+If the browser asks whether to leave the page, Manafe3 has unsaved changes. Choose to stay, then press {{key:Mod+S}}. Manafe3 cannot recover a model after the tab is closed.
 
 ## Still stuck
 

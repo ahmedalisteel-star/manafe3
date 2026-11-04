@@ -1,17 +1,17 @@
 ---
 title: Fayllarni ochish, saqlash va eksport qilish
-summary: DetailCraft model fayli, u yozadigan har bir eksport, fayllar qayerga joylanishi va brauzer hamda ulanishga qarab farqlar.
+summary: Manafe3 model fayli, u yozadigan har bir eksport, fayllar qayerga joylanishi va brauzer hamda ulanishga qarab farqlar.
 keywords: ochish, saqlash, eksport, yuklab olish, fayl, json, ifc, nc1, dstv, csv, pdf, zip, formatlar, import
 from: bd715ea3
 ---
 
-DetailCraft oʻzining bitta fayl turiga ega — model — va beshta eksportga. Har bir saqlash va har bir eksport yuklab olish hisoblanadi. Hech narsa yuklanmaydi va hech narsa serverda saqlanmaydi.
+Manafe3 oʻzining bitta fayl turiga ega — model — va beshta eksportga. Har bir saqlash va har bir eksport yuklab olish hisoblanadi. Hech narsa yuklanmaydi va hech narsa serverda saqlanmaydi.
 
 ## Model fayli
 
-DetailCraft modeli `<name>.detailcraft.json` nomi bilan saqlanadi, bu yerda `<name>` — {{ui:Model}} panelidagi model nomi. Unda setkalar, sathlar, elementlar (teshiklari va kesmalari bilan), birikmalar va ularning sozlamalari, poydevorlar hamda sizning maxsus profillaringiz saqlanadi.
+Manafe3 modeli `<name>.detailcraft.json` nomi bilan saqlanadi, bu yerda `<name>` — {{ui:Model}} panelidagi model nomi. Unda setkalar, sathlar, elementlar (teshiklari va kesmalari bilan), birikmalar va ularning sozlamalari, poydevorlar hamda sizning maxsus profillaringiz saqlanadi.
 
-Detallar, belgilar, boltlar, payvandlar va armatura saqlanmaydi: DetailCraft ularni model har ochilganda modeldan qayta hisoblaydi. Shu sababli model fayli kichik boʻladi.
+Detallar, belgilar, boltlar, payvandlar va armatura saqlanmaydi: Manafe3 ularni model har ochilganda modeldan qayta hisoblaydi. Shu sababli model fayli kichik boʻladi.
 
 ### Saqlash
 
@@ -38,21 +38,21 @@ Safari fayllarni Yuklab olishlar papkasiga saqlaydi. Papkani oʻzgartirish uchun
 1. {{ui:File}} guruhida {{ui:Open}} ni tanlang yoki {{key:Mod+O}} tugmasini bosing.
 2. `.detailcraft.json` faylini tanlang.
 
-Yoki faylni {{pick:mac=Finder|windows=File Explorer|linux=fayl menejeringiz}} dan sudrab koʻrinishga tashlang. Sudrash paytida koʻrinishda « Ochish uchun DetailCraft modelini tashlang » yoziladi.
+Yoki faylni {{pick:mac=Finder|windows=File Explorer|linux=fayl menejeringiz}} dan sudrab koʻrinishga tashlang. Sudrash paytida koʻrinishda « Ochish uchun Manafe3 modelini tashlang » yoziladi.
 
-Ochiq modelda saqlanmagan oʻzgarishlar boʻlsa, DetailCraft avval soraydi: {{ui:Cancel}}, {{ui:Discard changes}} yoki {{ui:Save first}}.
+Ochiq modelda saqlanmagan oʻzgarishlar boʻlsa, Manafe3 avval soraydi: {{ui:Cancel}}, {{ui:Discard changes}} yoki {{ui:Save first}}.
 
-DetailCraft faylning har bir maydonini ishlatishdan oldin tekshiradi. Foydalanib boʻlmaydigan narsalar chetlab oʻtiladi va holat satri nima ekanini aytadi, masalan « 2 ta element yaroqsiz edi va chetlab oʻtildi. » Yangiroq DetailCraft tomonidan saqlangan model rad etiladi va xabar koʻrsatiladi, yarim toʻgʻri ochilmaydi.
+Manafe3 faylning har bir maydonini ishlatishdan oldin tekshiradi. Foydalanib boʻlmaydigan narsalar chetlab oʻtiladi va holat satri nima ekanini aytadi, masalan « 2 ta element yaroqsiz edi va chetlab oʻtildi. » Yangiroq Manafe3 tomonidan saqlangan model rad etiladi va xabar koʻrsatiladi, yarim toʻgʻri ochilmaydi.
 
 ### Nimani ochadi
 
-Oʻzining model fayllari (`.json`, 50 MB gacha) va IFC fayllari (`.ifc`, IFC2X3 yoki IFC4, 200 MB gacha). IFC fayl ochilganda yoki {{ui:Import IFC}} bilan kiritilganda, u oʻz toʻsinlari, ustunlari, elementlari, plastinalari, setkalari va sathlari bilan yangi model boʻladi; teshiklar va kesmalar ularga kesiladi, boltlari esa erkin boltlar sifatida qoladi. Chetlab oʻtilgan narsalar haqida hisobot chiqadi. Qarang: [IFC eksporti](topic:ifc-export#import). DWG, DXF yoki boshqa detallashtirish dasturining modelini hali ochmaydi; urinilganda « DetailCraft oʻz modellarini (.detailcraft.json) va IFC fayllarni (.ifc) ochadi. » degan xabar chiqadi.
+Oʻzining model fayllari (`.json`, 50 MB gacha) va IFC fayllari (`.ifc`, IFC2X3 yoki IFC4, 200 MB gacha). IFC fayl ochilganda yoki {{ui:Import IFC}} bilan kiritilganda, u oʻz toʻsinlari, ustunlari, elementlari, plastinalari, setkalari va sathlari bilan yangi model boʻladi; teshiklar va kesmalar ularga kesiladi, boltlari esa erkin boltlar sifatida qoladi. Chetlab oʻtilgan narsalar haqida hisobot chiqadi. Qarang: [IFC eksporti](topic:ifc-export#import). DWG, DXF yoki boshqa detallashtirish dasturining modelini hali ochmaydi; urinilganda « Manafe3 oʻz modellarini (.detailcraft.json) va IFC fayllarni (.ifc) ochadi. » degan xabar chiqadi.
 
 ## Yoʻqolgan ish, oxirgi fayllar, ish stoli ilovasi
 
-- Saqlanmagan oʻzgarishlari bor model nusxasini DetailCraft shu brauzerda saqlab turadi. Agar saqlashdan oldin yorliq yoki brauzer toʻxtab qolsa, DetailCraft keyingi ochilishda **Ishingizni tiklaysizmi?** deb soraydi: nusxani tiklang yoki qoldiring. Qarang: [Ishni tiklash](common:recover).
+- Saqlanmagan oʻzgarishlari bor model nusxasini Manafe3 shu brauzerda saqlab turadi. Agar saqlashdan oldin yorliq yoki brauzer toʻxtab qolsa, Manafe3 keyingi ochilishda **Ishingizni tiklaysizmi?** deb soraydi: nusxani tiklang yoki qoldiring. Qarang: [Ishni tiklash](common:recover).
 - Oxirgi ochilgan modellar, agar brauzer ularni qayta ochishga ruxsat bersa, boshlangʻich ekranda roʻyxatlanadi; qayta ochish uchun birini bosing.
-- Ish stoli ilovasida {{ui:Save}} modelni ochgan faylingizga qayta yozadi (brauzerda esa nusxa yuklab olinadi). DetailCraft modeli yoki IFC faylini ikki marta bosish uni DetailCraftda ochadi.
+- Ish stoli ilovasida {{ui:Save}} modelni ochgan faylingizga qayta yozadi (brauzerda esa nusxa yuklab olinadi). Manafe3 modeli yoki IFC faylini ikki marta bosish uni Manafe3da ochadi.
 
 ## Eksportlar
 
@@ -79,13 +79,13 @@ PDF matni standart Helvetica shriftidan foydalanadi. Unda boʻlmagan belgilar (G
 
 ## Birliklar
 
-DetailCraft hamma joyda millimetrda ishlaydi: setkalar, sathlar, koordinatalar, profillar, teshiklar va barcha eksportlar. Profil nomlari oʻzining nashr etilgan shaklini saqlaydi (W12x50 — AQSh belgilanishi, oʻlchamlari esa mm da koʻrsatilgan). Hozircha imperial birliklarda kiritish yoʻq.
+Manafe3 hamma joyda millimetrda ishlaydi: setkalar, sathlar, koordinatalar, profillar, teshiklar va barcha eksportlar. Profil nomlari oʻzining nashr etilgan shaklini saqlaydi (W12x50 — AQSh belgilanishi, oʻlchamlari esa mm da koʻrsatilgan). Hozircha imperial birliklarda kiritish yoʻq.
 
 ## Onlayn va oflayn
 
-Ochish, saqlash va eksport qilish hammasi brauzeringizda bajariladi, shuning uchun DetailCraft yuklangach ular ulanish bilan yoki ulanishsiz bir xil ishlaydi.
+Ochish, saqlash va eksport qilish hammasi brauzeringizda bajariladi, shuning uchun Manafe3 yuklangach ular ulanish bilan yoki ulanishsiz bir xil ishlaydi.
 
-DetailCraftdan keyinroq ulanishsiz foydalanish uchun onlayn holatda ilova panelidagi {{ui:Save for offline}} ni tanlang. Tugma sanashni koʻrsatadi (« 3 / 20 saqlanmoqda ») va keyin {{ui:Offline ready}} deb yozadi. Saqlangan nusxaga 3D grafika kutubxonasi (taxminan 2,6 MB) va bu yordam kiradi, shuning uchun saqlangandan keyin 3D koʻrinish, barcha eksportlar va yordam oflaynda ishlaydi. Tafsilotlar va ulanishni talab qiladigan narsalar: [Oflaynda ishlash](common:offline).
+Manafe3dan keyinroq ulanishsiz foydalanish uchun onlayn holatda ilova panelidagi {{ui:Save for offline}} ni tanlang. Tugma sanashni koʻrsatadi (« 3 / 20 saqlanmoqda ») va keyin {{ui:Offline ready}} deb yozadi. Saqlangan nusxaga 3D grafika kutubxonasi (taxminan 2,6 MB) va bu yordam kiradi, shuning uchun saqlangandan keyin 3D koʻrinish, barcha eksportlar va yordam oflaynda ishlaydi. Tafsilotlar va ulanishni talab qiladigan narsalar: [Oflaynda ishlash](common:offline).
 
 :::offline
 Siz oflaynsiz. Agar ilova panelida {{ui:Offline ready}} koʻrsatilsa, ochish, saqlash va eksport odatdagidek ishlaydi. Aks holda bu yorliqni ochiq qoldiring, ulanish tiklanmaguncha uni qayta yuklamang va modelingizni hozir saqlang.
@@ -95,4 +95,4 @@ Bulutli saqlash hali mavjud emas va ish stoli versiyalari hali yoʻq. `.detailcr
 
 ## Saqlanmagan ish
 
-DetailCraft modelni faqat ochiq yorliqda saqlaydi. Agar saqlanmagan oʻzgarishlar bilan yorliqni yopsangiz yoki qayta yuklasangiz, brauzer sahifani tark etishni soraydi; matni brauzerning oʻziniki boʻladi. {{key:Mod+S}} ni tez-tez bosib saqlang.
+Manafe3 modelni faqat ochiq yorliqda saqlaydi. Agar saqlanmagan oʻzgarishlar bilan yorliqni yopsangiz yoki qayta yuklasangiz, brauzer sahifani tark etishni soraydi; matni brauzerning oʻziniki boʻladi. {{key:Mod+S}} ni tez-tez bosib saqlang.

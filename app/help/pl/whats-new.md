@@ -5,7 +5,7 @@ keywords: co nowego, nowości, informacje o wydaniu, lista zmian, zmiany, 0.7, w
 from: 17d1e0bb
 ---
 
-To zmieniło się w DetailCraft 0.7 w porównaniu z 0.6. Analiza ramy z 0.6 ma teraz drugi krok: sprawdzanie elementów stalowych według normy projektowej.
+To zmieniło się w Manafe3 0.7 w porównaniu z 0.6. Analiza ramy z 0.6 ma teraz drugi krok: sprawdzanie elementów stalowych według normy projektowej.
 
 ## Nowe
 
@@ -15,7 +15,7 @@ To zmieniło się w DetailCraft 0.7 w porównaniu z 0.6. Analiza ramy z 0.6 ma t
 
 ### Sprawdzenia projektowe
 
-- **Kombinacje obciążeń z normy.** Na karcie {{ui:Analiza}} nowy blok {{ui:Sprawdzenia projektowe}} ma {{ui:Norma projektowa}}: ASCE 7 + AISC 360 (USA, LRFD) lub EN 1990 + EN 1993-1-1 (Eurokod). Nadaj każdemu przypadkowi obciążenia rodzaj (stałe, użytkowe, nowe użytkowe dachu, śnieg, wiatr, sejsmiczne), naciśnij {{ui:Utwórz kombinacje}}, a DetailCraft zapisze kombinacje nośności i użytkowalności z normy dla Twoich przypadków. Kombinacje wpisane przez Ciebie zostają. Zobacz [Tworzenie kombinacji](topic:design-checks#make-the-combinations).
+- **Kombinacje obciążeń z normy.** Na karcie {{ui:Analiza}} nowy blok {{ui:Sprawdzenia projektowe}} ma {{ui:Norma projektowa}}: ASCE 7 + AISC 360 (USA, LRFD) lub EN 1990 + EN 1993-1-1 (Eurokod). Nadaj każdemu przypadkowi obciążenia rodzaj (stałe, użytkowe, nowe użytkowe dachu, śnieg, wiatr, sejsmiczne), naciśnij {{ui:Utwórz kombinacje}}, a Manafe3 zapisze kombinacje nośności i użytkowalności z normy dla Twoich przypadków. Kombinacje wpisane przez Ciebie zostają. Zobacz [Tworzenie kombinacji](topic:design-checks#make-the-combinations).
 - **Wartości z załącznika krajowego.** W Eurokodzie współczynniki zaczynają od wartości zalecanych; {{ui:Wartości z załącznika krajowego}} pozwala wpisać wartości Twojego kraju, a są one zapisywane w modelu. Zobacz [Tworzenie kombinacji](topic:design-checks#make-the-combinations).
 - **Sprawdzanie elementów.** {{ui:Sprawdź elementy}} sprawdza każdy stalowy kształtownik dwuteowy na rozciąganie, ściskanie z wyboczeniem, zginanie ze zwichrzeniem, ścinanie, zginanie z siłą osiową i ugięcie względem ustawionego {{ui:Graniczne ugięcie}}. Tabela pokazuje wytężenie każdego elementu, decydujące sprawdzenie i jego kombinację, a elementy są kolorowane na modelu (niebieski, zielony, ochra, czerwony, szary dla niesprawdzonych). Zobacz [Sprawdzanie elementów](topic:design-checks#check-the-members).
 - **W raporcie.** {{ui:Raport (PDF)}} i {{ui:Raport (CSV)}} dodają wydania norm, ustawienia, wytężenie według elementów i każdy użyty punkt normy. Zobacz [Raport](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ To zmieniło się w DetailCraft 0.7 w porównaniu z 0.6. Analiza ramy z 0.6 ma t
 
 ### Asystenci AI
 
-- **USD dla asystentów.** Twój własny asystent, połączony przez CadCraft Studio, może wyeksportować model jako USD (`usd_export`), a w Studio zapisać go w dozwolonym przez Ciebie folderze. Zobacz [O co może prosić asystent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD dla asystentów.** Twój własny asystent, połączony przez Manafe3 Desktop, może wyeksportować model jako USD (`usd_export`), a w Studio zapisać go w dozwolonym przez Ciebie folderze. Zobacz [O co może prosić asystent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Zmienione
 
@@ -36,16 +36,16 @@ To zmieniło się w DetailCraft 0.7 w porównaniu z 0.6. Analiza ramy z 0.6 ma t
 
 ## We wszystkich aplikacjach
 
-- **Jednostki.** {{ui:Ustawienia}} › {{ui:Ogólne}} › {{ui:Jednostki}} ma po jednej liście dla długości, pola, objętości, kąta i nachylenia, z dokładnymi rozmiarami wynikającymi z definicji jednostek (stopa geodezyjna USA jest osobną jednostką). Wyłącz jednostki, których nigdy nie używasz, a znikną z list jednostek; oznacz jedną gwiazdką, a nowa praca zacznie się w niej. Plik zawsze zachowuje własną jednostkę. Własne pola DetailCraft nie podążają jeszcze za listami: jego długości nadal wpisuje się w milimetrach. Zobacz [Jednostki, wpisywane wartości i listy jednostek](common:unit-lists).
+- **Jednostki.** {{ui:Ustawienia}} › {{ui:Ogólne}} › {{ui:Jednostki}} ma po jednej liście dla długości, pola, objętości, kąta i nachylenia, z dokładnymi rozmiarami wynikającymi z definicji jednostek (stopa geodezyjna USA jest osobną jednostką). Wyłącz jednostki, których nigdy nie używasz, a znikną z list jednostek; oznacz jedną gwiazdką, a nowa praca zacznie się w niej. Plik zawsze zachowuje własną jednostkę. Własne pola Manafe3 nie podążają jeszcze za listami: jego długości nadal wpisuje się w milimetrach. Zobacz [Jednostki, wpisywane wartości i listy jednostek](common:unit-lists).
 - **Gęstszy układ i panele, które się chowają.** {{ui:Ustawienia}} › {{ui:Ogólne}} › {{ui:Gęstość układu}} › {{ui:Zwarta}} mieści więcej na ekranie (ekrany dotykowe i telefony zachowują duże przyciski). Każdy panel boczny ma wąski pasek tytułu: przeciągnij go, aby zadokować lub oderwać panel, upuść na pasku innego panelu, aby dzielić jedną ramkę jako karty, przypnij, aby chował się przy krawędzi, albo ukryj go i przywołaj od krawędzi. Zobacz [Rozmieszczanie paneli](common:arrange-panels#make-the-layout-denser).
 - **Okna dialogowe się przesuwają.** Przeciągnij okno dialogowe za pasek tytułu, aby usunąć je sprzed rysunku; wraca tam, gdzie je zostawisz. Kliknij dwukrotnie pasek tytułu, aby znów je wyśrodkować. Zobacz [Przesuwanie okna dialogowego](common:arrange-panels#move-a-dialog).
 - **Przepisy dla asystentów AI.** Dziesięć rozpisanych próśb do Twojego własnego asystenta (uporządkuj rysunek, wydrukuj zestaw, sprawdź rysunki, zadaj modelowi pytania, zsumuj przedmiar, wypróbuj wariant części…), każda z wywoływanymi narzędziami i potrzebnymi uprawnieniami, i każda odtwarzana przez nasze testy. Aplikacje nie zawierają AI. Zobacz [Przepisy dla asystentów AI](common:assistants-recipes).
 - **Języki.** **Português (Portugal)** jest nowy w {{ui:Ustawienia}} › {{ui:Ogólne}} › {{ui:Język}}. Razem z nim **Português (Brasil)**, **Español (México)** i **Bahasa Indonesia** mają teraz każde słowo aplikacji, jako wersje robocze jeszcze niesprawdzone przez rodzimego użytkownika języka. Tematy pomocy na start są dostępne także w tych językach, w tym po polsku; pozostałe tematy pomocy są nadal po angielsku, o ile nie ma ich tłumaczenia.
-- **CadCraft Studio** podaje, dlaczego sprawdzenie aktualizacji się nie powiodło (brak pliku dla Twojego systemu, brak sieci, zły podpis), zamiast samego „Done”, i przestaje przywracać kartę Co nowego, którą zamknięto, dopóki nie pojawi się nowsze wydanie.
+- **Manafe3 Desktop** podaje, dlaczego sprawdzenie aktualizacji się nie powiodło (brak pliku dla Twojego systemu, brak sieci, zły podpis), zamiast samego „Done”, i przestaje przywracać kartę Co nowego, którą zamknięto, dopóki nie pojawi się nowsze wydanie.
 
 ## Jeszcze nie w tej wersji
 
-- **0.7 nie jest podpisane cyfrowo.** Podpisywanie i pakiet Microsoft Store przeniesiono do 0.8, bo walidacja certyfikatu jeszcze nie nadeszła. Sprawdź SHA-256 obok każdego pliku na getcadcraft.com/download. W Windows, jeśli SmartScreen zatrzyma instalator, wybierz {{ui:Więcej informacji}}, a potem {{ui:Uruchom mimo to}}. Na Macu za pierwszym razem kliknij CadCraft Studio prawym przyciskiem i wybierz {{ui:Otwórz}}. CadCraft Studio nie jest jeszcze w sklepie z aplikacjami i nie ma jeszcze wersji na iPada ani iPhone'a.
+- **0.7 nie jest podpisane cyfrowo.** Podpisywanie i pakiet Microsoft Store przeniesiono do 0.8, bo walidacja certyfikatu jeszcze nie nadeszła. Sprawdź SHA-256 obok każdego pliku na getcadcraft.com/download. W Windows, jeśli SmartScreen zatrzyma instalator, wybierz {{ui:Więcej informacji}}, a potem {{ui:Uruchom mimo to}}. Na Macu za pierwszym razem kliknij Manafe3 Desktop prawym przyciskiem i wybierz {{ui:Otwórz}}. Manafe3 Desktop nie jest jeszcze w sklepie z aplikacjami i nie ma jeszcze wersji na iPada ani iPhone'a.
 - Listy kątów i nachyleń w {{ui:Jednostki}} są zapisywane, ale żadne pole ich jeszcze nie czyta.
 - **Sprawdzenia projektowe nie zostały jeszcze sprawdzone przez inżyniera.** Nasze testy porównują je z drukowanymi wartościami z tablic i wzorami policzonymi ręcznie, jeszcze nie z przykładami z przewodników projektowych. Do czasu przeglądu są pomocą: elementy, które mają znaczenie, sprawdź ręcznie.
 - Sprawdzenia projektowe używają sił pierwszego rzędu (bez efektów drugiego rzędu) i sprawdzają tylko kształtowniki dwuteowe. Niezbudowane: rury, kątowniki, ceowniki, kształtowniki spawane, części smukłe (AISC) lub klasy 4 (Eurokod) przy zginaniu, skręcanie, wyboczenie przy ścinaniu razem ze zginaniem, połączenia, zmęczenie, pożar, detale sejsmiczne i beton. Smukła część ściskana pomija sprawdzenia ściskania, a element pokazuje „passes, partly checked”.

@@ -1,17 +1,17 @@
 ---
 title: Failu atvēršana, saglabāšana un eksportēšana
-summary: DetailCraft modeļa fails, katrs tā rakstītais eksports, kur faili tiek saglabāti un kas atšķiras atkarībā no pārlūkprogrammas un savienojuma.
+summary: Manafe3 modeļa fails, katrs tā rakstītais eksports, kur faili tiek saglabāti un kas atšķiras atkarībā no pārlūkprogrammas un savienojuma.
 keywords: atvērt, saglabāt, eksportēt, lejupielādēt, fails, json, ifc, nc1, dstv, csv, pdf, zip, formāti, importēt
 from: bd715ea3
 ---
 
-DetailCraft ir savs viens fails, modelis, un pieci eksporti. Katra saglabāšana un katrs eksports ir lejupielāde. Nekas netiek augšupielādēts, un nekas netiek glabāts serverī.
+Manafe3 ir savs viens fails, modelis, un pieci eksporti. Katra saglabāšana un katrs eksports ir lejupielāde. Nekas netiek augšupielādēts, un nekas netiek glabāts serverī.
 
 ## Modeļa fails
 
-DetailCraft modelis tiek saglabāts kā `<name>.detailcraft.json`, kur `<name>` ir modeļa nosaukums panelī {{ui:Modelis}}. Tajā ir režģi, līmeņi, elementi (ar to caurumiem un izgriezumiem), savienojumi un to iestatījumi, pamati un jūsu pielāgotie profili.
+Manafe3 modelis tiek saglabāts kā `<name>.detailcraft.json`, kur `<name>` ir modeļa nosaukums panelī {{ui:Modelis}}. Tajā ir režģi, līmeņi, elementi (ar to caurumiem un izgriezumiem), savienojumi un to iestatījumi, pamati un jūsu pielāgotie profili.
 
-Detaļas, marķējumi, skrūves, metinājumi un stieņi netiek saglabāti: DetailCraft tos katru reizi, kad modelis tiek atvērts, aprēķina no jauna. Tāpēc modeļa fails ir mazs.
+Detaļas, marķējumi, skrūves, metinājumi un stieņi netiek saglabāti: Manafe3 tos katru reizi, kad modelis tiek atvērts, aprēķina no jauna. Tāpēc modeļa fails ir mazs.
 
 ### Saglabāšana
 
@@ -38,21 +38,21 @@ Safari saglabā failus mapē Lejupielādes. Lai mainītu mapi, atveriet **Safari
 1. Grupā {{ui:Fails}} izvēlieties {{ui:Atvērt}} vai nospiediet {{key:Mod+O}}.
 2. Izvēlieties `.detailcraft.json` failu.
 
-Vai velciet failu no {{pick:mac=Finder|windows=Failu pārlūks|linux=jūsu failu pārvaldnieks}} un nometiet to skatā. Kamēr velkat, skatā parādās teksts „Nometiet DetailCraft modeli, lai to atvērtu”.
+Vai velciet failu no {{pick:mac=Finder|windows=Failu pārlūks|linux=jūsu failu pārvaldnieks}} un nometiet to skatā. Kamēr velkat, skatā parādās teksts „Nometiet Manafe3 modeli, lai to atvērtu”.
 
-Ja atvērtajam modelim ir nesaglabātas izmaiņas, DetailCraft vispirms jautā: {{ui:Atcelt}}, {{ui:Atmest izmaiņas}} vai {{ui:Vispirms saglabāt}}.
+Ja atvērtajam modelim ir nesaglabātas izmaiņas, Manafe3 vispirms jautā: {{ui:Atcelt}}, {{ui:Atmest izmaiņas}} vai {{ui:Vispirms saglabāt}}.
 
-DetailCraft pārbauda katru faila lauku, pirms to izmanto. Viss, ko tas nevar izmantot, tiek izlaists, un statusa joslā norādīts, kas tas bija, piemēram: „2 elementi nebija derīgi un tika izlaisti.” Modeli, kas saglabāts jaunākā DetailCraft versijā, DetailCraft atsaka ar ziņojumu, nevis atver to daļēji nepareizi.
+Manafe3 pārbauda katru faila lauku, pirms to izmanto. Viss, ko tas nevar izmantot, tiek izlaists, un statusa joslā norādīts, kas tas bija, piemēram: „2 elementi nebija derīgi un tika izlaisti.” Modeli, kas saglabāts jaunākā Manafe3 versijā, Manafe3 atsaka ar ziņojumu, nevis atver to daļēji nepareizi.
 
 ### Ko tas atver
 
-Savus modeļa failus (`.json`, līdz 50 MB) un IFC failus (`.ifc`, IFC2X3 vai IFC4, līdz 200 MB). IFC fails, kas atvērts vai ievietots ar {{ui:Importēt IFC}}, kļūst par jaunu modeli ar savām sijām, kolonnām, elementiem, plāksnēm, režģiem un līmeņiem; caurumi un izgriezumi tajos tiek izgriezti, un skrūves kļūst par brīvām skrūvēm. Atskaitē uzskaitīts, kas tika izlaists. Skatiet [IFC eksports](topic:ifc-export#import). DWG, DXF vai cita detalizēšanas programmas modeli DetailCraft vēl neatver; mēģinot, parādās ziņojums „DetailCraft atver savus modeļus (.detailcraft.json) un IFC failus (.ifc).”
+Savus modeļa failus (`.json`, līdz 50 MB) un IFC failus (`.ifc`, IFC2X3 vai IFC4, līdz 200 MB). IFC fails, kas atvērts vai ievietots ar {{ui:Importēt IFC}}, kļūst par jaunu modeli ar savām sijām, kolonnām, elementiem, plāksnēm, režģiem un līmeņiem; caurumi un izgriezumi tajos tiek izgriezti, un skrūves kļūst par brīvām skrūvēm. Atskaitē uzskaitīts, kas tika izlaists. Skatiet [IFC eksports](topic:ifc-export#import). DWG, DXF vai cita detalizēšanas programmas modeli Manafe3 vēl neatver; mēģinot, parādās ziņojums „Manafe3 atver savus modeļus (.detailcraft.json) un IFC failus (.ifc).”
 
 ## Zaudētais darbs, pēdējie faili, darbvirsmas lietotne
 
-- Kamēr modelim ir nesaglabātas izmaiņas, DetailCraft glabā kopiju šajā pārlūkprogrammā. Ja cilne vai pārlūkprogramma apstājas pirms saglabāšanas, nākamreiz, atverot DetailCraft, tas jautā **Atjaunot jūsu darbu?**: atjaunot kopiju vai to atmest. Skatiet [Jūsu darba atjaunošana](common:recover).
-- Nesen atvērtie modeļi ir uzskaitīti sākuma ekrānā, ja pārlūkprogramma ļauj DetailCraft tos atkal atvērt; noklikšķiniet uz viena, lai to atvērtu atkārtoti.
-- Darbvirsmas lietotnē {{ui:Saglabāt}} ieraksta modeli atpakaļ atvērtajā failā (pārlūkprogrammā tas lejupielādē kopiju), un divreiz noklikšķinot uz DetailCraft modeļa vai IFC faila, tas tiek atvērts DetailCraft.
+- Kamēr modelim ir nesaglabātas izmaiņas, Manafe3 glabā kopiju šajā pārlūkprogrammā. Ja cilne vai pārlūkprogramma apstājas pirms saglabāšanas, nākamreiz, atverot Manafe3, tas jautā **Atjaunot jūsu darbu?**: atjaunot kopiju vai to atmest. Skatiet [Jūsu darba atjaunošana](common:recover).
+- Nesen atvērtie modeļi ir uzskaitīti sākuma ekrānā, ja pārlūkprogramma ļauj Manafe3 tos atkal atvērt; noklikšķiniet uz viena, lai to atvērtu atkārtoti.
+- Darbvirsmas lietotnē {{ui:Saglabāt}} ieraksta modeli atpakaļ atvērtajā failā (pārlūkprogrammā tas lejupielādē kopiju), un divreiz noklikšķinot uz Manafe3 modeļa vai IFC faila, tas tiek atvērts Manafe3.
 
 ## Eksporti
 
@@ -79,13 +79,13 @@ PDF tekstā tiek izmantots standarta fonts Helvetica. Rakstzīmes, kuru tajā na
 
 ## Vienības
 
-DetailCraft visur strādā milimetros: režģi, līmeņi, koordinātas, profili, caurumi un katrs eksports. Profilu nosaukumi saglabā publicēto formu (W12x50 ir ASV apzīmējums, lai gan tā izmēri ir rādīti mm). Angļu mērvienību ievades vēl nav.
+Manafe3 visur strādā milimetros: režģi, līmeņi, koordinātas, profili, caurumi un katrs eksports. Profilu nosaukumi saglabā publicēto formu (W12x50 ir ASV apzīmējums, lai gan tā izmēri ir rādīti mm). Angļu mērvienību ievades vēl nav.
 
 ## Tiešsaistē un bezsaistē
 
-Atvēršana, saglabāšana un eksportēšana notiek jūsu pārlūkprogrammā, tāpēc, kad DetailCraft ir ielādēts, tās darbojas vienādi ar savienojumu vai bez tā.
+Atvēršana, saglabāšana un eksportēšana notiek jūsu pārlūkprogrammā, tāpēc, kad Manafe3 ir ielādēts, tās darbojas vienādi ar savienojumu vai bez tā.
 
-Lai vēlāk izmantotu DetailCraft bez savienojuma, kamēr esat tiešsaistē, lietotņu joslā izvēlieties {{ui:Saglabāt bezsaistei}}. Poga skaita uz augšu („Saglabā 3 no 20”) un pēc tam rāda {{ui:Gatavs darbam bezsaistē}}. Saglabātajā kopijā ir iekļauta 3D grafikas bibliotēka (apmēram 2.6 MB) un šī palīdzība, tāpēc, kad tā ir saglabāta, 3D skats, katrs eksports un palīdzība darbojas bezsaistē. Sīkāk un par to, kam joprojām vajadzīgs savienojums: [Darbs bezsaistē](common:offline).
+Lai vēlāk izmantotu Manafe3 bez savienojuma, kamēr esat tiešsaistē, lietotņu joslā izvēlieties {{ui:Saglabāt bezsaistei}}. Poga skaita uz augšu („Saglabā 3 no 20”) un pēc tam rāda {{ui:Gatavs darbam bezsaistē}}. Saglabātajā kopijā ir iekļauta 3D grafikas bibliotēka (apmēram 2.6 MB) un šī palīdzība, tāpēc, kad tā ir saglabāta, 3D skats, katrs eksports un palīdzība darbojas bezsaistē. Sīkāk un par to, kam joprojām vajadzīgs savienojums: [Darbs bezsaistē](common:offline).
 
 :::offline
 Jūs esat bezsaistē. Ja lietotņu joslā redzams {{ui:Gatavs darbam bezsaistē}}, atvēršana, saglabāšana un eksportēšana darbojas kā parasti. Ja nē, neaizveriet šo cilni, neatjaunojiet to, kamēr neesat atkal tiešsaistē, un tagad saglabājiet savu modeli.
@@ -95,4 +95,4 @@ Saglabāšana mākonī vēl nav pieejama, un darbvirsmas versiju vēl nav. Dubl�
 
 ## Nesaglabātais darbs
 
-DetailCraft modeli glabā tikai atvērtajā cilnē. Ja aizverat vai pārlādējat cilni ar nesaglabātām izmaiņām, pārlūkprogramma jautā, vai atstāt lapu; tās formulējums ir pārlūkprogrammas pašas. Bieži saglabājiet ar {{key:Mod+S}}.
+Manafe3 modeli glabā tikai atvērtajā cilnē. Ja aizverat vai pārlādējat cilni ar nesaglabātām izmaiņām, pārlūkprogramma jautā, vai atstāt lapu; tās formulējums ir pārlūkprogrammas pašas. Bieži saglabājiet ar {{key:Mod+S}}.

@@ -5,7 +5,7 @@ keywords: ce este nou, noutăți, note de lansare, jurnal de modificări, modifi
 from: 17d1e0bb
 ---
 
-Aceasta este lista modificărilor din DetailCraft 0.7, față de 0.6. Analiza cadrului din 0.6 are acum un al doilea pas: verificarea barelor din oțel conform unui cod de proiectare.
+Aceasta este lista modificărilor din Manafe3 0.7, față de 0.6. Analiza cadrului din 0.6 are acum un al doilea pas: verificarea barelor din oțel conform unui cod de proiectare.
 
 ## Noutăți
 
@@ -15,7 +15,7 @@ Aceasta este lista modificărilor din DetailCraft 0.7, față de 0.6. Analiza ca
 
 ### Verificări de proiectare
 
-- **Combinații de încărcări din cod.** În fila {{ui:Analiză}}, noul bloc {{ui:Verificări de proiectare}} are un {{ui:Cod de proiectare}}: ASCE 7 + AISC 360 (SUA, LRFD) sau EN 1990 + EN 1993-1-1 (Eurocod). Dați fiecărui caz de încărcare tipul său (permanentă, utilă, noua încărcare utilă pe acoperiș, zăpadă, vânt, seismică), apăsați {{ui:Creare combinații}}, iar DetailCraft scrie combinațiile de rezistență și de exploatare ale codului pentru cazurile dvs. Combinațiile pe care le-ați tastat singur rămân. Vedeți [Realizarea combinațiilor](topic:design-checks#make-the-combinations).
+- **Combinații de încărcări din cod.** În fila {{ui:Analiză}}, noul bloc {{ui:Verificări de proiectare}} are un {{ui:Cod de proiectare}}: ASCE 7 + AISC 360 (SUA, LRFD) sau EN 1990 + EN 1993-1-1 (Eurocod). Dați fiecărui caz de încărcare tipul său (permanentă, utilă, noua încărcare utilă pe acoperiș, zăpadă, vânt, seismică), apăsați {{ui:Creare combinații}}, iar Manafe3 scrie combinațiile de rezistență și de exploatare ale codului pentru cazurile dvs. Combinațiile pe care le-ați tastat singur rămân. Vedeți [Realizarea combinațiilor](topic:design-checks#make-the-combinations).
 - **Valorile Anexei Naționale.** Pentru Eurocod, factorii pornesc de la valorile recomandate; {{ui:Valorile Anexei Naționale}} vă lasă să le tastați pe ale țării dvs., iar acestea se salvează în model. Vedeți [Realizarea combinațiilor](topic:design-checks#make-the-combinations).
 - **Verificare bare.** {{ui:Verificare bare}} verifică fiecare profil I din oțel la întindere, la compresiune cu flambaj, la încovoiere cu flambaj lateral-torsional, la forfecare, la încovoiere cu forță axială și la săgeată, față de {{ui:Limita de săgeată}} pe care o setați. Tabelul arată gradul de utilizare al fiecărei bare, verificarea care guvernează și combinația acesteia, iar barele sunt colorate pe model (albastru, verde, ocru, roșu, gri pentru neverificate). Vedeți [Verificarea barelor](topic:design-checks#check-the-members).
 - **În raport.** {{ui:Raport (PDF)}} și {{ui:Raport (CSV)}} adaugă edițiile codurilor, setările, gradul de utilizare pe bară și fiecare clauză folosită. Vedeți [Raportul](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Aceasta este lista modificărilor din DetailCraft 0.7, față de 0.6. Analiza ca
 
 ### Asistenți AI
 
-- **USD pentru asistenți.** Asistentul dvs., conectat prin CadCraft Studio, poate exporta modelul ca USD (`usd_export`), iar în Studio îl poate scrie într-un folder pe care l-ați permis. Vedeți [Ce poate cere un asistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD pentru asistenți.** Asistentul dvs., conectat prin Manafe3 Desktop, poate exporta modelul ca USD (`usd_export`), iar în Studio îl poate scrie într-un folder pe care l-ați permis. Vedeți [Ce poate cere un asistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Modificate
 
@@ -36,16 +36,16 @@ Aceasta este lista modificărilor din DetailCraft 0.7, față de 0.6. Analiza ca
 
 ## În fiecare aplicație
 
-- **Unități.** {{ui:Setări}} › {{ui:General}} › {{ui:Unități}} are câte o listă pentru lungime, suprafață, volum, unghi și pantă, cu dimensiunile exacte date de definițiile unităților (piciorul de topograf din SUA este o unitate separată). Dezactivați unitățile pe care nu le folosiți niciodată și ies din listele de unități; marcați una cu o stea și lucrul nou începe în ea. Un fișier își păstrează întotdeauna propria unitate. Casetele proprii ale DetailCraft nu urmează încă listele: lungimile sale se tastează în continuare în milimetri. Vedeți [Unități, valori tastate și listele de unități](common:unit-lists).
+- **Unități.** {{ui:Setări}} › {{ui:General}} › {{ui:Unități}} are câte o listă pentru lungime, suprafață, volum, unghi și pantă, cu dimensiunile exacte date de definițiile unităților (piciorul de topograf din SUA este o unitate separată). Dezactivați unitățile pe care nu le folosiți niciodată și ies din listele de unități; marcați una cu o stea și lucrul nou începe în ea. Un fișier își păstrează întotdeauna propria unitate. Casetele proprii ale Manafe3 nu urmează încă listele: lungimile sale se tastează în continuare în milimetri. Vedeți [Unități, valori tastate și listele de unități](common:unit-lists).
 - **O organizare mai densă și panouri care se ascund.** {{ui:Setări}} › {{ui:General}} › {{ui:Densitatea aspectului}} › {{ui:Compactă}} încape mai mult pe ecran (ecranele tactile și telefoanele își păstrează butoanele mari). Fiecare panou lateral are o bară de titlu subțire: trageți-o ca să ancorați sau să detașați panoul, plasați-o pe bara altui panou ca să împărțiți un cadru în file, fixați-o ca să alunece spre margine sau ascundeți panoul și aduceți-l înapoi de la margine. Vedeți [Aranjarea panourilor](common:arrange-panels#make-the-layout-denser).
 - **Casetele de dialog se mută.** Trageți o casetă de dialog de bara ei de titlu, în afara drumului desenului; ea revine acolo unde ați lăsat-o. Faceți dublu clic pe bara de titlu ca s-o centrați din nou. Vedeți [Mutarea unei casete de dialog](common:arrange-panels#move-a-dialog).
 - **Rețete pentru asistenți AI.** Zece cereri rezolvate pentru asistentul dvs. (curățarea unui desen, trasarea unui set, verificarea desenelor, întrebări despre un model, totalizarea unei extrageri de cantități, încercarea unei variante de piesă…), fiecare cu uneltele pe care le apelează și permisiunile de care are nevoie, și fiecare reluată de testele noastre. Aplicațiile nu conțin AI. Vedeți [Rețete pentru asistenți AI](common:assistants-recipes).
 - **Limbi.** **Português (Portugal)** este nou în {{ui:Setări}} › {{ui:General}} › {{ui:Limbă}}. Acesta, **Português (Brasil)**, **Español (México)** și **Bahasa Indonesia** au acum fiecare cuvânt din aplicații, ca ciorne, nerevizuite încă de un vorbitor nativ. Subiectele de ajutor sunt în limba engleză.
-- **CadCraft Studio** arată motivul pentru care o verificare de actualizare a eșuat (încă nu există fișier pentru sistemul dvs., lipsă de rețea, semnătură greșită), în loc să afișeze doar „Gata”, și nu mai readuce un card Ce este nou pe care l-ați închis până când nu apare o versiune mai nouă.
+- **Manafe3 Desktop** arată motivul pentru care o verificare de actualizare a eșuat (încă nu există fișier pentru sistemul dvs., lipsă de rețea, semnătură greșită), în loc să afișeze doar „Gata”, și nu mai readuce un card Ce este nou pe care l-ați închis până când nu apare o versiune mai nouă.
 
 ## Nu este încă în această versiune
 
-- **0.7 nu este semnat cu cod.** Semnarea și pachetul Microsoft Store au fost mutate în 0.8, pentru că validarea certificatului nu a sosit încă. Verificați SHA-256 de lângă fiecare fișier de pe getcadcraft.com/download. Pe Windows, dacă SmartScreen oprește programul de instalare, alegeți {{ui:Mai multe informații}}, apoi {{ui:Rulați oricum}}. Pe Mac, prima dată, faceți clic dreapta pe CadCraft Studio și alegeți {{ui:Deschidere}}. CadCraft Studio nu este încă într-un magazin de aplicații, iar nu există încă o versiune pentru iPad sau iPhone.
+- **0.7 nu este semnat cu cod.** Semnarea și pachetul Microsoft Store au fost mutate în 0.8, pentru că validarea certificatului nu a sosit încă. Verificați SHA-256 de lângă fiecare fișier de pe getcadcraft.com/download. Pe Windows, dacă SmartScreen oprește programul de instalare, alegeți {{ui:Mai multe informații}}, apoi {{ui:Rulați oricum}}. Pe Mac, prima dată, faceți clic dreapta pe Manafe3 Desktop și alegeți {{ui:Deschidere}}. Manafe3 Desktop nu este încă într-un magazin de aplicații, iar nu există încă o versiune pentru iPad sau iPhone.
 - Unghiurile și pantele din {{ui:Unități}} sunt salvate, dar nicio casetă nu le citește încă.
 - **Verificările de proiectare nu au fost revizuite încă de un inginer.** Testele noastre le compară cu valorile tipărite din tabele și cu formule lucrate manual, nu încă cu exemplele lucrate ale unui ghid de proiectare. Până la o revizuire, sunt un ajutor: verificați manual barele care contează.
 - Verificările de proiectare folosesc forțe de ordinul întâi (fără efecte de ordinul doi) și verifică doar profile I. Nu sunt realizate: tuburi, corniere, canale, forme sudate, piese zvelte (AISC) sau de clasa 4 (Eurocod) la încovoiere, torsiune, flambajul la forfecare combinat cu încovoierea, îmbinări, oboseală, foc, detaliere seismică și beton. O piesă zveltă la compresiune scoate verificările la compresiune, iar bara apare ca „trece, parțial verificată”.

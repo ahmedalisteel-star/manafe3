@@ -41,4 +41,4 @@ Esteu fora de línia ara. Si aquesta aplicació es va desar per fer-la servir fo
 Safari elimina les dades desades dels llocs que no heu visitat durant unes setmanes. Obriu l'aplicació de tant en tant mentre esteu en línia, o torneu-la a desar abans d'un viatge.
 :::
 
-- CadCraft Studio, l'aplicació d'escriptori amb les vuit aplicacions en una sola instal·lació, és a getcadcraft.com/download.
+- Manafe3 Desktop, l'aplicació d'escriptori amb les vuit aplicacions en una sola instal·lació, és a getcadcraft.com/download.

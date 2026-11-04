@@ -42,7 +42,7 @@ Hai bảng có thể dùng chung một khung và chỉ hiển thị một bảng
 
 ## Chọn số hàng cho thanh công cụ
 
-{{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Số hàng thanh công cụ}} có ba lựa chọn. {{ui:Xuống dòng}} là mặc định: mọi nhóm công cụ đều hiển thị, trên bao nhiêu dòng tùy cần. {{ui:2 hàng}} giữ thanh công cụ ở hai dòng và {{ui:1 hàng}} ở một dòng, để bản vẽ có thêm chiều cao; các nhóm không vừa sẽ cuộn ngang bên trong thanh công cụ (dùng con lăn chuột, vuốt bằng hai ngón, hoặc {{key:Tab}} tới một công cụ). Thanh công cụ đã vừa trong hai dòng sẽ giữ nguyên khi chọn {{ui:2 hàng}}, vì lưới chỉ làm nó cao hơn. Lựa chọn được lưu riêng cho từng ứng dụng. Màn hình cảm ứng và điện thoại giữ bố cục riêng. CadCraft có cài đặt riêng cho thanh công cụ của mình, trong {{ui:Cài đặt}} › {{ui:CadCraft}}.
+{{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Số hàng thanh công cụ}} có ba lựa chọn. {{ui:Xuống dòng}} là mặc định: mọi nhóm công cụ đều hiển thị, trên bao nhiêu dòng tùy cần. {{ui:2 hàng}} giữ thanh công cụ ở hai dòng và {{ui:1 hàng}} ở một dòng, để bản vẽ có thêm chiều cao; các nhóm không vừa sẽ cuộn ngang bên trong thanh công cụ (dùng con lăn chuột, vuốt bằng hai ngón, hoặc {{key:Tab}} tới một công cụ). Thanh công cụ đã vừa trong hai dòng sẽ giữ nguyên khi chọn {{ui:2 hàng}}, vì lưới chỉ làm nó cao hơn. Lựa chọn được lưu riêng cho từng ứng dụng. Màn hình cảm ứng và điện thoại giữ bố cục riêng. Manafe3 có cài đặt riêng cho thanh công cụ của mình, trong {{ui:Cài đặt}} › {{ui:Manafe3}}.
 
 ## Dùng bàn phím
 
@@ -82,7 +82,7 @@ Từ bàn phím, nhấn {{key:Alt}}+{{key:Shift}}+phím mũi tên khi tiêu đi�
 
 Trên điện thoại, hộp thoại vẫn là tờ toàn chiều rộng và không được di chuyển.
 
-Trong CadCraft Studio, hộp thoại {{ui:In ra PDF}} của CadCraft, hộp thoại bạn có thể giữ mở khi làm việc, có một nút trên thanh tiêu đề: {{ui:Mở trong cửa sổ riêng}}. Hộp thoại sẽ chuyển thành một cửa sổ riêng mà bạn có thể đặt trên màn hình khác. Đóng hộp thoại sẽ đóng cửa sổ, và đóng cửa sổ sẽ đóng hộp thoại.
+Trong Manafe3 Desktop, hộp thoại {{ui:In ra PDF}} của Manafe3, hộp thoại bạn có thể giữ mở khi làm việc, có một nút trên thanh tiêu đề: {{ui:Mở trong cửa sổ riêng}}. Hộp thoại sẽ chuyển thành một cửa sổ riêng mà bạn có thể đặt trên màn hình khác. Đóng hộp thoại sẽ đóng cửa sổ, và đóng cửa sổ sẽ đóng hộp thoại.
 
 ## Đưa các bảng về lại
 

@@ -5,7 +5,7 @@ keywords: újdonságok, kiadási jegyzet, változásnapló, változások, 0.7, v
 from: 17d1e0bb
 ---
 
-Ez változott a DetailCraft 0.7-ben a 0.6-hoz képest. A 0.6 keretanalízise most kapott egy második lépést: az acél rúdelemek ellenőrzését egy tervezési előírás szerint.
+Ez változott a Manafe3 0.7-ben a 0.6-hoz képest. A 0.6 keretanalízise most kapott egy második lépést: az acél rúdelemek ellenőrzését egy tervezési előírás szerint.
 
 ## Újdonságok
 
@@ -15,7 +15,7 @@ Ez változott a DetailCraft 0.7-ben a 0.6-hoz képest. A 0.6 keretanalízise mos
 
 ### Tervezési ellenőrzések
 
-- **Teherkombinációk az előírásból.** Az {{ui:Analízis}} lapon az új {{ui:Tervezési ellenőrzések}} blokknak van {{ui:Tervezési előírás}} választója: ASCE 7 + AISC 360 (US, LRFD) vagy EN 1990 + EN 1993-1-1 (Eurocode). Adja meg az egyes teheresetek fajtáját (állandó, hasznos, az új tetőhasznos, hó, szél, szeizmikus), nyomja meg a {{ui:Kombinációk készítése}} gombot, és a DetailCraft megírja az előírás szilárdsági és használhatósági kombinációit az Ön eseteiből. A saját maga beírt kombinációk megmaradnak. Lásd: [A kombinációk elkészítése](topic:design-checks#make-the-combinations).
+- **Teherkombinációk az előírásból.** Az {{ui:Analízis}} lapon az új {{ui:Tervezési ellenőrzések}} blokknak van {{ui:Tervezési előírás}} választója: ASCE 7 + AISC 360 (US, LRFD) vagy EN 1990 + EN 1993-1-1 (Eurocode). Adja meg az egyes teheresetek fajtáját (állandó, hasznos, az új tetőhasznos, hó, szél, szeizmikus), nyomja meg a {{ui:Kombinációk készítése}} gombot, és a Manafe3 megírja az előírás szilárdsági és használhatósági kombinációit az Ön eseteiből. A saját maga beírt kombinációk megmaradnak. Lásd: [A kombinációk elkészítése](topic:design-checks#make-the-combinations).
 - **Nemzeti melléklet értékei.** Az Eurocode-nál a tényezők az ajánlott értékekkel indulnak; a {{ui:Nemzeti melléklet értékei}} lehetővé teszi az Ön országáét, és ezek a modellben mentődnek. Lásd: [A kombinációk elkészítése](topic:design-checks#make-the-combinations).
 - **Rúdelemek ellenőrzése.** A {{ui:Rúdelemek ellenőrzése}} minden acél I-szelvényt ellenőriz húzásra, kihajlással járó nyomásra, kifordulással járó hajlításra, nyírásra, hajlítás és normálerő együttesére, valamint lehajlásra az Ön által megadott {{ui:Lehajlási határ}} szerint. A táblázat mutatja az egyes rúdelemek kihasználtságát, a mértékadó ellenőrzést és annak kombinációját, a rúdelemek pedig színezve látszanak a modellen (kék, zöld, okker, piros, szürke a nem ellenőrzötteknél). Lásd: [A rúdelemek ellenőrzése](topic:design-checks#check-the-members).
 - **A jelentésben.** A {{ui:Jelentés (PDF)}} és a {{ui:Jelentés (CSV)}} hozzáadja az előírás kiadásait, a beállításokat, a kihasználtságot rúdelemenként és minden felhasznált szakaszt. Lásd: [A jelentés](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Ez változott a DetailCraft 0.7-ben a 0.6-hoz képest. A 0.6 keretanalízise mos
 
 ### MI-asszisztensek
 
-- **USD az asszisztenseknek.** A saját asszisztense, a CadCraft Studión át csatlakozva, exportálhatja a modellt USD-be (`usd_export`), és a Studióban egy engedélyezett mappába írhatja. Lásd: [Mit kérhet az asszisztens](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD az asszisztenseknek.** A saját asszisztense, a Manafe3 Studión át csatlakozva, exportálhatja a modellt USD-be (`usd_export`), és a Studióban egy engedélyezett mappába írhatja. Lásd: [Mit kérhet az asszisztens](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Módosult
 
@@ -36,16 +36,16 @@ Ez változott a DetailCraft 0.7-ben a 0.6-hoz képest. A 0.6 keretanalízise mos
 
 ## Minden alkalmazásban
 
-- **Mértékegységek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Mértékegységek}} hossznak, területnek, térfogatnak, szögnek és lejtésnek külön listát ad, a mértékegységek definíciói szerinti pontos méretekkel (az amerikai geodéziai láb külön mértékegység). Kapcsolja ki a soha nem használtakat, és kikerülnek a listákból; csillagozzon meg egyet, és az új munka azzal indul. A fájl mindig megtartja a saját mértékegységét. A DetailCraft saját mezői még nem követik a listákat: a hosszait továbbra is milliméterben kell beírni. Lásd: [Mértékegységek, beírt értékek és a mértékegységlisták](common:unit-lists).
+- **Mértékegységek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Mértékegységek}} hossznak, területnek, térfogatnak, szögnek és lejtésnek külön listát ad, a mértékegységek definíciói szerinti pontos méretekkel (az amerikai geodéziai láb külön mértékegység). Kapcsolja ki a soha nem használtakat, és kikerülnek a listákból; csillagozzon meg egyet, és az új munka azzal indul. A fájl mindig megtartja a saját mértékegységét. A Manafe3 saját mezői még nem követik a listákat: a hosszait továbbra is milliméterben kell beírni. Lásd: [Mértékegységek, beírt értékek és a mértékegységlisták](common:unit-lists).
 - **Sűrűbb elrendezés és eltűnő panelek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}} › {{ui:Kompakt}} több mindent elhelyez a képernyőn (az érintőképernyők és a telefonok megtartják a nagy gombjaikat). Minden oldalpanelnek van egy karcsú címsora: húzza a panel dokkolásához vagy lebegtetéséhez, ejtse egy másik panel sávjára, hogy egy keretben osztozzanak lapokként, rögzítse, hogy a szélre csússzon, vagy rejtse el, és hozza vissza a szélről. Lásd: [A panelek elrendezése](common:arrange-panels#make-the-layout-denser).
 - **A párbeszédpanelek mozognak.** Húzza a párbeszédpanelt a címsoránál fogva a rajz elől; oda tér vissza, ahol hagyta. A címsorra duplán kattintva újra középre kerül. Lásd: [Párbeszédpanel mozgatása](common:arrange-panels#move-a-dialog).
 - **Receptek MI-asszisztensekhez.** Tíz kidolgozott kérés a saját asszisztensének (rajz rendbetétele, rajzkészlet plottolása, rajzok ellenőrzése, kérdések egy modellről, mennyiségkimutatás összesítése, alkatrészváltozat kipróbálása…), mindegyikhez a hívott eszközökkel és a szükséges engedélyekkel, és mindegyiket lejátszották a tesztjeink. Az alkalmazások nem tartalmaznak MI-t. Lásd: [Receptek MI-asszisztensekhez](common:assistants-recipes).
 - **Nyelvek.** Új a **Português (Portugal)** a {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Nyelv}} alatt. Ez, a **Português (Brasil)**, az **Español (México)** és a **Bahasa Indonesia** most már az alkalmazások minden szavát tartalmazza, anyanyelvi beszélő által még nem ellenőrzött piszkozatként. A súgótémakörök angolul vannak.
-- **A CadCraft Studio** megmondja, miért hiúsult meg egy frissítésellenőrzés (még nincs fájl az Ön rendszeréhez, nincs hálózat, hibás aláírás), a puszta „Kész” helyett, és nem hozza vissza a bezárt Újdonságok kártyát, amíg nincs újabb kiadás.
+- **A Manafe3 Desktop** megmondja, miért hiúsult meg egy frissítésellenőrzés (még nincs fájl az Ön rendszeréhez, nincs hálózat, hibás aláírás), a puszta „Kész” helyett, és nem hozza vissza a bezárt Újdonságok kártyát, amíg nincs újabb kiadás.
 
 ## Ebben a verzióban még nincs
 
-- **A 0.7 nincs kódaláírással ellátva.** Az aláírás és a Microsoft Store csomag átkerült a 0.8-ba, mert a tanúsítvány érvényesítése még nem érkezett meg. Ellenőrizze a getcadcraft.com/download oldalon az egyes fájlok melletti SHA-256 értéket. Windowson, ha a SmartScreen megállítja a telepítőt, válassza a {{ui:További információ}}, majd a {{ui:Futtatás mindenképp}} lehetőséget. Macen az első alkalommal kattintson jobb gombbal a CadCraft Studióra, és válassza a {{ui:Megnyitás}} parancsot. A CadCraft Studio még nincs alkalmazásboltban, és iPad- vagy iPhone-verzió sincs még.
+- **A 0.7 nincs kódaláírással ellátva.** Az aláírás és a Microsoft Store csomag átkerült a 0.8-ba, mert a tanúsítvány érvényesítése még nem érkezett meg. Ellenőrizze a getcadcraft.com/download oldalon az egyes fájlok melletti SHA-256 értéket. Windowson, ha a SmartScreen megállítja a telepítőt, válassza a {{ui:További információ}}, majd a {{ui:Futtatás mindenképp}} lehetőséget. Macen az első alkalommal kattintson jobb gombbal a Manafe3 Studióra, és válassza a {{ui:Megnyitás}} parancsot. A Manafe3 Desktop még nincs alkalmazásboltban, és iPad- vagy iPhone-verzió sincs még.
 - A {{ui:Mértékegységek}} szög- és lejtéslistái mentődnek, de mező még nem olvassa őket.
 - **A tervezési ellenőrzéseket mérnök még nem nézte át.** A tesztjeink nyomtatott táblázati értékekkel és kézzel számolt képletekkel vetik össze őket, tervezési segédlet kidolgozott példáival még nem. Az áttekintésig segédeszköz: a fontos rúdelemeket ellenőrizze kézzel.
 - A tervezési ellenőrzések elsőrendű erőket használnak (másodrendű hatások nélkül), és csak I-szelvényeket ellenőriznek. Nincs elkészítve: csövek, szögacélok, U-szelvények, hegesztett szelvények, hajlított karcsú (AISC) vagy 4. osztályú (Eurocode) elemek, csavarás, nyírási horpadás hajlítással együtt, kapcsolatok, fáradás, tűz, szeizmikus részletképzés és beton. A nyomott karcsú elem kimarad a nyomási ellenőrzésekből, és a rúdelem „megfelel, részben ellenőrizve” jelzést kap.

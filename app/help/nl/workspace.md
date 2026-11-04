@@ -1,17 +1,17 @@
 ---
 title: Een rondleiding langs het scherm
-summary: Elke balk, elk paneel en elk tabblad in DetailCraft met de naam zoals die op het scherm staat, en waar elk voor dient.
+summary: Elke balk, elk paneel en elk tabblad in Manafe3 met de naam zoals die op het scherm staat, en waar elk voor dient.
 keywords: scherm, indeling, werkbalk, panelen, eigenschappen, statusbalk, rapporten, interface, ui, tabbladen
 from: 454f74fd
 ---
 
-DetailCraft vult het browservenster onder de appbalk. Van boven naar beneden: de werkbalk, dan drie kolommen (het paneel {{ui:Model}}, de weergave, het paneel {{ui:Eigenschappen}}), dan de rapporttabbladen, dan de statusbalk.
+Manafe3 vult het browservenster onder de appbalk. Van boven naar beneden: de werkbalk, dan drie kolommen (het paneel {{ui:Model}}, de weergave, het paneel {{ui:Eigenschappen}}), dan de rapporttabbladen, dan de statusbalk.
 
 ## De appbalk
 
-De smalle balk helemaal bovenaan hoort bij de CadCraft-site, niet bij het model. Hij toont de naam en versie van de app, een koppeling naar {{ui:Over DetailCraft}}, {{ui:Help}} (of {{key:F1}}) voor deze Help, {{ui:Opslaan voor offline gebruik}}, de knop voor de schermmodus en de schakelaar {{ui:Papier}} / {{ui:Model}}.
+De smalle balk helemaal bovenaan hoort bij de Manafe3-site, niet bij het model. Hij toont de naam en versie van de app, een koppeling naar {{ui:Over Manafe3}}, {{ui:Help}} (of {{key:F1}}) voor deze Help, {{ui:Opslaan voor offline gebruik}}, de knop voor de schermmodus en de schakelaar {{ui:Papier}} / {{ui:Model}}.
 
-- {{ui:Opslaan voor offline gebruik}} bewaart DetailCraft, zijn 3D-weergave en deze Help in uw browser zodat het zonder verbinding opent. Na het opslaan staat er {{ui:Klaar voor offline gebruik}}; klik er dan op voor {{ui:Opnieuw opslaan (de nieuwste versie ophalen)}} of {{ui:De offlinekopie verwijderen}}. Zie [Offline werken](common:offline).
+- {{ui:Opslaan voor offline gebruik}} bewaart Manafe3, zijn 3D-weergave en deze Help in uw browser zodat het zonder verbinding opent. Na het opslaan staat er {{ui:Klaar voor offline gebruik}}; klik er dan op voor {{ui:Opnieuw opslaan (de nieuwste versie ophalen)}} of {{ui:De offlinekopie verwijderen}}. Zie [Offline werken](common:offline).
 - {{ui:Papier}} geeft een licht scherm en {{ui:Model}} een donker. De 3D-weergave volgt meteen; er verandert niets in uw model.
 - De knop voor de schermmodus en {{key:Ctrl+Shift+F}} schakelen tussen normaal, volledig scherm en volledig scherm met verborgen balken. {{key:Ctrl+Shift+F}} gebruikt op elke computer de Control-toets, ook op een Mac. Zijn de balken verborgen, wijs dan de bovenrand van het scherm aan (of tik erop) om ze terug te halen. {{key:Esc}} verlaat volledig scherm.
 
@@ -70,7 +70,7 @@ Getalvelden werken door als u op {{key:Enter}} drukt of het veld verlaat. Elke w
 
 ## De rapporttabbladen (onder)
 
-- {{ui:Problemen}}: alles wat DetailCraft niet kon bouwen of wat u moet controleren, met op elke regel een knop {{ui:Selecteren}}. Het tabblad toont het aantal tussen haakjes.
+- {{ui:Problemen}}: alles wat Manafe3 niet kon bouwen of wat u moet controleren, met op elke regel een knop {{ui:Selecteren}}. Het tabblad toont het aantal tussen haakjes.
 - {{ui:Stuklijst}}: onderdelen, samenstellingen, en bouten en ankerbouten, met gewichten en een koppeling {{ui:CSV downloaden}}. Klik op een onderdeelmerk om dat onderdeel te selecteren.
 - {{ui:Buigstaat}}: elk staafmerk in elke fundering, met een koppeling {{ui:CSV downloaden}}.
 
@@ -84,4 +84,4 @@ De titel van het browsertabblad begint met een punt (•) zolang het model wijzi
 
 ## Op een smal scherm
 
-Onder circa 760 pixels breed stapelen de kolommen: werkbalk, weergave, statusbalk, {{ui:Eigenschappen}}, rapporttabbladen en als laatste het paneel {{ui:Model}}. Scrol door de pagina om erbij te komen. DetailCraft is ingedeeld voor een desktop- of laptopscherm; een telefoon werkt om te kijken, niet om te detailleren.
+Onder circa 760 pixels breed stapelen de kolommen: werkbalk, weergave, statusbalk, {{ui:Eigenschappen}}, rapporttabbladen en als laatste het paneel {{ui:Model}}. Scrol door de pagina om erbij te komen. Manafe3 is ingedeeld voor een desktop- of laptopscherm; een telefoon werkt om te kijken, niet om te detailleren.

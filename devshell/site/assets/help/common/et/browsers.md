@@ -54,7 +54,7 @@ Need versioonid saime 0.7 rakenduste koodist, mitte oletusest: iga fail analüü
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS ja iOS 16.4) |
 
-CadCraft Studio sisaldab Windowsis oma veebimootorit, seega vajab Windows 10 või 11; Macis kasutab ta süsteemi oma, seega vajab macOS 13.3 või uuemat. Studio jaotis Sätted › Uuendused näitab, millel sinu koopia töötab.
+Manafe3 Desktop sisaldab Windowsis oma veebimootorit, seega vajab Windows 10 või 11; Macis kasutab ta süsteemi oma, seega vajab macOS 13.3 või uuemat. Studio jaotis Sätted › Uuendused näitab, millel sinu koopia töötab.
 
 See on vanim versioon, millega rakendused *käivituvad*, loetuna koodist. See ei ole nimekiri vanadest brauseritest, millega rakendusi oleme katsetanud, nii et vanem, mis käivitub, võib ikkagi mõne funktsiooni puudu jätta.
 

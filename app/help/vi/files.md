@@ -1,17 +1,17 @@
 ---
 title: Mở, lưu và xuất tệp
-summary: Tệp mô hình DetailCraft, mọi bản xuất nó ghi ra, tệp đi đâu, và điều gì khác nhau theo trình duyệt và kết nối.
+summary: Tệp mô hình Manafe3, mọi bản xuất nó ghi ra, tệp đi đâu, và điều gì khác nhau theo trình duyệt và kết nối.
 keywords: mở, lưu, xuất, tải xuống, tệp, json, ifc, nc1, dstv, csv, pdf, zip, định dạng, nhập
 from: bd715ea3
 ---
 
-DetailCraft có một tệp riêng, là mô hình, và năm bản xuất. Mỗi lần lưu và mỗi lần xuất là một lần tải xuống. Không có gì được tải lên, và không có gì được giữ trên máy chủ.
+Manafe3 có một tệp riêng, là mô hình, và năm bản xuất. Mỗi lần lưu và mỗi lần xuất là một lần tải xuống. Không có gì được tải lên, và không có gì được giữ trên máy chủ.
 
 ## Tệp mô hình
 
-Một mô hình DetailCraft được lưu thành `<name>.detailcraft.json`, trong đó `<name>` là tên mô hình trong bảng {{ui:Mô hình}}. Nó chứa lưới trục, các tầng, thanh (cùng lỗ và chỗ cắt góc), liên kết và cài đặt của chúng, móng và các tiết diện tùy chỉnh của bạn.
+Một mô hình Manafe3 được lưu thành `<name>.detailcraft.json`, trong đó `<name>` là tên mô hình trong bảng {{ui:Mô hình}}. Nó chứa lưới trục, các tầng, thanh (cùng lỗ và chỗ cắt góc), liên kết và cài đặt của chúng, móng và các tiết diện tùy chỉnh của bạn.
 
-Chi tiết, ký hiệu, bulông, mối hàn và thép thanh không được lưu: DetailCraft tính lại chúng từ mô hình mỗi khi mở. Đó là lý do tệp mô hình nhỏ.
+Chi tiết, ký hiệu, bulông, mối hàn và thép thanh không được lưu: Manafe3 tính lại chúng từ mô hình mỗi khi mở. Đó là lý do tệp mô hình nhỏ.
 
 ### Lưu
 
@@ -38,21 +38,21 @@ Safari lưu vào thư mục Downloads. Để đổi thư mục, mở **Safari, S
 1. Chọn {{ui:Mở}} trong nhóm {{ui:Tệp}}, hoặc nhấn {{key:Mod+O}}.
 2. Chọn một tệp `.detailcraft.json`.
 
-Hoặc kéo tệp từ {{pick:mac=Finder|windows=File Explorer|linux=trình quản lý tệp của bạn}} và thả lên khung nhìn. Khung nhìn ghi "Drop a DetailCraft model to open it" trong lúc bạn kéo.
+Hoặc kéo tệp từ {{pick:mac=Finder|windows=File Explorer|linux=trình quản lý tệp của bạn}} và thả lên khung nhìn. Khung nhìn ghi "Drop a Manafe3 model to open it" trong lúc bạn kéo.
 
-Nếu mô hình đang mở có thay đổi chưa lưu, DetailCraft hỏi trước: {{ui:Hủy}}, {{ui:Bỏ thay đổi}} hoặc {{ui:Lưu trước}}.
+Nếu mô hình đang mở có thay đổi chưa lưu, Manafe3 hỏi trước: {{ui:Hủy}}, {{ui:Bỏ thay đổi}} hoặc {{ui:Lưu trước}}.
 
-DetailCraft kiểm tra từng trường của tệp trước khi dùng. Bất cứ thứ gì nó không dùng được sẽ bị bỏ ra và thanh trạng thái cho biết là gì, ví dụ "2 members were not valid and left out." Mô hình được lưu bởi DetailCraft mới hơn bị từ chối kèm thông báo thay vì mở sai một nửa.
+Manafe3 kiểm tra từng trường của tệp trước khi dùng. Bất cứ thứ gì nó không dùng được sẽ bị bỏ ra và thanh trạng thái cho biết là gì, ví dụ "2 members were not valid and left out." Mô hình được lưu bởi Manafe3 mới hơn bị từ chối kèm thông báo thay vì mở sai một nửa.
 
 ### Những gì nó mở
 
-Các tệp mô hình của chính nó (`.json`, đến 50 MB) và tệp IFC (`.ifc`, IFC2X3 hoặc IFC4, đến 200 MB). Một tệp IFC, được mở hoặc đưa vào bằng {{ui:Nhập IFC}}, trở thành mô hình mới gồm dầm, cột, thanh, bản, lưới trục và các tầng của nó, với lỗ và chỗ cắt góc được cắt trong chúng và bulông của nó là bulông rời; một báo cáo liệt kê những gì bị bỏ ra. Xem [Xuất IFC](topic:ifc-export#import). Nó chưa mở DWG, DXF hay mô hình của chương trình triển khai chi tiết khác; thử sẽ hiện "DetailCraft opens its own models (.detailcraft.json) and IFC files (.ifc)."
+Các tệp mô hình của chính nó (`.json`, đến 50 MB) và tệp IFC (`.ifc`, IFC2X3 hoặc IFC4, đến 200 MB). Một tệp IFC, được mở hoặc đưa vào bằng {{ui:Nhập IFC}}, trở thành mô hình mới gồm dầm, cột, thanh, bản, lưới trục và các tầng của nó, với lỗ và chỗ cắt góc được cắt trong chúng và bulông của nó là bulông rời; một báo cáo liệt kê những gì bị bỏ ra. Xem [Xuất IFC](topic:ifc-export#import). Nó chưa mở DWG, DXF hay mô hình của chương trình triển khai chi tiết khác; thử sẽ hiện "Manafe3 opens its own models (.detailcraft.json) and IFC files (.ifc)."
 
 ## Công việc bị mất, tệp gần đây, ứng dụng máy tính để bàn
 
-- Khi mô hình có thay đổi bạn chưa lưu, DetailCraft giữ một bản sao trong trình duyệt này. Nếu thẻ hoặc trình duyệt dừng trước khi bạn lưu, lần sau bạn mở DetailCraft nó hỏi **Recover your work?**: khôi phục bản sao, hoặc bỏ nó đi. Xem [Khôi phục công việc của bạn](common:recover).
-- Các mô hình bạn mở gần đây được liệt kê trên màn hình bắt đầu khi trình duyệt cho DetailCraft mở lại chúng; nhấp một mô hình để mở lại.
-- Trong ứng dụng máy tính để bàn, {{ui:Lưu}} ghi mô hình trở lại tệp bạn đã mở (trong trình duyệt nó tải một bản sao xuống), và nhấp đúp một mô hình DetailCraft hoặc một tệp IFC sẽ mở nó trong DetailCraft.
+- Khi mô hình có thay đổi bạn chưa lưu, Manafe3 giữ một bản sao trong trình duyệt này. Nếu thẻ hoặc trình duyệt dừng trước khi bạn lưu, lần sau bạn mở Manafe3 nó hỏi **Recover your work?**: khôi phục bản sao, hoặc bỏ nó đi. Xem [Khôi phục công việc của bạn](common:recover).
+- Các mô hình bạn mở gần đây được liệt kê trên màn hình bắt đầu khi trình duyệt cho Manafe3 mở lại chúng; nhấp một mô hình để mở lại.
+- Trong ứng dụng máy tính để bàn, {{ui:Lưu}} ghi mô hình trở lại tệp bạn đã mở (trong trình duyệt nó tải một bản sao xuống), và nhấp đúp một mô hình Manafe3 hoặc một tệp IFC sẽ mở nó trong Manafe3.
 
 ## Xuất
 
@@ -79,13 +79,13 @@ Văn bản trong PDF dùng phông Helvetica chuẩn. Các ký tự nó không c�
 
 ## Đơn vị
 
-DetailCraft làm việc bằng milimét xuyên suốt: lưới trục, các tầng, tọa độ, tiết diện, lỗ và mọi bản xuất. Tên tiết diện giữ dạng đã công bố (W12x50 là ký hiệu của Mỹ dù kích thước của nó hiển thị bằng mm). Chưa có cách nhập theo hệ Anh.
+Manafe3 làm việc bằng milimét xuyên suốt: lưới trục, các tầng, tọa độ, tiết diện, lỗ và mọi bản xuất. Tên tiết diện giữ dạng đã công bố (W12x50 là ký hiệu của Mỹ dù kích thước của nó hiển thị bằng mm). Chưa có cách nhập theo hệ Anh.
 
 ## Trực tuyến và ngoại tuyến
 
-Mở, lưu và xuất đều diễn ra trong trình duyệt của bạn, nên chúng hoạt động như nhau dù có hay không có kết nối sau khi DetailCraft đã tải.
+Mở, lưu và xuất đều diễn ra trong trình duyệt của bạn, nên chúng hoạt động như nhau dù có hay không có kết nối sau khi Manafe3 đã tải.
 
-Để dùng DetailCraft khi không có kết nối sau này, hãy chọn {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng khi bạn đang trực tuyến. Nút đếm lên ("Saving 3 of 20") rồi ghi {{ui:Sẵn sàng ngoại tuyến}}. Bản đã lưu gồm thư viện đồ họa 3D (khoảng 2,6 MB) và phần trợ giúp này, nên sau khi lưu, khung nhìn 3D, mọi bản xuất và phần trợ giúp đều hoạt động khi ngoại tuyến. Chi tiết, và những gì vẫn cần kết nối: [Làm việc ngoại tuyến](common:offline).
+Để dùng Manafe3 khi không có kết nối sau này, hãy chọn {{ui:Lưu để dùng ngoại tuyến}} trên thanh ứng dụng khi bạn đang trực tuyến. Nút đếm lên ("Saving 3 of 20") rồi ghi {{ui:Sẵn sàng ngoại tuyến}}. Bản đã lưu gồm thư viện đồ họa 3D (khoảng 2,6 MB) và phần trợ giúp này, nên sau khi lưu, khung nhìn 3D, mọi bản xuất và phần trợ giúp đều hoạt động khi ngoại tuyến. Chi tiết, và những gì vẫn cần kết nối: [Làm việc ngoại tuyến](common:offline).
 
 :::offline
 Bạn đang ngoại tuyến. Nếu thanh ứng dụng hiện {{ui:Sẵn sàng ngoại tuyến}}, mở, lưu và xuất hoạt động như thường. Nếu không, hãy giữ thẻ này mở, đừng tải lại cho đến khi trực tuyến trở lại, và lưu mô hình của bạn ngay bây giờ.
@@ -95,4 +95,4 @@ Chưa có tính năng lưu lên đám mây, và chưa có bản máy tính để
 
 ## Công việc chưa lưu
 
-DetailCraft chỉ giữ mô hình trong thẻ đang mở. Nếu bạn đóng hoặc tải lại thẻ khi còn thay đổi chưa lưu, trình duyệt hỏi có rời trang không; lời lẽ đó là của trình duyệt. Hãy lưu bằng {{key:Mod+S}} thường xuyên.
+Manafe3 chỉ giữ mô hình trong thẻ đang mở. Nếu bạn đóng hoặc tải lại thẻ khi còn thay đổi chưa lưu, trình duyệt hỏi có rời trang không; lời lẽ đó là của trình duyệt. Hãy lưu bằng {{key:Mod+S}} thường xuyên.

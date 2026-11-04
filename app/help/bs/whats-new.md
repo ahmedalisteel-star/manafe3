@@ -5,7 +5,7 @@ keywords: šta je novo, novosti, bilješke o izdanju, dnevnik promjena, promjene
 from: 17d1e0bb
 ---
 
-Ovo je šta se promijenilo u DetailCraft-u 0.7, u odnosu na 0.6. Proračun okvira iz 0.6 sada ima drugi korak: provjeru čeličnih elemenata prema projektnom normativu.
+Ovo je šta se promijenilo u Manafe3-u 0.7, u odnosu na 0.6. Proračun okvira iz 0.6 sada ima drugi korak: provjeru čeličnih elemenata prema projektnom normativu.
 
 ## Novo
 
@@ -15,7 +15,7 @@ Ovo je šta se promijenilo u DetailCraft-u 0.7, u odnosu na 0.6. Proračun okvir
 
 ### Provjere projekta
 
-- **Kombinacije opterećenja iz normativa.** Na kartici {{ui:Analiza}} novi blok {{ui:Provjere projekta}} ima {{ui:Projektni normativ}}: ASCE 7 + AISC 360 (SAD, LRFD) ili EN 1990 + EN 1993-1-1 (Eurokod). Dodijelite svakom slučaju opterećenja njegovu vrstu (stalno, korisno, novo krovno korisno, snijeg, vjetar, seizmičko), pritisnite {{ui:Napravi kombinacije}}, i DetailCraft upisuje kombinacije nosivosti i upotrebljivosti normativa za vaše slučajeve. Kombinacije koje ste sami upisali ostaju. Vidi [Napravite kombinacije](topic:design-checks#make-the-combinations).
+- **Kombinacije opterećenja iz normativa.** Na kartici {{ui:Analiza}} novi blok {{ui:Provjere projekta}} ima {{ui:Projektni normativ}}: ASCE 7 + AISC 360 (SAD, LRFD) ili EN 1990 + EN 1993-1-1 (Eurokod). Dodijelite svakom slučaju opterećenja njegovu vrstu (stalno, korisno, novo krovno korisno, snijeg, vjetar, seizmičko), pritisnite {{ui:Napravi kombinacije}}, i Manafe3 upisuje kombinacije nosivosti i upotrebljivosti normativa za vaše slučajeve. Kombinacije koje ste sami upisali ostaju. Vidi [Napravite kombinacije](topic:design-checks#make-the-combinations).
 - **Vrijednosti nacionalnog aneksa.** Za Eurokod faktori počinju od preporučenih vrijednosti; {{ui:Vrijednosti nacionalnog aneksa}} vam omogućava da upišete vaše, a one se spašavaju u modelu. Vidi [Napravite kombinacije](topic:design-checks#make-the-combinations).
 - **Provjeri elemente.** {{ui:Provjeri elemente}} provjerava svaki čelični I-profil na zatezanje, pritisak s izvijanjem, savijanje s bočno-torzionim izvijanjem, smicanje, savijanje s aksijalnom silom i progib prema {{ui:Granica progiba}} koju postavite. Tabela pokazuje iskorištenje svakog elementa, provjeru koja upravlja i njegovu kombinaciju, a elementi su obojeni na modelu (plava, zelena, oker, crvena, siva za neprovjereno). Vidi [Provjera elemenata](topic:design-checks#check-the-members).
 - **U izvještaju.** {{ui:Izvještaj (PDF)}} i {{ui:Izvještaj (CSV)}} dodaju izdanja normativa, postavke, iskorištenje po elementu i svaku korištenu klauzulu. Vidi [Izvještaj](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Ovo je šta se promijenilo u DetailCraft-u 0.7, u odnosu na 0.6. Proračun okvir
 
 ### AI asistenti
 
-- **USD za asistente.** Vaš vlastiti asistent, povezan preko CadCraft Studio, može izvesti model kao USD (`usd_export`), a u Studiju ga upisati u folder koji ste dozvolili. Vidi [Šta asistent može tražiti](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD za asistente.** Vaš vlastiti asistent, povezan preko Manafe3 Desktop, može izvesti model kao USD (`usd_export`), a u Studiju ga upisati u folder koji ste dozvolili. Vidi [Šta asistent može tražiti](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Promijenjeno
 
@@ -36,16 +36,16 @@ Ovo je šta se promijenilo u DetailCraft-u 0.7, u odnosu na 0.6. Proračun okvir
 
 ## Na svakoj aplikaciji
 
-- **Jedinice.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jedinice}} ima po jednu listu za dužinu, površinu, zapreminu, ugao i nagib, s tačnim veličinama koje daju definicije jedinica (američka anketna stopa je sopstvena jedinica). Isključite jedinice koje nikad ne koristite i one nestanu s lista jedinica; označite jednu zvjezdicom i novi rad počinje u njoj. Datoteka uvijek zadržava svoju jedinicu. Polja DetailCraft-a još ne prate liste: dužine se i dalje upisuju u milimetrima. Vidi [Jedinice, upisane vrijednosti i liste jedinica](common:unit-lists).
+- **Jedinice.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jedinice}} ima po jednu listu za dužinu, površinu, zapreminu, ugao i nagib, s tačnim veličinama koje daju definicije jedinica (američka anketna stopa je sopstvena jedinica). Isključite jedinice koje nikad ne koristite i one nestanu s lista jedinica; označite jednu zvjezdicom i novi rad počinje u njoj. Datoteka uvijek zadržava svoju jedinicu. Polja Manafe3-a još ne prate liste: dužine se i dalje upisuju u milimetrima. Vidi [Jedinice, upisane vrijednosti i liste jedinica](common:unit-lists).
 - **Gušći raspored i paneli koji se sklanjaju.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Gustina rasporeda}} › {{ui:Zbijeno}} stane više na ekran (ekrani osjetljivi na dodir i telefoni zadržavaju velika dugmad). Svaki bočni panel ima tanku naslovnu traku: prevucite je da zakačite ili izdvojite panel, spustite je na traku drugog panela da dijelite jedan okvir kao kartice, pričvrstite je da se sklanja do ivice, ili sakrijte panel i vratite ga s ivice. Vidi [Razmještaj panela](common:arrange-panels#make-the-layout-denser).
 - **Dijalozi se pomjeraju.** Prevucite dijalog za naslovnu traku izvan puta crtežu; vraća se tamo gdje ste ga ostavili. Dvostruki klik na naslovnu traku ga ponovo centrira. Vidi [Pomjeranje dijaloga](common:arrange-panels#move-a-dialog).
 - **Recepti za AI asistente.** Deset primjera zahtjeva za vašeg asistenta (srediti crtež, iscrtati skup, provjeriti crteže, postaviti pitanja o modelu, zbrojiti predmjer, isprobati varijantu dijela…), svaki s alatima koje poziva i dozvolama koje treba, i svaki ponovo pokrenut našim testovima. Aplikacije ne sadrže AI. Vidi [Recepti za AI asistente](common:assistants-recipes).
 - **Jezici.** **Português (Portugal)** je novo u {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jezik}}. Taj jezik, **Português (Brasil)**, **Español (México)** i **Bahasa Indonesia** sada imaju svaku riječ aplikacija, kao nacrte koje izvorni govornik još nije pregledao. Teme pomoći su na engleskom jeziku.
-- **CadCraft Studio** kaže zašto provjera ažuriranja nije uspjela (još nema datoteke za vaš sistem, nema mreže, loš potpis) umjesto samo "Gotovo", i prestaje vraćati karticu Šta je novo koju ste zatvorili dok ne postoji novije izdanje.
+- **Manafe3 Desktop** kaže zašto provjera ažuriranja nije uspjela (još nema datoteke za vaš sistem, nema mreže, loš potpis) umjesto samo "Gotovo", i prestaje vraćati karticu Šta je novo koju ste zatvorili dok ne postoji novije izdanje.
 
 ## Nije još u ovoj verziji
 
-- **0.7 nije potpisan kodom.** Potpisivanje i Microsoft Store paket prebačeni su na 0.8 jer validacija certifikata još nije stigla. Provjerite SHA-256 uz svaku datoteku na getcadcraft.com/download. Na Windowsu, ako SmartScreen zaustavi instalater, odaberite {{ui:Više informacija}}, zatim {{ui:Ipak pokreni}}. Na Macu, prvi put, desnim klikom kliknite CadCraft Studio i odaberite {{ui:Otvori}}. CadCraft Studio još nije u prodavnici aplikacija, a iPad ili iPhone verzija još ne postoji.
+- **0.7 nije potpisan kodom.** Potpisivanje i Microsoft Store paket prebačeni su na 0.8 jer validacija certifikata još nije stigla. Provjerite SHA-256 uz svaku datoteku na getcadcraft.com/download. Na Windowsu, ako SmartScreen zaustavi instalater, odaberite {{ui:Više informacija}}, zatim {{ui:Ipak pokreni}}. Na Macu, prvi put, desnim klikom kliknite Manafe3 Desktop i odaberite {{ui:Otvori}}. Manafe3 Desktop još nije u prodavnici aplikacija, a iPad ili iPhone verzija još ne postoji.
 - Liste uglova i nagiba u {{ui:Jedinice}} su spašene, ali ih nijedno polje još ne čita.
 - **Provjere projekta još nije pregledao inženjer.** Naši testovi ih upoređuju s odštampanim vrijednostima iz tablica i formulama urađenim ručno, a ne još s radnim primjerima iz priručnika za projektovanje. Do pregleda, to je pomagalo: ručno provjerite elemente koji su bitni.
 - Provjere projekta koriste sile prvog reda (bez efekata drugog reda) i provjeravaju samo I-profile. Nije izrađeno: cijevi, uglovnici, U-profili, zavareni oblici, vitki (AISC) ili dijelovi klase 4 (Eurokod) u savijanju, torzija, izvijanje od smicanja zajedno sa savijanjem, veze, zamor, požar, seizmička detaljisanja i beton. Vitki dio u pritisku isključuje provjere pritiska, a element piše "prolazi, djelimično provjereno".

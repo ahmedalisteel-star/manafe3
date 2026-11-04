@@ -492,7 +492,7 @@ async function start(root) {
     for (const b of ui.tools.querySelectorAll('[data-act^="tool:"]')) b.setAttribute('aria-pressed', String(b.dataset.act === 'tool:' + tool));
     const steel = built.parts.reduce((s, p) => s + p.weight, 0), bars = schedule.rows.reduce((s, r) => s + r.totalWeight, 0);
     ui.counts.textContent = tr('app.bar.counts', { parts: built.parts.length, bolts: built.bolts.length, steel: kg(steel) }) + (bars ? ' ' + tr('app.bar.counts.rebar', { rebar: kg(bars) }) : '');
-    document.title = (model.dirty ? '• ' : '') + model.state.name + ' — DetailCraft';
+    document.title = (model.dirty ? '• ' : '') + model.state.name + ' — Manafe3';
     workspace?.refresh();
   }
 
@@ -1828,9 +1828,9 @@ async function start(root) {
   const safeName = () => (model.state.name || 'model').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '-').trim().slice(0, 80) || 'model';
   // the shell's host adapter: the browser's picker and downloads, or the desktop's dialogs (saving in place there)
   const fileHost = getHost({ app: 'detailcraft' });
-  const MODEL_TYPES = [{ description: 'DetailCraft', extensions: ['.json'] }];   // i18n-ignore: a file type label the OS shows
+  const MODEL_TYPES = [{ description: 'Manafe3', extensions: ['.json'] }];   // i18n-ignore: a file type label the OS shows
   const IFC_TYPES = [{ description: 'IFC', extensions: ['.ifc'] }];             // i18n-ignore
-  const OPEN_TYPES = [{ description: 'DetailCraft, IFC, project bundle', extensions: ['.json', '.ifc', '.ccbundle', '.zip'] }];   // i18n-ignore
+  const OPEN_TYPES = [{ description: 'Manafe3, IFC, project bundle', extensions: ['.json', '.ifc', '.ccbundle', '.zip'] }];   // i18n-ignore
   let saveTarget = null;               // the HostFile the open model came from, when it can be written in place
   /** Every export and download: a copy (the browser downloads it; the desktop asks where). */
   function download(name, data, type) { fileHost.download(data, name, type); }

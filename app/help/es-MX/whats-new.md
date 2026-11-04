@@ -5,7 +5,7 @@ keywords: novedades, notas de la versión, registro de cambios, cambios, 0.7, ve
 from: 17d1e0bb
 ---
 
-Esto es lo que cambió en DetailCraft 0.7, comparado con 0.6. El análisis de estructura de 0.6 ahora tiene un segundo paso: revisar los miembros de acero según un código de diseño.
+Esto es lo que cambió en Manafe3 0.7, comparado con 0.6. El análisis de estructura de 0.6 ahora tiene un segundo paso: revisar los miembros de acero según un código de diseño.
 
 ## Novedades
 
@@ -15,7 +15,7 @@ Esto es lo que cambió en DetailCraft 0.7, comparado con 0.6. El análisis de es
 
 ### Revisiones de diseño
 
-- **Combinaciones de carga del código.** En la pestaña {{ui:Análisis}}, el nuevo bloque {{ui:Revisiones de diseño}} tiene un {{ui:Código de diseño}}: ASCE 7 + AISC 360 (EE. UU., LRFD) o EN 1990 + EN 1993-1-1 (Eurocódigo). Dé a cada caso de carga su tipo (muerta, viva, la nueva viva de techo, nieve, viento, sísmica), pulse {{ui:Generar combinaciones}}, y DetailCraft escribe las combinaciones de resistencia y de servicio del código con sus casos. Las combinaciones que usted escribió se conservan. Vea [Genere las combinaciones](topic:design-checks#make-the-combinations).
+- **Combinaciones de carga del código.** En la pestaña {{ui:Análisis}}, el nuevo bloque {{ui:Revisiones de diseño}} tiene un {{ui:Código de diseño}}: ASCE 7 + AISC 360 (EE. UU., LRFD) o EN 1990 + EN 1993-1-1 (Eurocódigo). Dé a cada caso de carga su tipo (muerta, viva, la nueva viva de techo, nieve, viento, sísmica), pulse {{ui:Generar combinaciones}}, y Manafe3 escribe las combinaciones de resistencia y de servicio del código con sus casos. Las combinaciones que usted escribió se conservan. Vea [Genere las combinaciones](topic:design-checks#make-the-combinations).
 - **Valores del Anexo Nacional.** Para el Eurocódigo los factores parten de los valores recomendados; {{ui:Valores del Anexo Nacional}} le permite escribir los de su país, y se guardan en el modelo. Vea [Genere las combinaciones](topic:design-checks#make-the-combinations).
 - **Revisar miembros.** {{ui:Revisar miembros}} revisa cada perfil I de acero por tensión, compresión con pandeo, flexión con pandeo lateral por torsión, cortante, flexión con fuerza axial y deflexión contra el {{ui:Límite de deflexión (L / …)}} que usted fije. La tabla muestra el aprovechamiento de cada miembro, la revisión que rige y su combinación, y los miembros se colorean en el modelo (azul, verde, ocre, rojo, gris para no revisado). Vea [Revise los miembros](topic:design-checks#check-the-members).
 - **En el informe.** {{ui:Informe (PDF)}} e {{ui:Informe (CSV)}} agregan las ediciones de los códigos, los ajustes, el aprovechamiento por miembro y cada cláusula usada. Vea [El informe](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Esto es lo que cambió en DetailCraft 0.7, comparado con 0.6. El análisis de es
 
 ### Asistentes de IA
 
-- **USD para asistentes.** Su propio asistente, conectado mediante CadCraft Studio, puede exportar el modelo como USD (`usd_export`) y, en Studio, escribirlo en una carpeta que usted permitió. Vea [Qué puede pedir un asistente](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD para asistentes.** Su propio asistente, conectado mediante Manafe3 Desktop, puede exportar el modelo como USD (`usd_export`) y, en Studio, escribirlo en una carpeta que usted permitió. Vea [Qué puede pedir un asistente](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Cambios
 
@@ -36,16 +36,16 @@ Esto es lo que cambió en DetailCraft 0.7, comparado con 0.6. El análisis de es
 
 ## En todas las aplicaciones
 
-- **Unidades.** {{ui:Configuración}} › {{ui:General}} › {{ui:Unidades}} tiene una lista cada una para longitud, área, volumen, ángulo y pendiente, con los tamaños exactos que dan las definiciones de las unidades (el pie topográfico de EE. UU. es su propia unidad). Desactive las unidades que nunca usa y salen de las listas de unidades; marque una con estrella y el trabajo nuevo empieza en ella. Un archivo siempre conserva su propia unidad. Los cuadros propios de DetailCraft aún no siguen las listas: sus longitudes se siguen escribiendo en milímetros. Vea [Unidades, valores escritos y listas de unidades](common:unit-lists).
+- **Unidades.** {{ui:Configuración}} › {{ui:General}} › {{ui:Unidades}} tiene una lista cada una para longitud, área, volumen, ángulo y pendiente, con los tamaños exactos que dan las definiciones de las unidades (el pie topográfico de EE. UU. es su propia unidad). Desactive las unidades que nunca usa y salen de las listas de unidades; marque una con estrella y el trabajo nuevo empieza en ella. Un archivo siempre conserva su propia unidad. Los cuadros propios de Manafe3 aún no siguen las listas: sus longitudes se siguen escribiendo en milímetros. Vea [Unidades, valores escritos y listas de unidades](common:unit-lists).
 - **Un diseño más denso y paneles que se recogen.** {{ui:Configuración}} › {{ui:General}} › {{ui:Densidad del diseño}} › {{ui:Compacta}} cabe más en la pantalla (las pantallas táctiles y los teléfonos conservan sus botones grandes). Cada panel lateral tiene una barra de título delgada: arrástrela para acoplar o flotar el panel, suéltela sobre la barra de otro panel para compartir un marco como pestañas, fíjelo para que se deslice hacia el borde, u ocúltelo y tráigalo de vuelta desde el borde. Vea [Organice los paneles](common:arrange-panels#make-the-layout-denser).
 - **Los diálogos se mueven.** Arrastre un diálogo por su barra de título para quitarlo del paso del dibujo; vuelve donde lo dejó. Haga doble clic en la barra de título para centrarlo otra vez. Vea [Mueva un diálogo](common:arrange-panels#move-a-dialog).
 - **Recetas para asistentes de IA.** Diez peticiones resueltas para su propio asistente (ordenar un dibujo, trazar un juego, revisar dibujos, hacer preguntas a un modelo, totalizar una cuantificación, probar una variante de pieza…), cada una con las herramientas que llama y los permisos que necesita, y cada una reproducida por nuestras pruebas. Las aplicaciones no contienen IA. Vea [Recetas para asistentes de IA](common:assistants-recipes).
 - **Idiomas.** **Português (Portugal)** es nuevo en {{ui:Configuración}} › {{ui:General}} › {{ui:Idioma}}. Ese, **Português (Brasil)**, **Español (México)** y **Bahasa Indonesia** ya tienen cada palabra de las aplicaciones, como borradores aún no revisados por un hablante nativo. Los temas de ayuda están en inglés.
-- **CadCraft Studio** dice por qué falló una búsqueda de actualización (aún no hay archivo para su sistema, no hay red, firma incorrecta) en lugar de solo "Listo", y deja de traer una tarjeta de Novedades que usted cerró hasta que haya una versión más nueva.
+- **Manafe3 Desktop** dice por qué falló una búsqueda de actualización (aún no hay archivo para su sistema, no hay red, firma incorrecta) en lugar de solo "Listo", y deja de traer una tarjeta de Novedades que usted cerró hasta que haya una versión más nueva.
 
 ## Aún no está en esta versión
 
-- **0.7 no está firmada con certificado de código.** La firma y el paquete de Microsoft Store pasaron a 0.8 porque la validación del certificado aún no llega. Compruebe el SHA-256 junto a cada archivo en getcadcraft.com/download. En Windows, si SmartScreen detiene el instalador, elija {{ui:Más información}} y luego {{ui:Ejecutar de todas formas}}. En una Mac, la primera vez, haga clic derecho en CadCraft Studio y elija {{ui:Abrir}}. CadCraft Studio todavía no está en una tienda de aplicaciones y aún no hay versión para iPad ni iPhone.
+- **0.7 no está firmada con certificado de código.** La firma y el paquete de Microsoft Store pasaron a 0.8 porque la validación del certificado aún no llega. Compruebe el SHA-256 junto a cada archivo en getcadcraft.com/download. En Windows, si SmartScreen detiene el instalador, elija {{ui:Más información}} y luego {{ui:Ejecutar de todas formas}}. En una Mac, la primera vez, haga clic derecho en Manafe3 Desktop y elija {{ui:Abrir}}. Manafe3 Desktop todavía no está en una tienda de aplicaciones y aún no hay versión para iPad ni iPhone.
 - Las listas de ángulo y pendiente en {{ui:Unidades}} se guardan, pero ningún cuadro las lee todavía.
 - **Las revisiones de diseño aún no las ha revisado un ingeniero.** Nuestras pruebas las comparan con valores impresos de tablas y fórmulas resueltas a mano, todavía no con ejemplos resueltos de una guía de diseño. Hasta una revisión, son una ayuda: revise a mano los miembros que importan.
 - Las revisiones de diseño usan fuerzas de primer orden (sin efectos de segundo orden) y revisan solo perfiles I. No están construidos: tubos, ángulos, canales, perfiles soldados, piezas esbeltas (AISC) o de clase 4 (Eurocódigo) en flexión, torsión, pandeo por cortante junto con flexión, conexiones, fatiga, fuego, detallado sísmico y concreto. Una pieza esbelta en compresión deja fuera las revisiones de compresión, y el miembro dice "passes, partly checked".

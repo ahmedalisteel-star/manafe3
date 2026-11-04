@@ -42,7 +42,7 @@ Da izvučeš panel iz grupe, izaberi {{ui:Izvuci iz grupe kartica}} u njegovom m
 
 ## Izaberi koliko redova koristi alatna traka
 
-{{ui:Postavke}} › {{ui:Opšte}} › {{ui:Redovi alatne trake}} ima tri mogućnosti. {{ui:Prelomi}} je podrazumijevano: svaka grupa alata se prikazuje, u onoliko redova koliko treba. {{ui:2 reda}} drži alatnu traku na dva reda, a {{ui:1 red}} na jednom, pa crtež dobija visinu; grupe koje ne stanu klize vodoravno unutar alatne trake (koristi točkić miša, dvoprstan pomak ili {{key:Tab}} do alata). Traka koja već stane u dva reda ostaje kakva je pod {{ui:2 reda}}, jer bi mreža samo bila viša. Izbor se čuva za svaku aplikaciju. Ekran osjetljiv na dodir i telefon zadržavaju svoj raspored. CadCraft ima vlastitu postavku za svoju alatnu traku, pod {{ui:Postavke}} › {{ui:CadCraft}}.
+{{ui:Postavke}} › {{ui:Opšte}} › {{ui:Redovi alatne trake}} ima tri mogućnosti. {{ui:Prelomi}} je podrazumijevano: svaka grupa alata se prikazuje, u onoliko redova koliko treba. {{ui:2 reda}} drži alatnu traku na dva reda, a {{ui:1 red}} na jednom, pa crtež dobija visinu; grupe koje ne stanu klize vodoravno unutar alatne trake (koristi točkić miša, dvoprstan pomak ili {{key:Tab}} do alata). Traka koja već stane u dva reda ostaje kakva je pod {{ui:2 reda}}, jer bi mreža samo bila viša. Izbor se čuva za svaku aplikaciju. Ekran osjetljiv na dodir i telefon zadržavaju svoj raspored. Manafe3 ima vlastitu postavku za svoju alatnu traku, pod {{ui:Postavke}} › {{ui:Manafe3}}.
 
 ## Koristi tastaturu
 
@@ -82,7 +82,7 @@ Iz tastature: pritisni {{key:Alt}}+{{key:Shift}}+tipku sa strelicom dok je fokus
 
 Na telefonu dijalozi ostaju puno široki listovi i ne mogu se pomjerati.
 
-U aplikaciji CadCraft Studio, CadCraft-ov dijalog {{ui:Ispis u PDF}}, koji možeš držati otvorenim dok radiš, ima dugme u naslovnoj traci, {{ui:Otvori u vlastitom prozoru}}. Dijalog se premješta u vlastiti prozor koji možeš staviti na drugi monitor. Zatvaranje dijaloga zatvara prozor, a zatvaranje prozora zatvara dijalog.
+U aplikaciji Manafe3 Desktop, Manafe3-ov dijalog {{ui:Ispis u PDF}}, koji možeš držati otvorenim dok radiš, ima dugme u naslovnoj traci, {{ui:Otvori u vlastitom prozoru}}. Dijalog se premješta u vlastiti prozor koji možeš staviti na drugi monitor. Zatvaranje dijaloga zatvara prozor, a zatvaranje prozora zatvara dijalog.
 
 ## Vrati panele
 

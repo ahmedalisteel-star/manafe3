@@ -1,17 +1,17 @@
 ---
 title: Prohlídka obrazovky
-summary: Každá lišta, panel a karta v DetailCraftu podle názvu na obrazovce a k čemu která slouží.
+summary: Každá lišta, panel a karta v Manafe3u podle názvu na obrazovce a k čemu která slouží.
 keywords: obrazovka, rozvržení, panel nástrojů, panely, vlastnosti, stavový řádek, přehledy, rozhraní, uživatelské rozhraní, karty
 from: 454f74fd
 ---
 
-DetailCraft vyplňuje okno prohlížeče pod lištou aplikace. Shora dolů: panel nástrojů, potom tři sloupce (panel {{ui:Model}}, pohled, panel {{ui:Vlastnosti}}), potom karty přehledů a stavový řádek.
+Manafe3 vyplňuje okno prohlížeče pod lištou aplikace. Shora dolů: panel nástrojů, potom tři sloupce (panel {{ui:Model}}, pohled, panel {{ui:Vlastnosti}}), potom karty přehledů a stavový řádek.
 
 ## Lišta aplikace
 
-Štíhlá lišta úplně nahoře patří webu CadCraft, ne modelu. Zobrazuje název aplikace a verzi, odkaz {{ui:O aplikaci DetailCraft}}, {{ui:Nápověda}} (nebo {{key:F1}}) pro tuto nápovědu, {{ui:Uložit pro offline}}, tlačítko režimu obrazovky a přepínač {{ui:Papír}} / {{ui:Model}}.
+Štíhlá lišta úplně nahoře patří webu Manafe3, ne modelu. Zobrazuje název aplikace a verzi, odkaz {{ui:O aplikaci Manafe3}}, {{ui:Nápověda}} (nebo {{key:F1}}) pro tuto nápovědu, {{ui:Uložit pro offline}}, tlačítko režimu obrazovky a přepínač {{ui:Papír}} / {{ui:Model}}.
 
-- {{ui:Uložit pro offline}} uchová DetailCraft, jeho 3D pohled a tuto nápovědu v prohlížeči, aby se otevřel bez připojení. Po uložení zobrazuje {{ui:Připraveno offline}}; kliknutím na něj pak získáte {{ui:Uložit znovu (získat nejnovější verzi)}} nebo {{ui:Odebrat offline kopii}}. Viz [Práce offline](common:offline).
+- {{ui:Uložit pro offline}} uchová Manafe3, jeho 3D pohled a tuto nápovědu v prohlížeči, aby se otevřel bez připojení. Po uložení zobrazuje {{ui:Připraveno offline}}; kliknutím na něj pak získáte {{ui:Uložit znovu (získat nejnovější verzi)}} nebo {{ui:Odebrat offline kopii}}. Viz [Práce offline](common:offline).
 - {{ui:Papír}} dává světlou obrazovku a {{ui:Model}} tmavou. 3D pohled ji okamžitě následuje; na modelu se nic nemění.
 - Tlačítko režimu obrazovky a {{key:Ctrl+Shift+F}} přepínají normální, celou obrazovku a celou obrazovku se skrytými lištami. {{key:Ctrl+Shift+F}} používá klávesu Control na každém počítači, i na Macu. Při skrytých lištách je vrátíte namířením na horní okraj obrazovky (nebo klepnutím na něj). {{key:Esc}} opustí celou obrazovku.
 
@@ -70,7 +70,7 @@ Co panel zobrazuje, závisí na tom, co děláte, a jeho nadpis říká co: „M
 
 ## Karty přehledů (dole)
 
-- {{ui:Problémy}}: vše, co DetailCraft nemohl vytvořit nebo chce, abyste zkontrolovali, s tlačítkem {{ui:Vybrat}} na každém řádku. Karta ukazuje počet v závorce.
+- {{ui:Problémy}}: vše, co Manafe3 nemohl vytvořit nebo chce, abyste zkontrolovali, s tlačítkem {{ui:Vybrat}} na každém řádku. Karta ukazuje počet v závorce.
 - {{ui:Kusovník}}: díly, sestavy a šrouby a kotevní tyče, s hmotnostmi a odkazem {{ui:Stáhnout CSV}}. Kliknutím na označení dílu tento díl vyberete.
 - {{ui:Výkaz ohybů}}: každé označení prutu v každé patce, s odkazem {{ui:Stáhnout CSV}}.
 
@@ -84,4 +84,4 @@ Název karty prohlížeče začíná tečkou (•), dokud má model změny, kter
 
 ## Na úzké obrazovce
 
-Pod šířkou asi 760 pixelů se sloupce naskládají: panel nástrojů, pohled, stavový řádek, {{ui:Vlastnosti}}, karty přehledů a nakonec panel {{ui:Model}}. K nim se dostanete posouváním stránky. DetailCraft je rozvržen pro obrazovku počítače nebo notebooku; telefon funguje k prohlížení, ne k detailování.
+Pod šířkou asi 760 pixelů se sloupce naskládají: panel nástrojů, pohled, stavový řádek, {{ui:Vlastnosti}}, karty přehledů a nakonec panel {{ui:Model}}. K nim se dostanete posouváním stránky. Manafe3 je rozvržen pro obrazovku počítače nebo notebooku; telefon funguje k prohlížení, ne k detailování.

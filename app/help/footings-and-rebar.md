@@ -6,7 +6,7 @@ order: 90
 keywords: footing, pad footing, foundation, rebar, reinforcement, bars, mat, starters, dowels, bending schedule, bar list, concrete, hooks, cover
 ---
 
-DetailCraft reinforces one kind of concrete element: the rectangular pad footing. Each footing gets a bottom mat both ways and, if you want them, starter bars standing up out of it. Bars are US sizes #3 to #11.
+Manafe3 reinforces one kind of concrete element: the rectangular pad footing. Each footing gets a bottom mat both ways and, if you want them, starter bars standing up out of it. Bars are US sizes #3 to #11.
 
 ## Place a footing
 
@@ -50,7 +50,7 @@ The footing is drawn see-through so you can see its bars, which are drawn as sol
 | Projection above top | 600 | How far the bars stand above the footing top |
 | Hook at the bottom | On | A 90° hook pointing outward, sitting on the mat (shape L) |
 
-Under the fields, DetailCraft shows the hook leg for the long bars, for example "Hook leg for #5: 254 mm out to out."
+Under the fields, Manafe3 shows the hook leg for the long bars, for example "Hook leg for #5: 254 mm out to out."
 
 ## Change a placed footing
 
@@ -72,9 +72,9 @@ Identical bars (same size, shape and dimensions to the millimeter) share a bar m
 1. Open the {{ui:Bending schedule}} tab at the bottom. Each row is one bar mark: size, shape, dimensions A, B and C, count, cut length, total length, mass per meter, weight each, total weight, and what the bar is used for.
 2. Choose {{ui:Download CSV}} in the tab, or {{ui:Bending}} in the {{ui:Output}} group's {{ui:More}} menu, for `<name> bending schedule.csv`.
 
-Shapes are DetailCraft's own codes, not a standard's: S straight, L one bend, U two bends. Dimensions are out to out; the cut length is the exact centerline length through the bends. See [Rebar reference](topic:rebar-reference).
+Shapes are Manafe3's own codes, not a standard's: S straight, L one bend, U two bends. Dimensions are out to out; the cut length is the exact centerline length through the bends. See [Rebar reference](topic:rebar-reference).
 
-## What DetailCraft does not check
+## What Manafe3 does not check
 
 - Development and lap lengths, and whether the starter bars are long enough for the column above.
 - The aggregate-size part of the clear spacing rule (it does not know the mix).

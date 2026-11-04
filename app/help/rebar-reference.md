@@ -1,6 +1,6 @@
 ---
 title: Rebar reference
-summary: Bar sizes, hook dimensions, shape codes, cut lengths and the bending schedule columns DetailCraft uses.
+summary: Bar sizes, hook dimensions, shape codes, cut lengths and the bending schedule columns Manafe3 uses.
 section: reference
 order: 50
 keywords: rebar, bar sizes, hooks, bend diameter, shape codes, cut length, bending schedule, bar list, astm a615, aci 318
@@ -22,7 +22,7 @@ From ASTM A615/A615M Table 1 (inch-pound designations). Millimeters and kg/m are
 | #10 | 32.3 | 6.404 | 819 | 8 db | 548 |
 | #11 | 35.8 | 7.907 | 1006 | 8 db | 609 |
 
-In [DetailCraft settings](topic:settings) ({{ui:Rebar}}), **ASTM bar names** can show these bars by their soft-metric A615M names instead: #3 = #10, #4 = #13, #5 = #16, #6 = #19, #7 = #22, #8 = #25, #9 = #29, #10 = #32, #11 = #36 (the same bars; ACI 315-99 Table 1 lists both).
+In [Manafe3 settings](topic:settings) ({{ui:Rebar}}), **ASTM bar names** can show these bars by their soft-metric A615M names instead: #3 = #10, #4 = #13, #5 = #16, #6 = #19, #7 = #22, #8 = #25, #9 = #29, #10 = #32, #11 = #36 (the same bars; ACI 315-99 Table 1 lists both).
 
 ### Metric bars (BS 4449)
 
@@ -43,11 +43,11 @@ The mass is the nominal section times 7850 kg/m³. The radius and end projection
 
 ASTM bars: standard 90° hooks from ACI 318-19 Table 25.3.1: inside bend diameter 6 db for #3 to #8 and 8 db for #9 to #11, with a straight extension of 12 db past the bend. The hook leg, measured out to out, is half the bend diameter + db + 12 db.
 
-If a mat bar's hook does not fit in the footing depth inside the cover, DetailCraft shortens the leg to fit and lists a warning.
+If a mat bar's hook does not fit in the footing depth inside the cover, Manafe3 shortens the leg to fit and lists a warning.
 
 ## Shapes
 
-DetailCraft stores three shapes. The bending schedule prints them as DetailCraft's codes, as ACI 315 types or as BS 8666 shape codes: choose **Bending schedule shape codes** in [DetailCraft settings](topic:settings) ({{ui:Rebar}}).
+Manafe3 stores three shapes. The bending schedule prints them as Manafe3's codes, as ACI 315 types or as BS 8666 shape codes: choose **Bending schedule shape codes** in [Manafe3 settings](topic:settings) ({{ui:Rebar}}).
 
 | Code | Shape | Dimensions |
 |---|---|---|
@@ -57,7 +57,7 @@ DetailCraft stores three shapes. The bending schedule prints them as DetailCraft
 
 Mat bars with {{ui:End hooks}} on are U; without, S. Starter bars with {{ui:Hook at the bottom}} on are L; without, S.
 
-| DetailCraft | BS 8666:2020 | ACI 315-99 (Fig. 10) |
+| Manafe3 | BS 8666:2020 | ACI 315-99 (Fig. 10) |
 |---|---|---|
 | S | 00, L = A | no type number |
 | L | 11, L = A + B − 0.5r − d | no type number: the figure has no bar with one hook |

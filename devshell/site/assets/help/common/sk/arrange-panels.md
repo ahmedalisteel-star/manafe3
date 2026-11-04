@@ -42,7 +42,7 @@ Ak chcete panel zo skupiny vybrať, zvoľte {{ui:Vyňať zo skupiny kariet}} v j
 
 ## Výber počtu riadkov panela nástrojov
 
-{{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Riadky panela nástrojov}} má tri možnosti. {{ui:Zalomiť}} je predvolená: zobrazí sa každá skupina nástrojov, na toľkých riadkoch, koľko je potrebných. {{ui:2 riadky}} drží panel nástrojov na dvoch riadkoch a {{ui:1 riadok}} na jednom, takže výkres dostane výšku; skupiny, ktoré sa nezmestia, sa posúvajú do strany v paneli nástrojov (použite koliesko myši, švihnutie dvoma prstami alebo sa klávesom {{key:Tab}} presuňte na nástroj). Panel nástrojov, ktorý sa už zmestí na dva riadky, zostane pri {{ui:2 riadky}} taký, aký je, pretože mriežka by ho len zvýšila. Voľba sa pamätá pre každú aplikáciu. Dotyková obrazovka a telefón si ponechávajú vlastné rozloženie. CadCraft má pre svoj panel nástrojov vlastné nastavenie v časti {{ui:Nastavenia}} › {{ui:CadCraft}}.
+{{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Riadky panela nástrojov}} má tri možnosti. {{ui:Zalomiť}} je predvolená: zobrazí sa každá skupina nástrojov, na toľkých riadkoch, koľko je potrebných. {{ui:2 riadky}} drží panel nástrojov na dvoch riadkoch a {{ui:1 riadok}} na jednom, takže výkres dostane výšku; skupiny, ktoré sa nezmestia, sa posúvajú do strany v paneli nástrojov (použite koliesko myši, švihnutie dvoma prstami alebo sa klávesom {{key:Tab}} presuňte na nástroj). Panel nástrojov, ktorý sa už zmestí na dva riadky, zostane pri {{ui:2 riadky}} taký, aký je, pretože mriežka by ho len zvýšila. Voľba sa pamätá pre každú aplikáciu. Dotyková obrazovka a telefón si ponechávajú vlastné rozloženie. Manafe3 má pre svoj panel nástrojov vlastné nastavenie v časti {{ui:Nastavenia}} › {{ui:Manafe3}}.
 
 ## Používanie klávesnice
 
@@ -82,7 +82,7 @@ Z klávesnice stlačte {{key:Alt}}+{{key:Shift}}+šípku s aktívnym prvkom vo v
 
 Na telefóne zostávajú dialógové okná listami v plnej šírke a nepresúvajú sa.
 
-V CadCraft Studio má dialógové okno {{ui:Vykresliť do PDF}} z CadCraftu, ktoré môžete mať otvorené počas práce, v záhlaví tlačidlo {{ui:Otvoriť vo vlastnom okne}}. Dialógové okno sa presunie do vlastného okna, ktoré môžete dať na iný monitor. Zatvorením dialógového okna sa zatvorí okno a zatvorením okna sa zatvorí dialógové okno.
+V Manafe3 Desktop má dialógové okno {{ui:Vykresliť do PDF}} z Manafe3u, ktoré môžete mať otvorené počas práce, v záhlaví tlačidlo {{ui:Otvoriť vo vlastnom okne}}. Dialógové okno sa presunie do vlastného okna, ktoré môžete dať na iný monitor. Zatvorením dialógového okna sa zatvorí okno a zatvorením okna sa zatvorí dialógové okno.
 
 ## Vrátenie panelov
 

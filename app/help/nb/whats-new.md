@@ -5,7 +5,7 @@ keywords: nytt, hva er nytt, utgivelsesnotater, endringslogg, endringer, 0.7, ve
 from: 17d1e0bb
 ---
 
-Dette er det som er endret i DetailCraft 0.7 sammenlignet med 0.6. Rammeanalysen i 0.6 har nå et andre trinn: å kontrollere stålstavene mot en dimensjoneringsstandard.
+Dette er det som er endret i Manafe3 0.7 sammenlignet med 0.6. Rammeanalysen i 0.6 har nå et andre trinn: å kontrollere stålstavene mot en dimensjoneringsstandard.
 
 ## Nytt
 
@@ -15,7 +15,7 @@ Dette er det som er endret i DetailCraft 0.7 sammenlignet med 0.6. Rammeanalysen
 
 ### Dimensjoneringskontroller
 
-- **Lastkombinasjoner fra standarden.** I fanen {{ui:Analyse}} har den nye blokken {{ui:Dimensjoneringskontroller}} en {{ui:Dimensjoneringsstandard}}: ASCE 7 + AISC 360 (USA, LRFD) eller EN 1990 + EN 1993-1-1 (Eurokode). Gi hvert lasttilfelle sin type (permanent, nyttelast, den nye nyttelasten på tak, snø, vind, seismisk), trykk {{ui:Lag kombinasjoner}}, og DetailCraft skriver standardens bruddgrense- og bruksgrensekombinasjoner av tilfellene dine. Kombinasjonene du skrev selv, blir stående. Se [Lag kombinasjonene](topic:design-checks#make-the-combinations).
+- **Lastkombinasjoner fra standarden.** I fanen {{ui:Analyse}} har den nye blokken {{ui:Dimensjoneringskontroller}} en {{ui:Dimensjoneringsstandard}}: ASCE 7 + AISC 360 (USA, LRFD) eller EN 1990 + EN 1993-1-1 (Eurokode). Gi hvert lasttilfelle sin type (permanent, nyttelast, den nye nyttelasten på tak, snø, vind, seismisk), trykk {{ui:Lag kombinasjoner}}, og Manafe3 skriver standardens bruddgrense- og bruksgrensekombinasjoner av tilfellene dine. Kombinasjonene du skrev selv, blir stående. Se [Lag kombinasjonene](topic:design-checks#make-the-combinations).
 - **Verdier fra nasjonalt tillegg.** For Eurokoden starter faktorene på de anbefalte verdiene; {{ui:Verdier fra nasjonalt tillegg}} lar deg skrive landets egne, og de lagres i modellen. Se [Lag kombinasjonene](topic:design-checks#make-the-combinations).
 - **Kontroller staver.** {{ui:Kontroller staver}} kontrollerer hvert I-profil i stål for strekk, trykk med knekking, bøying med kippning, skjær, bøying med aksialkraft og nedbøyning mot {{ui:Nedbøyningsgrense (L / …)}} du setter. Tabellen viser hver stavs utnyttelse, kontrollen som er styrende og kombinasjonen, og stavene farges på modellen (blå, grønn, oker, rød, grå for ikke kontrollert). Se [Kontroller stavene](topic:design-checks#check-the-members).
 - **I rapporten.** {{ui:Rapport (PDF)}} og {{ui:Rapport (CSV)}} legger til standardutgavene, innstillingene, utnyttelse per stav og hver paragraf som er brukt. Se [Rapporten](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Dette er det som er endret i DetailCraft 0.7 sammenlignet med 0.6. Rammeanalysen
 
 ### AI-assistenter
 
-- **USD for assistenter.** Din egen assistent, koblet til gjennom CadCraft Studio, kan eksportere modellen som USD (`usd_export`), og i Studio skrive den til en mappe du har tillatt. Se [Hva en assistent kan be om](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **USD for assistenter.** Din egen assistent, koblet til gjennom Manafe3 Desktop, kan eksportere modellen som USD (`usd_export`), og i Studio skrive den til en mappe du har tillatt. Se [Hva en assistent kan be om](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Endret
 
@@ -36,16 +36,16 @@ Dette er det som er endret i DetailCraft 0.7 sammenlignet med 0.6. Rammeanalysen
 
 ## I alle apper
 
-- **Enheter.** {{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Enheter}} har én liste hver for lengde, areal, volum, vinkel og helling, med de eksakte størrelsene enhetenes definisjoner gir (den amerikanske målefoten er sin egen enhet). Slå av enhetene du aldri bruker, så forlater de enhetslistene; sett stjerne på én, så starter nytt arbeid i den. En fil beholder alltid sin egen enhet. DetailCrafts egne bokser følger ikke listene ennå: lengdene skrives fortsatt i millimeter. Se [Enheter, innskrevne verdier og enhetslistene](common:unit-lists).
+- **Enheter.** {{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Enheter}} har én liste hver for lengde, areal, volum, vinkel og helling, med de eksakte størrelsene enhetenes definisjoner gir (den amerikanske målefoten er sin egen enhet). Slå av enhetene du aldri bruker, så forlater de enhetslistene; sett stjerne på én, så starter nytt arbeid i den. En fil beholder alltid sin egen enhet. Manafe3s egne bokser følger ikke listene ennå: lengdene skrives fortsatt i millimeter. Se [Enheter, innskrevne verdier og enhetslistene](common:unit-lists).
 - **Et tettere oppsett og paneler som ryddes bort.** {{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Layouttetthet}} › {{ui:Kompakt}} får plass til mer på skjermen (berøringsskjermer og telefoner beholder de store knappene). Hvert sidepanel har en smal tittellinje: dra den for å feste eller frigjøre panelet, slipp den på et annet panels linje for å dele én ramme som faner, fest det for å gli bort til kanten, eller skjul det og hent det tilbake fra kanten. Se [Ordne panelene](common:arrange-panels#make-the-layout-denser).
 - **Dialoger flyttes.** Dra en dialog etter tittellinjen ut av veien for tegningen; den kommer tilbake der du lot den stå. Dobbeltklikk tittellinjen for å sentrere den igjen. Se [Flytt en dialog](common:arrange-panels#move-a-dialog).
 - **Oppskrifter for AI-assistenter.** Ti gjennomarbeidede forespørsler til din egen assistent (rydd en tegning, plott et sett, kontroller tegninger, still en modell spørsmål, summer et mengdeuttak, prøv en delvariant …), hver med verktøyene den kaller og tillatelsene den trenger, og hver avspilt av testene våre. Appene inneholder ingen AI. Se [Oppskrifter for AI-assistenter](common:assistants-recipes).
 - **Språk.** **Português (Portugal)** er nytt i {{ui:Innstillinger}} › {{ui:Generelt}} › {{ui:Språk}}. Det, **Português (Brasil)**, **Español (México)** og **Bahasa Indonesia** har nå hvert ord i appene, som utkast som ennå ikke er gjennomgått av en morsmålsbruker. Hjelpeemnene er på engelsk.
-- **CadCraft Studio** sier hvorfor en oppdateringskontroll feilet (ingen fil for systemet ditt ennå, ingen nettverk, en ugyldig signatur) i stedet for bare «Ferdig», og slutter å hente tilbake et Nytt-kort du lukket før det finnes en nyere utgivelse.
+- **Manafe3 Desktop** sier hvorfor en oppdateringskontroll feilet (ingen fil for systemet ditt ennå, ingen nettverk, en ugyldig signatur) i stedet for bare «Ferdig», og slutter å hente tilbake et Nytt-kort du lukket før det finnes en nyere utgivelse.
 
 ## Ikke i denne versjonen ennå
 
-- **0.7 er ikke kodesignert.** Signering, og Microsoft Store-pakken, ble flyttet til 0.8 fordi sertifikatvalideringen ikke har kommet gjennom ennå. Kontroller SHA-256 ved siden av hver fil på getcadcraft.com/download. På Windows, hvis SmartScreen stopper installasjonsprogrammet, velg {{ui:Mer informasjon}}, deretter {{ui:Kjør likevel}}. På en Mac høyreklikker du CadCraft Studio første gang og velger {{ui:Åpne}}. CadCraft Studio er ikke i en appbutikk ennå, og det finnes ingen iPad- eller iPhone-versjon ennå.
+- **0.7 er ikke kodesignert.** Signering, og Microsoft Store-pakken, ble flyttet til 0.8 fordi sertifikatvalideringen ikke har kommet gjennom ennå. Kontroller SHA-256 ved siden av hver fil på getcadcraft.com/download. På Windows, hvis SmartScreen stopper installasjonsprogrammet, velg {{ui:Mer informasjon}}, deretter {{ui:Kjør likevel}}. På en Mac høyreklikker du Manafe3 Desktop første gang og velger {{ui:Åpne}}. Manafe3 Desktop er ikke i en appbutikk ennå, og det finnes ingen iPad- eller iPhone-versjon ennå.
 - Vinkel- og hellingslistene i {{ui:Enheter}} lagres, men ingen boks leser dem ennå.
 - **Dimensjoneringskontrollene er ikke gjennomgått av en ingeniør ennå.** Testene våre sammenligner dem med trykte tabellverdier og formler regnet for hånd, ennå ikke med en dimensjoneringsveiledningens regneeksempler. Inntil en gjennomgang er de et hjelpemiddel: kontroller staver som betyr noe, for hånd.
 - Dimensjoneringskontrollene bruker førsteordens krefter (ingen andreordens effekter) og kontrollerer bare I-profiler. Ikke bygget: rør, vinkelstål, U-profiler, sveisede profiler, slanke (AISC) deler eller deler i klasse 4 (Eurokode) i bøying, torsjon, skjærbuling sammen med bøying, forbindelser, utmatting, brann, seismisk detaljering og betong. En slank del i trykk utelater trykkontrollene, og staven viser «oppfyller, delvis kontrollert».

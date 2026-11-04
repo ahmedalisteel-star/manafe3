@@ -1,17 +1,17 @@
 ---
 title: Lawatan skrin
-summary: Setiap bar, panel dan tab dalam DetailCraft mengikut nama pada skrin, dan kegunaannya.
+summary: Setiap bar, panel dan tab dalam Manafe3 mengikut nama pada skrin, dan kegunaannya.
 keywords: skrin, susun atur, bar alat, panel, sifat, bar status, laporan, antara muka, ui, tab
 from: 454f74fd
 ---
 
-DetailCraft mengisi tetingkap pelayar di bawah bar aplikasi. Dari atas ke bawah: bar alat, kemudian tiga lajur (panel {{ui:Model}}, paparan, panel {{ui:Sifat}}), kemudian tab laporan, kemudian bar status.
+Manafe3 mengisi tetingkap pelayar di bawah bar aplikasi. Dari atas ke bawah: bar alat, kemudian tiga lajur (panel {{ui:Model}}, paparan, panel {{ui:Sifat}}), kemudian tab laporan, kemudian bar status.
 
 ## Bar aplikasi
 
-Bar nipis di bahagian paling atas tergolong dalam laman CadCraft, bukan model. Ia menunjukkan nama dan versi aplikasi, pautan ke {{ui:Perihal DetailCraft}}, {{ui:Bantuan}} (atau {{key:F1}}) untuk bantuan ini, {{ui:Simpan untuk luar talian}}, butang mod skrin dan suis {{ui:Kertas}} / {{ui:Model}}.
+Bar nipis di bahagian paling atas tergolong dalam laman Manafe3, bukan model. Ia menunjukkan nama dan versi aplikasi, pautan ke {{ui:Perihal Manafe3}}, {{ui:Bantuan}} (atau {{key:F1}}) untuk bantuan ini, {{ui:Simpan untuk luar talian}}, butang mod skrin dan suis {{ui:Kertas}} / {{ui:Model}}.
 
-- {{ui:Simpan untuk luar talian}} menyimpan DetailCraft, paparan 3D dan bantuan ini dalam pelayar anda supaya ia dibuka tanpa sambungan. Ia memaparkan {{ui:Sedia untuk luar talian}} sebaik sahaja disimpan; klik kemudian untuk {{ui:Simpan semula (dapatkan versi terkini)}} atau {{ui:Alih keluar salinan luar talian}}. Lihat [Bekerja luar talian](common:offline).
+- {{ui:Simpan untuk luar talian}} menyimpan Manafe3, paparan 3D dan bantuan ini dalam pelayar anda supaya ia dibuka tanpa sambungan. Ia memaparkan {{ui:Sedia untuk luar talian}} sebaik sahaja disimpan; klik kemudian untuk {{ui:Simpan semula (dapatkan versi terkini)}} atau {{ui:Alih keluar salinan luar talian}}. Lihat [Bekerja luar talian](common:offline).
 - {{ui:Kertas}} memberi skrin cerah dan {{ui:Model}} skrin gelap. Paparan 3D mengikut serta-merta; tiada apa-apa dalam model anda berubah.
 - Butang mod skrin dan {{key:Ctrl+Shift+F}} bertukar secara berkitar antara biasa, skrin penuh, dan skrin penuh dengan bar disembunyikan. {{key:Ctrl+Shift+F}} menggunakan kekunci Ctrl pada setiap komputer, termasuk Mac. Dengan bar disembunyikan, halakan ke tepi atas skrin (atau ketik) untuk memunculkannya semula. {{key:Esc}} keluar daripada skrin penuh.
 
@@ -70,7 +70,7 @@ Medan nombor berkesan apabila anda tekan {{key:Enter}} atau meninggalkan medan. 
 
 ## Tab laporan (bawah)
 
-- {{ui:Masalah}}: segala yang DetailCraft tidak dapat bina atau mahu anda semak, dengan butang {{ui:Pilih}} pada setiap baris. Tab menunjukkan bilangan dalam kurungan.
+- {{ui:Masalah}}: segala yang Manafe3 tidak dapat bina atau mahu anda semak, dengan butang {{ui:Pilih}} pada setiap baris. Tab menunjukkan bilangan dalam kurungan.
 - {{ui:Senarai bahan}}: bahagian, himpunan, serta bolt dan bolt sauh, dengan berat dan pautan {{ui:Muat turun CSV}}. Klik tanda bahagian untuk memilih bahagian itu.
 - {{ui:Jadual lenturan}}: setiap tanda bar dalam setiap tapak asas, dengan pautan {{ui:Muat turun CSV}}.
 
@@ -84,4 +84,4 @@ Tajuk tab pelayar bermula dengan titik (•) semasa model mempunyai perubahan ya
 
 ## Pada skrin sempit
 
-Di bawah lebih kurang 760 piksel lebar, lajur disusun bertindih: bar alat, paparan, bar status, {{ui:Sifat}}, tab laporan, kemudian panel {{ui:Model}} paling akhir. Skrol halaman untuk mencapainya. DetailCraft direka untuk skrin desktop atau komputer riba; telefon sesuai untuk melihat, bukan untuk perincian.
+Di bawah lebih kurang 760 piksel lebar, lajur disusun bertindih: bar alat, paparan, bar status, {{ui:Sifat}}, tab laporan, kemudian panel {{ui:Model}} paling akhir. Skrol halaman untuk mencapainya. Manafe3 direka untuk skrin desktop atau komputer riba; telefon sesuai untuk melihat, bukan untuk perincian.

@@ -41,4 +41,4 @@ Sunteți offline acum. Dacă această aplicație a fost salvată pentru utilizar
 Safari șterge datele salvate ale site-urilor pe care nu le-ați vizitat de câteva săptămâni. Deschideți aplicația din când în când cât sunteți online sau salvați-o din nou înainte de o călătorie.
 :::
 
-- CadCraft Studio, aplicația de desktop cu toate cele opt aplicații într-o singură instalare, este la getcadcraft.com/download.
+- Manafe3 Desktop, aplicația de desktop cu toate cele opt aplicații într-o singură instalare, este la getcadcraft.com/download.

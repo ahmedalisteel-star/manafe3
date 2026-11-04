@@ -42,7 +42,7 @@ Voit ottaa paneelin pois ryhmästä valitsemalla sen {{ui:⋯}}-valikosta {{ui:S
 
 ## Valitse, montako riviä työkalurivi käyttää
 
-{{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Työkalurivin rivit}} tarjoaa kolme vaihtoehtoa. {{ui:Rivitä}} on oletus: jokainen työkaluryhmä näkyy, niin monella rivillä kuin tarvitaan. {{ui:2 riviä}} pitää työkalurivin kaksirivisenä ja {{ui:1 rivi}} yksirivisenä, jolloin piirustus saa enemmän korkeutta; ryhmät, jotka eivät mahdu, vierivät sivusuunnassa työkalurivin sisällä (käytä hiiren rullaa, kahden sormen pyyhkäisyä tai siirry Tab-näppäimellä työkaluun). Työkalurivi, joka mahtuu jo kahdelle riville, pysyy sellaisenaan valinnalla {{ui:2 riviä}}, koska ruudukko vain kasvattaisi sen korkeutta. Valinta tallentuu kullekin sovellukselle erikseen. Kosketusnäyttö ja puhelin pitävät oman asettelunsa. CadCraftilla on oma asetus työkalurivilleen kohdassa {{ui:Asetukset}} › {{ui:CadCraft}}.
+{{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Työkalurivin rivit}} tarjoaa kolme vaihtoehtoa. {{ui:Rivitä}} on oletus: jokainen työkaluryhmä näkyy, niin monella rivillä kuin tarvitaan. {{ui:2 riviä}} pitää työkalurivin kaksirivisenä ja {{ui:1 rivi}} yksirivisenä, jolloin piirustus saa enemmän korkeutta; ryhmät, jotka eivät mahdu, vierivät sivusuunnassa työkalurivin sisällä (käytä hiiren rullaa, kahden sormen pyyhkäisyä tai siirry Tab-näppäimellä työkaluun). Työkalurivi, joka mahtuu jo kahdelle riville, pysyy sellaisenaan valinnalla {{ui:2 riviä}}, koska ruudukko vain kasvattaisi sen korkeutta. Valinta tallentuu kullekin sovellukselle erikseen. Kosketusnäyttö ja puhelin pitävät oman asettelunsa. Manafe3illa on oma asetus työkalurivilleen kohdassa {{ui:Asetukset}} › {{ui:Manafe3}}.
 
 ## Käytä näppäimistöä
 
@@ -82,7 +82,7 @@ Näppäimistöltä voit siirtää valintaikkunaa 16 kuvapistettä kerrallaan pai
 
 Puhelimessa valintaikkunat pysyvät täysleveinä arkkeina, eikä niitä siirretä.
 
-CadCraft Studiossa CadCraftin {{ui:Plottaa PDF:ksi}} -valintaikkunassa, jonka voi pitää auki työskennellessä, on otsikkopalkissa painike {{ui:Avaa omaan ikkunaansa}}. Valintaikkuna siirtyy omaan ikkunaansa, jonka voit sijoittaa toiselle näytölle. Valintaikkunan sulkeminen sulkee ikkunan, ja ikkunan sulkeminen sulkee valintaikkunan.
+Manafe3 Desktopssa Manafe3in {{ui:Plottaa PDF:ksi}} -valintaikkunassa, jonka voi pitää auki työskennellessä, on otsikkopalkissa painike {{ui:Avaa omaan ikkunaansa}}. Valintaikkuna siirtyy omaan ikkunaansa, jonka voit sijoittaa toiselle näytölle. Valintaikkunan sulkeminen sulkee ikkunan, ja ikkunan sulkeminen sulkee valintaikkunan.
 
 ## Palauta paneelit
 

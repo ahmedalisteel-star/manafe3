@@ -1,12 +1,12 @@
 ---
 title: What is not built yet
-summary: What this early DetailCraft build cannot do, and what to do instead today.
+summary: What this early Manafe3 build cannot do, and what to do instead today.
 section: trouble
 order: 20
 keywords: limits, limitations, missing, roadmap, not supported, coming, planned, workaround, todo
 ---
 
-DetailCraft is an early build. This page lists what it does not do yet, so you can plan around it. Nothing here is a promise of a date.
+Manafe3 is an early build. This page lists what it does not do yet, so you can plan around it. Nothing here is a promise of a date.
 
 ## Modeling
 
@@ -32,7 +32,7 @@ DetailCraft is an early build. This page lists what it does not do yet, so you c
 
 ## Connections
 
-DetailCraft builds six connections: a brace gusset (see [Brace gussets](topic:brace-gussets)); a bolted splice between two pieces of one I-shape (see [Splices](topic:splices)); a mitre between two I-shapes meeting at an angle, cut only or with bolted end plates (see [Mitre joints](topic:mitres)); a flush or extended bolted end plate from a level, upright I-shape beam to an I-shape column flange or web; a shear tab from a beam (square, skewed or sloped) to a column flange or web; and a column base plate with four anchor rods.
+Manafe3 builds six connections: a brace gusset (see [Brace gussets](topic:brace-gussets)); a bolted splice between two pieces of one I-shape (see [Splices](topic:splices)); a mitre between two I-shapes meeting at an angle, cut only or with bolted end plates (see [Mitre joints](topic:mitres)); a flush or extended bolted end plate from a level, upright I-shape beam to an I-shape column flange or web; a shear tab from a beam (square, skewed or sloped) to a column flange or web; and a column base plate with four anchor rods.
 
 | Not yet | Instead, today |
 |---|---|
@@ -40,7 +40,7 @@ DetailCraft builds six connections: a brace gusset (see [Brace gussets](topic:br
 | Clip angles; splice fill plates and splices between different sizes; corner gussets welded to beam and column, chamfered gussets | Detail them in other software, or add plates and holes by hand as loose parts; see [Splices](topic:splices), [Brace gussets](topic:brace-gussets) |
 | Chamfered or tapered base stiffeners; grout holes; the footing pocket for a shear lug | Rectangular stiffeners; see [Base plates](topic:base-plates) |
 | Haunches; welded mitres with a butt weld; stiffeners in line with the other member's flanges | A [mitre](topic:mitres) with end plates and web stiffeners, or a plain mitre cut; add other plates by hand as loose parts |
-| Connection design checks (strength) | Check connections with your engineer's calculations; DetailCraft only warns about edge distance and spacing |
+| Connection design checks (strength) | Check connections with your engineer's calculations; Manafe3 only warns about edge distance and spacing |
 | Slotted holes | Round holes only |
 
 ## Analysis
@@ -93,7 +93,7 @@ DetailCraft builds six connections: a brace gusset (see [Brace gussets](topic:br
 
 ## Platforms
 
-- DetailCraft is made for a desktop, laptop or tablet screen. It works on a phone too: the model keeps the screen and the panels and reports open as sheets from a bar at the bottom, but there is little room for the panels.
-- Offline use needs DetailCraft saved for offline use first, with {{ui:Save for offline}} in the app bar; once it reads {{ui:Offline ready}}, everything in this build works with no connection. See [Working offline](common:offline).
+- Manafe3 is made for a desktop, laptop or tablet screen. It works on a phone too: the model keeps the screen and the panels and reports open as sheets from a bar at the bottom, but there is little room for the panels.
+- Offline use needs Manafe3 saved for offline use first, with {{ui:Save for offline}} in the app bar; once it reads {{ui:Offline ready}}, everything in this build works with no connection. See [Working offline](common:offline).
 
 If one of these gaps blocks your work, tell us through the [support page](https://getcadcraft.com/support); it helps us decide what to build next.

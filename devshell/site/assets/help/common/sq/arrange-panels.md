@@ -42,7 +42,7 @@ Për ta nxjerrë një panel nga grupi, zgjidh {{ui:Nxirre nga grupi i skedave}} 
 
 ## Zgjidh sa rreshta përdor shiriti i veglave
 
-{{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Rreshtat e shiritit të veglave}} ka tre zgjedhje. {{ui:Mbështjell}} është parazgjedhja: çdo grup veglash shfaqet, në aq rreshta sa duhen. {{ui:2 rreshta}} e mban shiritin në dy rreshta dhe {{ui:1 rresht}} në një, që vizatimi të fitojë lartësi; grupet që nuk futen lëvizin anash brenda shiritit të veglave (përdor rrotën e mausit, një lëvizje me dy gishta, ose {{key:Tab}} te një mjet). Një shirit që tashmë përshtatet në dy rreshta mbetet si është me {{ui:2 rreshta}}, sepse një rrjetë do ta bënte vetëm më të lartë. Zgjedhja ruhet për çdo aplikacion. Ekrani me prekje dhe telefoni mbajnë paraqitjen e tyre. CadCraft ka cilësimin e vet për shiritin e veglave, nën {{ui:Cilësimet}} › {{ui:CadCraft}}.
+{{ui:Cilësimet}} › {{ui:Të përgjithshme}} › {{ui:Rreshtat e shiritit të veglave}} ka tre zgjedhje. {{ui:Mbështjell}} është parazgjedhja: çdo grup veglash shfaqet, në aq rreshta sa duhen. {{ui:2 rreshta}} e mban shiritin në dy rreshta dhe {{ui:1 rresht}} në një, që vizatimi të fitojë lartësi; grupet që nuk futen lëvizin anash brenda shiritit të veglave (përdor rrotën e mausit, një lëvizje me dy gishta, ose {{key:Tab}} te një mjet). Një shirit që tashmë përshtatet në dy rreshta mbetet si është me {{ui:2 rreshta}}, sepse një rrjetë do ta bënte vetëm më të lartë. Zgjedhja ruhet për çdo aplikacion. Ekrani me prekje dhe telefoni mbajnë paraqitjen e tyre. Manafe3 ka cilësimin e vet për shiritin e veglave, nën {{ui:Cilësimet}} › {{ui:Manafe3}}.
 
 ## Përdor tastierën
 
@@ -82,7 +82,7 @@ Nga tastiera, shtyp {{key:Alt}}+{{key:Shift}}+një tast me shigjetë me fokusin 
 
 Në telefon, dialogët mbeten fletë me gjerësi të plotë dhe nuk zhvendosen.
 
-Në CadCraft Studio, dialogu {{ui:Printo në PDF}} i CadCraft, që mund ta mbash hapur ndërsa punon, ka një buton në shiritin e titullit, {{ui:Hap në dritaren e vet}}. Dialogu zhvendoset në një dritare të vet që mund ta vendosësh në një monitor tjetër. Mbyllja e dialogut mbyll dritaren, dhe mbyllja e dritares mbyll dialogun.
+Në Manafe3 Desktop, dialogu {{ui:Printo në PDF}} i Manafe3, që mund ta mbash hapur ndërsa punon, ka një buton në shiritin e titullit, {{ui:Hap në dritaren e vet}}. Dialogu zhvendoset në një dritare të vet që mund ta vendosësh në një monitor tjetër. Mbyllja e dialogut mbyll dritaren, dhe mbyllja e dritares mbyll dialogun.
 
 ## Kthe panelet në vend
 

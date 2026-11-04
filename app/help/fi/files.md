@@ -1,17 +1,17 @@
 ---
 title: Avaa, tallenna ja vie tiedostoja
-summary: DetailCraftin mallitiedosto, jokainen sen kirjoittama vienti, minne tiedostot menevät ja mikä eroaa selaimen ja yhteyden mukaan.
+summary: Manafe3in mallitiedosto, jokainen sen kirjoittama vienti, minne tiedostot menevät ja mikä eroaa selaimen ja yhteyden mukaan.
 keywords: avaa, tallenna, vie, lataa, tiedosto, json, ifc, nc1, dstv, csv, pdf, zip, muodot, tuo
 from: bd715ea3
 ---
 
-DetailCraftilla on yksi oma tiedosto, malli, ja viisi vientiä. Jokainen tallennus ja jokainen vienti on lataus. Mitään ei lähetetä, eikä mitään säilytetä palvelimella.
+Manafe3illa on yksi oma tiedosto, malli, ja viisi vientiä. Jokainen tallennus ja jokainen vienti on lataus. Mitään ei lähetetä, eikä mitään säilytetä palvelimella.
 
 ## Mallitiedosto
 
-DetailCraft-malli tallennetaan tiedostona `<nimi>.detailcraft.json`, jossa `<nimi>` on mallin nimi {{ui:Malli}}-paneelissa. Se sisältää ruudukot, tasot, sauvat (reikineen ja loveuksineen), liitokset ja niiden asetukset, anturaperustukset ja omat profiilisi.
+Manafe3-malli tallennetaan tiedostona `<nimi>.detailcraft.json`, jossa `<nimi>` on mallin nimi {{ui:Malli}}-paneelissa. Se sisältää ruudukot, tasot, sauvat (reikineen ja loveuksineen), liitokset ja niiden asetukset, anturaperustukset ja omat profiilisi.
 
-Osia, merkkejä, pultteja, hitsejä ja tankoja ei tallenneta: DetailCraft laskee ne uudelleen mallista aina kun se avautuu. Siksi mallitiedosto on pieni.
+Osia, merkkejä, pultteja, hitsejä ja tankoja ei tallenneta: Manafe3 laskee ne uudelleen mallista aina kun se avautuu. Siksi mallitiedosto on pieni.
 
 ### Tallenna
 
@@ -38,21 +38,21 @@ Safari tallentaa Lataukset-kansioon. Voit vaihtaa kansion avaamalla **Safari, As
 1. Valitse {{ui:Tiedosto}}-ryhmästä {{ui:Avaa}} tai paina {{key:Mod+O}}.
 2. Valitse `.detailcraft.json`-tiedosto.
 
-Tai vedä tiedosto kohteesta {{pick:mac=Finder|windows=Resurssienhallinta|linux=tiedostonhallinta}} ja pudota se näkymään. Näkymässä lukee "Pudota DetailCraft-malli tai IFC-tiedosto avataksesi sen", kun vedät.
+Tai vedä tiedosto kohteesta {{pick:mac=Finder|windows=Resurssienhallinta|linux=tiedostonhallinta}} ja pudota se näkymään. Näkymässä lukee "Pudota Manafe3-malli tai IFC-tiedosto avataksesi sen", kun vedät.
 
-Jos avoimessa mallissa on tallentamattomia muutoksia, DetailCraft kysyy ensin: {{ui:Peruuta}}, {{ui:Hylkää muutokset}} tai {{ui:Tallenna ensin}}.
+Jos avoimessa mallissa on tallentamattomia muutoksia, Manafe3 kysyy ensin: {{ui:Peruuta}}, {{ui:Hylkää muutokset}} tai {{ui:Tallenna ensin}}.
 
-DetailCraft tarkistaa tiedoston jokaisen kentän ennen kuin käyttää sitä. Kaikki, mitä se ei voi käyttää, jätetään pois ja tilarivi kertoo mitä, esimerkiksi "2 sauvaa oli virheellisiä ja jätettiin pois." Uudemman DetailCraftin tallentama malli hylätään viestillä sen sijaan, että se avattaisiin puolittain oikein.
+Manafe3 tarkistaa tiedoston jokaisen kentän ennen kuin käyttää sitä. Kaikki, mitä se ei voi käyttää, jätetään pois ja tilarivi kertoo mitä, esimerkiksi "2 sauvaa oli virheellisiä ja jätettiin pois." Uudemman Manafe3in tallentama malli hylätään viestillä sen sijaan, että se avattaisiin puolittain oikein.
 
 ### Mitä se avaa
 
-Omat mallitiedostonsa (`.json`, enintään 50 Mt) ja IFC-tiedostot (`.ifc`, IFC2X3 tai IFC4, enintään 200 Mt). IFC-tiedostosta, joka avataan tai tuodaan komennolla {{ui:Tuo IFC}}, tulee uusi malli sen palkeista, pilareista, sauvoista, levyistä, ruudukoista ja tasoista niihin leikattuine reikineen ja loveuksineen ja sen pultit irtopultteina; raportti luettelee, mitä jätettiin pois. Katso [IFC-vienti](topic:ifc-export#import). Se ei vielä avaa DWG:tä, DXF:ää eikä minkään muun detaljointiohjelman mallia; yritys näyttää "DetailCraft avaa omia mallejaan (.detailcraft.json) ja IFC-tiedostoja (.ifc)."
+Omat mallitiedostonsa (`.json`, enintään 50 Mt) ja IFC-tiedostot (`.ifc`, IFC2X3 tai IFC4, enintään 200 Mt). IFC-tiedostosta, joka avataan tai tuodaan komennolla {{ui:Tuo IFC}}, tulee uusi malli sen palkeista, pilareista, sauvoista, levyistä, ruudukoista ja tasoista niihin leikattuine reikineen ja loveuksineen ja sen pultit irtopultteina; raportti luettelee, mitä jätettiin pois. Katso [IFC-vienti](topic:ifc-export#import). Se ei vielä avaa DWG:tä, DXF:ää eikä minkään muun detaljointiohjelman mallia; yritys näyttää "Manafe3 avaa omia mallejaan (.detailcraft.json) ja IFC-tiedostoja (.ifc)."
 
 ## Menetetty työ, viimeisimmät tiedostot, työpöytäsovellus
 
-- Kun mallissa on tallentamattomia muutoksia, DetailCraft säilyttää kopion tässä selaimessa. Jos välilehti tai selain pysähtyy ennen tallennusta, DetailCraft kysyy seuraavalla avauskerralla **Palautetaanko työsi?**: palauta kopio tai hylkää se. Katso [Palauta työsi](common:recover).
-- Äskettäin avaamasi mallit luetellaan aloitusnäytöllä, kun selain antaa DetailCraftin avata ne uudelleen; napsauta yhtä avataksesi sen uudelleen.
-- Työpöytäsovelluksessa {{ui:Tallenna}} kirjoittaa mallin takaisin avaamaasi tiedostoon (selaimessa se lataa kopion), ja DetailCraft-mallin tai IFC-tiedoston kaksoisnapsautus avaa sen DetailCraftissa.
+- Kun mallissa on tallentamattomia muutoksia, Manafe3 säilyttää kopion tässä selaimessa. Jos välilehti tai selain pysähtyy ennen tallennusta, Manafe3 kysyy seuraavalla avauskerralla **Palautetaanko työsi?**: palauta kopio tai hylkää se. Katso [Palauta työsi](common:recover).
+- Äskettäin avaamasi mallit luetellaan aloitusnäytöllä, kun selain antaa Manafe3in avata ne uudelleen; napsauta yhtä avataksesi sen uudelleen.
+- Työpöytäsovelluksessa {{ui:Tallenna}} kirjoittaa mallin takaisin avaamaasi tiedostoon (selaimessa se lataa kopion), ja Manafe3-mallin tai IFC-tiedoston kaksoisnapsautus avaa sen Manafe3issa.
 
 ## Viennit
 
@@ -79,13 +79,13 @@ PDF:n teksti käyttää Helvetica-vakiofonttia. Merkit, joita siinä ei ole (lä
 
 ## Yksiköt
 
-DetailCraft käyttää kauttaaltaan millimetrejä: ruudukot, tasot, koordinaatit, profiilit, reiät ja jokainen vienti. Profiilinimet säilyttävät julkaistun muotonsa (W12x50 on yhdysvaltalainen merkintä, vaikka sen mitat näytetään millimetreinä). Brittiläisiä tai yhdysvaltalaisia yksiköitä ei voi vielä syöttää.
+Manafe3 käyttää kauttaaltaan millimetrejä: ruudukot, tasot, koordinaatit, profiilit, reiät ja jokainen vienti. Profiilinimet säilyttävät julkaistun muotonsa (W12x50 on yhdysvaltalainen merkintä, vaikka sen mitat näytetään millimetreinä). Brittiläisiä tai yhdysvaltalaisia yksiköitä ei voi vielä syöttää.
 
 ## Online ja offline
 
-Avaaminen, tallennus ja vienti tapahtuvat kaikki selaimessasi, joten ne toimivat samoin yhteydellä tai ilman, kun DetailCraft on latautunut.
+Avaaminen, tallennus ja vienti tapahtuvat kaikki selaimessasi, joten ne toimivat samoin yhteydellä tai ilman, kun Manafe3 on latautunut.
 
-Jos haluat käyttää DetailCraftia myöhemmin ilman yhteyttä, valitse sovelluspalkista {{ui:Tallenna offline-käyttöön}} online-tilassa. Painike laskee ylöspäin ("Tallennetaan 3 / 20") ja näyttää sitten {{ui:Offline valmis}}. Tallennettu kopio sisältää 3D-grafiikkakirjaston (noin 2,6 Mt) ja tämän ohjeen, joten tallennuksen jälkeen 3D-näkymä, jokainen vienti ja ohje toimivat kaikki offline-tilassa. Lisätietoja ja se, mikä vielä tarvitsee yhteyden: [Työskentely offline-tilassa](common:offline).
+Jos haluat käyttää Manafe3ia myöhemmin ilman yhteyttä, valitse sovelluspalkista {{ui:Tallenna offline-käyttöön}} online-tilassa. Painike laskee ylöspäin ("Tallennetaan 3 / 20") ja näyttää sitten {{ui:Offline valmis}}. Tallennettu kopio sisältää 3D-grafiikkakirjaston (noin 2,6 Mt) ja tämän ohjeen, joten tallennuksen jälkeen 3D-näkymä, jokainen vienti ja ohje toimivat kaikki offline-tilassa. Lisätietoja ja se, mikä vielä tarvitsee yhteyden: [Työskentely offline-tilassa](common:offline).
 
 :::offline
 Olet offline-tilassa. Jos sovelluspalkissa lukee {{ui:Offline valmis}}, avaaminen, tallennus ja vienti toimivat tavalliseen tapaan. Jos ei, pidä tämä välilehti auki, älä lataa sitä uudelleen ennen kuin olet taas online-tilassa ja tallenna mallisi nyt.
@@ -95,4 +95,4 @@ Pilvitallennus ei ole vielä käytettävissä, eikä työpöytäversioita ole vi
 
 ## Tallentamaton työ
 
-DetailCraft säilyttää mallin vain avoimessa välilehdessä. Jos suljet tai lataat välilehden uudelleen tallentamattomin muutoksin, selain kysyy, poistutaanko sivulta; sen sanamuoto on selaimen oma. Tallenna usein komennolla {{key:Mod+S}}.
+Manafe3 säilyttää mallin vain avoimessa välilehdessä. Jos suljet tai lataat välilehden uudelleen tallentamattomin muutoksin, selain kysyy, poistutaanko sivulta; sen sanamuoto on selaimen oma. Tallenna usein komennolla {{key:Mod+S}}.

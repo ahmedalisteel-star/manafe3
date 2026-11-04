@@ -6,7 +6,7 @@ order: 35
 keywords: mitre, miter, mitre joint, knee, haunch, portal frame, ridge, corner, angle cut, skew cut, end plate, bolted end plate, stiffener, connect
 ---
 
-A mitre joins two I-shape members whose ends meet at an angle, such as the knee of a portal frame, a ridge, or two beams turning a corner in plan. DetailCraft cuts both ends on the plane that halves the angle between them, so the two cut faces match. If you want, it adds an end plate to each cut end, bolts the two plates together, and puts a pair of web stiffeners in each member.
+A mitre joins two I-shape members whose ends meet at an angle, such as the knee of a portal frame, a ridge, or two beams turning a corner in plan. Manafe3 cuts both ends on the plane that halves the angle between them, so the two cut faces match. If you want, it adds an end plate to each cut end, bolts the two plates together, and puts a pair of web stiffeners in each member.
 
 ## Where it works
 
@@ -51,4 +51,4 @@ Under {{ui:Bolts}}: bolt diameter, hole, grade and length allowance (20, 22, A32
 
 - The mitre stays live. Move or resize either member and the cut, plates and bolts follow. Delete either member and the mitre goes, and the other member's end is square again.
 - Warnings use the same EN 1993-1-8 minimums as the other connections (end and edge distance 1.2 × hole, pitch 2.2 × hole, gauge 2.4 × hole), plus bolt rows too close to a flange, plates narrower than the flanges and stiffeners with no room.
-- The values are starting values, not a design. DetailCraft does not check the connection's strength, and it makes no haunch, no welded mitre with a butt weld, and no stiffeners in line with the other member's flanges.
+- The values are starting values, not a design. Manafe3 does not check the connection's strength, and it makes no haunch, no welded mitre with a butt weld, and no stiffeners in line with the other member's flanges.

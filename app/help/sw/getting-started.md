@@ -1,11 +1,11 @@
 ---
-title: Kuanza na DetailCraft
-summary: DetailCraft inafanya nini leo, jinsi ya kuifungua, na modeli ya kwanza kuanzia gridi hadi mchoro wa warsha ndani ya dakika kumi.
+title: Kuanza na Manafe3
+summary: Manafe3 inafanya nini leo, jinsi ya kuifungua, na modeli ya kwanza kuanzia gridi hadi mchoro wa warsha ndani ya dakika kumi.
 keywords: anza, modeli ya kwanza, utangulizi, uchoraji wa chuma, chuma cha kuimarisha, mwongozo wa haraka, mafunzo, muhtasari
 from: 3682c0d8
 ---
 
-DetailCraft ni programu ya uchoraji wa kina wa chuma na chuma cha kuimarisha katika familia ya CadCraft. Unajenga modeli ya 3D ya fremu ya chuma kwenye gridi na viwango, unaiunganisha, na unapata kile warsha inachohitaji: alama za sehemu na mikusanyiko, orodha ya vifaa, michoro ya warsha ya sehemu moja moja, faili za DSTV NC, modeli ya IFC, na ratiba ya kupinda kwa misingi.
+Manafe3 ni programu ya uchoraji wa kina wa chuma na chuma cha kuimarisha katika familia ya Manafe3. Unajenga modeli ya 3D ya fremu ya chuma kwenye gridi na viwango, unaiunganisha, na unapata kile warsha inachohitaji: alama za sehemu na mikusanyiko, orodha ya vifaa, michoro ya warsha ya sehemu moja moja, faili za DSTV NC, modeli ya IFC, na ratiba ya kupinda kwa misingi.
 
 Hii ni toleo la mapema. Linafanya orodha fupi ya mambo kwa makini badala ya kila kitu mara moja. Soma [Kisichojengwa bado](topic:not-built-yet) kabla ya kupanga kazi halisi kulingana nacho.
 
@@ -19,24 +19,24 @@ Hii ni toleo la mapema. Linafanya orodha fupi ya mambo kwa makini badala ya kila
 - Alama za sehemu na mikusanyiko zinazojisasisha baada ya kila mabadiliko.
 - Hamisho: IFC4, faili za DSTV NC (maumbo-I na bamba), orodha ya vifaa kama CSV, ratiba ya kupinda kama CSV, na PDF ya mchoro wa warsha wa sehemu moja.
 
-## Fungua DetailCraft
+## Fungua Manafe3
 
-1. Fungua DetailCraft kwenye kivinjari cha kompyuta ya mezani: Chrome, Edge, Firefox au Safari. Tazama [Vivinjari na kompyuta](common:browsers).
+1. Fungua Manafe3 kwenye kivinjari cha kompyuta ya mezani: Chrome, Edge, Firefox au Safari. Tazama [Vivinjari na kompyuta](common:browsers).
 2. Subiri skrini ijae. Upau wa hali chini unasema "Tayari. Fungua Sampuli, au weka gridi na viwango na uanze kuweka vipengele."
 
 Mwonekano wa modeli unahitaji picha za 3D (WebGL). Ikiwa katikati ya skrini inasema "Kivinjari hiki hakikuweza kuanzisha picha za 3D (WebGL)", tazama [Utatuzi wa matatizo](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Modeli zako zinabaki kwenye kompyuta yako. Kufungua modeli kunaisoma kwenye kivinjari, na kuhifadhi kunapakua faili. Hakuna kinachopakiwa. Kuhifadhi kwenye wingu bado hakupatikani. Tazama [Faili zako zinakwenda wapi](common:your-files). Ili kutumia DetailCraft bila muunganisho baadaye, chagua {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} kwenye upau wa programu mara moja ukiwa mtandaoni; tazama [Kufanya kazi nje ya mtandao](common:offline).
+Modeli zako zinabaki kwenye kompyuta yako. Kufungua modeli kunaisoma kwenye kivinjari, na kuhifadhi kunapakua faili. Hakuna kinachopakiwa. Kuhifadhi kwenye wingu bado hakupatikani. Tazama [Faili zako zinakwenda wapi](common:your-files). Ili kutumia Manafe3 bila muunganisho baadaye, chagua {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} kwenye upau wa programu mara moja ukiwa mtandaoni; tazama [Kufanya kazi nje ya mtandao](common:offline).
 :::
 
 :::offline
-Uko nje ya mtandao. DetailCraft inafanya kazi bila muunganisho tu ikiwa ilihifadhiwa kwa matumizi ya nje ya mtandao kwanza: kitufe cha {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} kwenye upau wa programu kisha kinasoma {{ui:Tayari kwa matumizi ya nje ya mtandao}}. Tazama [Kufanya kazi nje ya mtandao](common:offline).
+Uko nje ya mtandao. Manafe3 inafanya kazi bila muunganisho tu ikiwa ilihifadhiwa kwa matumizi ya nje ya mtandao kwanza: kitufe cha {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} kwenye upau wa programu kisha kinasoma {{ui:Tayari kwa matumizi ya nje ya mtandao}}. Tazama [Kufanya kazi nje ya mtandao](common:offline).
 :::
 
 ## Angalia sampuli kwanza
 
-Njia ya haraka zaidi ya kuona DetailCraft inachotengeneza ni fremu ya sampuli.
+Njia ya haraka zaidi ya kuona Manafe3 inachotengeneza ni fremu ya sampuli.
 
 1. Chagua {{ui:Sampuli}} kwenye kundi la {{ui:Faili}} la upau wa zana.
 2. Mwonekano unaonyesha fremu ya span mbili: nguzo sita zenye sahani za msingi, mihimili minne yenye sahani za mwisho, mshikio mmoja na misingi saba yenye chuma cha kuimarisha.
@@ -49,7 +49,7 @@ Mwongozo [Chunguza fremu ya sampuli](topic:sample-model) unaipitia kipande kwa k
 
 Modeli mpya tayari ina gridi 1 hadi 3 kwa A hadi B kwa 6000 mm na viwango viwili, Level 1 kwenye 0 na Level 2 kwenye 4000.
 
-1. Chagua {{ui:Mpya}}. Ikiwa modeli ya sasa ina mabadiliko, DetailCraft inauliza kama uyahifadhi kwanza.
+1. Chagua {{ui:Mpya}}. Ikiwa modeli ya sasa ina mabadiliko, Manafe3 inauliza kama uyahifadhi kwanza.
 2. Chagua {{ui:Mpango}} juu ya mwonekano. Orodha ya viwango kando yake inachagua Level 1.
 3. Chagua {{ui:Nguzo}} kwenye upau wa zana, au bonyeza {{key:C}}.
 4. Bofya makutano ya gridi A/1. Nguzo ya W12x50 inaonekana kutoka Level 1 hadi Level 2. Upau wa hali unasema ilipoenda.

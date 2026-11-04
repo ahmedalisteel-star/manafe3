@@ -5,7 +5,7 @@ keywords: yenilikler, sürüm notları, değişiklik günlüğü, değişiklikle
 from: 17d1e0bb
 ---
 
-Bu, DetailCraft 0.7'de 0.6'ya göre nelerin değiştiğidir. 0.6'nın karkas analizinin artık ikinci bir adımı var: çelik elemanları bir tasarım yönetmeliğine göre denetlemek.
+Bu, Manafe3 0.7'de 0.6'ya göre nelerin değiştiğidir. 0.6'nın karkas analizinin artık ikinci bir adımı var: çelik elemanları bir tasarım yönetmeliğine göre denetlemek.
 
 ## Yeni
 
@@ -15,7 +15,7 @@ Bu, DetailCraft 0.7'de 0.6'ya göre nelerin değiştiğidir. 0.6'nın karkas ana
 
 ### Tasarım denetimleri
 
-- **Yönetmelikten yük birleşimleri.** {{ui:Analiz}} sekmesinde yeni {{ui:Tasarım denetimleri}} bloğunun bir {{ui:Tasarım yönetmeliği}} vardır: ASCE 7 + AISC 360 (ABD, LRFD) veya EN 1990 + EN 1993-1-1 (Eurocode). Her yük durumuna türünü verin (ölü, hareketli, yeni çatı hareketli, kar, rüzgâr, deprem), {{ui:Birleşimleri oluştur}} düğmesine basın ve DetailCraft durumlarınızın yönetmeliğe göre dayanım ve kullanılabilirlik birleşimlerini yazar. Kendi yazdığınız birleşimler kalır. Bkz. [Birleşimleri oluşturma](topic:design-checks#make-the-combinations).
+- **Yönetmelikten yük birleşimleri.** {{ui:Analiz}} sekmesinde yeni {{ui:Tasarım denetimleri}} bloğunun bir {{ui:Tasarım yönetmeliği}} vardır: ASCE 7 + AISC 360 (ABD, LRFD) veya EN 1990 + EN 1993-1-1 (Eurocode). Her yük durumuna türünü verin (ölü, hareketli, yeni çatı hareketli, kar, rüzgâr, deprem), {{ui:Birleşimleri oluştur}} düğmesine basın ve Manafe3 durumlarınızın yönetmeliğe göre dayanım ve kullanılabilirlik birleşimlerini yazar. Kendi yazdığınız birleşimler kalır. Bkz. [Birleşimleri oluşturma](topic:design-checks#make-the-combinations).
 - **Ulusal Ek değerleri.** Eurocode için katsayılar önerilen değerlerle başlar; {{ui:Ulusal Ek değerleri}} ülkenizinkileri yazmanıza izin verir ve bunlar modelde kaydedilir. Bkz. [Birleşimleri oluşturma](topic:design-checks#make-the-combinations).
 - **Elemanları denetle.** {{ui:Elemanları denetle}} her çelik I profilini çekme, burkulmalı basınç, yanal burulmalı burkulmalı eğilme, kesme, eksenel kuvvetli eğilme ve belirlediğiniz {{ui:Sehim sınırı}}na karşı sehim için denetler. Tablo her elemanın kullanım oranını, belirleyici denetimi ve birleşimini gösterir ve elemanlar modelde renklendirilir (mavi, yeşil, aşı boyası, kırmızı, denetlenmediyse gri). Bkz. [Elemanları denetleme](topic:design-checks#check-the-members).
 - **Raporda.** {{ui:Rapor (PDF)}} ve {{ui:Rapor (CSV)}} yönetmelik sürümlerini, ayarları, eleman başına kullanım oranını ve kullanılan her maddeyi ekler. Bkz. [Rapor](topic:design-checks#the-report).
@@ -27,7 +27,7 @@ Bu, DetailCraft 0.7'de 0.6'ya göre nelerin değiştiğidir. 0.6'nın karkas ana
 
 ### Yapay zekâ asistanları
 
-- **Asistanlar için USD.** CadCraft Studio üzerinden bağlanan kendi asistanınız modeli USD olarak dışa aktarabilir (`usd_export`) ve Studio'da izin verdiğiniz bir klasöre yazabilir. Bkz. [Bir asistan neler isteyebilir](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **Asistanlar için USD.** Manafe3 Desktop üzerinden bağlanan kendi asistanınız modeli USD olarak dışa aktarabilir (`usd_export`) ve Studio'da izin verdiğiniz bir klasöre yazabilir. Bkz. [Bir asistan neler isteyebilir](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
 
 ## Değişenler
 
@@ -36,16 +36,16 @@ Bu, DetailCraft 0.7'de 0.6'ya göre nelerin değiştiğidir. 0.6'nın karkas ana
 
 ## Her uygulamada
 
-- **Birimler.** {{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Birimler}} içinde uzunluk, alan, hacim, açı ve eğim için birer liste vardır; boyutlar birimlerin tanımlarının verdiği tam değerlerdir (ABD ölçme fiti kendi birimidir). Hiç kullanmadığınız birimleri kapatın, birim listelerinden çıkarlar; birini yıldızlayın, yeni çalışma onunla başlar. Bir dosya her zaman kendi birimini korur. DetailCraft'ın kendi kutuları listeleri henüz izlemez: uzunlukları hâlâ milimetre olarak yazılır. Bkz. [Birimler, yazılan değerler ve birim listeleri](common:unit-lists).
+- **Birimler.** {{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Birimler}} içinde uzunluk, alan, hacim, açı ve eğim için birer liste vardır; boyutlar birimlerin tanımlarının verdiği tam değerlerdir (ABD ölçme fiti kendi birimidir). Hiç kullanmadığınız birimleri kapatın, birim listelerinden çıkarlar; birini yıldızlayın, yeni çalışma onunla başlar. Bir dosya her zaman kendi birimini korur. Manafe3'ın kendi kutuları listeleri henüz izlemez: uzunlukları hâlâ milimetre olarak yazılır. Bkz. [Birimler, yazılan değerler ve birim listeleri](common:unit-lists).
 - **Daha sıkı bir yerleşim ve toparlanan paneller.** {{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Düzen yoğunluğu}} › {{ui:Sıkı}} ekrana daha fazlasını sığdırır (dokunmatik ekranlar ve telefonlar büyük düğmelerini korur). Her yan panelin ince bir başlık çubuğu vardır: panelin yerleşmesi veya yüzmesi için sürükleyin, başka bir panelin çubuğuna bırakarak sekmeler olarak tek bir çerçeveyi paylaşın, kenara kayıp gitmesi için iğneleyin veya gizleyin ve kenardan geri getirin. Bkz. [Panelleri düzenleme](common:arrange-panels#make-the-layout-denser).
 - **İletişim kutuları taşınır.** Bir iletişim kutusunu başlık çubuğundan çizimin önünden çekin; bıraktığınız yere geri gelir. Yeniden ortalamak için başlık çubuğuna çift tıklayın. Bkz. [Bir iletişim kutusunu taşıma](common:arrange-panels#move-a-dialog).
 - **Yapay zekâ asistanları için tarifler.** Kendi asistanınız için on uygulamalı istek (bir çizimi düzenleme, bir takımı çıktı alma, çizimleri denetleme, bir modele soru sorma, bir metrajı toplama, bir parça varyantını deneme…), her birinde çağırdığı araçlar ve gereken izinlerle ve her biri testlerimizce yeniden oynatılarak. Uygulamalarda yapay zekâ yoktur. Bkz. [Yapay zekâ asistanları için tarifler](common:assistants-recipes).
 - **Diller.** **Português (Portugal)**, {{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Dil}} içinde yenidir. O, **Português (Brasil)**, **Español (México)** ve **Bahasa Indonesia** artık uygulamaların her sözcüğüne sahiptir; anadili konuşan biri tarafından henüz gözden geçirilmemiş taslaklar olarak. Yardım konuları İngilizcedir.
-- **CadCraft Studio**, bir güncelleme denetiminin neden başarısız olduğunu (sisteminiz için henüz dosya yok, ağ yok, hatalı imza) yalnızca "Bitti" demek yerine söyler ve kapattığınız bir Yenilikler kartını daha yeni bir sürüm çıkana kadar geri getirmeyi bırakır.
+- **Manafe3 Desktop**, bir güncelleme denetiminin neden başarısız olduğunu (sisteminiz için henüz dosya yok, ağ yok, hatalı imza) yalnızca "Bitti" demek yerine söyler ve kapattığınız bir Yenilikler kartını daha yeni bir sürüm çıkana kadar geri getirmeyi bırakır.
 
 ## Bu sürümde henüz olmayanlar
 
-- **0.7 kod imzalı değildir.** İmzalama ve Microsoft Store paketi, sertifika doğrulaması henüz sonuçlanmadığı için 0.8'e kaydı. getcadcraft.com/download adresinde her dosyanın yanındaki SHA-256 değerini denetleyin. Windows'ta SmartScreen yükleyiciyi durdurursa {{ui:Daha fazla bilgi}}, ardından {{ui:Yine de çalıştır}} seçin. Mac'te ilk seferde CadCraft Studio'ya sağ tıklayıp {{ui:Aç}} seçin. CadCraft Studio henüz bir uygulama mağazasında değildir ve henüz iPad veya iPhone sürümü yoktur.
+- **0.7 kod imzalı değildir.** İmzalama ve Microsoft Store paketi, sertifika doğrulaması henüz sonuçlanmadığı için 0.8'e kaydı. getcadcraft.com/download adresinde her dosyanın yanındaki SHA-256 değerini denetleyin. Windows'ta SmartScreen yükleyiciyi durdurursa {{ui:Daha fazla bilgi}}, ardından {{ui:Yine de çalıştır}} seçin. Mac'te ilk seferde Manafe3 Desktop'ya sağ tıklayıp {{ui:Aç}} seçin. Manafe3 Desktop henüz bir uygulama mağazasında değildir ve henüz iPad veya iPhone sürümü yoktur.
 - {{ui:Birimler}} içindeki açı ve eğim listeleri kaydedilir, ama henüz hiçbir kutu onları okumaz.
 - **Tasarım denetimleri henüz bir mühendis tarafından gözden geçirilmedi.** Testlerimiz onları basılı tablo değerleriyle ve elle çözülmüş formüllerle karşılaştırır, henüz bir tasarım kılavuzunun çözümlü örnekleriyle değil. Gözden geçirilene kadar bir yardımcıdır: önemli elemanları elle denetleyin.
 - Tasarım denetimleri birinci mertebe kuvvetleri kullanır (ikinci mertebe etkileri yok) ve yalnızca I profillerini denetler. Yapılmayanlar: tüpler, korniyerler, U profilleri, kaynaklı profiller, eğilmede narin (AISC) veya sınıf 4 (Eurocode) parçalar, burulma, eğilmeyle birlikte kesme burkulması, birleşimler, yorulma, yangın, deprem detaylandırması ve beton. Basınçta narin bir parça basınç denetimlerini dışarıda bırakır ve eleman "geçti, kısmen denetlendi" der.

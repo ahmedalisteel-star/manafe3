@@ -43,7 +43,7 @@ Kairysis ir dešinysis skydeliai išlaiko viską, kas aprašyta [Skydelių išd�
 
 ## Grįžimas prie klasikinio išdėstymo
 
-Atidarykite {{ui:Parametrai}} › {{ui:Visuotiniai}} › {{ui:Išdėstymas}} › {{ui:Darbo sritis}} ir pasirinkite {{ui:CadCraft klasikinis}}. Kiekviena įrankių juosta, skirtukas ir skydelis grįžta į savo vietą.
+Atidarykite {{ui:Parametrai}} › {{ui:Visuotiniai}} › {{ui:Išdėstymas}} › {{ui:Darbo sritis}} ir pasirinkite {{ui:Manafe3 klasikinis}}. Kiekviena įrankių juosta, skirtukas ir skydelis grįžta į savo vietą.
 
 :::note
 Telefone arba langas, 760 pikselių pločio ar siauresnis, programa naudoja telefono išdėstymą, nepriklausomai nuo to, ką pasirinkote. Platesnis langas grąžina jūsų išdėstymą.

@@ -42,7 +42,7 @@ Om 'n paneel uit die groep te haal, kies {{ui:Skuif uit die oortjiegroep}} in sy
 
 ## Kies hoeveel rye die nutsbalk gebruik
 
-{{ui:Instellings}} › {{ui:Algemeen}} › {{ui:Werkbalkrye}} het drie keuses. {{ui:Omvou}} is die verstek: elke gereedskapgroep wys, op soveel rye as nodig. {{ui:2 rye}} hou die nutsbalk op twee rye en {{ui:1 ry}} op een, sodat die tekening die hoogte kry; die groepe wat nie pas nie, rol sywaarts binne die nutsbalk (gebruik die muiswiel, 'n tweevinger-swaai, of {{key:Tab}} na 'n gereedskap). 'n Nutsbalk wat reeds in twee rye pas, bly soos dit is onder {{ui:2 rye}}, want 'n rooster sou dit net hoër maak. Die keuse word vir elke program onthou. 'n Aanraakskerm en 'n foon hou hul eie uitleg. CadCraft het sy eie instelling vir sy nutsbalk, onder {{ui:Instellings}} › {{ui:CadCraft}}.
+{{ui:Instellings}} › {{ui:Algemeen}} › {{ui:Werkbalkrye}} het drie keuses. {{ui:Omvou}} is die verstek: elke gereedskapgroep wys, op soveel rye as nodig. {{ui:2 rye}} hou die nutsbalk op twee rye en {{ui:1 ry}} op een, sodat die tekening die hoogte kry; die groepe wat nie pas nie, rol sywaarts binne die nutsbalk (gebruik die muiswiel, 'n tweevinger-swaai, of {{key:Tab}} na 'n gereedskap). 'n Nutsbalk wat reeds in twee rye pas, bly soos dit is onder {{ui:2 rye}}, want 'n rooster sou dit net hoër maak. Die keuse word vir elke program onthou. 'n Aanraakskerm en 'n foon hou hul eie uitleg. Manafe3 het sy eie instelling vir sy nutsbalk, onder {{ui:Instellings}} › {{ui:Manafe3}}.
 
 ## Gebruik die sleutelbord
 
@@ -82,7 +82,7 @@ Vanaf die sleutelbord, druk {{key:Alt}}+{{key:Shift}}+'n pyltjiesleutel met die 
 
 Op 'n foon bly dialoë volskerm-blaaie en word nie geskuif nie.
 
-In CadCraft Studio, CadCraft se {{ui:Plot na PDF}}-dialoog, wat jy oop mag hou terwyl jy werk, het 'n knoppie in sy titelbalk, {{ui:Maak oop in sy eie venster}}. Die dialoog skuif in sy eie venster wat jy op 'n ander monitor kan plaas. As jy die dialoog toemaak, sluit die venster, en as jy die venster toemaak, sluit die dialoog.
+In Manafe3 Desktop, Manafe3 se {{ui:Plot na PDF}}-dialoog, wat jy oop mag hou terwyl jy werk, het 'n knoppie in sy titelbalk, {{ui:Maak oop in sy eie venster}}. Die dialoog skuif in sy eie venster wat jy op 'n ander monitor kan plaas. As jy die dialoog toemaak, sluit die venster, en as jy die venster toemaak, sluit die dialoog.
 
 ## Plaas die panele terug
 

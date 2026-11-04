@@ -23,7 +23,7 @@ Then pick the {{ui:Steel grade}} (A992, A36 and others; or S235 to S450, with th
 
 ## Make the combinations
 
-Give each load case its **kind** (dead, live, roof live, snow, wind, seismic) in the case list, then press {{ui:Make combinations}}. DetailCraft writes the code's combinations as combinations of your cases: every strength combination the code lists for the kinds you have, and serviceability combinations for deflection. The ones you typed yourself stay; they are not checked against the code. A case of kind {{ui:Other}} is not combined.
+Give each load case its **kind** (dead, live, roof live, snow, wind, seismic) in the case list, then press {{ui:Make combinations}}. Manafe3 writes the code's combinations as combinations of your cases: every strength combination the code lists for the kinds you have, and serviceability combinations for deflection. The ones you typed yourself stay; they are not checked against the code. A case of kind {{ui:Other}} is not combined.
 
 For the Eurocode the factors are the **recommended values** of EN 1990 Annex A1 (γG 1.35, γQ 1.5, the ψ values of imposed, snow and wind loads) and EN 1993-1-1 (γM0 = γM1 = 1.0). Your country's National Annex changes some of them: open {{ui:National Annex values}}, type yours, and make the combinations again. They are saved in the model.
 

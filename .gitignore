@@ -1,3 +1,25 @@
 .cc-test/
 node_modules/
 dist/
+
+# ---- Manafe3 ----
+# per-machine settings (paths differ between the office PC and the laptop)
+.env.local
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# client and project data never goes into git: keep it in the projects folder named in .env.local
+*.dwg
+*.pdf
+*.ifc
+*.rvt
+*.tekla
+*.db1
+*.nc1
+*.xlsx
+projects/
+private/
+# except the upstream test fixtures (made for testing, Apache-2.0)
+!fixtures/**

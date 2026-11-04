@@ -42,7 +42,7 @@ Chcete-li panel ze skupiny vyjmout, zvolte v jeho nabídce {{ui:⋯}} položku {
 
 ## Volba počtu řádků panelu nástrojů
 
-{{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Řádky panelu nástrojů}} nabízí tři možnosti. Výchozí je {{ui:Zalomit}}: zobrazí se každá skupina nástrojů, na tolik řádků, kolik je potřeba. {{ui:2 řádky}} udrží panel nástrojů na dvou řádcích a {{ui:1 řádek}} na jednom, aby výkres získal výšku; skupiny, které se nevejdou, se posouvají do strany uvnitř panelu nástrojů (použijte kolečko myši, gesto dvěma prsty nebo klávesu {{key:Tab}} na nástroj). Panel nástrojů, který se už na dva řádky vejde, zůstane při volbě {{ui:2 řádky}} beze změny, protože mřížka by jej jen prodloužila. Volba se ukládá pro každou aplikaci zvlášť. Dotyková obrazovka a telefon si ponechají vlastní rozložení. CadCraft má vlastní nastavení panelu nástrojů v {{ui:Nastavení}} › {{ui:CadCraft}}.
+{{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Řádky panelu nástrojů}} nabízí tři možnosti. Výchozí je {{ui:Zalomit}}: zobrazí se každá skupina nástrojů, na tolik řádků, kolik je potřeba. {{ui:2 řádky}} udrží panel nástrojů na dvou řádcích a {{ui:1 řádek}} na jednom, aby výkres získal výšku; skupiny, které se nevejdou, se posouvají do strany uvnitř panelu nástrojů (použijte kolečko myši, gesto dvěma prsty nebo klávesu {{key:Tab}} na nástroj). Panel nástrojů, který se už na dva řádky vejde, zůstane při volbě {{ui:2 řádky}} beze změny, protože mřížka by jej jen prodloužila. Volba se ukládá pro každou aplikaci zvlášť. Dotyková obrazovka a telefon si ponechají vlastní rozložení. Manafe3 má vlastní nastavení panelu nástrojů v {{ui:Nastavení}} › {{ui:Manafe3}}.
 
 ## Ovládání klávesnicí
 
@@ -82,7 +82,7 @@ Z klávesnice stiskněte {{key:Alt}}+{{key:Shift}}+šipku, když je zaměřením
 
 Na telefonu zůstávají dialogy celoobrazovkové a nepřesouvají se.
 
-V CadCraft Studiu má dialog {{ui:Vykreslit do PDF}} aplikace CadCraft, který můžete nechat během práce otevřený, v záhlaví tlačítko {{ui:Otevřít ve vlastním okně}}. Dialog se přesune do vlastního okna, které můžete umístit na jiný monitor. Zavření dialogu zavře okno a zavření okna zavře dialog.
+V Manafe3 Studiu má dialog {{ui:Vykreslit do PDF}} aplikace Manafe3, který můžete nechat během práce otevřený, v záhlaví tlačítko {{ui:Otevřít ve vlastním okně}}. Dialog se přesune do vlastního okna, které můžete umístit na jiný monitor. Zavření dialogu zavře okno a zavření okna zavře dialog.
 
 ## Vrácení panelů zpět
 

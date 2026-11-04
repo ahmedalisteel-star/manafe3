@@ -43,7 +43,7 @@ Panelet e majtë dhe të djathtë ruajnë gjithçka të përshkruar te [Rregullo
 
 ## Kthehu te paraqitja klasike
 
-Hap {{ui:Cilësimet}} › {{ui:Globale}} › {{ui:Paraqitja}} › {{ui:Hapësira e punës}} dhe zgjidh {{ui:CadCraft klasik}}. Çdo shirit veglash, skedë dhe panel kthehet aty ku ishte.
+Hap {{ui:Cilësimet}} › {{ui:Globale}} › {{ui:Paraqitja}} › {{ui:Hapësira e punës}} dhe zgjidh {{ui:Manafe3 klasik}}. Çdo shirit veglash, skedë dhe panel kthehet aty ku ishte.
 
 :::note
 Në telefon, ose në një dritare 760 piksel të gjerë ose më të ngushtë, aplikacioni përdor paraqitjen e telefonit pavarësisht se çfarë zgjedh. Një dritare më e gjerë e sjell përsëri paraqitjen tënde.

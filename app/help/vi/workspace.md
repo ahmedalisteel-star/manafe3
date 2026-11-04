@@ -1,17 +1,17 @@
 ---
 title: Tham quan màn hình
-summary: Mọi thanh, bảng và thẻ trong DetailCraft theo tên hiển thị trên màn hình, và mỗi cái dùng để làm gì.
+summary: Mọi thanh, bảng và thẻ trong Manafe3 theo tên hiển thị trên màn hình, và mỗi cái dùng để làm gì.
 keywords: màn hình, bố cục, thanh công cụ, bảng, thuộc tính, thanh trạng thái, báo cáo, giao diện, ui, thẻ
 from: 454f74fd
 ---
 
-DetailCraft lấp đầy cửa sổ trình duyệt bên dưới thanh ứng dụng. Từ trên xuống dưới: thanh công cụ, rồi ba cột (bảng {{ui:Mô hình}}, khung nhìn, bảng {{ui:Thuộc tính}}), rồi các thẻ báo cáo, rồi thanh trạng thái.
+Manafe3 lấp đầy cửa sổ trình duyệt bên dưới thanh ứng dụng. Từ trên xuống dưới: thanh công cụ, rồi ba cột (bảng {{ui:Mô hình}}, khung nhìn, bảng {{ui:Thuộc tính}}), rồi các thẻ báo cáo, rồi thanh trạng thái.
 
 ## Thanh ứng dụng
 
-Thanh mỏng ở trên cùng thuộc về trang web CadCraft, không phải mô hình. Nó hiện tên ứng dụng và phiên bản, liên kết đến {{ui:Giới thiệu DetailCraft}}, {{ui:Trợ giúp}} (hoặc {{key:F1}}) cho phần trợ giúp này, {{ui:Lưu để dùng ngoại tuyến}}, nút chế độ màn hình và công tắc {{ui:Giấy}} / {{ui:Mô hình}}.
+Thanh mỏng ở trên cùng thuộc về trang web Manafe3, không phải mô hình. Nó hiện tên ứng dụng và phiên bản, liên kết đến {{ui:Giới thiệu Manafe3}}, {{ui:Trợ giúp}} (hoặc {{key:F1}}) cho phần trợ giúp này, {{ui:Lưu để dùng ngoại tuyến}}, nút chế độ màn hình và công tắc {{ui:Giấy}} / {{ui:Mô hình}}.
 
-- {{ui:Lưu để dùng ngoại tuyến}} giữ DetailCraft, khung nhìn 3D và phần trợ giúp này trong trình duyệt của bạn để nó mở được khi không có kết nối. Nó ghi {{ui:Sẵn sàng ngoại tuyến}} khi đã lưu; khi đó nhấp vào nó để có {{ui:Lưu lại (lấy bản mới nhất)}} hoặc {{ui:Xóa bản ngoại tuyến}}. Xem [Làm việc ngoại tuyến](common:offline).
+- {{ui:Lưu để dùng ngoại tuyến}} giữ Manafe3, khung nhìn 3D và phần trợ giúp này trong trình duyệt của bạn để nó mở được khi không có kết nối. Nó ghi {{ui:Sẵn sàng ngoại tuyến}} khi đã lưu; khi đó nhấp vào nó để có {{ui:Lưu lại (lấy bản mới nhất)}} hoặc {{ui:Xóa bản ngoại tuyến}}. Xem [Làm việc ngoại tuyến](common:offline).
 - {{ui:Giấy}} cho màn hình sáng và {{ui:Mô hình}} cho màn hình tối. Khung nhìn 3D đổi theo ngay; không có gì trong mô hình của bạn thay đổi.
 - Nút chế độ màn hình và {{key:Ctrl+Shift+F}} chuyển vòng qua bình thường, toàn màn hình, và toàn màn hình với các thanh bị ẩn. {{key:Ctrl+Shift+F}} dùng phím Control trên mọi máy tính, kể cả Mac. Khi các thanh bị ẩn, trỏ vào mép trên của màn hình (hoặc chạm vào đó) để đưa chúng trở lại. {{key:Esc}} thoát toàn màn hình.
 
@@ -70,7 +70,7 @@ Các ô số có hiệu lực khi bạn nhấn {{key:Enter}} hoặc rời ô. M�
 
 ## Các thẻ báo cáo (ở dưới)
 
-- {{ui:Vấn đề}}: mọi thứ DetailCraft không dựng được hoặc muốn bạn kiểm tra, với nút {{ui:Chọn}} trên mỗi dòng. Thẻ hiện số lượng trong ngoặc.
+- {{ui:Vấn đề}}: mọi thứ Manafe3 không dựng được hoặc muốn bạn kiểm tra, với nút {{ui:Chọn}} trên mỗi dòng. Thẻ hiện số lượng trong ngoặc.
 - {{ui:Bảng kê vật tư}}: chi tiết, cụm lắp ráp, và bulông cùng thanh neo, với trọng lượng và liên kết {{ui:Tải xuống CSV}}. Nhấp một ký hiệu chi tiết để chọn chi tiết đó.
 - {{ui:Bảng uốn thép}}: mọi ký hiệu thép trong mọi móng, với liên kết {{ui:Tải xuống CSV}}.
 
@@ -84,4 +84,4 @@ Tiêu đề thẻ trình duyệt bắt đầu bằng một dấu chấm (•) kh
 
 ## Trên màn hình hẹp
 
-Dưới khoảng 760 pixel chiều rộng, các cột xếp chồng: thanh công cụ, khung nhìn, thanh trạng thái, {{ui:Thuộc tính}}, các thẻ báo cáo, rồi bảng {{ui:Mô hình}} ở cuối. Cuộn trang để tới chúng. DetailCraft được bố trí cho màn hình máy tính để bàn hoặc laptop; điện thoại dùng để xem được, không dùng để triển khai chi tiết.
+Dưới khoảng 760 pixel chiều rộng, các cột xếp chồng: thanh công cụ, khung nhìn, thanh trạng thái, {{ui:Thuộc tính}}, các thẻ báo cáo, rồi bảng {{ui:Mô hình}} ở cuối. Cuộn trang để tới chúng. Manafe3 được bố trí cho màn hình máy tính để bàn hoặc laptop; điện thoại dùng để xem được, không dùng để triển khai chi tiết.

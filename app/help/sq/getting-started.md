@@ -1,11 +1,11 @@
 ---
-title: Fillimi me DetailCraft
-summary: Çfarë bën DetailCraft sot, si ta hapësh, dhe një model i parë nga rrjetet deri te një vizatim punëtorie në dhjetë minuta.
+title: Fillimi me Manafe3
+summary: Çfarë bën Manafe3 sot, si ta hapësh, dhe një model i parë nga rrjetet deri te një vizatim punëtorie në dhjetë minuta.
 keywords: fillimi, modeli i parë, hyrje, detajimi i çelikut, armatura, fillim i shpejtë, udhëzues, mësim, përmbledhje
 from: 3682c0d8
 ---
 
-DetailCraft është aplikacioni për detajimin e çelikut dhe armaturës në familjen CadCraft. Ndërton një model 3D të një kornize çeliku mbi rrjete dhe nivele, e lidh, dhe merr atë që i nevojitet punëtorisë: shenjat e pjesëve dhe montimeve, një listë materialesh, vizatime punëtorie të një pjese, skedarë NC DSTV, një model IFC, dhe një tabelë përkuljeje për themelet.
+Manafe3 është aplikacioni për detajimin e çelikut dhe armaturës në familjen Manafe3. Ndërton një model 3D të një kornize çeliku mbi rrjete dhe nivele, e lidh, dhe merr atë që i nevojitet punëtorisë: shenjat e pjesëve dhe montimeve, një listë materialesh, vizatime punëtorie të një pjese, skedarë NC DSTV, një model IFC, dhe një tabelë përkuljeje për themelet.
 
 Ky është një version i hershëm. Bën me kujdes një listë të shkurtër gjërash, në vend që gjithçka njëherësh. Lexo [Çfarë nuk është ndërtuar ende](topic:not-built-yet) përpara se të planifikosh punë reale rreth tij.
 
@@ -19,24 +19,24 @@ Ky është një version i hershëm. Bën me kujdes një listë të shkurtër gj�
 - Shenja pjesësh dhe montimesh që përditësohen vetë pas çdo ndryshimi.
 - Eksportime: IFC4, skedarë NC DSTV (profile I dhe pllaka), lista e materialeve si CSV, tabela e përkuljes si CSV, dhe një PDF vizatimi punëtorie të një pjese.
 
-## Hap DetailCraft
+## Hap Manafe3
 
-1. Hap DetailCraft në një shfletues desktop: Chrome, Edge, Firefox ose Safari. Shih [Shfletuesit dhe kompjuterat](common:browsers).
+1. Hap Manafe3 në një shfletues desktop: Chrome, Edge, Firefox ose Safari. Shih [Shfletuesit dhe kompjuterat](common:browsers).
 2. Prit derisa ekrani të mbushet. Shiriti i statusit në fund thotë "Gati. Hap Shembullin, ose vendos rrjetet dhe nivelet dhe fillo të vendosësh elementë."
 
 Pamja e modelit ka nevojë për grafikë 3D (WebGL). Nëse mesi i ekranit thotë "Ky shfletues nuk mundi të nisë grafikën 3D (WebGL)", shih [Zgjidhja e problemeve](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Modelet e tua qëndrojnë në kompjuterin tënd. Hapja e një modeli e lexon në shfletues, dhe ruajtja shkarkon një skedar. Asgjë nuk ngarkohet. Ruajtja në cloud nuk është ende e disponueshme. Shih [Ku shkojnë skedarët e tu](common:your-files). Për ta përdorur DetailCraft më vonë pa lidhje, zgjidh {{ui:Save for offline}} në shiritin e aplikacionit një herë ndërkohë që je online; shih [Puna offline](common:offline).
+Modelet e tua qëndrojnë në kompjuterin tënd. Hapja e një modeli e lexon në shfletues, dhe ruajtja shkarkon një skedar. Asgjë nuk ngarkohet. Ruajtja në cloud nuk është ende e disponueshme. Shih [Ku shkojnë skedarët e tu](common:your-files). Për ta përdorur Manafe3 më vonë pa lidhje, zgjidh {{ui:Save for offline}} në shiritin e aplikacionit një herë ndërkohë që je online; shih [Puna offline](common:offline).
 :::
 
 :::offline
-Je offline. DetailCraft funksionon pa lidhje vetëm nëse është ruajtur më parë për përdorim offline: butoni {{ui:Save for offline}} në shiritin e aplikacionit atëherë shfaq {{ui:Offline ready}}. Shih [Puna offline](common:offline).
+Je offline. Manafe3 funksionon pa lidhje vetëm nëse është ruajtur më parë për përdorim offline: butoni {{ui:Save for offline}} në shiritin e aplikacionit atëherë shfaq {{ui:Offline ready}}. Shih [Puna offline](common:offline).
 :::
 
 ## Shiko fillimisht shembullin
 
-Mënyra më e shpejtë për të parë atë që prodhon DetailCraft është korniza shembull.
+Mënyra më e shpejtë për të parë atë që prodhon Manafe3 është korniza shembull.
 
 1. Zgjidh {{ui:Sample}} te grupi {{ui:File}} i shiritit të veglave.
 2. Pamja shfaq një kornizë me dy hapësira: gjashtë kolona me pllaka baze, katër trarë me pllaka skaji, një diagonale dhe shtatë themele me armaturë.
@@ -49,7 +49,7 @@ Udhëzuesi [Eksploro kornizën shembull](topic:sample-model) e kalon atë pjesë
 
 Një model i ri ka tashmë rrjetet 1 deri 3 nga A deri në B me 6000 mm dhe dy nivele, Level 1 në 0 dhe Level 2 në 4000.
 
-1. Zgjidh {{ui:New}}. Nëse modeli aktual ka ndryshime, DetailCraft pyet nëse duhet t'i ruash më parë.
+1. Zgjidh {{ui:New}}. Nëse modeli aktual ka ndryshime, Manafe3 pyet nëse duhet t'i ruash më parë.
 2. Zgjidh {{ui:Plan}} mbi pamje. Lista e niveleve pranë saj zgjedh Level 1.
 3. Zgjidh {{ui:Column}} në shiritin e veglave, ose shtyp {{key:C}}.
 4. Kliko kryqëzimin e rrjetit A/1. Një kolonë W12x50 shfaqet nga Level 1 deri në Level 2. Shiriti i statusit thotë ku shkoi.

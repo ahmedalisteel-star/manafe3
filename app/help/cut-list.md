@@ -34,4 +34,4 @@ These are kept in this browser, like the other [settings](topic:settings).
 
 {{ui:Download CSV}} saves both tables as `<name> cut list.csv`.
 
-DetailCraft does not nest plates into sheets, and does not mix profiles or materials on a bar.
+Manafe3 does not nest plates into sheets, and does not mix profiles or materials on a bar.

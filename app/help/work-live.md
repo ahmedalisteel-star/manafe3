@@ -1,6 +1,6 @@
 ---
 title: Detail one structure together with Live TeamWork
-summary: What changes in DetailCraft while you are in a Live TeamWork session from CadCraft Studio: everyone's members, connections and footings in one model, your own undo, and joining from a browser on the same network.
+summary: What changes in Manafe3 while you are in a Live TeamWork session from Manafe3 Desktop: everyone's members, connections and footings in one model, your own undo, and joining from a browser on the same network.
 section: tasks
 order: 135
 keywords: live, live teamwork, studio live, together, collaborate, session, share live, join, members, connections, undo, host
@@ -8,7 +8,7 @@ keywords: live, live teamwork, studio live, together, collaborate, session, shar
 
 ## What you will learn
 
-What happens to a model while several people detail it at the same time. CadCraft Studio starts and joins the Live TeamWork session (Share, Join); this page is about the model itself.
+What happens to a model while several people detail it at the same time. Manafe3 Desktop starts and joins the Live TeamWork session (Share, Join); this page is about the model itself.
 
 ## Everyone works at once
 
@@ -25,7 +25,7 @@ Add and edit members, connections, footings, stairs and bolts as usual. Your own
 
 ## Join from a browser
 
-A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. DetailCraft opens in the browser and fills with the host's model once the host lets you in. Invite links, for joining from another network, are not open yet.
+A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. Manafe3 opens in the browser and fills with the host's model once the host lets you in. Invite links, for joining from another network, are not open yet.
 
 ## When the session ends
 

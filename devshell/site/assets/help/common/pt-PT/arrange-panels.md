@@ -42,7 +42,7 @@ Para retirar um painel do grupo, escolha {{ui:Sair do grupo de separadores}} no 
 
 ## Escolher quantas linhas usa a barra de ferramentas
 
-{{ui:Definições}} › {{ui:Geral}} › {{ui:Linhas da barra de ferramentas}} tem três opções. {{ui:Quebrar}} é a opção predefinida: cada grupo de ferramentas aparece, em tantas linhas quantas forem precisas. {{ui:2 linhas}} mantém a barra de ferramentas em duas linhas e {{ui:1 linha}} numa só, para que o desenho ganhe altura; os grupos que não cabem deslocam-se lateralmente dentro da barra (use a roda do rato, um deslize com dois dedos ou prima {{key:Tab}} até uma ferramenta). Uma barra que já cabe em duas linhas mantém-se como está com {{ui:2 linhas}}, porque uma grelha só a tornaria mais alta. A escolha fica guardada para cada aplicação. Um ecrã tátil e um telemóvel mantêm o esquema próprio. O CadCraft tem uma definição própria para a sua barra de ferramentas, em {{ui:Definições}} › {{ui:CadCraft}}.
+{{ui:Definições}} › {{ui:Geral}} › {{ui:Linhas da barra de ferramentas}} tem três opções. {{ui:Quebrar}} é a opção predefinida: cada grupo de ferramentas aparece, em tantas linhas quantas forem precisas. {{ui:2 linhas}} mantém a barra de ferramentas em duas linhas e {{ui:1 linha}} numa só, para que o desenho ganhe altura; os grupos que não cabem deslocam-se lateralmente dentro da barra (use a roda do rato, um deslize com dois dedos ou prima {{key:Tab}} até uma ferramenta). Uma barra que já cabe em duas linhas mantém-se como está com {{ui:2 linhas}}, porque uma grelha só a tornaria mais alta. A escolha fica guardada para cada aplicação. Um ecrã tátil e um telemóvel mantêm o esquema próprio. O Manafe3 tem uma definição própria para a sua barra de ferramentas, em {{ui:Definições}} › {{ui:Manafe3}}.
 
 ## Usar o teclado
 
@@ -82,7 +82,7 @@ No teclado, com o foco dentro da caixa de diálogo, prima {{key:Alt}}+{{key:Shif
 
 Num telemóvel, as caixas de diálogo continuam a ocupar toda a largura e não são movidas.
 
-No CadCraft Studio, a caixa de diálogo {{ui:Imprimir para PDF}} do CadCraft, que pode manter aberta enquanto trabalha, tem um botão na barra de título: {{ui:Abrir numa janela própria}}. A caixa de diálogo passa para uma janela própria que pode colocar noutro monitor. Fechar a caixa de diálogo fecha a janela, e fechar a janela fecha a caixa de diálogo.
+No Manafe3 Desktop, a caixa de diálogo {{ui:Imprimir para PDF}} do Manafe3, que pode manter aberta enquanto trabalha, tem um botão na barra de título: {{ui:Abrir numa janela própria}}. A caixa de diálogo passa para uma janela própria que pode colocar noutro monitor. Fechar a caixa de diálogo fecha a janela, e fechar a janela fecha a caixa de diálogo.
 
 ## Repor os painéis
 

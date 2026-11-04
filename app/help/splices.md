@@ -6,7 +6,7 @@ order: 33
 keywords: splice, beam splice, column splice, cover plate, splice plate, flange plate, web plate, bolted splice, joint, lift, connect
 ---
 
-A bolted splice joins two pieces of one I-shape end to end: a cover plate outside each flange and a plate on each side of the web, bolted through both pieces. DetailCraft cuts the pieces back to the gap, places the four plates, drills the holes in the plates and in both pieces, adds the bolts and warns about edge distances, spacing and fit.
+A bolted splice joins two pieces of one I-shape end to end: a cover plate outside each flange and a plate on each side of the web, bolted through both pieces. Manafe3 cuts the pieces back to the gap, places the four plates, drills the holes in the plates and in both pieces, adds the bolts and warns about edge distances, spacing and fit.
 
 ## Where it works
 
@@ -48,5 +48,5 @@ Plate lengths follow from the bolts: flange plate = gap + 2 × (2 × end distanc
 - The plates belong to the **first piece drawn** of the two (its properties call it the first piece): they show on its assembly drawing and ship with it, bolted, not welded. The second piece's assembly drawing shows only its holes.
 - Flange bolts grip the flange and its plate; web bolts grip the web and both web plates. The bolt lengths are listed separately in the properties.
 - Warnings use the same EN 1993-1-8 minimums as the other connections (end and edge distance 1.2 × hole, pitch 2.2 × hole along and 2.4 × hole across), plus a web plate deeper than the clear web and flange bolts too close to the web for the fillet.
-- DetailCraft does not design the splice (no strength check), and does not make fill plates for pieces of different thickness.
+- Manafe3 does not design the splice (no strength check), and does not make fill plates for pieces of different thickness.
 - Copying both pieces copies their splice; deleting either piece deletes it.

@@ -42,7 +42,7 @@ Aby wyjąć panel z grupy, wybierz {{ui:Move out of the tab group}} w jego menu 
 
 ## Wybór liczby wierszy paska narzędzi
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} ma trzy opcje. Domyślna jest {{ui:Wrap}}: każda grupa narzędzi jest widoczna, w tylu wierszach, ile potrzeba. {{ui:2 rows}} ogranicza pasek narzędzi do dwóch wierszy, a {{ui:1 row}} do jednego, dzięki czemu rysunek zyskuje wysokość; grupy, które się nie mieszczą, przewijają się w bok wewnątrz paska narzędzi (użyj kółka myszy, gestu dwoma palcami albo klawisza {{key:Tab}}, aby przejść do narzędzia). Pasek narzędzi, który już mieści się w dwóch wierszach, pozostaje bez zmian przy {{ui:2 rows}}, ponieważ siatka tylko by go wydłużyła. Ustawienie jest zapamiętywane osobno dla każdej aplikacji. Ekran dotykowy i telefon zachowują własny układ. CadCraft ma własne ustawienie paska narzędzi w {{ui:Settings}} › {{ui:CadCraft}}.
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} ma trzy opcje. Domyślna jest {{ui:Wrap}}: każda grupa narzędzi jest widoczna, w tylu wierszach, ile potrzeba. {{ui:2 rows}} ogranicza pasek narzędzi do dwóch wierszy, a {{ui:1 row}} do jednego, dzięki czemu rysunek zyskuje wysokość; grupy, które się nie mieszczą, przewijają się w bok wewnątrz paska narzędzi (użyj kółka myszy, gestu dwoma palcami albo klawisza {{key:Tab}}, aby przejść do narzędzia). Pasek narzędzi, który już mieści się w dwóch wierszach, pozostaje bez zmian przy {{ui:2 rows}}, ponieważ siatka tylko by go wydłużyła. Ustawienie jest zapamiętywane osobno dla każdej aplikacji. Ekran dotykowy i telefon zachowują własny układ. Manafe3 ma własne ustawienie paska narzędzi w {{ui:Settings}} › {{ui:Manafe3}}.
 
 ## Korzystanie z klawiatury
 
@@ -82,7 +82,7 @@ Z klawiatury, gdy fokus jest wewnątrz okna dialogowego, naciśnij {{key:Alt}}+{
 
 Na telefonie okna dialogowe pozostają pełnoekranowe i nie da się ich przesuwać.
 
-W CadCraft Studio okno {{ui:Plot to PDF}} CadCraft, które możesz zostawić otwarte podczas pracy, ma w pasku tytułu przycisk {{ui:Open in its own window}}. Okno dialogowe przechodzi wtedy do własnego okna, które można przenieść na inny monitor. Zamknięcie okna dialogowego zamyka okno, a zamknięcie okna zamyka okno dialogowe.
+W Manafe3 Desktop okno {{ui:Plot to PDF}} Manafe3, które możesz zostawić otwarte podczas pracy, ma w pasku tytułu przycisk {{ui:Open in its own window}}. Okno dialogowe przechodzi wtedy do własnego okna, które można przenieść na inny monitor. Zamknięcie okna dialogowego zamyka okno, a zamknięcie okna zamyka okno dialogowe.
 
 ## Przywracanie paneli
 

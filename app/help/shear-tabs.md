@@ -6,7 +6,7 @@ order: 31
 keywords: shear tab, single plate, fin plate, simple connection, web connection, skewed, skew, sloped, raked, angled beam, bolted, connect
 ---
 
-A shear tab (single plate, fin plate) is a plate welded to the column in the shop; on site the beam's web is bolted to it with one vertical row of bolts. DetailCraft places the tab, cuts the beam back clear of the column, drills the holes in the tab and the beam web, adds the bolts and the weld, and warns about edge distances and fit.
+A shear tab (single plate, fin plate) is a plate welded to the column in the shop; on site the beam's web is bolted to it with one vertical row of bolts. Manafe3 places the tab, cuts the beam back clear of the column, drills the holes in the tab and the beam web, adds the bolts and the weld, and warns about edge distances and fit.
 
 ## Where it works
 
@@ -39,6 +39,6 @@ Select a tab (click it, or a bolt) to see and change its settings. {{ui:Apply to
 ## Good to know
 
 - The tab is part of the column's assembly (welded in the shop); the beam's assembly has its holes only.
-- A skewed or sloped beam is cut further back than a square one so its nearest corner keeps the gap. DetailCraft cuts beams square: the fabricator cuts the end to suit. The tab's edge at the column is drawn square too.
-- DetailCraft does not check strength. Warnings use EN 1993-1-8 Table 3.3 minimums for edge distances and pitch, and say when the tab is deeper than the beam web between its fillets, or the bolts sit too close to the beam's cut end.
+- A skewed or sloped beam is cut further back than a square one so its nearest corner keeps the gap. Manafe3 cuts beams square: the fabricator cuts the end to suit. The tab's edge at the column is drawn square too.
+- Manafe3 does not check strength. Warnings use EN 1993-1-8 Table 3.3 minimums for edge distances and pitch, and say when the tab is deeper than the beam web between its fillets, or the bolts sit too close to the beam's cut end.
 - The [clash check](topic:clash-check) leaves a tab and the members it joins out: they are meant to meet.

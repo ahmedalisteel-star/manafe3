@@ -9,7 +9,7 @@ keywords: framing, timber, lumber, wood, light-gauge steel, cold-formed, stud, j
 The {{ui:Framing}} tab frames panels you describe and gives you what a framing crew and a lumber yard ask for. The panels are saved in the model file.
 
 :::warning
-The sizes, the spacing and the headers are yours. DetailCraft does not check that a stud at that spacing carries that wall or that a header spans that opening: that is for your code's tables and your engineer.
+The sizes, the spacing and the headers are yours. Manafe3 does not check that a stud at that spacing carries that wall or that a header spans that opening: that is for your code's tables and your engineer.
 :::
 
 ## Add a panel

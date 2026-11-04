@@ -42,7 +42,7 @@ Bir paneli gruptan çıkarmak için panelin {{ui:⋯}} menüsünde {{ui:Sekme gr
 
 ## Araç çubuğunun kaç satır kullanacağını seçin
 
-{{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Araç çubuğu satırları}} üç seçenek sunar. Varsayılan {{ui:Sar}} seçeneğidir: her araç grubu, gerektiği kadar satırda görünür. {{ui:2 satır}} araç çubuğunu iki satırla, {{ui:1 satır}} ise tek satırla sınırlar; böylece çizim için yükseklik kalır. Sığmayan gruplar araç çubuğunun içinde yatay kayar (fare tekerleğini, iki parmakla kaydırmayı ya da bir araca gitmek için {{key:Tab}} tuşunu kullanın). İki satıra zaten sığan bir araç çubuğu, {{ui:2 satır}} seçiliyken olduğu gibi kalır; çünkü ızgara onu yalnızca daha uzun yapardı. Seçim her uygulama için ayrı tutulur. Dokunmatik ekran ve telefon kendi düzenini korur. CadCraft'ın kendi araç çubuğu ayarı vardır: {{ui:Ayarlar}} › {{ui:CadCraft}} altındadır.
+{{ui:Ayarlar}} › {{ui:Genel}} › {{ui:Araç çubuğu satırları}} üç seçenek sunar. Varsayılan {{ui:Sar}} seçeneğidir: her araç grubu, gerektiği kadar satırda görünür. {{ui:2 satır}} araç çubuğunu iki satırla, {{ui:1 satır}} ise tek satırla sınırlar; böylece çizim için yükseklik kalır. Sığmayan gruplar araç çubuğunun içinde yatay kayar (fare tekerleğini, iki parmakla kaydırmayı ya da bir araca gitmek için {{key:Tab}} tuşunu kullanın). İki satıra zaten sığan bir araç çubuğu, {{ui:2 satır}} seçiliyken olduğu gibi kalır; çünkü ızgara onu yalnızca daha uzun yapardı. Seçim her uygulama için ayrı tutulur. Dokunmatik ekran ve telefon kendi düzenini korur. Manafe3'ın kendi araç çubuğu ayarı vardır: {{ui:Ayarlar}} › {{ui:Manafe3}} altındadır.
 
 ## Klavyeyi kullanın
 
@@ -82,7 +82,7 @@ Klavyeden, odak iletişim kutusunun içindeyken {{key:Alt}}+{{key:Shift}}+bir ok
 
 Telefonda iletişim kutuları tam genişlikli sayfalar olarak kalır ve taşınmaz.
 
-CadCraft Studio'da, çalışırken açık tutabileceğiniz CadCraft'ın {{ui:PDF'e çıktı al}} iletişim kutusunun başlık çubuğunda {{ui:Kendi penceresinde aç}} düğmesi vardır. İletişim kutusu, başka bir monitöre koyabileceğiniz kendi penceresine taşınır. İletişim kutusunu kapatmak pencereyi, pencereyi kapatmak da iletişim kutusunu kapatır.
+Manafe3 Desktop'da, çalışırken açık tutabileceğiniz Manafe3'ın {{ui:PDF'e çıktı al}} iletişim kutusunun başlık çubuğunda {{ui:Kendi penceresinde aç}} düğmesi vardır. İletişim kutusu, başka bir monitöre koyabileceğiniz kendi penceresine taşınır. İletişim kutusunu kapatmak pencereyi, pencereyi kapatmak da iletişim kutusunu kapatır.
 
 ## Panelleri eski yerlerine koyun
 

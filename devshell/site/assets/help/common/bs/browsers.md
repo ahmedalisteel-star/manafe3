@@ -54,7 +54,7 @@ Ove verzije čitamo iz koda aplikacija verzije 0.7, a ne iz pretpostavke: svaka 
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS i iOS 16.4) |
 
-CadCraft Studio na Windowsu ima svoj web motor, pa mu treba Windows 10 ili 11; na Macu koristi sistemski, pa mu treba macOS 13.3 ili noviji. Postavke › Ažuriranja u Studiju pokazuju na čemu tvoja kopija radi.
+Manafe3 Desktop na Windowsu ima svoj web motor, pa mu treba Windows 10 ili 11; na Macu koristi sistemski, pa mu treba macOS 13.3 ili noviji. Postavke › Ažuriranja u Studiju pokazuju na čemu tvoja kopija radi.
 
 Ovo je najstarija verzija koja *počinje* raditi, pročitana iz koda. Nije spisak starih pregledača u kojima smo pokretali aplikacije, pa stariji koji se pokrene može i dalje propustiti neku mogućnost.
 

@@ -41,4 +41,4 @@ Ahora está sin conexión. Si esta aplicación se guardó para uso sin conexión
 Safari elimina los datos guardados de los sitios que no ha visitado en varias semanas. Abra la aplicación de vez en cuando con conexión, o guárdela de nuevo antes de un viaje.
 :::
 
-- CadCraft Studio, la aplicación de escritorio con las ocho aplicaciones en una sola instalación, está en getcadcraft.com/download.
+- Manafe3 Desktop, la aplicación de escritorio con las ocho aplicaciones en una sola instalación, está en getcadcraft.com/download.

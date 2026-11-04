@@ -19,7 +19,7 @@ The need is the greater of 25 mm and the bar diameter (ACI 318-19 25.2.1), or, f
 - {{ui:Largest aggregate}}: the need becomes 4/3 of the aggregate size (ACI) or the aggregate plus 5 mm (EN).
 - {{ui:Vibrator head}}: the need is at least the head's diameter.
 
-Both start at 0, meaning not known: DetailCraft does not know your mix or your pump.
+Both start at 0, meaning not known: Manafe3 does not know your mix or your pump.
 
 ## Problems
 

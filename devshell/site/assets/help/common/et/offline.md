@@ -41,4 +41,4 @@ Oled praegu võrguta. Kui see rakendus salvestati võrguta kasutamiseks, tööta
 Safari eemaldab salvestatud saidiandmed saitidelt, mida pole mitme nädala jooksul külastatud. Ava rakendus aeg-ajalt, kui oled võrgus, või salvesta see enne reisi uuesti.
 :::
 
-- CadCraft Studio, töölauarakendus, mis sisaldab kõiki kaheksat rakendust ühes installis, on saadaval aadressil getcadcraft.com/download.
+- Manafe3 Desktop, töölauarakendus, mis sisaldab kõiki kaheksat rakendust ühes installis, on saadaval aadressil getcadcraft.com/download.

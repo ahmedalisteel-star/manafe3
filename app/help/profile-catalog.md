@@ -6,7 +6,7 @@ order: 20
 keywords: profiles, sections, catalog, sizes, w shapes, wide flange, s shapes, channel, angle, hss, tube, pipe, ipe, hea, heb, upn, plate, aisc, en 10365, naming
 ---
 
-DetailCraft has 1,259 built-in sizes, each copied from a published table and checked by the app's tests: the area worked out from the dimensions must match the published area, and the published weight must match that area times the density of steel. Plates and custom profiles are made from their dimensions.
+Manafe3 has 1,259 built-in sizes, each copied from a published table and checked by the app's tests: the area worked out from the dimensions must match the published area, and the published weight must match that area times the density of steel. Plates and custom profiles are made from their dimensions.
 
 ## Naming
 
@@ -29,7 +29,7 @@ In the {{ui:Profile}} lists, each group's heading names its source, for example 
 
 How shapes are drawn:
 
-- **W shapes:** the AISC database gives no fillet radius, so DetailCraft draws the fillet as r = kdes − tf.
+- **W shapes:** the AISC database gives no fillet radius, so Manafe3 draws the fillet as r = kdes − tf.
 - **S shapes and channels (C, UPN):** parallel flanges of the published average thickness, square corners (the real flange is sloped).
 - **Angles:** square corners.
 - **Rectangular HSS:** the design wall thickness (0.93 × nominal, as AISC 360-22 B4.2 allows) with an outer corner radius of twice that.
@@ -54,7 +54,7 @@ Every size the tables list in these groups, smallest first:
 | HEB (24) | HEB100 to HEB1000 |
 | UPN (18) | UPN50 to UPN400 |
 
-Angles with unequal legs are not in this list yet: DetailCraft draws an angle's two legs the same length. CadCraft can place them (see its {{ui:Library}} panel, {{ui:Standard}}).
+Angles with unequal legs are not in this list yet: Manafe3 draws an angle's two legs the same length. Manafe3 can place them (see its {{ui:Library}} panel, {{ui:Standard}}).
 
 Choose a placing tool and pick a size to see its depth, flange width, web and flange thickness, fillet radius, area (cm²), mass (kg/m) and source in the {{ui:Profile}} box of the {{ui:Properties}} panel.
 

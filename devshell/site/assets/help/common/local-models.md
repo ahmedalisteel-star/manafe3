@@ -12,7 +12,7 @@ How to use an AI model that runs on your own computer, so nothing you ask leaves
 
 ## How
 
-Use an AI app on this computer that can use tools. LM Studio, Jan and llama.cpp's server can each use tools through the Model Context Protocol ("MCP"). Add the single `cadcraft` entry shown in **Connect your AI**, open CadCraft Studio, then ask your question in that app.
+Use an AI app on this computer that can use tools. LM Studio, Jan and llama.cpp's server can each use tools through the Model Context Protocol ("MCP"). Add the single `cadcraft` entry shown in **Connect your AI**, open Manafe3 Desktop, then ask your question in that app.
 
 | Program | Can use tools through MCP |
 |---|---|

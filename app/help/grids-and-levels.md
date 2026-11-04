@@ -6,7 +6,7 @@ order: 30
 keywords: grid, grids, axes, gridlines, levels, elevations, storeys, floors, spacing, setup
 ---
 
-Every member in DetailCraft is placed on a grid intersection at a level. Set the grids and levels first; you can change them later.
+Every member in Manafe3 is placed on a grid intersection at a level. Set the grids and levels first; you can change them later.
 
 ## How grids work here
 

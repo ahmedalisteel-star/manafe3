@@ -6,10 +6,10 @@ order: 60
 keywords: end plate, endplate, moment connection, bolted connection, joint, bolts, weld, extended end plate, flush, similar, copy connection, component
 ---
 
-An end plate connection welds a plate to the beam end and bolts it to the column flange or web. DetailCraft places the plate, cuts the beam back, drills matching holes in the plate and the column flange, adds the bolts and the weld, and checks edge distances and spacing.
+An end plate connection welds a plate to the beam end and bolts it to the column flange or web. Manafe3 places the plate, cuts the beam back, drills matching holes in the plate and the column flange, adds the bolts and the weld, and checks edge distances and spacing.
 
 :::warning
-DetailCraft does not design connections. The settings are starting values for you to change; nothing checks strength. The edge and spacing warnings use the minimums of EN 1993-1-8 Table 3.3, which may differ from the rules you work to.
+Manafe3 does not design connections. The settings are starting values for you to change; nothing checks strength. The edge and spacing warnings use the minimums of EN 1993-1-8 Table 3.3, which may differ from the rules you work to.
 :::
 
 ## What it can connect
@@ -18,7 +18,7 @@ DetailCraft does not design connections. The settings are starting values for yo
 - Into the **flange** or the **web** of a **vertical** I-shape column, square to it.
 - The beam end must sit on the column's line, between the column's bottom and top.
 
-Skewed or sloped beams and non-I sections are refused with a reason: use [shear tabs](topic:shear-tabs) for those. On a web the plate and the beam flanges must fit between the column flanges; DetailCraft warns when they do not.
+Skewed or sloped beams and non-I sections are refused with a reason: use [shear tabs](topic:shear-tabs) for those. On a web the plate and the beam flanges must fit between the column flanges; Manafe3 warns when they do not.
 
 :::tip
 At rotation 0 a column's flanges face along the numbered grid direction (x). A beam running from A to B meets the web, and gets an end plate on the web.

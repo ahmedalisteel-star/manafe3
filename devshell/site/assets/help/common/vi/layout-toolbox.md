@@ -42,7 +42,7 @@ Các bảng bên trái và bên phải giữ mọi thứ được mô tả trong
 
 ## Quay về bố cục cổ điển
 
-Mở {{ui:Cài đặt}} › {{ui:Chung toàn cục}} › {{ui:Bố cục}} › {{ui:Không gian làm việc}} và chọn {{ui:CadCraft cổ điển}}. Mọi thanh công cụ, thẻ và bảng trở về chỗ cũ.
+Mở {{ui:Cài đặt}} › {{ui:Chung toàn cục}} › {{ui:Bố cục}} › {{ui:Không gian làm việc}} và chọn {{ui:Manafe3 cổ điển}}. Mọi thanh công cụ, thẻ và bảng trở về chỗ cũ.
 
 :::note
 Trên điện thoại, hoặc trong cửa sổ rộng 760 pixel trở xuống, ứng dụng dùng bố cục điện thoại bất kể bạn đã chọn gì. Cửa sổ rộng hơn sẽ đưa bố cục của bạn trở lại.

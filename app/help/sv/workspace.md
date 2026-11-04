@@ -1,17 +1,17 @@
 ---
 title: En rundtur på skärmen
-summary: Varje fält, panel och flik i DetailCraft med sitt namn på skärmen och vad var och en är till för.
+summary: Varje fält, panel och flik i Manafe3 med sitt namn på skärmen och vad var och en är till för.
 keywords: skärm, layout, verktygsfält, paneler, egenskaper, statusfält, rapporter, gränssnitt, gui, flikar
 from: 454f74fd
 ---
 
-DetailCraft fyller webbläsarfönstret under appfältet. Uppifrån och ned: verktygsfältet, sedan tre kolumner (panelen {{ui:Modell}}, vyn, panelen {{ui:Egenskaper}}), sedan rapportflikarna och sist statusfältet.
+Manafe3 fyller webbläsarfönstret under appfältet. Uppifrån och ned: verktygsfältet, sedan tre kolumner (panelen {{ui:Modell}}, vyn, panelen {{ui:Egenskaper}}), sedan rapportflikarna och sist statusfältet.
 
 ## Appfältet
 
-Det smala fältet allra högst upp tillhör CadCraft-webbplatsen, inte modellen. Det visar appens namn och version, en länk till {{ui:Om DetailCraft}}, {{ui:Hjälp}} (eller {{key:F1}}) för den här hjälpen, {{ui:Spara för offline}}, knappen för skärmläge och omkopplaren {{ui:Papper}} / {{ui:Modell}}.
+Det smala fältet allra högst upp tillhör Manafe3-webbplatsen, inte modellen. Det visar appens namn och version, en länk till {{ui:Om Manafe3}}, {{ui:Hjälp}} (eller {{key:F1}}) för den här hjälpen, {{ui:Spara för offline}}, knappen för skärmläge och omkopplaren {{ui:Papper}} / {{ui:Modell}}.
 
-- {{ui:Spara för offline}} sparar DetailCraft, dess 3D-vy och den här hjälpen i webbläsaren så att det öppnas utan uppkoppling. Knappen visar {{ui:Redo för offline}} när sparningen är klar; klicka då på den för {{ui:Spara igen (hämta den senaste versionen)}} eller {{ui:Ta bort offlinekopian}}. Se [Arbeta offline](common:offline).
+- {{ui:Spara för offline}} sparar Manafe3, dess 3D-vy och den här hjälpen i webbläsaren så att det öppnas utan uppkoppling. Knappen visar {{ui:Redo för offline}} när sparningen är klar; klicka då på den för {{ui:Spara igen (hämta den senaste versionen)}} eller {{ui:Ta bort offlinekopian}}. Se [Arbeta offline](common:offline).
 - {{ui:Papper}} ger en ljus skärm och {{ui:Modell}} en mörk. 3D-vyn följer med direkt; ingenting i modellen ändras.
 - Knappen för skärmläge och {{key:Ctrl+Shift+F}} växlar mellan normalt läge, helskärm och helskärm med fälten dolda. {{key:Ctrl+Shift+F}} använder Ctrl-tangenten på alla datorer, även Mac. När fälten är dolda pekar du på skärmens övre kant (eller trycker på den) för att få fram dem igen. {{key:Esc}} lämnar helskärm.
 
@@ -70,7 +70,7 @@ Sifferfält börjar gälla när du trycker på {{key:Enter}} eller lämnar fält
 
 ## Rapportflikarna (längst ned)
 
-- {{ui:Problem}}: allt som DetailCraft inte kunde bygga eller vill att du kontrollerar, med en knapp {{ui:Markera}} på varje rad. Fliken visar antalet inom parentes.
+- {{ui:Problem}}: allt som Manafe3 inte kunde bygga eller vill att du kontrollerar, med en knapp {{ui:Markera}} på varje rad. Fliken visar antalet inom parentes.
 - {{ui:Stycklista}}: delar, sammanställningar samt bultar och ankarbultar, med vikter och en länk {{ui:Ladda ner CSV}}. Klicka på ett delmärke för att markera den delen.
 - {{ui:Bockningsförteckning}}: varje armeringsmärke i varje plint, med en länk {{ui:Ladda ner CSV}}.
 
@@ -84,4 +84,4 @@ Webbläsarflikens titel börjar med en punkt (•) medan modellen har ändringar
 
 ## På en smal skärm
 
-Under ungefär 760 bildpunkters bredd staplas kolumnerna: verktygsfält, vy, statusfält, {{ui:Egenskaper}}, rapportflikar och sist panelen {{ui:Modell}}. Rulla sidan för att nå dem. DetailCraft är gjort för en dator- eller laptopskärm; en telefon duger för att titta, inte för att detaljera.
+Under ungefär 760 bildpunkters bredd staplas kolumnerna: verktygsfält, vy, statusfält, {{ui:Egenskaper}}, rapportflikar och sist panelen {{ui:Modell}}. Rulla sidan för att nå dem. Manafe3 är gjort för en dator- eller laptopskärm; en telefon duger för att titta, inte för att detaljera.

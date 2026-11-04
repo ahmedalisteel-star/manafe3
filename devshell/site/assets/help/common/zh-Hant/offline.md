@@ -41,4 +41,4 @@ from: 04f8bc5b
 Safari 會移除數週未造訪之網站的已儲存網站資料。請不時在連線時開啟該應用程式，或在出門前重新儲存一次。
 :::
 
-- CadCraft Studio 是一次安裝即包含全部八個應用程式的桌面應用程式，可在 getcadcraft.com/download 取得。
+- Manafe3 Desktop 是一次安裝即包含全部八個應用程式的桌面應用程式，可在 getcadcraft.com/download 取得。

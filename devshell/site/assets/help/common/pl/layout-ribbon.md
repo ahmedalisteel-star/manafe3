@@ -43,7 +43,7 @@ Lewy i prawy panel zachowują wszystko, co opisano w [Rozmieszczanie paneli](com
 
 ## Wróć do układu klasycznego
 
-Otwórz {{ui:Ustawienia}} › {{ui:Globalne}} › {{ui:Układ}} › {{ui:Obszar roboczy}} i wybierz {{ui:Klasyczny CadCraft}}. Każdy pasek narzędzi, karta i panel wracają tam, gdzie były.
+Otwórz {{ui:Ustawienia}} › {{ui:Globalne}} › {{ui:Układ}} › {{ui:Obszar roboczy}} i wybierz {{ui:Klasyczny Manafe3}}. Każdy pasek narzędzi, karta i panel wracają tam, gdzie były.
 
 :::note
 Na telefonie albo w oknie o szerokości 760 pikseli lub mniejszej aplikacja używa układu telefonu, niezależnie od wyboru. Szersze okno przywraca Twój układ.

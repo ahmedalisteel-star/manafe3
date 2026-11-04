@@ -135,7 +135,7 @@ ob_start();
 <?php else: ?>
   <title><?= e($app['name'] . ' ' . $edition) ?></title>
   <meta name="description" content="<?= e($app['short'] ?? '') ?>">
-  <meta name="generator" content="CadCraft browser edition">
+  <meta name="generator" content="Manafe3 browser edition">
 <?php endif; ?>
   <link rel="icon" type="image/svg+xml" href="<?= $R ?>favicon.svg">
 <?php foreach (devshell_shell_css() as $__c): ?>
@@ -163,7 +163,7 @@ ob_start();
 </head>
 <body class="app-shell layer-<?= e($app['layer'] ?? 'red') ?>">
 <header class="app-bar">
-  <span class="app-bar-mark" aria-hidden="true"><i class="bi bi-bounding-box"></i></span>
+  <span class="app-bar-mark" aria-hidden="true"><img src="<?= $R ?>favicon.svg" alt="" width="22" height="22"></span>
   <div class="app-bar-name">
     <span class="layer-swatch" aria-hidden="true"></span>
     <span><?= e($app['name']) ?></span>
@@ -175,7 +175,7 @@ ob_start();
 <?php endif; ?>
   </div>
   <nav class="app-bar-links" aria-label="<?= e($app['name']) ?>">
-    <a href="<?= e($__site) ?>/apps/<?= e($app['slug']) ?>"<?= $edition !== null ? ' target="_blank" rel="noopener"' : '' ?>><?= Lang::e('shell.bar.about', ['app' => $app['name']]) ?></a>
+    <a hidden href="#"><?= Lang::e('shell.bar.about', ['app' => $app['name']]) ?></a>
   </nav>
   <button type="button" class="app-bar-btn app-bar-help" data-help-open aria-expanded="false" title="Help (F1)" hidden><i class="bi bi-question-circle" aria-hidden="true"></i><span class="app-bar-btn-label">Help</span></button>
 <?php if ($__offlineData !== null): ?>

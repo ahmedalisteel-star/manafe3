@@ -41,4 +41,4 @@ from: 04f8bc5b
 Safari는 몇 주 동안 방문하지 않은 사이트의 저장된 사이트 데이터를 삭제합니다. 온라인일 때 가끔 앱을 열거나, 이동 전에 다시 저장해 두십시오.
 :::
 
-- 여덟 개의 앱을 하나로 설치하는 데스크톱 앱인 CadCraft Studio는 getcadcraft.com/download에 있습니다.
+- 여덟 개의 앱을 하나로 설치하는 데스크톱 앱인 Manafe3 Desktop는 getcadcraft.com/download에 있습니다.

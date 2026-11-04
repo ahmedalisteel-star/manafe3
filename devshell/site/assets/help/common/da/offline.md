@@ -41,4 +41,4 @@ Du er offline nu. Hvis denne app blev gemt til offline brug, virker alt nedenfor
 Safari fjerner gemte webstedsdata fra websteder, du ikke har besøgt i flere uger. Åbn appen nu og da, mens du er online, eller gem den igen før en rejse.
 :::
 
-- CadCraft Studio, desktop-appen med alle otte apps i én installation, findes på getcadcraft.com/download.
+- Manafe3 Desktop, desktop-appen med alle otte apps i én installation, findes på getcadcraft.com/download.

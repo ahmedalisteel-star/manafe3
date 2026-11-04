@@ -41,4 +41,4 @@ Vous êtes hors ligne. Si cette application a été enregistrée pour le hors li
 Safari supprime les données enregistrées des sites que vous n'avez pas visités depuis plusieurs semaines. Ouvrez l'application de temps en temps en ligne, ou enregistrez-la de nouveau avant un déplacement.
 :::
 
-- CadCraft Studio, l'application de bureau qui réunit les huit applications en une seule installation, se trouve sur getcadcraft.com/download.
+- Manafe3 Desktop, l'application de bureau qui réunit les huit applications en une seule installation, se trouve sur getcadcraft.com/download.

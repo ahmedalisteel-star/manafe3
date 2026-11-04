@@ -17,4 +17,4 @@ Open {{ui:Settings}} (the gear in the app bar, or {{key:Mod+,}}), go to {{ui:Gen
 - The lines show while the pointer is over a drawing or a view, also when no tool is running.
 - Toolbars, cards and hints that sit over the view stay on top of the lines; a dialog never gets them.
 - With a finger nothing changes: the lines follow a mouse, a trackpad or a pen.
-- In CadCraft the crosshair is drawn by the drawing itself: it turns with the coordinate system (UCS), and with the view split it stays in the pane you are working in. CadCraft also has it as a cursor size of its own: {{ui:Settings}} › {{ui:CadCraft}} › **Cursor** › **Full screen**, or type {{cmd:CURSORSIZE}} and 100.
+- In Manafe3 the crosshair is drawn by the drawing itself: it turns with the coordinate system (UCS), and with the view split it stays in the pane you are working in. Manafe3 also has it as a cursor size of its own: {{ui:Settings}} › {{ui:Manafe3}} › **Cursor** › **Full screen**, or type {{cmd:CURSORSIZE}} and 100.

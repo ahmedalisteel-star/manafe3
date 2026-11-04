@@ -1,17 +1,17 @@
 ---
 title: Otevření, uložení a export souborů
-summary: Soubor modelu DetailCraftu, každý export, který zapisuje, kam soubory putují a co se liší podle prohlížeče a připojení.
+summary: Soubor modelu Manafe3u, každý export, který zapisuje, kam soubory putují a co se liší podle prohlížeče a připojení.
 keywords: otevřít, uložit, export, stáhnout, soubor, json, ifc, nc1, dstv, csv, pdf, zip, formáty, import
 from: bd715ea3
 ---
 
-DetailCraft má jeden vlastní soubor, model, a pět exportů. Každé uložení a každý export je stažení. Nic se nenahrává a nic se neuchovává na serveru.
+Manafe3 má jeden vlastní soubor, model, a pět exportů. Každé uložení a každý export je stažení. Nic se nenahrává a nic se neuchovává na serveru.
 
 ## Soubor modelu
 
-Model DetailCraftu se ukládá jako `<název>.detailcraft.json`, kde `<název>` je název modelu v panelu {{ui:Model}}. Obsahuje osy, úrovně, pruty (s jejich otvory a výřezy), spoje a jejich nastavení, patky a Vaše vlastní průřezy.
+Model Manafe3u se ukládá jako `<název>.detailcraft.json`, kde `<název>` je název modelu v panelu {{ui:Model}}. Obsahuje osy, úrovně, pruty (s jejich otvory a výřezy), spoje a jejich nastavení, patky a Vaše vlastní průřezy.
 
-Díly, označení, šrouby, svary a pruty výztuže se neukládají: DetailCraft je při každém otevření vypočítá z modelu znovu. Proto je soubor modelu malý.
+Díly, označení, šrouby, svary a pruty výztuže se neukládají: Manafe3 je při každém otevření vypočítá z modelu znovu. Proto je soubor modelu malý.
 
 ### Uložení
 
@@ -38,21 +38,21 @@ Safari ukládá do složky Stažené. Chcete-li složku změnit, otevřete **Saf
 1. Zvolte {{ui:Otevřít}} ve skupině {{ui:Soubor}}, nebo stiskněte {{key:Mod+O}}.
 2. Vyberte soubor `.detailcraft.json`.
 
-Nebo soubor přetáhněte z {{pick:mac=Finderu|windows=Průzkumníku souborů|linux=správce souborů}} a pusťte na pohled. Během přetahování pohled říká „Pusťte model DetailCraftu k otevření“.
+Nebo soubor přetáhněte z {{pick:mac=Finderu|windows=Průzkumníku souborů|linux=správce souborů}} a pusťte na pohled. Během přetahování pohled říká „Pusťte model Manafe3u k otevření“.
 
-Má-li otevřený model neuložené změny, DetailCraft se nejdřív zeptá: {{ui:Zrušit}}, {{ui:Zahodit změny}} nebo {{ui:Nejdřív uložit}}.
+Má-li otevřený model neuložené změny, Manafe3 se nejdřív zeptá: {{ui:Zrušit}}, {{ui:Zahodit změny}} nebo {{ui:Nejdřív uložit}}.
 
-DetailCraft před použitím zkontroluje každé pole souboru. Cokoli, co nelze použít, se vynechá a stavový řádek řekne co, například „2 pruty nebyly platné a byly vynechány.“ Model uložený novějším DetailCraftem se odmítne se zprávou místo toho, aby se otevřel napůl správně.
+Manafe3 před použitím zkontroluje každé pole souboru. Cokoli, co nelze použít, se vynechá a stavový řádek řekne co, například „2 pruty nebyly platné a byly vynechány.“ Model uložený novějším Manafe3em se odmítne se zprávou místo toho, aby se otevřel napůl správně.
 
 ### Co otevírá
 
-Vlastní soubory modelů (`.json`, do 50 MB) a soubory IFC (`.ifc`, IFC2X3 nebo IFC4, do 200 MB). Soubor IFC, otevřený nebo přinesený pomocí {{ui:Import IFC}}, se stane novým modelem svých nosníků, sloupů, prutů, plechů, os a úrovní, s otvory a výřezy v nich a šrouby jako volnými šrouby; zpráva uvádí, co bylo vynecháno. Viz [Export IFC](topic:ifc-export#import). Zatím neotevírá DWG, DXF ani model jiného detailovacího programu; pokus zobrazí „DetailCraft otevírá vlastní modely (.detailcraft.json) a soubory IFC (.ifc).“
+Vlastní soubory modelů (`.json`, do 50 MB) a soubory IFC (`.ifc`, IFC2X3 nebo IFC4, do 200 MB). Soubor IFC, otevřený nebo přinesený pomocí {{ui:Import IFC}}, se stane novým modelem svých nosníků, sloupů, prutů, plechů, os a úrovní, s otvory a výřezy v nich a šrouby jako volnými šrouby; zpráva uvádí, co bylo vynecháno. Viz [Export IFC](topic:ifc-export#import). Zatím neotevírá DWG, DXF ani model jiného detailovacího programu; pokus zobrazí „Manafe3 otevírá vlastní modely (.detailcraft.json) a soubory IFC (.ifc).“
 
 ## Ztracená práce, poslední soubory, aplikace pro počítač
 
-- Dokud má model změny, které jste neuložili, DetailCraft uchovává kopii v tomto prohlížeči. Pokud se karta nebo prohlížeč zastaví před uložením, při dalším otevření DetailCraftu se zeptá **Obnovit Vaši práci?**: obnovit kopii, nebo ji nechat být. Viz [Obnovení práce](common:recover).
-- Nedávno otevřené modely se uvádějí na úvodní obrazovce, pokud prohlížeč dovolí DetailCraftu je znovu otevřít; kliknutím na jeden jej otevřete znovu.
-- V aplikaci pro počítač {{ui:Uložit}} zapíše model zpět do souboru, který jste otevřeli (v prohlížeči stáhne kopii), a dvojité kliknutí na model DetailCraftu nebo soubor IFC jej otevře v DetailCraftu.
+- Dokud má model změny, které jste neuložili, Manafe3 uchovává kopii v tomto prohlížeči. Pokud se karta nebo prohlížeč zastaví před uložením, při dalším otevření Manafe3u se zeptá **Obnovit Vaši práci?**: obnovit kopii, nebo ji nechat být. Viz [Obnovení práce](common:recover).
+- Nedávno otevřené modely se uvádějí na úvodní obrazovce, pokud prohlížeč dovolí Manafe3u je znovu otevřít; kliknutím na jeden jej otevřete znovu.
+- V aplikaci pro počítač {{ui:Uložit}} zapíše model zpět do souboru, který jste otevřeli (v prohlížeči stáhne kopii), a dvojité kliknutí na model Manafe3u nebo soubor IFC jej otevře v Manafe3u.
 
 ## Exporty
 
@@ -79,13 +79,13 @@ Text v PDF používá standardní písmo Helvetica. Znaky, které nemá (mimo z�
 
 ## Jednotky
 
-DetailCraft pracuje všude v milimetrech: osy, úrovně, souřadnice, průřezy, otvory i každý export. Názvy profilů si zachovávají publikovanou podobu (W12x50 je americké označení, i když jeho rozměry jsou uvedeny v mm). Imperiální zadávání zatím není.
+Manafe3 pracuje všude v milimetrech: osy, úrovně, souřadnice, průřezy, otvory i každý export. Názvy profilů si zachovávají publikovanou podobu (W12x50 je americké označení, i když jeho rozměry jsou uvedeny v mm). Imperiální zadávání zatím není.
 
 ## Online a offline
 
-Otevírání, ukládání i export probíhají ve Vašem prohlížeči, takže po načtení DetailCraftu fungují stejně s připojením i bez něj.
+Otevírání, ukládání i export probíhají ve Vašem prohlížeči, takže po načtení Manafe3u fungují stejně s připojením i bez něj.
 
-Chcete-li DetailCraft později používat bez připojení, zvolte, dokud jste online, {{ui:Uložit pro offline}} v liště aplikace. Tlačítko počítá nahoru („Ukládání 3 z 20“) a poté zobrazí {{ui:Připraveno offline}}. Uložená kopie obsahuje knihovnu 3D grafiky (asi 2,6 MB) a tuto nápovědu, takže po uložení fungují offline 3D pohled, každý export i nápověda. Podrobnosti a co stále vyžaduje připojení: [Práce offline](common:offline).
+Chcete-li Manafe3 později používat bez připojení, zvolte, dokud jste online, {{ui:Uložit pro offline}} v liště aplikace. Tlačítko počítá nahoru („Ukládání 3 z 20“) a poté zobrazí {{ui:Připraveno offline}}. Uložená kopie obsahuje knihovnu 3D grafiky (asi 2,6 MB) a tuto nápovědu, takže po uložení fungují offline 3D pohled, každý export i nápověda. Podrobnosti a co stále vyžaduje připojení: [Práce offline](common:offline).
 
 :::offline
 Jste offline. Pokud lišta aplikace zobrazuje {{ui:Připraveno offline}}, otevírání, ukládání a export fungují jako obvykle. Pokud ne, nechte tuto kartu otevřenou, nenačítejte ji znovu, dokud nebudete online, a model teď uložte.
@@ -95,4 +95,4 @@ Ukládání do cloudu zatím není k dispozici a verze pro počítač také ne. 
 
 ## Neuložená práce
 
-DetailCraft uchovává model jen v otevřené kartě. Pokud kartu zavřete nebo znovu načtete s neuloženými změnami, prohlížeč se zeptá, zda stránku opustit; jeho znění je vlastní prohlížeče. Ukládejte často pomocí {{key:Mod+S}}.
+Manafe3 uchovává model jen v otevřené kartě. Pokud kartu zavřete nebo znovu načtete s neuloženými změnami, prohlížeč se zeptá, zda stránku opustit; jeho znění je vlastní prohlížeče. Ukládejte často pomocí {{key:Mod+S}}.

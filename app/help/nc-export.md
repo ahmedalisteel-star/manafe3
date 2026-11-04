@@ -6,7 +6,7 @@ order: 120
 keywords: nc, nc1, dstv, cnc, machine, beam line, drill line, plate cutting, export, fabrication, zip
 ---
 
-DetailCraft writes one DSTV NC file (`.nc1`) per part mark, for I-shapes, channels, angles, rectangular and round HSS, and plates, and zips them together. Beam lines and plate machines read these files to saw, drill and cut.
+Manafe3 writes one DSTV NC file (`.nc1`) per part mark, for I-shapes, channels, angles, rectangular and round HSS, and plates, and zips them together. Beam lines and plate machines read these files to saw, drill and cut.
 
 ## Export
 
@@ -30,14 +30,14 @@ Field by field, with the face and coordinate rules: [NC file fields](topic:nc1-f
 ## What is not written
 
 - Angles and round tubes with a cope: no NC file. Their marks are listed in the status bar.
-- Holes in round tubes (DetailCraft does not make any).
+- Holes in round tubes (Manafe3 does not make any).
 - Bevels, inner contours, part markings (scribing) and saw angles other than square.
-- Slotted holes (DetailCraft has round holes only).
+- Slotted holes (Manafe3 has round holes only).
 
 ## Check before machining
 
-DetailCraft's NC files are read back by its own test suite, but they have not been run on your shop's machines.
+Manafe3's NC files are read back by its own test suite, but they have not been run on your shop's machines.
 
 1. Open the files in your shop's NC viewer or the machine software and compare them with the shop drawings.
 2. Check one part of each kind on the machine before running a batch.
-3. Check how your software reads the flange y-coordinates and the faces of channels: DetailCraft measures flange y from the behind edge, and lays channels on their back as the standard draws them (see [NC file fields](topic:nc1-fields#faces-and-coordinates)).
+3. Check how your software reads the flange y-coordinates and the faces of channels: Manafe3 measures flange y from the behind edge, and lays channels on their back as the standard draws them (see [NC file fields](topic:nc1-fields#faces-and-coordinates)).

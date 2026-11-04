@@ -41,4 +41,4 @@ Tani je jashtë linje. Nëse ky aplikacion është ruajtur për përdorim jasht�
 Safari heq të dhënat e ruajtura të sajteve që nuk i ke vizituar për disa javë. Hap herë pas here aplikacionin kur je online, ose ruaje sërish para një udhëtimi.
 :::
 
-- CadCraft Studio, aplikacioni desktop me të tetë aplikacionet në një instalim, gjendet te getcadcraft.com/download.
+- Manafe3 Desktop, aplikacioni desktop me të tetë aplikacionet në një instalim, gjendet te getcadcraft.com/download.

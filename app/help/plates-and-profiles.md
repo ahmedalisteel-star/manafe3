@@ -43,7 +43,7 @@ When the section you need is not in the catalog, make it from its dimensions. A 
 
 The status bar says "Profile "…" added; it is in every profile list under Custom." It appears in the list under the form and at the end of every {{ui:Profile}} list.
 
-DetailCraft checks that the shape can exist. You will see messages such as "The web and flanges do not fit inside the depth and width.", "The fillet radius is too big for the flange." or "The wall is too thick." Fix the numbers and choose {{ui:Add profile}} again.
+Manafe3 checks that the shape can exist. You will see messages such as "The web and flanges do not fit inside the depth and width.", "The fillet radius is too big for the flange." or "The wall is too thick." Fix the numbers and choose {{ui:Add profile}} again.
 
 ### What custom profiles get
 

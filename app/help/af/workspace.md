@@ -1,17 +1,17 @@
 ---
 title: "'n Toer van die skerm"
-summary: Elke balk, paneel en oortjie in DetailCraft volgens sy naam op die skerm, en waarvoor elkeen is.
+summary: Elke balk, paneel en oortjie in Manafe3 volgens sy naam op die skerm, en waarvoor elkeen is.
 keywords: skerm, uitleg, nutsbalk, paneel, eienskappe, statusbalk, verslae, koppelvlak, ui, oortjies
 from: 454f74fd
 ---
 
-DetailCraft vul die blaaiervenster onder die programbalk. Van bo na onder: die nutsbalk, dan drie kolomme (die {{ui:Model}}-paneel, die aansig, die {{ui:Eienskappe}}-paneel), dan die verslagoortjies, dan die statusbalk.
+Manafe3 vul die blaaiervenster onder die programbalk. Van bo na onder: die nutsbalk, dan drie kolomme (die {{ui:Model}}-paneel, die aansig, die {{ui:Eienskappe}}-paneel), dan die verslagoortjies, dan die statusbalk.
 
 ## Die programbalk
 
-Die dun balk heel bo behoort aan die CadCraft-webwerf, nie aan die model nie. Dit wys die programnaam en weergawe, 'n skakel na {{ui:Oor DetailCraft}}, {{ui:Hulp}} (of {{key:F1}}) vir hierdie hulp, {{ui:Stoor vir vanlyn}}, die skermmodusknoppie en die {{ui:Papier}} / {{ui:Model}}-skakelaar.
+Die dun balk heel bo behoort aan die Manafe3-webwerf, nie aan die model nie. Dit wys die programnaam en weergawe, 'n skakel na {{ui:Oor Manafe3}}, {{ui:Hulp}} (of {{key:F1}}) vir hierdie hulp, {{ui:Stoor vir vanlyn}}, die skermmodusknoppie en die {{ui:Papier}} / {{ui:Model}}-skakelaar.
 
-- {{ui:Stoor vir vanlyn}} hou DetailCraft, sy 3D-aansig en hierdie hulp in jou blaaier sodat dit sonder 'n verbinding oopmaak. Dit lees {{ui:Vanlyn gereed}} sodra dit gestoor is; klik dan daarop vir {{ui:Stoor weer (kry die nuutste weergawe)}} of {{ui:Verwyder die vanlyn-kopie}}. Sien [Werk vanlyn](common:offline).
+- {{ui:Stoor vir vanlyn}} hou Manafe3, sy 3D-aansig en hierdie hulp in jou blaaier sodat dit sonder 'n verbinding oopmaak. Dit lees {{ui:Vanlyn gereed}} sodra dit gestoor is; klik dan daarop vir {{ui:Stoor weer (kry die nuutste weergawe)}} of {{ui:Verwyder die vanlyn-kopie}}. Sien [Werk vanlyn](common:offline).
 - {{ui:Papier}} gee 'n ligte skerm en {{ui:Model}} 'n donker een. Die 3D-aansig volg dadelik; niks in jou model verander nie.
 - Die skermmodusknoppie en {{key:Ctrl+Shift+F}} wissel tussen normaal, volskerm, en volskerm met die balke versteek. {{key:Ctrl+Shift+F}} gebruik die Control-sleutel op elke rekenaar, ook 'n Mac. Met die balke versteek, wys na die boonste rand van die skerm (of tik daarop) om hulle terug te bring. {{key:Esc}} verlaat volskerm.
 
@@ -70,7 +70,7 @@ Getalvelde tree in werking wanneer jy {{key:Enter}} druk of die veld verlaat. El
 
 ## Die verslagoortjies (onder)
 
-- {{ui:Probleme}}: alles wat DetailCraft nie kon bou nie of wil hê jy moet nagaan, met 'n {{ui:Kies}}-knoppie op elke reël. Die oortjie wys die telling in hakies.
+- {{ui:Probleme}}: alles wat Manafe3 nie kon bou nie of wil hê jy moet nagaan, met 'n {{ui:Kies}}-knoppie op elke reël. Die oortjie wys die telling in hakies.
 - {{ui:Materiaallys}}: dele, samestellings, en bute en ankerstawe, met gewigte en 'n {{ui:Laai CSV af}}-skakel. Klik op 'n deelmerk om daardie deel te kies.
 - {{ui:Buigskedule}}: elke staafmerk in elke fondasie, met 'n {{ui:Laai CSV af}}-skakel.
 
@@ -84,4 +84,4 @@ Die blaaieroortjie se titel begin met 'n stippie (•) solank die model verander
 
 ## Op 'n smal skerm
 
-Onder ongeveer 760 pixels breed, stapel die kolomme: nutsbalk, aansig, statusbalk, {{ui:Eienskappe}}, verslagoortjies, dan die {{ui:Model}}-paneel laaste. Rol die bladsy om hulle te bereik. DetailCraft is uitgelê vir 'n rekenaar- of skootrekenaarskerm; 'n foon werk om na te kyk, maar nie om mee te detailleer nie.
+Onder ongeveer 760 pixels breed, stapel die kolomme: nutsbalk, aansig, statusbalk, {{ui:Eienskappe}}, verslagoortjies, dan die {{ui:Model}}-paneel laaste. Rol die bladsy om hulle te bereik. Manafe3 is uitgelê vir 'n rekenaar- of skootrekenaarskerm; 'n foon werk om na te kyk, maar nie om mee te detailleer nie.

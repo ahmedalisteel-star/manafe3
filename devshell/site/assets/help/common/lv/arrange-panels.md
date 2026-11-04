@@ -42,7 +42,7 @@ Lai izņemtu paneli no grupas, izvēlieties {{ui:Pārvietot ārpus cilņu grupas
 
 ## Izvēlēties, cik rindu lieto rīkjosla
 
-{{ui:Iestatījumi}} › {{ui:Vispārīgi}} › {{ui:Rīkjoslas rindas}} piedāvā trīs izvēles. {{ui:Pārnest}} ir noklusējums: katra rīku grupa ir redzama, cik rindās vien tā prasa. {{ui:2 rindas}} notur rīkjoslu divās rindās, bet {{ui:1 rinda}} — vienā, lai rasējumam paliek augstums; grupas, kas neietilpst, ritina sāniski rīkjoslas iekšienē (izmantojiet peles ritenīti, divu pirkstu vilkšanu vai {{key:Tab}}, lai nokļūtu līdz rīkam). Rīkjosla, kas jau ietilpst divās rindās, pie {{ui:2 rindas}} paliek kā ir, jo režģis to tikai padarītu augstāku. Izvēle tiek saglabāta katrai lietotnei. Skārienekrāns un tālrunis saglabā savu izkārtojumu. CadCraft rīkjoslai ir savs iestatījums zem {{ui:Iestatījumi}} › {{ui:CadCraft}}.
+{{ui:Iestatījumi}} › {{ui:Vispārīgi}} › {{ui:Rīkjoslas rindas}} piedāvā trīs izvēles. {{ui:Pārnest}} ir noklusējums: katra rīku grupa ir redzama, cik rindās vien tā prasa. {{ui:2 rindas}} notur rīkjoslu divās rindās, bet {{ui:1 rinda}} — vienā, lai rasējumam paliek augstums; grupas, kas neietilpst, ritina sāniski rīkjoslas iekšienē (izmantojiet peles ritenīti, divu pirkstu vilkšanu vai {{key:Tab}}, lai nokļūtu līdz rīkam). Rīkjosla, kas jau ietilpst divās rindās, pie {{ui:2 rindas}} paliek kā ir, jo režģis to tikai padarītu augstāku. Izvēle tiek saglabāta katrai lietotnei. Skārienekrāns un tālrunis saglabā savu izkārtojumu. Manafe3 rīkjoslai ir savs iestatījums zem {{ui:Iestatījumi}} › {{ui:Manafe3}}.
 
 ## Lietot tastatūru
 
@@ -82,7 +82,7 @@ Tastatūrā, kad fokuss ir dialogā, nospiediet {{key:Alt}}+{{key:Shift}} un bul
 
 Tālrunī dialogi paliek pilnplatuma lapas un netiek pārvietoti.
 
-CadCraft Studio programmā dialogam {{ui:Drukāt uz PDF}} CadCraft, ko varat atstāt atvērtu, kamēr strādājat, virsraksta joslā ir poga {{ui:Atvērt savā logā}}. Dialogs pārvietojas savā logā, ko var novietot uz cita monitora. Dialoga aizvēršana aizver logu, un loga aizvēršana aizver dialogu.
+Manafe3 Desktop programmā dialogam {{ui:Drukāt uz PDF}} Manafe3, ko varat atstāt atvērtu, kamēr strādājat, virsraksta joslā ir poga {{ui:Atvērt savā logā}}. Dialogs pārvietojas savā logā, ko var novietot uz cita monitora. Dialoga aizvēršana aizver logu, un loga aizvēršana aizver dialogu.
 
 ## Atgriezt paneļus
 

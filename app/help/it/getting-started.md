@@ -1,11 +1,11 @@
 ---
-title: Primi passi con DetailCraft
-summary: Cosa fa oggi DetailCraft, come aprirlo e un primo modello, dalle griglie al disegno di officina, in dieci minuti.
+title: Primi passi con Manafe3
+summary: Cosa fa oggi Manafe3, come aprirlo e un primo modello, dalle griglie al disegno di officina, in dieci minuti.
 keywords: inizio, primo modello, introduzione, dettaglio acciaio, armatura, guida rapida, tutorial, panoramica
 from: 3682c0d8
 ---
 
-DetailCraft è l'app per il dettaglio di acciaio e armatura della famiglia CadCraft. Si costruisce un modello 3D di un telaio in acciaio su griglie e livelli, lo si collega e si ottiene ciò che serve all'officina: marche di parti e di assiemi, una distinta dei materiali, disegni di officina di singole parti, file NC DSTV, un modello IFC e una distinta di piegatura per i plinti.
+Manafe3 è l'app per il dettaglio di acciaio e armatura della famiglia Manafe3. Si costruisce un modello 3D di un telaio in acciaio su griglie e livelli, lo si collega e si ottiene ciò che serve all'officina: marche di parti e di assiemi, una distinta dei materiali, disegni di officina di singole parti, file NC DSTV, un modello IFC e una distinta di piegatura per i plinti.
 
 Questa è una versione preliminare. Fa con cura un breve elenco di cose, invece di tutto subito. Leggere [Cosa non è ancora implementato](topic:not-built-yet) prima di pianificare lavori reali.
 
@@ -19,24 +19,24 @@ Questa è una versione preliminare. Fa con cura un breve elenco di cose, invece 
 - Marche di parti e di assiemi che si aggiornano da sole a ogni modifica.
 - Esportazioni: IFC4, file NC DSTV (profili a I e piastre), distinta dei materiali in CSV, distinta di piegatura in CSV e un PDF di disegno di officina di una parte.
 
-## Aprire DetailCraft
+## Aprire Manafe3
 
-1. Aprire DetailCraft in un browser desktop: Chrome, Edge, Firefox o Safari. Vedere [Browser e computer](common:browsers).
+1. Aprire Manafe3 in un browser desktop: Chrome, Edge, Firefox o Safari. Vedere [Browser e computer](common:browsers).
 2. Attendere che la schermata si riempia. La barra di stato in basso indica "Pronto. Aprire l'Esempio, oppure impostare griglie e livelli e iniziare a posizionare le aste."
 
 La vista del modello richiede la grafica 3D (WebGL). Se al centro della schermata compare "Questo browser non è riuscito ad avviare la grafica 3D (WebGL)", vedere [Risoluzione dei problemi](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-I modelli restano sul computer. Aprire un modello lo legge nel browser e salvare scarica un file. Non viene caricato nulla. Il salvataggio nel cloud non è ancora disponibile. Vedere [Dove vanno i file](common:your-files). Per usare DetailCraft in seguito senza connessione, scegliere una volta {{ui:Salva per l'uso offline}} nella barra dell'app mentre si è online; vedere [Lavorare offline](common:offline).
+I modelli restano sul computer. Aprire un modello lo legge nel browser e salvare scarica un file. Non viene caricato nulla. Il salvataggio nel cloud non è ancora disponibile. Vedere [Dove vanno i file](common:your-files). Per usare Manafe3 in seguito senza connessione, scegliere una volta {{ui:Salva per l'uso offline}} nella barra dell'app mentre si è online; vedere [Lavorare offline](common:offline).
 :::
 
 :::offline
-Si è offline. DetailCraft funziona senza connessione solo se è stato prima salvato per l'uso offline: il pulsante {{ui:Salva per l'uso offline}} nella barra dell'app riporta allora {{ui:Pronto per l'uso offline}}. Vedere [Lavorare offline](common:offline).
+Si è offline. Manafe3 funziona senza connessione solo se è stato prima salvato per l'uso offline: il pulsante {{ui:Salva per l'uso offline}} nella barra dell'app riporta allora {{ui:Pronto per l'uso offline}}. Vedere [Lavorare offline](common:offline).
 :::
 
 ## Iniziare dall'esempio
 
-Il modo più rapido per vedere cosa produce DetailCraft è il telaio di esempio.
+Il modo più rapido per vedere cosa produce Manafe3 è il telaio di esempio.
 
 1. Scegliere {{ui:Esempio}} nel gruppo {{ui:File}} della barra degli strumenti.
 2. La vista mostra un telaio a due campate: sei pilastri con piastre di base, quattro travi con piastre di testa, un controvento e sette plinti con armatura.
@@ -49,7 +49,7 @@ La guida passo passo [Esplorare il telaio di esempio](topic:sample-model) la per
 
 Un nuovo modello ha già le griglie da 1 a 3 per da A a B a 6000 mm e due livelli, Livello 1 a 0 e Livello 2 a 4000.
 
-1. Scegliere {{ui:Nuovo}}. Se il modello corrente ha modifiche, DetailCraft chiede se salvarle prima.
+1. Scegliere {{ui:Nuovo}}. Se il modello corrente ha modifiche, Manafe3 chiede se salvarle prima.
 2. Scegliere {{ui:Pianta}} sopra la vista. L'elenco dei livelli accanto seleziona Livello 1.
 3. Scegliere {{ui:Pilastro}} nella barra degli strumenti, oppure premere {{key:C}}.
 4. Fare clic sull'intersezione di griglia A/1. Compare un pilastro W12x50 dal Livello 1 al Livello 2. La barra di stato indica dove è stato posizionato.

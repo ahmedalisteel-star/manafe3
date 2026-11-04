@@ -42,7 +42,7 @@ Da izvadite ploču iz skupine, odaberite {{ui:Premjesti iz skupine kartica}} u n
 
 ## Koliko redaka koristi alatna traka
 
-{{ui:Postavke}} › {{ui:Općenito}} › {{ui:Redci alatne trake}} nudi tri izbora. {{ui:Prelomi}} je zadano: prikazuje se svaka skupina alata, u onoliko redaka koliko je potrebno. {{ui:2 retka}} drži alatnu traku u dva retka, a {{ui:1 redak}} u jednom, tako da crtež dobije visinu; skupine koje ne stanu pomiču se postrance unutar alatne trake (kotačićem miša, povlačenjem dva prsta ili tipkom {{key:Tab}} do alata). Alatna traka koja već stane u dva retka ostaje kakva jest uz {{ui:2 retka}}, jer bi je mreža samo učinila višom. Izbor se pamti za svaku aplikaciju. Zaslon osjetljiv na dodir i telefon zadržavaju vlastiti raspored. CadCraft ima vlastitu postavku za svoju alatnu traku, pod {{ui:Postavke}} › {{ui:CadCraft}}.
+{{ui:Postavke}} › {{ui:Općenito}} › {{ui:Redci alatne trake}} nudi tri izbora. {{ui:Prelomi}} je zadano: prikazuje se svaka skupina alata, u onoliko redaka koliko je potrebno. {{ui:2 retka}} drži alatnu traku u dva retka, a {{ui:1 redak}} u jednom, tako da crtež dobije visinu; skupine koje ne stanu pomiču se postrance unutar alatne trake (kotačićem miša, povlačenjem dva prsta ili tipkom {{key:Tab}} do alata). Alatna traka koja već stane u dva retka ostaje kakva jest uz {{ui:2 retka}}, jer bi je mreža samo učinila višom. Izbor se pamti za svaku aplikaciju. Zaslon osjetljiv na dodir i telefon zadržavaju vlastiti raspored. Manafe3 ima vlastitu postavku za svoju alatnu traku, pod {{ui:Postavke}} › {{ui:Manafe3}}.
 
 ## Korištenje tipkovnice
 
@@ -82,7 +82,7 @@ Tipkovnicom pritisnite {{key:Alt}}+{{key:Shift}}+tipku sa strelicom dok je fokus
 
 Na telefonu dijaloški okviri ostaju listovi pune širine i ne premještaju se.
 
-U CadCraft Studiju dijaloški okvir {{ui:Ispis u PDF}} u CadCraftu, koji možete držati otvorenim dok radite, ima u naslovnoj traci gumb {{ui:Otvori u vlastitom prozoru}}. Dijaloški okvir prelazi u vlastiti prozor koji možete staviti na drugi monitor. Zatvaranjem dijaloškog okvira zatvara se prozor, a zatvaranjem prozora zatvara se dijaloški okvir.
+U Manafe3 Studiju dijaloški okvir {{ui:Ispis u PDF}} u Manafe3u, koji možete držati otvorenim dok radite, ima u naslovnoj traci gumb {{ui:Otvori u vlastitom prozoru}}. Dijaloški okvir prelazi u vlastiti prozor koji možete staviti na drugi monitor. Zatvaranjem dijaloškog okvira zatvara se prozor, a zatvaranjem prozora zatvara se dijaloški okvir.
 
 ## Vraćanje ploča
 

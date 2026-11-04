@@ -1,12 +1,12 @@
 ---
-title: Getting started with DetailCraft
-summary: What DetailCraft does today, how to open it, and a first model from grids to a shop drawing in ten minutes.
+title: Getting started with Manafe3
+summary: What Manafe3 does today, how to open it, and a first model from grids to a shop drawing in ten minutes.
 section: start
 order: 10
 keywords: start, first model, introduction, steel detailing, rebar, quick start, tutorial, overview
 ---
 
-DetailCraft is the steel and rebar detailing app in the CadCraft family. You build a 3D model of a steel frame on grids and levels, connect it, and get what the shop needs: part and assembly marks, a bill of materials, single-part shop drawings, DSTV NC files, an IFC model, and a bending schedule for the footings.
+Manafe3 is the steel and rebar detailing app in the Manafe3 family. You build a 3D model of a steel frame on grids and levels, connect it, and get what the shop needs: part and assembly marks, a bill of materials, single-part shop drawings, DSTV NC files, an IFC model, and a bending schedule for the footings.
 
 This is an early build. It does a short list of things carefully rather than everything at once. Read [What is not built yet](topic:not-built-yet) before you plan real work around it.
 
@@ -20,24 +20,24 @@ This is an early build. It does a short list of things carefully rather than eve
 - Part and assembly marks that update by themselves after every change.
 - Exports: IFC4, DSTV NC files (I-shapes and plates), bill of materials as CSV, bending schedule as CSV, and a shop drawing PDF of one part.
 
-## Open DetailCraft
+## Open Manafe3
 
-1. Open DetailCraft in a desktop browser: Chrome, Edge, Firefox or Safari. See [Browsers and computers](common:browsers).
+1. Open Manafe3 in a desktop browser: Chrome, Edge, Firefox or Safari. See [Browsers and computers](common:browsers).
 2. Wait for the screen to fill. The status bar at the bottom says "Ready. Open the Sample, or set grids and levels and start placing members."
 
 The model view needs 3D graphics (WebGL). If the middle of the screen says "This browser could not start 3D graphics (WebGL)", see [Troubleshooting](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Your models stay on your computer. Opening a model reads it in the browser, and saving downloads a file. Nothing is uploaded. Cloud saving is not available yet. See [Where your files go](common:your-files). To use DetailCraft with no connection later, choose {{ui:Save for offline}} in the app bar once while online; see [Working offline](common:offline).
+Your models stay on your computer. Opening a model reads it in the browser, and saving downloads a file. Nothing is uploaded. Cloud saving is not available yet. See [Where your files go](common:your-files). To use Manafe3 with no connection later, choose {{ui:Save for offline}} in the app bar once while online; see [Working offline](common:offline).
 :::
 
 :::offline
-You are offline. DetailCraft works without a connection only if it was saved for offline use first: the {{ui:Save for offline}} button in the app bar then reads {{ui:Offline ready}}. See [Working offline](common:offline).
+You are offline. Manafe3 works without a connection only if it was saved for offline use first: the {{ui:Save for offline}} button in the app bar then reads {{ui:Offline ready}}. See [Working offline](common:offline).
 :::
 
 ## Look at the sample first
 
-The fastest way to see what DetailCraft makes is the sample frame.
+The fastest way to see what Manafe3 makes is the sample frame.
 
 1. Choose {{ui:Sample}} in the {{ui:File}} group of the toolbar.
 2. The view shows a two-bay frame: six columns with base plates, four beams with end plates, one brace and seven footings with rebar.
@@ -50,7 +50,7 @@ The walkthrough [Explore the sample frame](topic:sample-model) goes through it p
 
 A new model already has grids 1 to 3 by A to B at 6000 mm and two levels, Level 1 at 0 and Level 2 at 4000.
 
-1. Choose {{ui:New}}. If the current model has changes, DetailCraft asks whether to save them first.
+1. Choose {{ui:New}}. If the current model has changes, Manafe3 asks whether to save them first.
 2. Choose {{ui:Plan}} above the view. The level list beside it picks Level 1.
 3. Choose {{ui:Column}} in the toolbar, or press {{key:C}}.
 4. Click the grid intersection A/1. A W12x50 column appears from Level 1 to Level 2. The status bar says where it went.

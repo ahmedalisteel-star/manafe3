@@ -42,7 +42,7 @@ För att ta ut en panel ur gruppen, välj {{ui:Flytta ut ur flikgruppen}} i dess
 
 ## Välj hur många rader verktygsfältet använder
 
-{{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Verktygsfältsrader}} har tre val. {{ui:Radbryt}} är standard: alla verktygsgrupper visas, på så många rader som behövs. {{ui:2 rader}} håller verktygsfältet till två rader och {{ui:1 rad}} till en, så att ritningen får höjden; grupperna som inte får plats rullar åt sidan inne i verktygsfältet (använd musens hjul, en tvåfingersvepning eller {{key:Tab}} för att gå till ett verktyg). Ett verktygsfält som redan ryms på två rader ligger kvar som det är under {{ui:2 rader}}, eftersom ett rutnät bara skulle göra det högre. Valet sparas för varje app. En pekskärm och en telefon behåller sin egen layout. CadCraft har en egen inställning för sitt verktygsfält, under {{ui:Inställningar}} › {{ui:CadCraft}}.
+{{ui:Inställningar}} › {{ui:Allmänt}} › {{ui:Verktygsfältsrader}} har tre val. {{ui:Radbryt}} är standard: alla verktygsgrupper visas, på så många rader som behövs. {{ui:2 rader}} håller verktygsfältet till två rader och {{ui:1 rad}} till en, så att ritningen får höjden; grupperna som inte får plats rullar åt sidan inne i verktygsfältet (använd musens hjul, en tvåfingersvepning eller {{key:Tab}} för att gå till ett verktyg). Ett verktygsfält som redan ryms på två rader ligger kvar som det är under {{ui:2 rader}}, eftersom ett rutnät bara skulle göra det högre. Valet sparas för varje app. En pekskärm och en telefon behåller sin egen layout. Manafe3 har en egen inställning för sitt verktygsfält, under {{ui:Inställningar}} › {{ui:Manafe3}}.
 
 ## Använd tangentbordet
 
@@ -82,7 +82,7 @@ Med tangentbordet, tryck på {{key:Alt}}+{{key:Shift}}+en piltangent med fokus i
 
 På en telefon är dialogrutor kvar som helbreddsark och flyttas inte.
 
-I CadCraft Studio har CadCrafts dialogruta {{ui:Plotta till PDF}}, som du kan ha öppen medan du arbetar, en knapp i sin namnlist, {{ui:Öppna i eget fönster}}. Dialogrutan flyttar in i ett eget fönster som du kan placera på en annan skärm. Stänger du dialogrutan stängs fönstret, och stänger du fönstret stängs dialogrutan.
+I Manafe3 Desktop har Manafe3s dialogruta {{ui:Plotta till PDF}}, som du kan ha öppen medan du arbetar, en knapp i sin namnlist, {{ui:Öppna i eget fönster}}. Dialogrutan flyttar in i ett eget fönster som du kan placera på en annan skärm. Stänger du dialogrutan stängs fönstret, och stänger du fönstret stängs dialogrutan.
 
 ## Lägg tillbaka panelerna
 

@@ -1,17 +1,17 @@
 ---
 title: Ekrano apžvalga
-summary: Kiekviena DetailCraft juosta, skydelis ir skirtukas pagal jų pavadinimą ekrane ir jų paskirtis.
+summary: Kiekviena Manafe3 juosta, skydelis ir skirtukas pagal jų pavadinimą ekrane ir jų paskirtis.
 keywords: ekranas, išdėstymas, įrankių juosta, skydeliai, savybės, būsenos juosta, ataskaitos, sąsaja, ui, skirtukai
 from: 454f74fd
 ---
 
-DetailCraft užpildo naršyklės langą po programos juosta. Iš viršaus į apačią: įrankių juosta, tada trys stulpeliai ({{ui:Modelis}} skydelis, vaizdas, {{ui:Savybės}} skydelis), tada ataskaitų skirtukai, tada būsenos juosta.
+Manafe3 užpildo naršyklės langą po programos juosta. Iš viršaus į apačią: įrankių juosta, tada trys stulpeliai ({{ui:Modelis}} skydelis, vaizdas, {{ui:Savybės}} skydelis), tada ataskaitų skirtukai, tada būsenos juosta.
 
 ## Programos juosta
 
-Plona juosta viršuje priklauso CadCraft svetainei, o ne modeliui. Joje rodomas programos pavadinimas ir versija, nuoroda į {{ui:Apie DetailCraft}}, {{ui:Žinynas}} (arba {{key:F1}}) šiam žinynui, {{ui:Įrašyti neprisijungus}}, ekrano režimo mygtukas ir {{ui:Lapas}} / {{ui:Modelis}} jungiklis.
+Plona juosta viršuje priklauso Manafe3 svetainei, o ne modeliui. Joje rodomas programos pavadinimas ir versija, nuoroda į {{ui:Apie Manafe3}}, {{ui:Žinynas}} (arba {{key:F1}}) šiam žinynui, {{ui:Įrašyti neprisijungus}}, ekrano režimo mygtukas ir {{ui:Lapas}} / {{ui:Modelis}} jungiklis.
 
-- {{ui:Įrašyti neprisijungus}} išlaiko DetailCraft, jo 3D vaizdą ir šį žinyną jūsų naršyklėje, kad jis atsidarytų be ryšio. Išsaugojus rodoma {{ui:Paruošta neprisijungus}}; tada spustelėkite jį, kad gautumėte {{ui:Įrašyti dar kartą (gauti naujausią versiją)}} arba {{ui:Pašalinti kopiją neprisijungus}}. Žr. [Darbas neprisijungus](common:offline).
+- {{ui:Įrašyti neprisijungus}} išlaiko Manafe3, jo 3D vaizdą ir šį žinyną jūsų naršyklėje, kad jis atsidarytų be ryšio. Išsaugojus rodoma {{ui:Paruošta neprisijungus}}; tada spustelėkite jį, kad gautumėte {{ui:Įrašyti dar kartą (gauti naujausią versiją)}} arba {{ui:Pašalinti kopiją neprisijungus}}. Žr. [Darbas neprisijungus](common:offline).
 - {{ui:Lapas}} suteikia šviesų ekraną, o {{ui:Modelis}} – tamsų. 3D vaizdas pakinta iš karto; modelis nesikeičia.
 - Ekrano režimo mygtukas ir {{key:Ctrl+Shift+F}} perjungia tarp įprasto, viso ekrano ir viso ekrano su paslėptomis juostomis. {{key:Ctrl+Shift+F}} visuose kompiuteriuose naudoja Control klavišą, įskaitant Mac. Kai juostos paslėptos, užveskite pelės žymeklį ant viršutinio ekrano krašto (arba palieskite jį), kad jos grįžtų. {{key:Esc}} palieka viso ekrano režimą.
 
@@ -70,7 +70,7 @@ Skaičių laukai įsigalioja paspaudus {{key:Enter}} arba išėjus iš lauko. Ki
 
 ## Ataskaitų skirtukai (apačioje)
 
-- {{ui:Problemos}}: viskas, ką DetailCraft nepavyko sukurti arba ko prašo patikrinti, su mygtuku {{ui:Pasirinkti}} kiekvienoje eilutėje. Skirtukas rodo skaičių laužtiniuose skliaustuose.
+- {{ui:Problemos}}: viskas, ką Manafe3 nepavyko sukurti arba ko prašo patikrinti, su mygtuku {{ui:Pasirinkti}} kiekvienoje eilutėje. Skirtukas rodo skaičių laužtiniuose skliaustuose.
 - {{ui:Medžiagų sąrašas}}: detalės, surinkimai, varžtai ir inkariniai strypai su svoriais ir nuoroda {{ui:Atsisiųsti CSV}}. Spustelėkite detalės žymenį, kad ją pažymėtumėte.
 - {{ui:Lenkimo žiniaraštis}}: kiekvienas armatūros strypo žymuo kiekviename pamate su nuoroda {{ui:Atsisiųsti CSV}}.
 
@@ -84,4 +84,4 @@ Naršyklės skirtuko pavadinimas prasideda tašku (•), kol modelyje yra neįra
 
 ## Siauras ekranas
 
-Maždaug iki 760 pikselių pločio stulpeliai sustoja vienas po kito: įrankių juosta, vaizdas, būsenos juosta, {{ui:Savybės}}, ataskaitų skirtukai, o paskutinis – {{ui:Modelis}} skydelis. Slinkite puslapį, kad juos pasiektumėte. DetailCraft išdėstytas stalinio ar nešiojamo kompiuterio ekranui; telefonu galima žiūrėti, bet ne detalizuoti.
+Maždaug iki 760 pikselių pločio stulpeliai sustoja vienas po kito: įrankių juosta, vaizdas, būsenos juosta, {{ui:Savybės}}, ataskaitų skirtukai, o paskutinis – {{ui:Modelis}} skydelis. Slinkite puslapį, kad juos pasiektumėte. Manafe3 išdėstytas stalinio ar nešiojamo kompiuterio ekranui; telefonu galima žiūrėti, bet ne detalizuoti.

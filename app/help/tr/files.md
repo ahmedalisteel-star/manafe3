@@ -1,17 +1,17 @@
 ---
 title: Dosyaları açma, kaydetme ve dışa aktarma
-summary: DetailCraft model dosyası, yazdığı her dışa aktarma, dosyaların nereye gittiği ve tarayıcıya ve bağlantıya göre nelerin farklılaştığı.
+summary: Manafe3 model dosyası, yazdığı her dışa aktarma, dosyaların nereye gittiği ve tarayıcıya ve bağlantıya göre nelerin farklılaştığı.
 keywords: aç, kaydet, dışa aktar, indir, dosya, json, ifc, nc1, dstv, csv, pdf, zip, biçimler, içe aktar
 from: bd715ea3
 ---
 
-DetailCraft'ın kendine ait tek bir dosyası, modeli, ve beş dışa aktarması vardır. Her kayıt ve her dışa aktarma bir indirmedir. Hiçbir şey yüklenmez ve bir sunucuda hiçbir şey tutulmaz.
+Manafe3'ın kendine ait tek bir dosyası, modeli, ve beş dışa aktarması vardır. Her kayıt ve her dışa aktarma bir indirmedir. Hiçbir şey yüklenmez ve bir sunucuda hiçbir şey tutulmaz.
 
 ## Model dosyası
 
-Bir DetailCraft modeli `<ad>.detailcraft.json` olarak kaydedilir; `<ad>`, {{ui:Model}} panelindeki model adıdır. Izgaraları, seviyeleri, elemanları (delikleri ve ağız kesimleriyle), birleşimleri ve ayarlarını, temelleri ve özel profillerinizi içerir.
+Bir Manafe3 modeli `<ad>.detailcraft.json` olarak kaydedilir; `<ad>`, {{ui:Model}} panelindeki model adıdır. Izgaraları, seviyeleri, elemanları (delikleri ve ağız kesimleriyle), birleşimleri ve ayarlarını, temelleri ve özel profillerinizi içerir.
 
-Parçalar, işaretler, cıvatalar, kaynaklar ve donatılar saklanmaz: DetailCraft bunları her açılışta modelden yeniden hesaplar. Bir model dosyasının küçük olmasının nedeni budur.
+Parçalar, işaretler, cıvatalar, kaynaklar ve donatılar saklanmaz: Manafe3 bunları her açılışta modelden yeniden hesaplar. Bir model dosyasının küçük olmasının nedeni budur.
 
 ### Kaydet
 
@@ -38,21 +38,21 @@ Safari İndirilenler klasörünüze kaydeder. Klasörü değiştirmek için **Sa
 1. {{ui:Dosya}} grubunda {{ui:Aç}} seçeneğini seçin veya {{key:Mod+O}} tuşlarına basın.
 2. Bir `.detailcraft.json` dosyası seçin.
 
-Ya da dosyayı {{pick:mac=Finder|windows=Dosya Gezgini|linux=dosya yöneticinizden}} sürükleyip görünümün üzerine bırakın. Sürüklerken görünüm "Açmak için buraya bir DetailCraft modeli bırakın" der.
+Ya da dosyayı {{pick:mac=Finder|windows=Dosya Gezgini|linux=dosya yöneticinizden}} sürükleyip görünümün üzerine bırakın. Sürüklerken görünüm "Açmak için buraya bir Manafe3 modeli bırakın" der.
 
-Açık modelin kaydedilmemiş değişiklikleri varsa DetailCraft önce sorar: {{ui:İptal}}, {{ui:Değişiklikleri at}} veya {{ui:Önce kaydet}}.
+Açık modelin kaydedilmemiş değişiklikleri varsa Manafe3 önce sorar: {{ui:İptal}}, {{ui:Değişiklikleri at}} veya {{ui:Önce kaydet}}.
 
-DetailCraft bir dosyayı kullanmadan önce her alanını denetler. Kullanamadığı her şey dışarıda bırakılır ve durum çubuğu neyi olduğunu söyler, örneğin "2 eleman geçerli değildi ve dışarıda bırakıldı." Daha yeni bir DetailCraft'ın kaydettiği model yarım yamalak açılmak yerine bir iletiyle reddedilir.
+Manafe3 bir dosyayı kullanmadan önce her alanını denetler. Kullanamadığı her şey dışarıda bırakılır ve durum çubuğu neyi olduğunu söyler, örneğin "2 eleman geçerli değildi ve dışarıda bırakıldı." Daha yeni bir Manafe3'ın kaydettiği model yarım yamalak açılmak yerine bir iletiyle reddedilir.
 
 ### Neleri açar
 
-Kendi model dosyalarını (`.json`, 50 MB'a kadar) ve IFC dosyalarını (`.ifc`, IFC2X3 veya IFC4, 200 MB'a kadar). {{ui:IFC içe aktar}} ile açılan veya getirilen bir IFC dosyası, kirişlerinin, kolonlarının, elemanlarının, levhalarının, ızgaralarının ve seviyelerinin yeni bir modeli olur; içlerine açılmış delikler ve ağız kesimleri ve cıvataları tek tek cıvatalar olarak gelir; bir rapor nelerin dışarıda bırakıldığını listeler. Bkz. [IFC dışa aktarma](topic:ifc-export#import). DWG, DXF veya başka bir detaylandırma programının modelini henüz açmaz; denemek "DetailCraft kendi modellerini (.detailcraft.json) ve IFC dosyalarını (.ifc) açar." iletisini gösterir.
+Kendi model dosyalarını (`.json`, 50 MB'a kadar) ve IFC dosyalarını (`.ifc`, IFC2X3 veya IFC4, 200 MB'a kadar). {{ui:IFC içe aktar}} ile açılan veya getirilen bir IFC dosyası, kirişlerinin, kolonlarının, elemanlarının, levhalarının, ızgaralarının ve seviyelerinin yeni bir modeli olur; içlerine açılmış delikler ve ağız kesimleri ve cıvataları tek tek cıvatalar olarak gelir; bir rapor nelerin dışarıda bırakıldığını listeler. Bkz. [IFC dışa aktarma](topic:ifc-export#import). DWG, DXF veya başka bir detaylandırma programının modelini henüz açmaz; denemek "Manafe3 kendi modellerini (.detailcraft.json) ve IFC dosyalarını (.ifc) açar." iletisini gösterir.
 
 ## Kaybolan çalışma, son dosyalar, masaüstü uygulaması
 
-- Modelde kaydetmediğiniz değişiklikler varken DetailCraft bu tarayıcıda bir kopya tutar. Kaydetmeden önce sekme veya tarayıcı durursa, DetailCraft'ı bir sonraki açışınızda **Çalışmanız kurtarılsın mı?** diye sorar: kopyayı kurtarın veya vazgeçin. Bkz. [Çalışmanızı kurtarma](common:recover).
-- Son zamanlarda açtığınız modeller, tarayıcı DetailCraft'ın onları yeniden açmasına izin verdiğinde başlangıç ekranında listelenir; yeniden açmak için birine tıklayın.
-- Masaüstü uygulamasında {{ui:Kaydet}} modeli açtığınız dosyaya geri yazar (tarayıcıda bir kopya indirir) ve bir DetailCraft modeline ya da IFC dosyasına çift tıklamak onu DetailCraft'ta açar.
+- Modelde kaydetmediğiniz değişiklikler varken Manafe3 bu tarayıcıda bir kopya tutar. Kaydetmeden önce sekme veya tarayıcı durursa, Manafe3'ı bir sonraki açışınızda **Çalışmanız kurtarılsın mı?** diye sorar: kopyayı kurtarın veya vazgeçin. Bkz. [Çalışmanızı kurtarma](common:recover).
+- Son zamanlarda açtığınız modeller, tarayıcı Manafe3'ın onları yeniden açmasına izin verdiğinde başlangıç ekranında listelenir; yeniden açmak için birine tıklayın.
+- Masaüstü uygulamasında {{ui:Kaydet}} modeli açtığınız dosyaya geri yazar (tarayıcıda bir kopya indirir) ve bir Manafe3 modeline ya da IFC dosyasına çift tıklamak onu Manafe3'ta açar.
 
 ## Dışa aktarmalar
 
@@ -79,13 +79,13 @@ PDF'teki metin standart Helvetica yazı tipini kullanır. Onda olmayan karakterl
 
 ## Birimler
 
-DetailCraft baştan sona milimetreyle çalışır: ızgaralar, seviyeler, koordinatlar, profiller, delikler ve her dışa aktarma. Profil adları yayımlanmış biçimlerini korur (W12x50, boyutları mm olarak gösterilse de bir ABD tanımıdır). Henüz imperyal girdi yoktur.
+Manafe3 baştan sona milimetreyle çalışır: ızgaralar, seviyeler, koordinatlar, profiller, delikler ve her dışa aktarma. Profil adları yayımlanmış biçimlerini korur (W12x50, boyutları mm olarak gösterilse de bir ABD tanımıdır). Henüz imperyal girdi yoktur.
 
 ## Çevrimiçi ve çevrimdışı
 
-Açma, kaydetme ve dışa aktarma tarayıcınızda gerçekleşir; bu yüzden DetailCraft yüklendikten sonra bağlantıyla veya bağlantısız aynı çalışırlar.
+Açma, kaydetme ve dışa aktarma tarayıcınızda gerçekleşir; bu yüzden Manafe3 yüklendikten sonra bağlantıyla veya bağlantısız aynı çalışırlar.
 
-DetailCraft'ı sonradan bağlantı olmadan kullanmak için çevrimiçiyken uygulama çubuğunda {{ui:Çevrimdışı için kaydet}} seçeneğini seçin. Düğme sayarak ilerler ("Kaydediliyor 3 / 20") ve sonra {{ui:Çevrimdışı hazır}} yazar. Kaydedilen kopya 3B grafik kütüphanesini (yaklaşık 2,6 MB) ve bu yardımı içerir; bu yüzden kaydedildikten sonra 3B görünüm, her dışa aktarma ve yardım çevrimdışı çalışır. Ayrıntılar ve hâlâ bağlantı gerektiren şeyler: [Çevrimdışı çalışma](common:offline).
+Manafe3'ı sonradan bağlantı olmadan kullanmak için çevrimiçiyken uygulama çubuğunda {{ui:Çevrimdışı için kaydet}} seçeneğini seçin. Düğme sayarak ilerler ("Kaydediliyor 3 / 20") ve sonra {{ui:Çevrimdışı hazır}} yazar. Kaydedilen kopya 3B grafik kütüphanesini (yaklaşık 2,6 MB) ve bu yardımı içerir; bu yüzden kaydedildikten sonra 3B görünüm, her dışa aktarma ve yardım çevrimdışı çalışır. Ayrıntılar ve hâlâ bağlantı gerektiren şeyler: [Çevrimdışı çalışma](common:offline).
 
 :::offline
 Çevrimdışısınız. Uygulama çubuğu {{ui:Çevrimdışı hazır}} gösteriyorsa açma, kaydetme ve dışa aktarma her zamanki gibi çalışır. Göstermiyorsa bu sekmeyi açık tutun, yeniden çevrimiçi olana kadar yeniden yüklemeyin ve modelinizi şimdi kaydedin.
@@ -95,4 +95,4 @@ Bulutta kaydetme henüz mevcut değil ve henüz masaüstü sürümleri yok. `.de
 
 ## Kaydedilmemiş çalışma
 
-DetailCraft modeli yalnızca açık sekmede tutar. Kaydedilmemiş değişikliklerle sekmeyi kapatırsanız veya yeniden yüklerseniz tarayıcı sayfadan ayrılıp ayrılmayacağınızı sorar; ifadesi tarayıcının kendisine aittir. {{key:Mod+S}} ile sık kaydedin.
+Manafe3 modeli yalnızca açık sekmede tutar. Kaydedilmemiş değişikliklerle sekmeyi kapatırsanız veya yeniden yüklerseniz tarayıcı sayfadan ayrılıp ayrılmayacağınızı sorar; ifadesi tarayıcının kendisine aittir. {{key:Mod+S}} ile sık kaydedin.

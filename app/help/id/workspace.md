@@ -1,17 +1,17 @@
 ---
 title: Tur layar
-summary: Setiap bilah, panel, dan tab di DetailCraft menurut namanya di layar, dan kegunaan masing-masing.
+summary: Setiap bilah, panel, dan tab di Manafe3 menurut namanya di layar, dan kegunaan masing-masing.
 keywords: layar, tata letak, bilah alat, panel, properti, bilah status, laporan, antarmuka, ui, tab
 from: 454f74fd
 ---
 
-DetailCraft memenuhi jendela peramban di bawah bilah aplikasi. Dari atas ke bawah: bilah alat, lalu tiga kolom (panel {{ui:Model}}, tampilan, panel {{ui:Properti}}), lalu tab laporan, lalu bilah status.
+Manafe3 memenuhi jendela peramban di bawah bilah aplikasi. Dari atas ke bawah: bilah alat, lalu tiga kolom (panel {{ui:Model}}, tampilan, panel {{ui:Properti}}), lalu tab laporan, lalu bilah status.
 
 ## Bilah aplikasi
 
-Bilah ramping di paling atas milik situs CadCraft, bukan milik model. Bilah ini menampilkan nama aplikasi dan versi, tautan ke {{ui:Tentang DetailCraft}}, {{ui:Bantuan}} (atau {{key:F1}}) untuk bantuan ini, {{ui:Simpan untuk offline}}, tombol mode layar, dan sakelar {{ui:Kertas}} / {{ui:Model}}.
+Bilah ramping di paling atas milik situs Manafe3, bukan milik model. Bilah ini menampilkan nama aplikasi dan versi, tautan ke {{ui:Tentang Manafe3}}, {{ui:Bantuan}} (atau {{key:F1}}) untuk bantuan ini, {{ui:Simpan untuk offline}}, tombol mode layar, dan sakelar {{ui:Kertas}} / {{ui:Model}}.
 
-- {{ui:Simpan untuk offline}} menyimpan DetailCraft, tampilan 3D-nya, dan bantuan ini di peramban Anda sehingga terbuka tanpa koneksi. Tombol bertuliskan {{ui:Siap offline}} setelah tersimpan; klik tombol itu untuk {{ui:Simpan lagi (ambil versi terbaru)}} atau {{ui:Hapus salinan offline}}. Lihat [Bekerja offline](common:offline).
+- {{ui:Simpan untuk offline}} menyimpan Manafe3, tampilan 3D-nya, dan bantuan ini di peramban Anda sehingga terbuka tanpa koneksi. Tombol bertuliskan {{ui:Siap offline}} setelah tersimpan; klik tombol itu untuk {{ui:Simpan lagi (ambil versi terbaru)}} atau {{ui:Hapus salinan offline}}. Lihat [Bekerja offline](common:offline).
 - {{ui:Kertas}} memberi layar terang dan {{ui:Model}} layar gelap. Tampilan 3D mengikuti seketika; tidak ada yang berubah pada model Anda.
 - Tombol mode layar dan {{key:Ctrl+Shift+F}} berganti di antara normal, layar penuh, dan layar penuh dengan bilah tersembunyi. {{key:Ctrl+Shift+F}} memakai tombol Control di semua komputer, termasuk Mac. Dengan bilah tersembunyi, arahkan ke tepi atas layar (atau ketuk) untuk memunculkannya kembali. {{key:Esc}} keluar dari layar penuh.
 
@@ -70,7 +70,7 @@ Kolom angka berlaku ketika Anda menekan {{key:Enter}} atau meninggalkan kolom. S
 
 ## Tab laporan (bawah)
 
-- {{ui:Masalah}}: semua yang tidak dapat dibangun DetailCraft atau ingin Anda periksa, dengan tombol {{ui:Pilih}} pada setiap baris. Tab menampilkan jumlahnya dalam tanda kurung.
+- {{ui:Masalah}}: semua yang tidak dapat dibangun Manafe3 atau ingin Anda periksa, dengan tombol {{ui:Pilih}} pada setiap baris. Tab menampilkan jumlahnya dalam tanda kurung.
 - {{ui:Daftar material}}: part, rakitan, serta baut dan batang angkur, dengan berat dan tautan {{ui:Unduh CSV}}. Klik tanda part untuk memilih part itu.
 - {{ui:Daftar pembengkokan}}: setiap tanda tulangan di setiap fondasi, dengan tautan {{ui:Unduh CSV}}.
 
@@ -84,4 +84,4 @@ Judul tab peramban diawali dengan titik (•) selama model memiliki perubahan ya
 
 ## Pada layar sempit
 
-Di bawah lebar sekitar 760 piksel, kolom ditumpuk: bilah alat, tampilan, bilah status, {{ui:Properti}}, tab laporan, lalu panel {{ui:Model}} terakhir. Gulir halaman untuk menjangkaunya. DetailCraft ditata untuk layar desktop atau laptop; ponsel cukup untuk melihat, bukan untuk detailing.
+Di bawah lebar sekitar 760 piksel, kolom ditumpuk: bilah alat, tampilan, bilah status, {{ui:Properti}}, tab laporan, lalu panel {{ui:Model}} terakhir. Gulir halaman untuk menjangkaunya. Manafe3 ditata untuk layar desktop atau laptop; ponsel cukup untuk melihat, bukan untuk detailing.

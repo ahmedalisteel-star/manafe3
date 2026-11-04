@@ -17,7 +17,7 @@ Nothing is deleted when a bar or a panel goes away: the app only hides or moves 
 The toolbar goes back to its first order and buttons, the panels go back to their sides, the screen mode goes back to the normal view and the menu style goes back to the one the app starts with. Your theme, language, sizes and the app's own settings stay as they are, and so do any menu styles you made yourself (choose them again under {{ui:Menus, keys and mouse}}).
 
 :::note
-In CadCraft Studio, {{ui:Settings}} in Studio's own window also has {{ui:Reset the layout in every app}}. Each app's windows follow at once, and an app you open later starts from its first layout.
+In Manafe3 Desktop, {{ui:Settings}} in Studio's own window also has {{ui:Reset the layout in every app}}. Each app's windows follow at once, and an app you open later starts from its first layout.
 :::
 
 ## The bars are hidden (full screen)
@@ -53,7 +53,7 @@ On a keyboard, the menu key (or {{key:Shift+F10}}) opens it for the tool that ha
 
 ## Everything is too big or too small
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Interface size}} makes the bars, toolbars, panels and dialogs of this app bigger or smaller, from 80 % to 140 %. The drawing keeps its own zoom, so a smaller interface leaves more room for it, for example with two apps side by side on one monitor. {{ui:Panel text size}} beside it changes only the text in the side panels, on top of the interface size. Each app keeps its own size; CadCraft Studio's own window has one in its {{ui:Settings}} too.
+{{ui:Settings}} › {{ui:General}} › {{ui:Interface size}} makes the bars, toolbars, panels and dialogs of this app bigger or smaller, from 80 % to 140 %. The drawing keeps its own zoom, so a smaller interface leaves more room for it, for example with two apps side by side on one monitor. {{ui:Panel text size}} beside it changes only the text in the side panels, on top of the interface size. Each app keeps its own size; Manafe3 Desktop's own window has one in its {{ui:Settings}} too.
 
 ## The panels are gone
 

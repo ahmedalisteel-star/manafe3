@@ -54,7 +54,7 @@ Chúng tôi đọc các mốc này từ mã của các ứng dụng 0.7, không 
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS và iOS 16.4) |
 
-CadCraft Studio mang theo bộ máy web riêng trên Windows, nên cần Windows 10 hoặc 11; trên Mac nó dùng bộ máy của hệ thống, nên cần macOS 13.3 trở lên. Cài đặt › Cập nhật trong Studio cho biết bản của bạn đang chạy trên gì.
+Manafe3 Desktop mang theo bộ máy web riêng trên Windows, nên cần Windows 10 hoặc 11; trên Mac nó dùng bộ máy của hệ thống, nên cần macOS 13.3 trở lên. Cài đặt › Cập nhật trong Studio cho biết bản của bạn đang chạy trên gì.
 
 Đây là phiên bản cũ nhất *khởi động được*, đọc từ mã. Đây không phải danh sách các trình duyệt cũ mà chúng tôi đã chạy thử ứng dụng, nên một trình duyệt cũ hơn vẫn khởi động được có thể vẫn thiếu một tính năng.
 

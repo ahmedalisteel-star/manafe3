@@ -41,4 +41,4 @@ from: 04f8bc5b
 Safari 会删除数周未访问的网站所保存的数据。请不时联网打开一下应用，或在出行前重新保存。
 :::
 
-- CadCraft Studio 是将全部八个应用集于一次安装的桌面应用，可在 getcadcraft.com/download 获取。
+- Manafe3 Desktop 是将全部八个应用集于一次安装的桌面应用，可在 getcadcraft.com/download 获取。

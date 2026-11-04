@@ -42,7 +42,7 @@ Per treure un tauler del grup, trieu {{ui:Surt del grup de pestanyes}} al seu me
 
 ## Triar quantes línies fa servir la barra d'eines
 
-{{ui:Configuració}} › {{ui:General}} › {{ui:Files de la barra d'eines}} té tres opcions. {{ui:Ajusta}} és la predeterminada: es mostra cada grup d'eines, en tantes línies com calgui. {{ui:2 files}} manté la barra d'eines en dues línies i {{ui:1 fila}} en una, perquè el dibuix guanyi alçada; els grups que no hi caben es desplacen lateralment dins de la barra d'eines (feu servir la roda del ratolí, un lliscament amb dos dits o {{key:Tab}} fins a una eina). Una barra d'eines que ja hi cap en dues línies es queda igual amb {{ui:2 files}}, perquè una graella només la faria més alta. La tria es guarda per a cada aplicació. Una pantalla tàctil i un telèfon mantenen la seva pròpia disposició. CadCraft té la seva pròpia configuració per a la barra d'eines, a {{ui:Configuració}} › {{ui:CadCraft}}.
+{{ui:Configuració}} › {{ui:General}} › {{ui:Files de la barra d'eines}} té tres opcions. {{ui:Ajusta}} és la predeterminada: es mostra cada grup d'eines, en tantes línies com calgui. {{ui:2 files}} manté la barra d'eines en dues línies i {{ui:1 fila}} en una, perquè el dibuix guanyi alçada; els grups que no hi caben es desplacen lateralment dins de la barra d'eines (feu servir la roda del ratolí, un lliscament amb dos dits o {{key:Tab}} fins a una eina). Una barra d'eines que ja hi cap en dues línies es queda igual amb {{ui:2 files}}, perquè una graella només la faria més alta. La tria es guarda per a cada aplicació. Una pantalla tàctil i un telèfon mantenen la seva pròpia disposició. Manafe3 té la seva pròpia configuració per a la barra d'eines, a {{ui:Configuració}} › {{ui:Manafe3}}.
 
 ## Fer servir el teclat
 
@@ -82,7 +82,7 @@ Des del teclat, premeu {{key:Alt}}+{{key:Shift}}+una tecla de fletxa amb el focu
 
 En un telèfon, els diàlegs es mantenen com a fulls d'amplada completa i no es mouen.
 
-A CadCraft Studio, el diàleg {{ui:Traça a PDF}} de CadCraft, que podeu deixar obert mentre treballeu, té un botó a la barra de títol, {{ui:Obre en una finestra pròpia}}. El diàleg es mou a una finestra pròpia que podeu posar en un altre monitor. Tancar el diàleg tanca la finestra, i tancar la finestra tanca el diàleg.
+A Manafe3 Desktop, el diàleg {{ui:Traça a PDF}} de Manafe3, que podeu deixar obert mentre treballeu, té un botó a la barra de títol, {{ui:Obre en una finestra pròpia}}. El diàleg es mou a una finestra pròpia que podeu posar en un altre monitor. Tancar el diàleg tanca la finestra, i tancar la finestra tanca el diàleg.
 
 ## Tornar a posar els taulers al seu lloc
 

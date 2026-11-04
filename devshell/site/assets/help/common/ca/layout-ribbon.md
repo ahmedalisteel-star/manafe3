@@ -43,7 +43,7 @@ Els taulers de l'esquerra i de la dreta mantenen tot el que s'explica a [Organit
 
 ## Tornar a la disposició clàssica
 
-Obriu {{ui:Configuració}} › {{ui:Global}} › {{ui:Disposició}} › {{ui:Espai de treball}} i trieu {{ui:CadCraft clàssic}}. Cada barra d'eines, pestanya i tauler torna on era.
+Obriu {{ui:Configuració}} › {{ui:Global}} › {{ui:Disposició}} › {{ui:Espai de treball}} i trieu {{ui:Manafe3 clàssic}}. Cada barra d'eines, pestanya i tauler torna on era.
 
 :::note
 En un telèfon, o en una finestra de 760 píxels d'amplada o menys, l'aplicació fa servir la disposició de telèfon independentment del que hagueu triat. Una finestra més ampla us torna la disposició.

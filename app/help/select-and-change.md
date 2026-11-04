@@ -19,7 +19,7 @@ Each of these is one undo step: one {{key:Mod+Z}} takes it all back.
 
 ### Lasso
 
-Choose **Lasso** under {{ui:Dragging to select}} in [DetailCraft settings](topic:settings) and the same drag draws a freehand line instead of a rectangle.
+Choose **Lasso** under {{ui:Dragging to select}} in [Manafe3 settings](topic:settings) and the same drag draws a freehand line instead of a rectangle.
 
 - Its first move sideways decides how it selects: **to the right**, what is wholly inside (solid line); **to the left**, what it touches (dashed).
 - Press {{key:Space}} while dragging to switch between inside, touching and **fence**: an open line that takes whatever it crosses (dotted, orange).
@@ -63,6 +63,6 @@ Select members and footings (a single one works too), then use **Move, rotate, m
 - **Move:** type x, y and z in millimeters and choose {{ui:Move}}. Or choose {{ui:Pick two points}} (or press {{key:M}}): click the grid intersection to move from, then the one to move to. A dashed outline follows the pointer.
 - **Rotate in plan:** type the angle (counter-clockwise, seen from above) and choose what to turn about: the selection's middle, or a grid intersection. Columns turn with the frame.
 - **Mirror:** choose a grid line. The mirror image is the same profile turned the other way: an I-shape keeps its flanges, a channel faces the other way (its top and bottom swap), and holes and copes go with the part.
-- Tick **Keep the original (make a copy)** to leave the selection where it is and move, rotate or mirror a copy. Its connections come along when {{ui:Copy end plates and base plates with their members}} is on in [DetailCraft settings](topic:settings).
+- Tick **Keep the original (make a copy)** to leave the selection where it is and move, rotate or mirror a copy. Its connections come along when {{ui:Copy end plates and base plates with their members}} is on in [Manafe3 settings](topic:settings).
 
 Rotating turns about a vertical line and mirroring is in a vertical plane, so levels stay level and footings stay upright.

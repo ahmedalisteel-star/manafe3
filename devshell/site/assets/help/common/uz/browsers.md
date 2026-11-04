@@ -54,7 +54,7 @@ Bular 0.7 ilovalarining kodidan oʻqilgan, taxminga emas: har bir fayl tahlil qi
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS va iOS 16.4) |
 
-CadCraft Studio oʻzining veb-dvigatelini Windows da olib yuradi, shuning uchun Windows 10 yoki 11 kerak; Mac da esa tizim dvigatelidan foydalanadi, shuning uchun macOS 13.3 yoki undan yangisi kerak. Studio dagi Sozlamalar › Yangilanishlar boʻlimi nusxangiz qaysi tizimda ishlashini koʻrsatadi.
+Manafe3 Desktop oʻzining veb-dvigatelini Windows da olib yuradi, shuning uchun Windows 10 yoki 11 kerak; Mac da esa tizim dvigatelidan foydalanadi, shuning uchun macOS 13.3 yoki undan yangisi kerak. Studio dagi Sozlamalar › Yangilanishlar boʻlimi nusxangiz qaysi tizimda ishlashini koʻrsatadi.
 
 Bu ishga tushadigan eng eski versiya — kod asosida oʻqilgan, ilovalar sinab koʻrilgan eski brauzerlar roʻyxati emas. Shuning uchun eski brauzer ishga tushsa ham, baʼzi xususiyatlar ishlamasligi mumkin.
 

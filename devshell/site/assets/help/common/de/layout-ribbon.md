@@ -43,7 +43,7 @@ Der linke und der rechte Bereich behalten alles, was unter [Bereiche anordnen](c
 
 ## Zum klassischen Layout zurückkehren
 
-{{ui:Einstellungen}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Arbeitsbereich}} öffnen und {{ui:CadCraft klassisch}} wählen. Jede Symbolleiste, jede Registerkarte und jeder Bereich geht dorthin zurück, wo er war.
+{{ui:Einstellungen}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Arbeitsbereich}} öffnen und {{ui:Manafe3 klassisch}} wählen. Jede Symbolleiste, jede Registerkarte und jeder Bereich geht dorthin zurück, wo er war.
 
 :::note
 Auf einem Telefon oder in einem Fenster von 760 Pixel Breite oder schmaler benutzt die App ihr Telefonlayout, egal was Sie gewählt haben. Ein breiteres Fenster bringt Ihr Layout zurück.

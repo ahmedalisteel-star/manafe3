@@ -1,17 +1,17 @@
 ---
 title: Paste a copied area as a reference picture
-summary: Copy part of a PDF sheet in MarkupCraft and paste it into DetailCraft at its true size, lying on a level under the steel, to model over it.
+summary: Copy part of a PDF sheet in MarkupCraft and paste it into Manafe3 at its true size, lying on a level under the steel, to model over it.
 section: tasks
 order: 46
 keywords: picture, reference picture, underlay, background, copy area, markupcraft, pdf, trace, true size, scale, opacity, overlay
 ---
 
-MarkupCraft's Copy area tool copies part of a sheet as a picture that knows how big it is. Paste it into DetailCraft and it lies flat on a level, at its true size, under the grid and the steel, so you can place members over a plan from the drawings.
+MarkupCraft's Copy area tool copies part of a sheet as a picture that knows how big it is. Paste it into Manafe3 and it lies flat on a level, at its true size, under the grid and the steel, so you can place members over a plan from the drawings.
 
 ## Paste it
 
 1. In MarkupCraft, copy the area with {{ui:More}} › {{ui:Copy an area of the page…}}, then {{ui:Copy}} (or {{ui:Copy as overlay}}, which makes the paper see-through).
-2. In DetailCraft (same browser), press {{key:Mod+V}} or choose {{ui:Paste}}.
+2. In Manafe3 (same browser), press {{key:Mod+V}} or choose {{ui:Paste}}.
 
 The picture lands in the middle of the grid on the level shown in Plan (in 3D or an elevation, on the lowest level) and is selected. The status bar says how big it is.
 
@@ -20,7 +20,7 @@ The picture lands in the middle of the grid on the level shown in Plan (in 3D or
 
 An area copied as an overlay starts at the opacity it was copied with.
 
-{{key:Mod+V}} pastes whichever you copied last: the area from MarkupCraft, or members and footings copied in DetailCraft. If a different picture was copied to the clipboard after the area (from another program), nothing is pasted; copy the area again.
+{{key:Mod+V}} pastes whichever you copied last: the area from MarkupCraft, or members and footings copied in Manafe3. If a different picture was copied to the clipboard after the area (from another program), nothing is pasted; copy the area again.
 
 ## Move, change and delete it
 

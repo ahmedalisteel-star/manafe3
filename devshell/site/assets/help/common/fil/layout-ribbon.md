@@ -43,7 +43,7 @@ Pinapanatili ng kaliwa at kanang panel ang lahat ng inilarawan sa [Ayusin ang mg
 
 ## Bumalik sa classic layout
 
-Buksan ang {{ui:Mga setting}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} at piliin ang {{ui:CadCraft classic}}. Babalik ang bawat toolbar, tab at panel sa dating lugar.
+Buksan ang {{ui:Mga setting}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} at piliin ang {{ui:Classic}}. Babalik ang bawat toolbar, tab at panel sa dating lugar.
 
 :::note
 Sa phone, o sa window na 760 pixels ang lapad o mas makitid, ginagamit ng app ang phone layout anuman ang pinili mo. Ibinabalik ng mas malapad na window ang layout mo.

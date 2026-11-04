@@ -41,4 +41,4 @@ Du er frakoblet nå. Hvis denne appen ble lagret for frakoblet bruk, fungerer al
 Safari fjerner lagrede nettstedsdata fra nettsteder du ikke har besøkt på flere uker. Åpne appen nå og da mens du er tilkoblet, eller lagre den på nytt før en reise.
 :::
 
-- CadCraft Studio, skrivebordsappen med alle de åtte appene i én installasjon, finnes på getcadcraft.com/download.
+- Manafe3 Desktop, skrivebordsappen med alle de åtte appene i én installasjon, finnes på getcadcraft.com/download.

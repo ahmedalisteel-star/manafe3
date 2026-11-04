@@ -1,11 +1,11 @@
 ---
-title: Prvi koraci s DetailCraftom
-summary: Što DetailCraft danas radi, kako ga otvoriti i prvi model od mreža do radioničkog crteža za deset minuta.
+title: Prvi koraci s Manafe3om
+summary: Što Manafe3 danas radi, kako ga otvoriti i prvi model od mreža do radioničkog crteža za deset minuta.
 keywords: početak, prvi model, uvod, detaljiranje čelika, armatura, brzi početak, vodič, pregled
 from: 3682c0d8
 ---
 
-DetailCraft je aplikacija za detaljiranje čelika i armature iz obitelji CadCraft. Gradite 3D model čelične okvirne konstrukcije na mrežama i razinama, povezujete ga i dobivate ono što treba radionici: oznake dijelova i sklopova, sastavnicu, radioničke crteže pojedinačnih dijelova, DSTV NC datoteke, IFC model i plan savijanja za temelje.
+Manafe3 je aplikacija za detaljiranje čelika i armature iz obitelji Manafe3. Gradite 3D model čelične okvirne konstrukcije na mrežama i razinama, povezujete ga i dobivate ono što treba radionici: oznake dijelova i sklopova, sastavnicu, radioničke crteže pojedinačnih dijelova, DSTV NC datoteke, IFC model i plan savijanja za temelje.
 
 Ovo je rana verzija. Pažljivo radi kratak popis stvari umjesto svega odjednom. Pročitajte [Što još nije izrađeno](topic:not-built-yet) prije nego oko nje planirate pravi posao.
 
@@ -19,24 +19,24 @@ Ovo je rana verzija. Pažljivo radi kratak popis stvari umjesto svega odjednom. 
 - Oznake dijelova i sklopova koje se same ažuriraju nakon svake promjene.
 - Izvoze: IFC4, DSTV NC datoteke (I-profili i ploče), sastavnicu kao CSV, plan savijanja kao CSV i PDF radioničkog crteža jednog dijela.
 
-## Otvaranje DetailCrafta
+## Otvaranje Manafe3a
 
-1. Otvorite DetailCraft u pregledniku za računalo: Chrome, Edge, Firefox ili Safari. Vidi [Preglednici i računala](common:browsers).
+1. Otvorite Manafe3 u pregledniku za računalo: Chrome, Edge, Firefox ili Safari. Vidi [Preglednici i računala](common:browsers).
 2. Pričekajte da se zaslon popuni. Statusna traka pri dnu kaže „Spremno. Otvorite Primjer ili zadajte mreže i razine i počnite postavljati štapove.“
 
 Prikaz modela treba 3D grafiku (WebGL). Ako sredina zaslona kaže „Ovaj preglednik nije mogao pokrenuti 3D grafiku (WebGL)“, vidi [Rješavanje problema](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Vaši modeli ostaju na vašem računalu. Otvaranje modela čita ga u pregledniku, a spremanje preuzima datoteku. Ništa se ne učitava. Spremanje u oblaku još nije dostupno. Vidi [Kamo idu vaše datoteke](common:your-files). Da DetailCraft kasnije koristite bez veze, jednom dok ste online odaberite {{ui:Spremi za offline}} na traci aplikacije; vidi [Rad offline](common:offline).
+Vaši modeli ostaju na vašem računalu. Otvaranje modela čita ga u pregledniku, a spremanje preuzima datoteku. Ništa se ne učitava. Spremanje u oblaku još nije dostupno. Vidi [Kamo idu vaše datoteke](common:your-files). Da Manafe3 kasnije koristite bez veze, jednom dok ste online odaberite {{ui:Spremi za offline}} na traci aplikacije; vidi [Rad offline](common:offline).
 :::
 
 :::offline
-Offline ste. DetailCraft radi bez veze samo ako je prije toga spremljen za offline uporabu: gumb {{ui:Spremi za offline}} na traci aplikacije tada glasi {{ui:Spremno za offline}}. Vidi [Rad offline](common:offline).
+Offline ste. Manafe3 radi bez veze samo ako je prije toga spremljen za offline uporabu: gumb {{ui:Spremi za offline}} na traci aplikacije tada glasi {{ui:Spremno za offline}}. Vidi [Rad offline](common:offline).
 :::
 
 ## Prvo pogledajte primjer
 
-Najbrži način da vidite što DetailCraft izrađuje je primjer okvira.
+Najbrži način da vidite što Manafe3 izrađuje je primjer okvira.
 
 1. Odaberite {{ui:Primjer}} u skupini {{ui:Datoteka}} na alatnoj traci.
 2. Prikaz pokazuje okvir s dva polja: šest stupova s podložnim pločama, četiri grede s čeonim pločama, jedan spreg i sedam temelja s armaturom.
@@ -49,7 +49,7 @@ Vodič [Razgledavanje primjera okvira](topic:sample-model) prolazi kroz njega di
 
 Novi model već ima mreže 1 do 3 sa A do B na 6000 mm i dvije razine, Razinu 1 na 0 i Razinu 2 na 4000.
 
-1. Odaberite {{ui:Novo}}. Ako trenutni model ima promjena, DetailCraft pita želite li ih prvo spremiti.
+1. Odaberite {{ui:Novo}}. Ako trenutni model ima promjena, Manafe3 pita želite li ih prvo spremiti.
 2. Odaberite {{ui:Tlocrt}} iznad prikaza. Popis razina pored njega bira Razinu 1.
 3. Odaberite {{ui:Stup}} na alatnoj traci ili pritisnite {{key:C}}.
 4. Kliknite sjecište mreža A/1. Pojavljuje se stup W12x50 od Razine 1 do Razine 2. Statusna traka kaže kamo je otišao.

@@ -35,8 +35,8 @@ A hidden phase is not drawn in the view, cannot be clicked or caught by a select
 
 With **Number marks per phase** on (it starts on) and parts in more than one phase, each phase is numbered on its own and its marks start with the phase number: part marks 1-b1, 2-b1, assembly marks 2-B1, footings 2-F1. Two identical beams in different phases then have different marks, because they are made and shipped at different times. With one phase in use, marks have no prefix. Turn it off to number the whole model as one, so identical pieces share a mark whatever their phase.
 
-The phase is written into the IFC export (property set DetailCraft, Phase).
+The phase is written into the IFC export (property set Manafe3, Phase).
 
 :::note
-Models with phases are saved in DetailCraft's file format 2. The 0.3 release of DetailCraft cannot open them; this one opens older files, with every part in phase 1.
+Models with phases are saved in Manafe3's file format 2. The 0.3 release of Manafe3 cannot open them; this one opens older files, with every part in phase 1.
 :::

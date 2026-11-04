@@ -1,17 +1,17 @@
 ---
 title: En omvisning i skjermen
-summary: Hver linje, hvert panel og hver fane i DetailCraft ved navnet på skjermen, og hva hver av dem er til for.
+summary: Hver linje, hvert panel og hver fane i Manafe3 ved navnet på skjermen, og hva hver av dem er til for.
 keywords: skjerm, oppsett, verktøylinje, paneler, egenskaper, statuslinje, rapporter, grensesnitt, brukergrensesnitt, faner
 from: 454f74fd
 ---
 
-DetailCraft fyller nettleservinduet under appfeltet. Ovenfra og ned: verktøylinjen, deretter tre kolonner (panelet {{ui:Modell}}, visningen, panelet {{ui:Egenskaper}}), deretter rapportfanene, deretter statuslinjen.
+Manafe3 fyller nettleservinduet under appfeltet. Ovenfra og ned: verktøylinjen, deretter tre kolonner (panelet {{ui:Modell}}, visningen, panelet {{ui:Egenskaper}}), deretter rapportfanene, deretter statuslinjen.
 
 ## Appfeltet
 
-Den slanke linjen helt øverst tilhører CadCraft-nettstedet, ikke modellen. Den viser appnavnet og versjonen, en lenke til {{ui:Om DetailCraft}}, {{ui:Hjelp}} (eller {{key:F1}}) for denne hjelpen, {{ui:Lagre for frakoblet bruk}}, skjermmodusknappen og bryteren {{ui:Papir}} / {{ui:Modell}}.
+Den slanke linjen helt øverst tilhører Manafe3-nettstedet, ikke modellen. Den viser appnavnet og versjonen, en lenke til {{ui:Om Manafe3}}, {{ui:Hjelp}} (eller {{key:F1}}) for denne hjelpen, {{ui:Lagre for frakoblet bruk}}, skjermmodusknappen og bryteren {{ui:Papir}} / {{ui:Modell}}.
 
-- {{ui:Lagre for frakoblet bruk}} beholder DetailCraft, 3D-visningen og denne hjelpen i nettleseren din slik at den åpnes uten forbindelse. Den sier {{ui:Klar frakoblet}} når den er lagret; klikk den da for {{ui:Lagre på nytt (hent nyeste versjon)}} eller {{ui:Fjern den frakoblede kopien}}. Se [Arbeide frakoblet](common:offline).
+- {{ui:Lagre for frakoblet bruk}} beholder Manafe3, 3D-visningen og denne hjelpen i nettleseren din slik at den åpnes uten forbindelse. Den sier {{ui:Klar frakoblet}} når den er lagret; klikk den da for {{ui:Lagre på nytt (hent nyeste versjon)}} eller {{ui:Fjern den frakoblede kopien}}. Se [Arbeide frakoblet](common:offline).
 - {{ui:Papir}} gir en lys skjerm og {{ui:Modell}} en mørk. 3D-visningen følger med en gang; ingenting i modellen din endres.
 - Skjermmodusknappen og {{key:Ctrl+Shift+F}} bytter mellom normal, fullskjerm og fullskjerm med linjene skjult. {{key:Ctrl+Shift+F}} bruker Control-tasten på alle datamaskiner, også en Mac. Med linjene skjult peker du på toppkanten av skjermen (eller trykker der) for å få dem tilbake. {{key:Esc}} forlater fullskjerm.
 
@@ -70,7 +70,7 @@ Tallfelt trer i kraft når du trykker {{key:Enter}} eller forlater feltet. Hver 
 
 ## Rapportfanene (nederst)
 
-- {{ui:Problemer}}: alt DetailCraft ikke kunne bygge eller vil at du skal kontrollere, med en knapp {{ui:Velg}} på hver linje. Fanen viser antallet i parentes.
+- {{ui:Problemer}}: alt Manafe3 ikke kunne bygge eller vil at du skal kontrollere, med en knapp {{ui:Velg}} på hver linje. Fanen viser antallet i parentes.
 - {{ui:Stykkliste}}: deler, sammenstillinger, og bolter og ankerstenger, med vekter og en lenke {{ui:Last ned CSV}}. Klikk et delenummer for å velge den delen.
 - {{ui:Bøyeliste}}: hvert stangnummer i hvert fundament, med en lenke {{ui:Last ned CSV}}.
 
@@ -84,4 +84,4 @@ Nettleserfanens tittel begynner med en prikk (•) mens modellen har endringer d
 
 ## På en smal skjerm
 
-Under omtrent 760 piksler bredde stables kolonnene: verktøylinje, visning, statuslinje, {{ui:Egenskaper}}, rapportfaner og til slutt panelet {{ui:Modell}}. Rull siden for å nå dem. DetailCraft er lagt ut for en stasjonær eller bærbar skjerm; en telefon fungerer for å se, ikke for å detaljere.
+Under omtrent 760 piksler bredde stables kolonnene: verktøylinje, visning, statuslinje, {{ui:Egenskaper}}, rapportfaner og til slutt panelet {{ui:Modell}}. Rull siden for å nå dem. Manafe3 er lagt ut for en stasjonær eller bærbar skjerm; en telefon fungerer for å se, ikke for å detaljere.

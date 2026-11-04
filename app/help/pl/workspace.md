@@ -1,17 +1,17 @@
 ---
 title: Przegląd ekranu
-summary: Każdy pasek, panel i karta w DetailCraft pod nazwą z ekranu oraz to, do czego służą.
+summary: Każdy pasek, panel i karta w Manafe3 pod nazwą z ekranu oraz to, do czego służą.
 keywords: ekran, układ, pasek narzędzi, panele, właściwości, pasek stanu, raporty, interfejs, karty
 from: 454f74fd
 ---
 
-DetailCraft wypełnia okno przeglądarki pod paskiem aplikacji. Od góry do dołu: pasek narzędzi, potem trzy kolumny (panel {{ui:Model}}, widok, panel {{ui:Właściwości}}), potem karty raportów, potem pasek stanu.
+Manafe3 wypełnia okno przeglądarki pod paskiem aplikacji. Od góry do dołu: pasek narzędzi, potem trzy kolumny (panel {{ui:Model}}, widok, panel {{ui:Właściwości}}), potem karty raportów, potem pasek stanu.
 
 ## Pasek aplikacji
 
-Wąski pasek na samej górze należy do witryny CadCraft, nie do modelu. Pokazuje nazwę i wersję aplikacji, odsyłacz {{ui:O DetailCraft}}, {{ui:Pomoc}} (albo {{key:F1}}) dla tej pomocy, {{ui:Zapisz do pracy offline}}, przycisk trybu ekranu i przełącznik {{ui:Papier}} / {{ui:Model}}.
+Wąski pasek na samej górze należy do witryny Manafe3, nie do modelu. Pokazuje nazwę i wersję aplikacji, odsyłacz {{ui:O Manafe3}}, {{ui:Pomoc}} (albo {{key:F1}}) dla tej pomocy, {{ui:Zapisz do pracy offline}}, przycisk trybu ekranu i przełącznik {{ui:Papier}} / {{ui:Model}}.
 
-- {{ui:Zapisz do pracy offline}} zachowuje w przeglądarce DetailCraft, jego widok 3D i tę pomoc, żeby otwierał się bez połączenia. Po zapisie pokazuje {{ui:Gotowe offline}}; naciśnij go wtedy, aby użyć {{ui:Zapisz ponownie (pobierz najnowszą wersję)}} lub {{ui:Usuń kopię offline}}. Zobacz [Praca offline](common:offline).
+- {{ui:Zapisz do pracy offline}} zachowuje w przeglądarce Manafe3, jego widok 3D i tę pomoc, żeby otwierał się bez połączenia. Po zapisie pokazuje {{ui:Gotowe offline}}; naciśnij go wtedy, aby użyć {{ui:Zapisz ponownie (pobierz najnowszą wersję)}} lub {{ui:Usuń kopię offline}}. Zobacz [Praca offline](common:offline).
 - {{ui:Papier}} daje jasny ekran, a {{ui:Model}} ciemny. Widok 3D podąża od razu; nic w modelu się nie zmienia.
 - Przycisk trybu ekranu i {{key:Ctrl+Shift+F}} przełączają tryby: normalny, pełny ekran i pełny ekran z ukrytymi paskami. {{key:Ctrl+Shift+F}} używa klawisza Control na każdym komputerze, także na Macu. Przy ukrytych paskach wskaż górną krawędź ekranu (albo dotknij jej), aby je przywrócić. {{key:Esc}} opuszcza pełny ekran.
 
@@ -70,7 +70,7 @@ Pola liczbowe działają po naciśnięciu {{key:Enter}} lub opuszczeniu pola. Ka
 
 ## Karty raportów (na dole)
 
-- {{ui:Problemy}}: wszystko, czego DetailCraft nie mógł zbudować albo co chce, abyś sprawdził, z przyciskiem {{ui:Zaznacz}} w każdym wierszu. Karta pokazuje liczbę w nawiasach.
+- {{ui:Problemy}}: wszystko, czego Manafe3 nie mógł zbudować albo co chce, abyś sprawdził, z przyciskiem {{ui:Zaznacz}} w każdym wierszu. Karta pokazuje liczbę w nawiasach.
 - {{ui:Zestawienie materiałów}}: części, zespoły oraz śruby i pręty kotwiące, z masami i odsyłaczem {{ui:Pobierz CSV}}. Naciśnij znacznik części, aby zaznaczyć tę część.
 - {{ui:Zestawienie gięcia}}: każdy znacznik pręta w każdej ławie, z odsyłaczem {{ui:Pobierz CSV}}.
 
@@ -84,4 +84,4 @@ Tytuł karty przeglądarki zaczyna się kropką (•), gdy model ma niezapisane 
 
 ## Na wąskim ekranie
 
-Poniżej około 760 pikseli szerokości kolumny układają się jedna pod drugą: pasek narzędzi, widok, pasek stanu, {{ui:Właściwości}}, karty raportów, a na końcu panel {{ui:Model}}. Przewijaj stronę, aby do nich dotrzeć. DetailCraft jest ułożony pod ekran komputera stacjonarnego lub laptopa; telefon nadaje się do oglądania, nie do detalowania.
+Poniżej około 760 pikseli szerokości kolumny układają się jedna pod drugą: pasek narzędzi, widok, pasek stanu, {{ui:Właściwości}}, karty raportów, a na końcu panel {{ui:Model}}. Przewijaj stronę, aby do nich dotrzeć. Manafe3 jest ułożony pod ekran komputera stacjonarnego lub laptopa; telefon nadaje się do oglądania, nie do detalowania.

@@ -42,7 +42,7 @@ Um einen Bereich aus der Gruppe zu nehmen, wählen Sie im {{ui:⋯}}-Menü des B
 
 ## Die Anzahl der Zeilen der Symbolleiste wählen
 
-{{ui:Einstellungen}} › {{ui:Allgemein}} › {{ui:Symbolleistenzeilen}} hat drei Auswahlmöglichkeiten. {{ui:Umbrechen}} ist die Voreinstellung: Jede Werkzeuggruppe wird angezeigt, auf so vielen Zeilen, wie sie braucht. {{ui:2 Zeilen}} hält die Symbolleiste auf zwei Zeilen und {{ui:1 Zeile}} auf einer, damit die Zeichnung mehr Höhe bekommt. Die Gruppen, die nicht hineinpassen, lassen sich innerhalb der Symbolleiste seitlich scrollen (mit dem Mausrad, mit einer Zwei-Finger-Wischbewegung oder mit {{key:Tab}} bis zu einem Werkzeug). Eine Symbolleiste, die schon in zwei Zeilen passt, bleibt bei {{ui:2 Zeilen}} unverändert, weil ein Raster sie nur höher machen würde. Die Auswahl wird für jede App gespeichert. Ein Touchscreen und ein Telefon behalten ihr eigenes Layout. CadCraft hat eine eigene Einstellung für seine Symbolleiste unter {{ui:Einstellungen}} › {{ui:CadCraft}}.
+{{ui:Einstellungen}} › {{ui:Allgemein}} › {{ui:Symbolleistenzeilen}} hat drei Auswahlmöglichkeiten. {{ui:Umbrechen}} ist die Voreinstellung: Jede Werkzeuggruppe wird angezeigt, auf so vielen Zeilen, wie sie braucht. {{ui:2 Zeilen}} hält die Symbolleiste auf zwei Zeilen und {{ui:1 Zeile}} auf einer, damit die Zeichnung mehr Höhe bekommt. Die Gruppen, die nicht hineinpassen, lassen sich innerhalb der Symbolleiste seitlich scrollen (mit dem Mausrad, mit einer Zwei-Finger-Wischbewegung oder mit {{key:Tab}} bis zu einem Werkzeug). Eine Symbolleiste, die schon in zwei Zeilen passt, bleibt bei {{ui:2 Zeilen}} unverändert, weil ein Raster sie nur höher machen würde. Die Auswahl wird für jede App gespeichert. Ein Touchscreen und ein Telefon behalten ihr eigenes Layout. Manafe3 hat eine eigene Einstellung für seine Symbolleiste unter {{ui:Einstellungen}} › {{ui:Manafe3}}.
 
 ## Die Tastatur verwenden
 
@@ -82,7 +82,7 @@ Jeder Dialog lässt sich aus dem Weg der Zeichnung verschieben: Drücken Sie auf
 
 Auf einem Telefon bleiben Dialogfelder vollbreite Ansichten und werden nicht verschoben.
 
-In CadCraft Studio hat der Dialog {{ui:Als PDF plotten}} von CadCraft, den Sie beim Arbeiten geöffnet lassen können, in seiner Titelleiste eine Schaltfläche {{ui:In eigenem Fenster öffnen}}. Der Dialog wechselt in ein eigenes Fenster, das Sie auf einen anderen Monitor legen können. Wenn Sie den Dialog schließen, schließt sich das Fenster, und wenn Sie das Fenster schließen, schließt sich der Dialog.
+In Manafe3 Desktop hat der Dialog {{ui:Als PDF plotten}} von Manafe3, den Sie beim Arbeiten geöffnet lassen können, in seiner Titelleiste eine Schaltfläche {{ui:In eigenem Fenster öffnen}}. Der Dialog wechselt in ein eigenes Fenster, das Sie auf einen anderen Monitor legen können. Wenn Sie den Dialog schließen, schließt sich das Fenster, und wenn Sie das Fenster schließen, schließt sich der Dialog.
 
 ## Die Bereiche zurücksetzen
 

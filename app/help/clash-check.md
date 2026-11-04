@@ -6,7 +6,7 @@ order: 48
 keywords: clash, clash check, collision, interference, overlap, intersect, hard clash, coordination, check model
 ---
 
-Open the {{ui:Clashes}} tab under the view and choose {{ui:Check now}}. DetailCraft looks at every pair of parts in the phases shown: steel into steel, and steel into a footing. The tab lists each clash, the deepest first, with:
+Open the {{ui:Clashes}} tab under the view and choose {{ui:Check now}}. Manafe3 looks at every pair of parts in the phases shown: steel into steel, and steel into a footing. The tab lists each clash, the deepest first, with:
 
 - the two parts, by part mark (or footing mark) and profile;
 - **Overlap (mm)**: how far a point of one part is inside the other, up to the nearest face;

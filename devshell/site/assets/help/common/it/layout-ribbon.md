@@ -43,7 +43,7 @@ I pannelli sinistro e destro mantengono tutto ciò che è descritto in [Disporre
 
 ## Tornare al layout classico
 
-Aprire {{ui:Impostazioni}} › {{ui:Globali}} › {{ui:Layout}} › {{ui:Area di lavoro}} e scegliere {{ui:CadCraft classico}}. Ogni barra degli strumenti, scheda e pannello torna dov'era.
+Aprire {{ui:Impostazioni}} › {{ui:Globali}} › {{ui:Layout}} › {{ui:Area di lavoro}} e scegliere {{ui:Classico}}. Ogni barra degli strumenti, scheda e pannello torna dov'era.
 
 :::note
 Su un telefono, o in una finestra larga 760 pixel o meno, l'app usa il layout per telefono qualunque cosa sia stata scelta. Una finestra più larga ripristina il layout scelto.

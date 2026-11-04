@@ -1,17 +1,17 @@
 ---
 title: Um tour pela tela
-summary: Cada barra, painel e guia do DetailCraft pelo nome que aparece na tela e para que serve cada um.
+summary: Cada barra, painel e guia do Manafe3 pelo nome que aparece na tela e para que serve cada um.
 keywords: tela, layout, barra de ferramentas, painéis, propriedades, barra de status, relatórios, interface, ui, guias
 from: 454f74fd
 ---
 
-O DetailCraft ocupa a janela do navegador abaixo da barra do aplicativo. De cima para baixo: a barra de ferramentas, depois três colunas (o painel {{ui:Modelo}}, a vista, o painel {{ui:Propriedades}}), depois as guias de relatório e a barra de status.
+O Manafe3 ocupa a janela do navegador abaixo da barra do aplicativo. De cima para baixo: a barra de ferramentas, depois três colunas (o painel {{ui:Modelo}}, a vista, o painel {{ui:Propriedades}}), depois as guias de relatório e a barra de status.
 
 ## A barra do aplicativo
 
-A barra fina no topo pertence ao site do CadCraft, não ao modelo. Ela mostra o nome e a versão do aplicativo, um link para {{ui:Sobre o DetailCraft}}, {{ui:Ajuda}} (ou {{key:F1}}) para esta ajuda, {{ui:Salvar para uso offline}}, o botão de modo de tela e a chave {{ui:Papel}} / {{ui:Modelo}}.
+A barra fina no topo pertence ao site do Manafe3, não ao modelo. Ela mostra o nome e a versão do aplicativo, um link para {{ui:Sobre o Manafe3}}, {{ui:Ajuda}} (ou {{key:F1}}) para esta ajuda, {{ui:Salvar para uso offline}}, o botão de modo de tela e a chave {{ui:Papel}} / {{ui:Modelo}}.
 
-- {{ui:Salvar para uso offline}} guarda o DetailCraft, sua vista 3D e esta ajuda no navegador para que abra sem conexão. Depois de salvo, o botão mostra {{ui:Pronto para uso offline}}; clique nele então para {{ui:Salvar de novo (obter a versão mais recente)}} ou {{ui:Remover a cópia offline}}. Veja [Trabalhar offline](common:offline).
+- {{ui:Salvar para uso offline}} guarda o Manafe3, sua vista 3D e esta ajuda no navegador para que abra sem conexão. Depois de salvo, o botão mostra {{ui:Pronto para uso offline}}; clique nele então para {{ui:Salvar de novo (obter a versão mais recente)}} ou {{ui:Remover a cópia offline}}. Veja [Trabalhar offline](common:offline).
 - {{ui:Papel}} dá uma tela clara e {{ui:Modelo}} uma escura. A vista 3D acompanha na hora; nada no seu modelo muda.
 - O botão de modo de tela e {{key:Ctrl+Shift+F}} alternam entre normal, tela cheia e tela cheia com as barras ocultas. {{key:Ctrl+Shift+F}} usa a tecla Control em todos os computadores, inclusive no Mac. Com as barras ocultas, aponte para a borda superior da tela (ou toque nela) para trazê-las de volta. {{key:Esc}} sai da tela cheia.
 
@@ -70,7 +70,7 @@ Os campos numéricos têm efeito quando você pressiona {{key:Enter}} ou sai do 
 
 ## As guias de relatório (embaixo)
 
-- {{ui:Problemas}}: tudo que o DetailCraft não conseguiu construir ou quer que você confira, com um botão {{ui:Selecionar}} em cada linha. A guia mostra a contagem entre parênteses.
+- {{ui:Problemas}}: tudo que o Manafe3 não conseguiu construir ou quer que você confira, com um botão {{ui:Selecionar}} em cada linha. A guia mostra a contagem entre parênteses.
 - {{ui:Lista de materiais}}: peças, conjuntos, parafusos e chumbadores, com pesos e um link {{ui:Baixar CSV}}. Clique em uma posição de peça para selecionar essa peça.
 - {{ui:Tabela de dobramento}}: cada posição de barra em cada sapata, com um link {{ui:Baixar CSV}}.
 
@@ -84,4 +84,4 @@ O título da guia do navegador começa com um ponto (•) enquanto o modelo tem 
 
 ## Em uma tela estreita
 
-Abaixo de cerca de 760 pixels de largura, as colunas se empilham: barra de ferramentas, vista, barra de status, {{ui:Propriedades}}, guias de relatório e, por último, o painel {{ui:Modelo}}. Role a página para alcançá-los. O DetailCraft foi pensado para a tela de um computador de mesa ou notebook; um celular serve para olhar, não para detalhar.
+Abaixo de cerca de 760 pixels de largura, as colunas se empilham: barra de ferramentas, vista, barra de status, {{ui:Propriedades}}, guias de relatório e, por último, o painel {{ui:Modelo}}. Role a página para alcançá-los. O Manafe3 foi pensado para a tela de um computador de mesa ou notebook; um celular serve para olhar, não para detalhar.

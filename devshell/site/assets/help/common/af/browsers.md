@@ -54,7 +54,7 @@ Ons lees hierdie uit die kode van die 0.7-programme, nie uit 'n raaiskoot nie: e
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS en iOS 16.4) |
 
-CadCraft Studio dra sy eie webenjin op Windows, so dit benodig Windows 10 of 11; op 'n Mac gebruik dit die stelsel s'n, so dit benodig macOS 13.3 of later. Instellings › Opdaterings in Studio wys wat jou kopie op loop.
+Manafe3 Desktop dra sy eie webenjin op Windows, so dit benodig Windows 10 of 11; op 'n Mac gebruik dit die stelsel s'n, so dit benodig macOS 13.3 of later. Instellings › Opdaterings in Studio wys wat jou kopie op loop.
 
 Dit is die oudste weergawe wat *begin*, uit die kode gelees. Dit is nie 'n lys van ou blaaiers waarin ons die programme gedraai het nie, so 'n ouer een wat begin, kan steeds 'n kenmerk mis.
 

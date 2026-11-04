@@ -1,17 +1,17 @@
 ---
 title: En rundvisning på skærmen
-summary: Hver linje, hvert panel og hver fane i DetailCraft ved deres navn på skærmen, og hvad hver af dem er til.
+summary: Hver linje, hvert panel og hver fane i Manafe3 ved deres navn på skærmen, og hvad hver af dem er til.
 keywords: skærm, layout, værktøjslinje, paneler, egenskaber, statuslinje, rapporter, brugerflade, ui, faner
 from: 454f74fd
 ---
 
-DetailCraft fylder browservinduet under appfeltet. Oppefra og ned: værktøjslinjen, derefter tre kolonner (panelet {{ui:Model}}, visningen, panelet {{ui:Egenskaber}}), derefter rapportfanerne, derefter statuslinjen.
+Manafe3 fylder browservinduet under appfeltet. Oppefra og ned: værktøjslinjen, derefter tre kolonner (panelet {{ui:Model}}, visningen, panelet {{ui:Egenskaber}}), derefter rapportfanerne, derefter statuslinjen.
 
 ## Appfeltet
 
-Den slanke linje helt øverst hører til CadCraft-webstedet, ikke til modellen. Den viser appens navn og version, et link til {{ui:Om DetailCraft}}, {{ui:Hjælp}} (eller {{key:F1}}) til denne hjælp, {{ui:Gem til offline brug}}, skærmtilstandsknappen og kontakten {{ui:Papir}} / {{ui:Model}}.
+Den slanke linje helt øverst hører til Manafe3-webstedet, ikke til modellen. Den viser appens navn og version, et link til {{ui:Om Manafe3}}, {{ui:Hjælp}} (eller {{key:F1}}) til denne hjælp, {{ui:Gem til offline brug}}, skærmtilstandsknappen og kontakten {{ui:Papir}} / {{ui:Model}}.
 
-- {{ui:Gem til offline brug}} beholder DetailCraft, dens 3D-visning og denne hjælp i din browser, så den åbnes uden forbindelse. Den siger {{ui:Klar offline}}, når den er gemt; klik på den da for {{ui:Gem igen (hent den nyeste version)}} eller {{ui:Fjern offlinekopien}}. Se [Arbejd offline](common:offline).
+- {{ui:Gem til offline brug}} beholder Manafe3, dens 3D-visning og denne hjælp i din browser, så den åbnes uden forbindelse. Den siger {{ui:Klar offline}}, når den er gemt; klik på den da for {{ui:Gem igen (hent den nyeste version)}} eller {{ui:Fjern offlinekopien}}. Se [Arbejd offline](common:offline).
 - {{ui:Papir}} giver en lys skærm og {{ui:Model}} en mørk. 3D-visningen følger med det samme; intet i din model ændrer sig.
 - Skærmtilstandsknappen og {{key:Ctrl+Shift+F}} skifter mellem normal, fuld skærm og fuld skærm med skjulte linjer. {{key:Ctrl+Shift+F}} bruger Control-tasten på alle computere, også Mac. Med skjulte linjer peger du på skærmens øverste kant (eller trykker dér) for at få dem tilbage. {{key:Esc}} forlader fuld skærm.
 
@@ -70,7 +70,7 @@ Talfelter træder i kraft, når du trykker på {{key:Enter}} eller forlader felt
 
 ## Rapportfanerne (nederst)
 
-- {{ui:Problemer}}: alt, DetailCraft ikke kunne bygge, eller vil have dig til at kontrollere, med en knap {{ui:Vælg}} på hver linje. Fanen viser antallet i parentes.
+- {{ui:Problemer}}: alt, Manafe3 ikke kunne bygge, eller vil have dig til at kontrollere, med en knap {{ui:Vælg}} på hver linje. Fanen viser antallet i parentes.
 - {{ui:Stykliste}}: dele, samlinger og bolte og ankerbolte, med vægte og et link {{ui:Download CSV}}. Klik på et positionsnummer for at markere den del.
 - {{ui:Bukkeliste}}: hvert jernmærke i hvert fundament, med et link {{ui:Download CSV}}.
 
@@ -84,4 +84,4 @@ Browserfanens titel begynder med en prik (•), mens modellen har ændringer, du
 
 ## På en smal skærm
 
-Under omkring 760 pixel i bredden stables kolonnerne: værktøjslinje, visning, statuslinje, {{ui:Egenskaber}}, rapportfaner og til sidst panelet {{ui:Model}}. Rul siden for at nå dem. DetailCraft er lagt ud til en skærm på en computer eller bærbar; en telefon duer til at kigge, ikke til at detaljere.
+Under omkring 760 pixel i bredden stables kolonnerne: værktøjslinje, visning, statuslinje, {{ui:Egenskaber}}, rapportfaner og til sidst panelet {{ui:Model}}. Rul siden for at nå dem. Manafe3 er lagt ud til en skærm på en computer eller bærbar; en telefon duer til at kigge, ikke til at detaljere.

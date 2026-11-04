@@ -1,17 +1,17 @@
 ---
 title: Un recorrido por la pantalla
-summary: Cada barra, panel y pestaña de DetailCraft con su nombre en pantalla, y para qué sirve cada uno.
+summary: Cada barra, panel y pestaña de Manafe3 con su nombre en pantalla, y para qué sirve cada uno.
 keywords: pantalla, disposición, barra de herramientas, paneles, propiedades, barra de estado, informes, interfaz, pestañas
 from: 454f74fd
 ---
 
-DetailCraft llena la ventana del navegador bajo la barra de la aplicación. De arriba abajo: la barra de herramientas, después tres columnas (el panel {{ui:Modelo}}, la vista, el panel {{ui:Propiedades}}), después las pestañas de informes y por último la barra de estado.
+Manafe3 llena la ventana del navegador bajo la barra de la aplicación. De arriba abajo: la barra de herramientas, después tres columnas (el panel {{ui:Modelo}}, la vista, el panel {{ui:Propiedades}}), después las pestañas de informes y por último la barra de estado.
 
 ## La barra de la aplicación
 
-La barra delgada de la parte superior del todo pertenece al sitio de CadCraft, no al modelo. Muestra el nombre y la versión de la aplicación, un enlace a {{ui:Acerca de DetailCraft}}, {{ui:Ayuda}} (o {{key:F1}}) para esta ayuda, {{ui:Guardar para uso sin conexión}}, el botón de modo de pantalla y el conmutador {{ui:Papel}} / {{ui:Modelo}}.
+La barra delgada de la parte superior del todo pertenece al sitio de Manafe3, no al modelo. Muestra el nombre y la versión de la aplicación, un enlace a {{ui:Acerca de Manafe3}}, {{ui:Ayuda}} (o {{key:F1}}) para esta ayuda, {{ui:Guardar para uso sin conexión}}, el botón de modo de pantalla y el conmutador {{ui:Papel}} / {{ui:Modelo}}.
 
-- {{ui:Guardar para uso sin conexión}} conserva DetailCraft, su vista 3D y esta ayuda en su navegador para que se abra sin conexión. Dice {{ui:Listo sin conexión}} una vez guardado; entonces, haga clic en él para {{ui:Guardar de nuevo (obtener la versión más reciente)}} o {{ui:Quitar la copia sin conexión}}. Consulte [Trabajar sin conexión](common:offline).
+- {{ui:Guardar para uso sin conexión}} conserva Manafe3, su vista 3D y esta ayuda en su navegador para que se abra sin conexión. Dice {{ui:Listo sin conexión}} una vez guardado; entonces, haga clic en él para {{ui:Guardar de nuevo (obtener la versión más reciente)}} o {{ui:Quitar la copia sin conexión}}. Consulte [Trabajar sin conexión](common:offline).
 - {{ui:Papel}} da una pantalla clara y {{ui:Modelo}} una oscura. La vista 3D la sigue al instante; nada de su modelo cambia.
 - El botón de modo de pantalla y {{key:Ctrl+Shift+F}} recorren normal, pantalla completa, y pantalla completa con las barras ocultas. {{key:Ctrl+Shift+F}} usa la tecla Ctrl en todos los ordenadores, también en Mac. Con las barras ocultas, apunte al borde superior de la pantalla (o púlselo) para recuperarlas. {{key:Esc}} sale de la pantalla completa.
 
@@ -70,7 +70,7 @@ Los campos numéricos surten efecto al pulsar {{key:Enter}} o al salir del campo
 
 ## Las pestañas de informes (abajo)
 
-- {{ui:Problemas}}: todo lo que DetailCraft no pudo construir o quiere que revise, con un botón {{ui:Seleccionar}} en cada línea. La pestaña muestra el recuento entre paréntesis.
+- {{ui:Problemas}}: todo lo que Manafe3 no pudo construir o quiere que revise, con un botón {{ui:Seleccionar}} en cada línea. La pestaña muestra el recuento entre paréntesis.
 - {{ui:Lista de materiales}}: piezas, conjuntos, y tornillos y pernos de anclaje, con pesos y un enlace {{ui:Descargar CSV}}. Haga clic en una marca de pieza para seleccionar esa pieza.
 - {{ui:Tabla de doblado}}: cada marca de barra de cada zapata, con un enlace {{ui:Descargar CSV}}.
 
@@ -84,4 +84,4 @@ El título de la pestaña del navegador empieza con un punto (•) mientras el m
 
 ## En una pantalla estrecha
 
-Por debajo de unos 760 píxeles de ancho, las columnas se apilan: barra de herramientas, vista, barra de estado, {{ui:Propiedades}}, pestañas de informes y, al final, el panel {{ui:Modelo}}. Desplace la página para llegar a ellas. DetailCraft está diseñado para una pantalla de ordenador de sobremesa o portátil; un móvil sirve para mirar, no para detallar.
+Por debajo de unos 760 píxeles de ancho, las columnas se apilan: barra de herramientas, vista, barra de estado, {{ui:Propiedades}}, pestañas de informes y, al final, el panel {{ui:Modelo}}. Desplace la página para llegar a ellas. Manafe3 está diseñado para una pantalla de ordenador de sobremesa o portátil; un móvil sirve para mirar, no para detallar.

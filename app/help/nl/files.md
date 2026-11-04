@@ -1,17 +1,17 @@
 ---
 title: Bestanden openen, opslaan en exporteren
-summary: Het DetailCraft-modelbestand, elke export die het schrijft, waar de bestanden heen gaan en wat verschilt per browser en verbinding.
+summary: Het Manafe3-modelbestand, elke export die het schrijft, waar de bestanden heen gaan en wat verschilt per browser en verbinding.
 keywords: openen, opslaan, exporteren, downloaden, bestand, json, ifc, nc1, dstv, csv, pdf, zip, formaten, importeren
 from: bd715ea3
 ---
 
-DetailCraft heeft één eigen bestand, het model, en vijf exports. Elke keer opslaan en elke export is een download. Er wordt niets geüpload en er wordt niets op een server bewaard.
+Manafe3 heeft één eigen bestand, het model, en vijf exports. Elke keer opslaan en elke export is een download. Er wordt niets geüpload en er wordt niets op een server bewaard.
 
 ## Het modelbestand
 
-Een DetailCraft-model wordt opgeslagen als `<naam>.detailcraft.json`, waarbij `<naam>` de modelnaam in het paneel {{ui:Model}} is. Het bevat de rasters, niveaus, staven (met hun gaten en coperingen), verbindingen en hun instellingen, funderingen en uw eigen profielen.
+Een Manafe3-model wordt opgeslagen als `<naam>.detailcraft.json`, waarbij `<naam>` de modelnaam in het paneel {{ui:Model}} is. Het bevat de rasters, niveaus, staven (met hun gaten en coperingen), verbindingen en hun instellingen, funderingen en uw eigen profielen.
 
-Onderdelen, merken, bouten, lassen en staven worden niet opgeslagen: DetailCraft rekent ze elke keer dat het opent opnieuw uit het model uit. Daarom is een modelbestand klein.
+Onderdelen, merken, bouten, lassen en staven worden niet opgeslagen: Manafe3 rekent ze elke keer dat het opent opnieuw uit het model uit. Daarom is een modelbestand klein.
 
 ### Opslaan
 
@@ -38,21 +38,21 @@ Safari slaat op in uw map Downloads. Om de map te wijzigen, opent u **Safari, In
 1. Kies {{ui:Openen}} in de groep {{ui:Bestand}}, of druk op {{key:Mod+O}}.
 2. Kies een `.detailcraft.json`-bestand.
 
-Of sleep het bestand uit {{pick:mac=Finder|windows=Verkenner|linux=uw bestandsbeheerder}} en zet het op de weergave neer. De weergave zegt "Zet een DetailCraft-model of een IFC-bestand hier neer om het te openen" terwijl u sleept.
+Of sleep het bestand uit {{pick:mac=Finder|windows=Verkenner|linux=uw bestandsbeheerder}} en zet het op de weergave neer. De weergave zegt "Zet een Manafe3-model of een IFC-bestand hier neer om het te openen" terwijl u sleept.
 
-Heeft het geopende model niet-opgeslagen wijzigingen, dan vraagt DetailCraft eerst: {{ui:Annuleren}}, {{ui:Wijzigingen weggooien}} of {{ui:Eerst opslaan}}.
+Heeft het geopende model niet-opgeslagen wijzigingen, dan vraagt Manafe3 eerst: {{ui:Annuleren}}, {{ui:Wijzigingen weggooien}} of {{ui:Eerst opslaan}}.
 
-DetailCraft controleert elk veld van een bestand voordat het het gebruikt. Alles wat het niet kan gebruiken, wordt weggelaten en de statusbalk zegt wat, bijvoorbeeld "2 staven waren niet geldig en zijn weggelaten." Een model dat door een nieuwere DetailCraft is opgeslagen, wordt met een melding geweigerd in plaats van half goed geopend.
+Manafe3 controleert elk veld van een bestand voordat het het gebruikt. Alles wat het niet kan gebruiken, wordt weggelaten en de statusbalk zegt wat, bijvoorbeeld "2 staven waren niet geldig en zijn weggelaten." Een model dat door een nieuwere Manafe3 is opgeslagen, wordt met een melding geweigerd in plaats van half goed geopend.
 
 ### Wat het opent
 
-Zijn eigen modelbestanden (`.json`, tot 50 MB) en IFC-bestanden (`.ifc`, IFC2X3 of IFC4, tot 200 MB). Een IFC-bestand, geopend of binnengehaald met {{ui:IFC importeren}}, wordt een nieuw model van zijn liggers, kolommen, staven, platen, rasters en niveaus, met de gaten en coperingen erin uitgesneden en zijn bouten als losse bouten; een rapport somt op wat is weggelaten. Zie [IFC-export](topic:ifc-export#import). Het opent nog geen DWG, DXF of het model van een ander detailleringsprogramma; proberen toont "DetailCraft opent zijn eigen modellen (.detailcraft.json) en IFC-bestanden (.ifc)."
+Zijn eigen modelbestanden (`.json`, tot 50 MB) en IFC-bestanden (`.ifc`, IFC2X3 of IFC4, tot 200 MB). Een IFC-bestand, geopend of binnengehaald met {{ui:IFC importeren}}, wordt een nieuw model van zijn liggers, kolommen, staven, platen, rasters en niveaus, met de gaten en coperingen erin uitgesneden en zijn bouten als losse bouten; een rapport somt op wat is weggelaten. Zie [IFC-export](topic:ifc-export#import). Het opent nog geen DWG, DXF of het model van een ander detailleringsprogramma; proberen toont "Manafe3 opent zijn eigen modellen (.detailcraft.json) en IFC-bestanden (.ifc)."
 
 ## Verloren werk, recente bestanden, de desktopapp
 
-- Zolang het model wijzigingen heeft die u niet hebt opgeslagen, bewaart DetailCraft een kopie in deze browser. Stopt het tabblad of de browser voordat u opslaat, dan vraagt DetailCraft de volgende keer dat u het opent **Uw werk herstellen?**: herstel de kopie, of laat haar gaan. Zie [Uw werk herstellen](common:recover).
-- Modellen die u onlangs hebt geopend, staan op het startscherm als de browser DetailCraft ze opnieuw laat openen; klik op een model om het opnieuw te openen.
-- In de desktopapp schrijft {{ui:Opslaan}} het model terug naar het bestand dat u hebt geopend (in de browser downloadt het een kopie), en dubbelklikken op een DetailCraft-model of IFC-bestand opent het in DetailCraft.
+- Zolang het model wijzigingen heeft die u niet hebt opgeslagen, bewaart Manafe3 een kopie in deze browser. Stopt het tabblad of de browser voordat u opslaat, dan vraagt Manafe3 de volgende keer dat u het opent **Uw werk herstellen?**: herstel de kopie, of laat haar gaan. Zie [Uw werk herstellen](common:recover).
+- Modellen die u onlangs hebt geopend, staan op het startscherm als de browser Manafe3 ze opnieuw laat openen; klik op een model om het opnieuw te openen.
+- In de desktopapp schrijft {{ui:Opslaan}} het model terug naar het bestand dat u hebt geopend (in de browser downloadt het een kopie), en dubbelklikken op een Manafe3-model of IFC-bestand opent het in Manafe3.
 
 ## Exports
 
@@ -79,13 +79,13 @@ Tekst in de pdf gebruikt het standaardlettertype Helvetica. Tekens die het niet 
 
 ## Eenheden
 
-DetailCraft werkt overal in millimeters: rasters, niveaus, coördinaten, profielen, gaten en elke export. Profielnamen behouden hun gepubliceerde vorm (W12x50 is een Amerikaanse aanduiding, ook al worden de afmetingen in mm getoond). Er is nog geen invoer in imperiale eenheden.
+Manafe3 werkt overal in millimeters: rasters, niveaus, coördinaten, profielen, gaten en elke export. Profielnamen behouden hun gepubliceerde vorm (W12x50 is een Amerikaanse aanduiding, ook al worden de afmetingen in mm getoond). Er is nog geen invoer in imperiale eenheden.
 
 ## Online en offline
 
-Openen, opslaan en exporteren gebeuren allemaal in uw browser, dus ze werken hetzelfde met of zonder verbinding zodra DetailCraft is geladen.
+Openen, opslaan en exporteren gebeuren allemaal in uw browser, dus ze werken hetzelfde met of zonder verbinding zodra Manafe3 is geladen.
 
-Om DetailCraft later zonder verbinding te gebruiken, kiest u terwijl u online bent {{ui:Opslaan voor offline gebruik}} in de appbalk. De knop telt op ("Opslaan 3 van 20") en toont daarna {{ui:Klaar voor offline gebruik}}. De opgeslagen kopie bevat de 3D-graphicsbibliotheek (circa 2,6 MB) en deze Help, dus zodra hij is opgeslagen werken de 3D-weergave, elke export en de Help allemaal offline. Details, en wat nog een verbinding nodig heeft: [Offline werken](common:offline).
+Om Manafe3 later zonder verbinding te gebruiken, kiest u terwijl u online bent {{ui:Opslaan voor offline gebruik}} in de appbalk. De knop telt op ("Opslaan 3 van 20") en toont daarna {{ui:Klaar voor offline gebruik}}. De opgeslagen kopie bevat de 3D-graphicsbibliotheek (circa 2,6 MB) en deze Help, dus zodra hij is opgeslagen werken de 3D-weergave, elke export en de Help allemaal offline. Details, en wat nog een verbinding nodig heeft: [Offline werken](common:offline).
 
 :::offline
 U bent offline. Toont de appbalk {{ui:Klaar voor offline gebruik}}, dan werken openen, opslaan en exporteren zoals gewoonlijk. Zo niet, houd dan dit tabblad open, laad het niet opnieuw totdat u weer online bent en sla uw model nu op.
@@ -95,4 +95,4 @@ Opslaan in de cloud is nog niet beschikbaar en er zijn nog geen desktopbuilds. M
 
 ## Niet-opgeslagen werk
 
-DetailCraft bewaart het model alleen in het geopende tabblad. Sluit of herlaadt u het tabblad met niet-opgeslagen wijzigingen, dan vraagt de browser of u de pagina wilt verlaten; de tekst is van de browser zelf. Sla vaak op met {{key:Mod+S}}.
+Manafe3 bewaart het model alleen in het geopende tabblad. Sluit of herlaadt u het tabblad met niet-opgeslagen wijzigingen, dan vraagt de browser of u de pagina wilt verlaten; de tekst is van de browser zelf. Sla vaak op met {{key:Mod+S}}.

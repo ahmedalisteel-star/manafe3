@@ -42,7 +42,7 @@ Pentru a scoate un panou din grup, alegeți {{ui:Move out of the tab group}} din
 
 ## Alegerea numărului de rânduri ale barei de instrumente
 
-{{ui:Setări}} › {{ui:General}} › {{ui:Rânduri ale barei de instrumente}} oferă trei opțiuni. {{ui:Încadrare}} este implicită: fiecare grup de instrumente apare, pe câte rânduri are nevoie. {{ui:2 rânduri}} păstrează bara de instrumente la două rânduri, iar {{ui:1 rând}} la unul, astfel încât desenul primește înălțime; grupurile care nu încap se derulează lateral în interiorul barei (folosiți rotița mouse-ului, un gest cu două degete sau {{key:Tab}} până la un instrument). O bară de instrumente care încape deja în două rânduri rămâne așa cum este la {{ui:2 rânduri}}, deoarece o grilă ar face-o doar mai înaltă. Alegerea se păstrează pentru fiecare aplicație. Un ecran tactil și un telefon își păstrează propriul aspect. CadCraft are propria setare pentru bara sa de instrumente, în {{ui:Setări}} › {{ui:CadCraft}}.
+{{ui:Setări}} › {{ui:General}} › {{ui:Rânduri ale barei de instrumente}} oferă trei opțiuni. {{ui:Încadrare}} este implicită: fiecare grup de instrumente apare, pe câte rânduri are nevoie. {{ui:2 rânduri}} păstrează bara de instrumente la două rânduri, iar {{ui:1 rând}} la unul, astfel încât desenul primește înălțime; grupurile care nu încap se derulează lateral în interiorul barei (folosiți rotița mouse-ului, un gest cu două degete sau {{key:Tab}} până la un instrument). O bară de instrumente care încape deja în două rânduri rămâne așa cum este la {{ui:2 rânduri}}, deoarece o grilă ar face-o doar mai înaltă. Alegerea se păstrează pentru fiecare aplicație. Un ecran tactil și un telefon își păstrează propriul aspect. Manafe3 are propria setare pentru bara sa de instrumente, în {{ui:Setări}} › {{ui:Manafe3}}.
 
 ## Utilizarea tastaturii
 
@@ -82,7 +82,7 @@ Din tastatură, apăsați {{key:Alt}}+{{key:Shift}}+o tastă săgeată cu focali
 
 Pe telefon, casetele de dialog rămân foi pe toată lățimea și nu se mută.
 
-În CadCraft Studio, caseta {{ui:Trasare în PDF}} a CadCraft, pe care o puteți lăsa deschisă cât lucrați, are un buton în bara de titlu: {{ui:Deschidere într-o fereastră proprie}}. Caseta se mută într-o fereastră proprie pe care o puteți pune pe alt monitor. Închiderea casetei închide fereastra, iar închiderea ferestrei închide caseta.
+În Manafe3 Desktop, caseta {{ui:Trasare în PDF}} a Manafe3, pe care o puteți lăsa deschisă cât lucrați, are un buton în bara de titlu: {{ui:Deschidere într-o fereastră proprie}}. Caseta se mută într-o fereastră proprie pe care o puteți pune pe alt monitor. Închiderea casetei închide fereastra, iar închiderea ferestrei închide caseta.
 
 ## Readucerea panourilor
 

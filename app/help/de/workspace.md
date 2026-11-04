@@ -1,17 +1,17 @@
 ---
 title: Ein Rundgang durch den Bildschirm
-summary: Jede Leiste, jeder Bereich und jede Registerkarte in DetailCraft mit ihrem Namen auf dem Bildschirm und wofür sie gut ist.
+summary: Jede Leiste, jeder Bereich und jede Registerkarte in Manafe3 mit ihrem Namen auf dem Bildschirm und wofür sie gut ist.
 from: 454f74fd
 keywords: Bildschirm, Layout, Symbolleiste, Bereiche, Eigenschaften, Statusleiste, Berichte, Oberfläche, UI, Registerkarten
 ---
 
-DetailCraft füllt das Browserfenster unterhalb der Anwendungsleiste. Von oben nach unten: die Symbolleiste, dann drei Spalten (der Bereich {{ui:Modell}}, die Ansicht, der Bereich {{ui:Eigenschaften}}), dann die Berichtsregisterkarten, dann die Statusleiste.
+Manafe3 füllt das Browserfenster unterhalb der Anwendungsleiste. Von oben nach unten: die Symbolleiste, dann drei Spalten (der Bereich {{ui:Modell}}, die Ansicht, der Bereich {{ui:Eigenschaften}}), dann die Berichtsregisterkarten, dann die Statusleiste.
 
 ## Die Anwendungsleiste
 
-Die schmale Leiste ganz oben gehört zur CadCraft-Website, nicht zum Modell. Sie zeigt App-Namen und Version, einen Link {{ui:Über DetailCraft}}, {{ui:Hilfe}} (oder {{key:F1}}) für diese Hilfe, {{ui:Für Offline speichern}}, die Schaltfläche für den Bildschirmmodus und den Schalter {{ui:Papier}} / {{ui:Modell}}.
+Die schmale Leiste ganz oben gehört zur Manafe3-Website, nicht zum Modell. Sie zeigt App-Namen und Version, einen Link {{ui:Über Manafe3}}, {{ui:Hilfe}} (oder {{key:F1}}) für diese Hilfe, {{ui:Für Offline speichern}}, die Schaltfläche für den Bildschirmmodus und den Schalter {{ui:Papier}} / {{ui:Modell}}.
 
-- {{ui:Für Offline speichern}} behält DetailCraft, seine 3D-Ansicht und diese Hilfe in Ihrem Browser, damit es ohne Verbindung startet. Nach dem Speichern zeigt die Schaltfläche {{ui:Offline bereit}}; ein Klick darauf bietet {{ui:Erneut speichern (neueste Version holen)}} oder {{ui:Offline-Kopie entfernen}}. Siehe [Offline arbeiten](common:offline).
+- {{ui:Für Offline speichern}} behält Manafe3, seine 3D-Ansicht und diese Hilfe in Ihrem Browser, damit es ohne Verbindung startet. Nach dem Speichern zeigt die Schaltfläche {{ui:Offline bereit}}; ein Klick darauf bietet {{ui:Erneut speichern (neueste Version holen)}} oder {{ui:Offline-Kopie entfernen}}. Siehe [Offline arbeiten](common:offline).
 - {{ui:Papier}} gibt einen hellen Bildschirm und {{ui:Modell}} einen dunklen. Die 3D-Ansicht folgt sofort; am Modell ändert sich nichts.
 - Die Schaltfläche für den Bildschirmmodus und {{key:Ctrl+Shift+F}} schalten zwischen Normalansicht, Vollbild und Vollbild mit ausgeblendeten Leisten um. {{key:Ctrl+Shift+F}} verwendet auf jedem Computer die Control-Taste, auch auf einem Mac. Bei ausgeblendeten Leisten zeigen Sie auf den oberen Bildschirmrand (oder tippen ihn an), um sie zurückzuholen. {{key:Esc}} beendet das Vollbild.
 
@@ -70,7 +70,7 @@ Zahlenfelder werden wirksam, wenn Sie {{key:Enter}} drücken oder das Feld verla
 
 ## Die Berichtsregisterkarten (unten)
 
-- {{ui:Probleme}}: alles, was DetailCraft nicht aufbauen konnte oder was Sie prüfen sollen, mit einer Schaltfläche {{ui:Wählen}} in jeder Zeile. Die Registerkarte zeigt die Anzahl in Klammern.
+- {{ui:Probleme}}: alles, was Manafe3 nicht aufbauen konnte oder was Sie prüfen sollen, mit einer Schaltfläche {{ui:Wählen}} in jeder Zeile. Die Registerkarte zeigt die Anzahl in Klammern.
 - {{ui:Stückliste}}: Bauteile, Baugruppen sowie Schrauben und Ankerstangen mit Gewichten und einem Link {{ui:CSV herunterladen}}. Klicken Sie auf eine Positionsnummer, um das Bauteil zu wählen.
 - {{ui:Biegeliste}}: jede Stabnummer in jedem Fundament, mit einem Link {{ui:CSV herunterladen}}.
 
@@ -84,4 +84,4 @@ Der Titel des Browser-Tabs beginnt mit einem Punkt (•), solange das Modell nic
 
 ## Auf einem schmalen Bildschirm
 
-Unterhalb von etwa 760 Pixeln Breite stapeln sich die Spalten: Symbolleiste, Ansicht, Statusleiste, {{ui:Eigenschaften}}, Berichtsregisterkarten und zuletzt der Bereich {{ui:Modell}}. Scrollen Sie die Seite, um sie zu erreichen. DetailCraft ist für einen Desktop- oder Laptop-Bildschirm ausgelegt; ein Telefon taugt zum Ansehen, nicht zum Detaillieren.
+Unterhalb von etwa 760 Pixeln Breite stapeln sich die Spalten: Symbolleiste, Ansicht, Statusleiste, {{ui:Eigenschaften}}, Berichtsregisterkarten und zuletzt der Bereich {{ui:Modell}}. Scrollen Sie die Seite, um sie zu erreichen. Manafe3 ist für einen Desktop- oder Laptop-Bildschirm ausgelegt; ein Telefon taugt zum Ansehen, nicht zum Detaillieren.

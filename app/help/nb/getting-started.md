@@ -1,11 +1,11 @@
 ---
-title: Kom i gang med DetailCraft
-summary: Hva DetailCraft gjør i dag, hvordan du åpner den, og en første modell fra rutenett til en verkstedtegning på ti minutter.
+title: Kom i gang med Manafe3
+summary: Hva Manafe3 gjør i dag, hvordan du åpner den, og en første modell fra rutenett til en verkstedtegning på ti minutter.
 keywords: start, første modell, innføring, ståldetaljering, armering, hurtigstart, veiledning, oversikt
 from: 3682c0d8
 ---
 
-DetailCraft er appen for detaljering av stål og armering i CadCraft-familien. Du bygger en 3D-modell av en stålramme på rutenett og nivåer, kobler den sammen, og får det verkstedet trenger: del- og sammenstillingsnumre, en stykkliste, verkstedtegninger av enkeltdeler, DSTV NC-filer, en IFC-modell og en bøyeliste for fundamentene.
+Manafe3 er appen for detaljering av stål og armering i Manafe3-familien. Du bygger en 3D-modell av en stålramme på rutenett og nivåer, kobler den sammen, og får det verkstedet trenger: del- og sammenstillingsnumre, en stykkliste, verkstedtegninger av enkeltdeler, DSTV NC-filer, en IFC-modell og en bøyeliste for fundamentene.
 
 Dette er et tidlig bygg. Det gjør en kort liste ting nøye i stedet for alt på en gang. Les [Hva som ikke er bygget ennå](topic:not-built-yet) før du planlegger virkelig arbeid rundt det.
 
@@ -19,24 +19,24 @@ Dette er et tidlig bygg. Det gjør en kort liste ting nøye i stedet for alt på
 - Del- og sammenstillingsnumre som oppdateres av seg selv etter hver endring.
 - Eksporter: IFC4, DSTV NC-filer (I-profiler og plater), stykkliste som CSV, bøyeliste som CSV og en verkstedtegning som PDF av én del.
 
-## Åpne DetailCraft
+## Åpne Manafe3
 
-1. Åpne DetailCraft i en nettleser på datamaskin: Chrome, Edge, Firefox eller Safari. Se [Nettlesere og datamaskiner](common:browsers).
+1. Åpne Manafe3 i en nettleser på datamaskin: Chrome, Edge, Firefox eller Safari. Se [Nettlesere og datamaskiner](common:browsers).
 2. Vent til skjermen fylles. Statuslinjen nederst sier «Klar. Åpne eksempelet, eller sett rutenett og nivåer og begynn å plassere staver.»
 
 Modellvisningen trenger 3D-grafikk (WebGL). Hvis midten av skjermen sier «Denne nettleseren kunne ikke starte 3D-grafikk (WebGL)», se [Feilsøking](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Modellene dine blir på datamaskinen din. Å åpne en modell leser den i nettleseren, og lagring laster ned en fil. Ingenting lastes opp. Skylagring finnes ikke ennå. Se [Hvor filene dine havner](common:your-files). For å bruke DetailCraft uten forbindelse senere velger du {{ui:Lagre for frakoblet bruk}} i appfeltet én gang mens du er tilkoblet; se [Arbeide frakoblet](common:offline).
+Modellene dine blir på datamaskinen din. Å åpne en modell leser den i nettleseren, og lagring laster ned en fil. Ingenting lastes opp. Skylagring finnes ikke ennå. Se [Hvor filene dine havner](common:your-files). For å bruke Manafe3 uten forbindelse senere velger du {{ui:Lagre for frakoblet bruk}} i appfeltet én gang mens du er tilkoblet; se [Arbeide frakoblet](common:offline).
 :::
 
 :::offline
-Du er frakoblet. DetailCraft fungerer uten forbindelse bare hvis den først ble lagret for frakoblet bruk: knappen {{ui:Lagre for frakoblet bruk}} i appfeltet sier da {{ui:Klar frakoblet}}. Se [Arbeide frakoblet](common:offline).
+Du er frakoblet. Manafe3 fungerer uten forbindelse bare hvis den først ble lagret for frakoblet bruk: knappen {{ui:Lagre for frakoblet bruk}} i appfeltet sier da {{ui:Klar frakoblet}}. Se [Arbeide frakoblet](common:offline).
 :::
 
 ## Se på eksempelet først
 
-Den raskeste måten å se hva DetailCraft lager på er eksempelrammen.
+Den raskeste måten å se hva Manafe3 lager på er eksempelrammen.
 
 1. Velg {{ui:Eksempel}} i gruppen {{ui:Fil}} på verktøylinjen.
 2. Visningen viser en ramme med to spenn: seks søyler med fotplater, fire bjelker med endeplater, én avstivning og sju fundamenter med armering.
@@ -49,7 +49,7 @@ Gjennomgangen [Utforsk eksempelrammen](topic:sample-model) går gjennom det del 
 
 En ny modell har allerede rutenett 1 til 3 ganger A til B på 6000 mm og to nivåer, Nivå 1 på 0 og Nivå 2 på 4000.
 
-1. Velg {{ui:Ny}}. Hvis den gjeldende modellen har endringer, spør DetailCraft om de skal lagres først.
+1. Velg {{ui:Ny}}. Hvis den gjeldende modellen har endringer, spør Manafe3 om de skal lagres først.
 2. Velg {{ui:Plan}} over visningen. Nivålisten ved siden av velger Nivå 1.
 3. Velg {{ui:Søyle}} på verktøylinjen, eller trykk {{key:C}}.
 4. Klikk rutenettkrysset A/1. En W12x50-søyle dukker opp fra Nivå 1 til Nivå 2. Statuslinjen sier hvor den havnet.

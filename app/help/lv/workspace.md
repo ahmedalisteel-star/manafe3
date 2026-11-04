@@ -1,17 +1,17 @@
 ---
 title: Ekrāna apskats
-summary: Katra josla, panelis un cilne DetailCraft ar tās ekrāna nosaukumu un tās nozīmi.
+summary: Katra josla, panelis un cilne Manafe3 ar tās ekrāna nosaukumu un tās nozīmi.
 keywords: ekrāns, izkārtojums, rīkjosla, paneļi, rekvizīti, statusa josla, atskaites, saskarne, ui, cilnes
 from: 454f74fd
 ---
 
-DetailCraft aizpilda pārlūka logu zem lietotņu joslas. No augšas uz leju: rīkjosla, pēc tam trīs kolonnas (panelis {{ui:Modelis}}, skats, panelis {{ui:Rekvizīti}}), pēc tam atskaišu cilnes un statusa josla.
+Manafe3 aizpilda pārlūka logu zem lietotņu joslas. No augšas uz leju: rīkjosla, pēc tam trīs kolonnas (panelis {{ui:Modelis}}, skats, panelis {{ui:Rekvizīti}}), pēc tam atskaišu cilnes un statusa josla.
 
 ## Lietotņu josla
 
-Šaurā josla augšā pieder CadCraft vietnei, nevis modelim. Tā rāda lietotnes nosaukumu un versiju, saiti uz {{ui:Par DetailCraft}}, {{ui:Palīdzība}} (vai {{key:F1}}) šai palīdzībai, {{ui:Saglabāt bezsaistei}}, ekrāna režīma pogu un slēdzi {{ui:Papīrs}} / {{ui:Modelis}}.
+Šaurā josla augšā pieder Manafe3 vietnei, nevis modelim. Tā rāda lietotnes nosaukumu un versiju, saiti uz {{ui:Par Manafe3}}, {{ui:Palīdzība}} (vai {{key:F1}}) šai palīdzībai, {{ui:Saglabāt bezsaistei}}, ekrāna režīma pogu un slēdzi {{ui:Papīrs}} / {{ui:Modelis}}.
 
-- {{ui:Saglabāt bezsaistei}} saglabā DetailCraft, tā 3D skatu un šo palīdzību jūsu pārlūkprogrammā, lai tā atvērtos bez savienojuma. Pēc saglabāšanas tā rāda {{ui:Gatavs darbam bezsaistē}}; tad uz tās noklikšķiniet, lai izvēlētos {{ui:Saglabāt vēlreiz (iegūt jaunāko versiju)}} vai {{ui:Noņemt bezsaistes kopiju}}. Skatiet [Darbs bezsaistē](common:offline).
+- {{ui:Saglabāt bezsaistei}} saglabā Manafe3, tā 3D skatu un šo palīdzību jūsu pārlūkprogrammā, lai tā atvērtos bez savienojuma. Pēc saglabāšanas tā rāda {{ui:Gatavs darbam bezsaistē}}; tad uz tās noklikšķiniet, lai izvēlētos {{ui:Saglabāt vēlreiz (iegūt jaunāko versiju)}} vai {{ui:Noņemt bezsaistes kopiju}}. Skatiet [Darbs bezsaistē](common:offline).
 - {{ui:Papīrs}} dod gaišu ekrānu, bet {{ui:Modelis}} – tumšu. 3D skats uzreiz seko; nekas modelī nemainās.
 - Ekrāna režīma poga un {{key:Ctrl+Shift+F}} pārslēdz starp parasto režīmu, pilnekrāna režīmu un pilnekrāna režīmu ar paslēptām joslām. {{key:Ctrl+Shift+F}} visos datoros, arī Mac, izmanto taustiņu Control. Ja joslas ir paslēptas, norādiet uz ekrāna augšējo malu (vai pieskarieties tai), lai tās atgrieztu. {{key:Esc}} iziet no pilnekrāna režīma.
 
@@ -70,7 +70,7 @@ Skaitļu lauki stājas spēkā, kad nospiežat {{key:Enter}} vai atstājat lauku
 
 ## Atskaišu cilnes (apakšā)
 
-- {{ui:Problēmas}}: viss, ko DetailCraft nevarēja izveidot vai ko vēlas, lai pārbaudāt, ar pogu {{ui:Atlasīt}} katrā rindā. Cilnē skaits rādīts iekavās.
+- {{ui:Problēmas}}: viss, ko Manafe3 nevarēja izveidot vai ko vēlas, lai pārbaudāt, ar pogu {{ui:Atlasīt}} katrā rindā. Cilnē skaits rādīts iekavās.
 - {{ui:Materiālu saraksts}}: detaļas, mezgli, skrūves un enkurstieņi ar svariem un saiti {{ui:Lejupielādēt CSV}}. Noklikšķiniet uz detaļas marķējuma, lai atlasītu šo detaļu.
 - {{ui:Liekšanas specifikācija}}: katrs stieņa marķējums katrā pamatā ar saiti {{ui:Lejupielādēt CSV}}.
 
@@ -84,4 +84,4 @@ Pārlūka cilnes nosaukums sākas ar punktu (•), kamēr modelim ir nesaglabāt
 
 ## Šaurā ekrānā
 
-Ja platums ir mazāks par aptuveni 760 pikseļiem, kolonnas tiek saliktas vienā virknē: rīkjosla, skats, statusa josla, {{ui:Rekvizīti}}, atskaišu cilnes un beigās panelis {{ui:Modelis}}. Ritiniet lapu, lai tiktu pie tiem. DetailCraft ir izkārtots darbvirsmas vai klēpjdatora ekrānam; tālrunis der skatīšanai, nevis detalizēšanai.
+Ja platums ir mazāks par aptuveni 760 pikseļiem, kolonnas tiek saliktas vienā virknē: rīkjosla, skats, statusa josla, {{ui:Rekvizīti}}, atskaišu cilnes un beigās panelis {{ui:Modelis}}. Ritiniet lapu, lai tiktu pie tiem. Manafe3 ir izkārtots darbvirsmas vai klēpjdatora ekrānam; tālrunis der skatīšanai, nevis detalizēšanai.

@@ -1,17 +1,17 @@
 ---
 title: Buka dan simpan fail, serta eksport
-summary: Fail model DetailCraft, setiap eksport yang dihasilkannya, tempat fail disimpan, dan perbezaan mengikut pelayar dan sambungan.
+summary: Fail model Manafe3, setiap eksport yang dihasilkannya, tempat fail disimpan, dan perbezaan mengikut pelayar dan sambungan.
 keywords: buka, simpan, eksport, muat turun, fail, json, ifc, nc1, dstv, csv, pdf, zip, format, import
 from: bd715ea3
 ---
 
-DetailCraft mempunyai satu fail sendiri, iaitu model, dan lima eksport. Setiap simpanan dan setiap eksport ialah muat turun. Tiada apa-apa dimuat naik, dan tiada apa-apa disimpan pada pelayan.
+Manafe3 mempunyai satu fail sendiri, iaitu model, dan lima eksport. Setiap simpanan dan setiap eksport ialah muat turun. Tiada apa-apa dimuat naik, dan tiada apa-apa disimpan pada pelayan.
 
 ## Fail model
 
-Model DetailCraft disimpan sebagai `<name>.detailcraft.json`, dengan `<name>` ialah nama model dalam panel {{ui:Model}}. Ia menyimpan grid, aras, ahli (dengan lubang dan potongan hujungnya), sambungan dan tetapannya, tapak asas serta profil tersuai anda.
+Model Manafe3 disimpan sebagai `<name>.detailcraft.json`, dengan `<name>` ialah nama model dalam panel {{ui:Model}}. Ia menyimpan grid, aras, ahli (dengan lubang dan potongan hujungnya), sambungan dan tetapannya, tapak asas serta profil tersuai anda.
 
-Bahagian, tanda, bolt, kimpalan dan bar tidak disimpan: DetailCraft mengira semula semuanya daripada model setiap kali ia dibuka. Itulah sebabnya fail model kecil.
+Bahagian, tanda, bolt, kimpalan dan bar tidak disimpan: Manafe3 mengira semula semuanya daripada model setiap kali ia dibuka. Itulah sebabnya fail model kecil.
 
 ### Simpan
 
@@ -38,21 +38,21 @@ Safari menyimpan ke folder Muat Turun anda. Untuk menukar folder, buka **Safari,
 1. Pilih {{ui:Buka}} dalam kumpulan {{ui:Fail}}, atau tekan {{key:Mod+O}}.
 2. Pilih fail `.detailcraft.json`.
 
-Atau seret fail dari {{pick:mac=Finder|windows=File Explorer|linux=pengurus fail anda}} dan lepaskan ke paparan. Paparan menunjukkan "Lepaskan model DetailCraft untuk membukanya" semasa anda menyeret.
+Atau seret fail dari {{pick:mac=Finder|windows=File Explorer|linux=pengurus fail anda}} dan lepaskan ke paparan. Paparan menunjukkan "Lepaskan model Manafe3 untuk membukanya" semasa anda menyeret.
 
-Jika model yang dibuka mempunyai perubahan yang belum disimpan, DetailCraft bertanya dahulu: {{ui:Batal}}, {{ui:Buang perubahan}} atau {{ui:Simpan dahulu}}.
+Jika model yang dibuka mempunyai perubahan yang belum disimpan, Manafe3 bertanya dahulu: {{ui:Batal}}, {{ui:Buang perubahan}} atau {{ui:Simpan dahulu}}.
 
-DetailCraft menyemak setiap medan fail sebelum menggunakannya. Apa-apa yang tidak boleh digunakan akan ditinggalkan dan bar status menyatakannya, contohnya "2 ahli tidak sah dan ditinggalkan." Model yang disimpan oleh DetailCraft yang lebih baharu ditolak dengan mesej dan tidak dibuka separuh betul.
+Manafe3 menyemak setiap medan fail sebelum menggunakannya. Apa-apa yang tidak boleh digunakan akan ditinggalkan dan bar status menyatakannya, contohnya "2 ahli tidak sah dan ditinggalkan." Model yang disimpan oleh Manafe3 yang lebih baharu ditolak dengan mesej dan tidak dibuka separuh betul.
 
 ### Apa yang dibuka
 
-Fail model sendiri (`.json`, sehingga 50 MB) dan fail IFC (`.ifc`, IFC2X3 atau IFC4, sehingga 200 MB). Fail IFC, sama ada dibuka atau dibawa masuk dengan {{ui:Import IFC}}, menjadi model baharu bagi rasuk, tiang, ahli, plat, grid dan aras, dengan lubang dan potongan hujung dipotong di dalamnya dan bolt-nya sebagai bolt berasingan; satu laporan menyenaraikan apa yang ditinggalkan. Lihat [Eksport IFC](topic:ifc-export#import). Ia belum membuka DWG, DXF atau model mana-mana program perincian lain; percubaan menunjukkan "DetailCraft membuka model sendiri (.detailcraft.json) dan fail IFC (.ifc)."
+Fail model sendiri (`.json`, sehingga 50 MB) dan fail IFC (`.ifc`, IFC2X3 atau IFC4, sehingga 200 MB). Fail IFC, sama ada dibuka atau dibawa masuk dengan {{ui:Import IFC}}, menjadi model baharu bagi rasuk, tiang, ahli, plat, grid dan aras, dengan lubang dan potongan hujung dipotong di dalamnya dan bolt-nya sebagai bolt berasingan; satu laporan menyenaraikan apa yang ditinggalkan. Lihat [Eksport IFC](topic:ifc-export#import). Ia belum membuka DWG, DXF atau model mana-mana program perincian lain; percubaan menunjukkan "Manafe3 membuka model sendiri (.detailcraft.json) dan fail IFC (.ifc)."
 
 ## Kerja yang hilang, fail terkini, aplikasi desktop
 
-- Semasa model mempunyai perubahan yang belum anda simpan, DetailCraft menyimpan salinan dalam pelayar ini. Jika tab atau pelayar berhenti sebelum anda menyimpan, kali seterusnya anda membuka DetailCraft ia bertanya **Pulihkan kerja anda?**: pulihkan salinan itu, atau biarkan. Lihat [Pulihkan kerja anda](common:recover).
-- Model yang baru-baru ini anda buka disenaraikan pada skrin mula apabila pelayar membenarkan DetailCraft membukanya semula; klik satu untuk membukanya semula.
-- Dalam aplikasi desktop, {{ui:Simpan}} menulis semula model ke fail yang anda buka (dalam pelayar ia memuat turun salinan), dan klik dua kali pada model DetailCraft atau fail IFC membukanya dalam DetailCraft.
+- Semasa model mempunyai perubahan yang belum anda simpan, Manafe3 menyimpan salinan dalam pelayar ini. Jika tab atau pelayar berhenti sebelum anda menyimpan, kali seterusnya anda membuka Manafe3 ia bertanya **Pulihkan kerja anda?**: pulihkan salinan itu, atau biarkan. Lihat [Pulihkan kerja anda](common:recover).
+- Model yang baru-baru ini anda buka disenaraikan pada skrin mula apabila pelayar membenarkan Manafe3 membukanya semula; klik satu untuk membukanya semula.
+- Dalam aplikasi desktop, {{ui:Simpan}} menulis semula model ke fail yang anda buka (dalam pelayar ia memuat turun salinan), dan klik dua kali pada model Manafe3 atau fail IFC membukanya dalam Manafe3.
 
 ## Eksport
 
@@ -79,13 +79,13 @@ Teks dalam PDF menggunakan fon Helvetica standard. Aksara yang tiada padanya (di
 
 ## Unit
 
-DetailCraft menggunakan milimeter sepanjang masa: grid, aras, koordinat, profil, lubang dan setiap eksport. Nama profil kekal dalam bentuk yang diterbitkan (W12x50 ialah penetapan AS walaupun dimensinya ditunjukkan dalam mm). Belum ada input imperial.
+Manafe3 menggunakan milimeter sepanjang masa: grid, aras, koordinat, profil, lubang dan setiap eksport. Nama profil kekal dalam bentuk yang diterbitkan (W12x50 ialah penetapan AS walaupun dimensinya ditunjukkan dalam mm). Belum ada input imperial.
 
 ## Dalam talian dan luar talian
 
-Membuka, menyimpan dan mengeksport semuanya berlaku dalam pelayar anda, jadi ia berfungsi sama ada dengan atau tanpa sambungan selepas DetailCraft dimuatkan.
+Membuka, menyimpan dan mengeksport semuanya berlaku dalam pelayar anda, jadi ia berfungsi sama ada dengan atau tanpa sambungan selepas Manafe3 dimuatkan.
 
-Untuk menggunakan DetailCraft tanpa sambungan kemudian, pilih {{ui:Simpan untuk luar talian}} dalam bar aplikasi semasa anda dalam talian. Butang itu mengira ke atas ("Menyimpan 3 daripada 20") dan kemudian memaparkan {{ui:Sedia untuk luar talian}}. Salinan yang disimpan termasuk pustaka grafik 3D (kira-kira 2.6 MB) dan bantuan ini, jadi sebaik sahaja ia disimpan, paparan 3D, setiap eksport dan bantuan semuanya berfungsi luar talian. Butiran, dan apa yang masih memerlukan sambungan: [Bekerja luar talian](common:offline).
+Untuk menggunakan Manafe3 tanpa sambungan kemudian, pilih {{ui:Simpan untuk luar talian}} dalam bar aplikasi semasa anda dalam talian. Butang itu mengira ke atas ("Menyimpan 3 daripada 20") dan kemudian memaparkan {{ui:Sedia untuk luar talian}}. Salinan yang disimpan termasuk pustaka grafik 3D (kira-kira 2.6 MB) dan bantuan ini, jadi sebaik sahaja ia disimpan, paparan 3D, setiap eksport dan bantuan semuanya berfungsi luar talian. Butiran, dan apa yang masih memerlukan sambungan: [Bekerja luar talian](common:offline).
 
 :::offline
 Anda luar talian. Jika bar aplikasi menunjukkan {{ui:Sedia untuk luar talian}}, membuka, menyimpan dan mengeksport berfungsi seperti biasa. Jika tidak, kekalkan tab ini terbuka, jangan muat semula sehingga anda kembali dalam talian, dan simpan model anda sekarang.
@@ -95,4 +95,4 @@ Simpanan awan belum tersedia, dan belum ada binaan desktop. Sandarkan fail `.det
 
 ## Kerja yang belum disimpan
 
-DetailCraft menyimpan model hanya dalam tab yang terbuka. Jika anda menutup atau memuat semula tab dengan perubahan yang belum disimpan, pelayar bertanya sama ada hendak meninggalkan halaman; ayatnya ialah ayat pelayar itu sendiri. Simpan dengan {{key:Mod+S}} dengan kerap.
+Manafe3 menyimpan model hanya dalam tab yang terbuka. Jika anda menutup atau memuat semula tab dengan perubahan yang belum disimpan, pelayar bertanya sama ada hendak meninggalkan halaman; ayatnya ialah ayat pelayar itu sendiri. Simpan dengan {{key:Mod+S}} dengan kerap.

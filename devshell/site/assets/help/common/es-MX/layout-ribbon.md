@@ -43,7 +43,7 @@ Los paneles izquierdo y derecho conservan todo lo que se describe en [Organizar 
 
 ## Volver al diseño clásico
 
-Abra {{ui:Configuración}} › {{ui:Global}} › {{ui:Diseño}} › {{ui:Espacio de trabajo}} y elija {{ui:CadCraft clásico}}. Cada barra de herramientas, pestaña y panel vuelve a su lugar.
+Abra {{ui:Configuración}} › {{ui:Global}} › {{ui:Diseño}} › {{ui:Espacio de trabajo}} y elija {{ui:Manafe3 clásico}}. Cada barra de herramientas, pestaña y panel vuelve a su lugar.
 
 :::note
 En un teléfono, o en una ventana de 760 píxeles de ancho o menos, la aplicación usa su diseño para teléfono sin importar lo que haya elegido. Una ventana más ancha devuelve su diseño.

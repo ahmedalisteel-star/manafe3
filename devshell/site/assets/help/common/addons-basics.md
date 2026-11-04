@@ -34,4 +34,4 @@ A drawing remembers the add-ons whose data it holds. Open it on a computer that 
 
 ## iPad and iPhone
 
-Add-ons that are only data download as usual. Code add-ons made by CadCraft are already inside the app and are switched on from your list. Code add-ons from outside makers are not offered on the iPad and iPhone apps; the browser app (Add to Home Screen) has them.
+Add-ons that are only data download as usual. Code add-ons made by Manafe3 are already inside the app and are switched on from your list. Code add-ons from outside makers are not offered on the iPad and iPhone apps; the browser app (Add to Home Screen) has them.

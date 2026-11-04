@@ -42,7 +42,7 @@ Lijeva i desna ploča zadržavaju sve opisano u [Raspored ploča](common:arrange
 
 ## Povratak na klasični raspored
 
-Otvorite {{ui:Postavke}} › {{ui:Globalne}} › {{ui:Raspored}} › {{ui:Radni prostor}} i odaberite {{ui:CadCraft klasik}}. Svaka alatna traka, kartica i ploča vraća se gdje je bila.
+Otvorite {{ui:Postavke}} › {{ui:Globalne}} › {{ui:Raspored}} › {{ui:Radni prostor}} i odaberite {{ui:Manafe3 klasik}}. Svaka alatna traka, kartica i ploča vraća se gdje je bila.
 
 :::note
 Na telefonu ili u prozoru širine 760 piksela ili manje aplikacija koristi raspored za telefon, što god odabrali. Širi prozor vraća vaš raspored.

@@ -43,7 +43,7 @@ Het linker- en rechterpaneel behouden alles wat in [De panelen indelen](common:a
 
 ## Terug naar de klassieke indeling
 
-Open {{ui:Instellingen}} › {{ui:Algemeen}} › {{ui:Indeling}} › {{ui:Werkomgeving}} en kies {{ui:CadCraft klassiek}}. Elke werkbalk, elk tabblad en elk paneel gaat terug naar waar het was.
+Open {{ui:Instellingen}} › {{ui:Algemeen}} › {{ui:Indeling}} › {{ui:Werkomgeving}} en kies {{ui:Manafe3 klassiek}}. Elke werkbalk, elk tabblad en elk paneel gaat terug naar waar het was.
 
 :::note
 Op een telefoon, of in een venster van 760 pixels breed of smaller, gebruikt de app zijn telefoonindeling, wat u ook hebt gekozen. Een breder venster brengt uw indeling terug.

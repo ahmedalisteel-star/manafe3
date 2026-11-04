@@ -1,17 +1,17 @@
 ---
 title: Ekran turu
-summary: DetailCraft'taki her çubuk, panel ve sekme ekrandaki adıyla ve her birinin ne işe yaradığı.
+summary: Manafe3'taki her çubuk, panel ve sekme ekrandaki adıyla ve her birinin ne işe yaradığı.
 keywords: ekran, yerleşim, araç çubuğu, paneller, özellikler, durum çubuğu, raporlar, arayüz, ui, sekmeler
 from: 454f74fd
 ---
 
-DetailCraft, uygulama çubuğunun altında tarayıcı penceresini doldurur. Yukarıdan aşağıya: araç çubuğu, sonra üç sütun ({{ui:Model}} paneli, görünüm, {{ui:Özellikler}} paneli), sonra rapor sekmeleri, sonra durum çubuğu.
+Manafe3, uygulama çubuğunun altında tarayıcı penceresini doldurur. Yukarıdan aşağıya: araç çubuğu, sonra üç sütun ({{ui:Model}} paneli, görünüm, {{ui:Özellikler}} paneli), sonra rapor sekmeleri, sonra durum çubuğu.
 
 ## Uygulama çubuğu
 
-En üstteki ince çubuk modele değil, CadCraft sitesine aittir. Uygulama adını ve sürümü, {{ui:DetailCraft hakkında}} bağlantısını, bu yardım için {{ui:Yardım}} (veya {{key:F1}}), {{ui:Çevrimdışı için kaydet}}, ekran modu düğmesini ve {{ui:Kâğıt}} / {{ui:Model}} anahtarını gösterir.
+En üstteki ince çubuk modele değil, Manafe3 sitesine aittir. Uygulama adını ve sürümü, {{ui:Manafe3 hakkında}} bağlantısını, bu yardım için {{ui:Yardım}} (veya {{key:F1}}), {{ui:Çevrimdışı için kaydet}}, ekran modu düğmesini ve {{ui:Kâğıt}} / {{ui:Model}} anahtarını gösterir.
 
-- {{ui:Çevrimdışı için kaydet}} DetailCraft'ı, 3B görünümünü ve bu yardımı tarayıcınızda tutar; böylece bağlantı olmadan açılır. Kaydedildiğinde {{ui:Çevrimdışı hazır}} yazar; o zaman {{ui:Yeniden kaydet (en yeni sürümü al)}} veya {{ui:Çevrimdışı kopyayı kaldır}} için ona tıklayın. Bkz. [Çevrimdışı çalışma](common:offline).
+- {{ui:Çevrimdışı için kaydet}} Manafe3'ı, 3B görünümünü ve bu yardımı tarayıcınızda tutar; böylece bağlantı olmadan açılır. Kaydedildiğinde {{ui:Çevrimdışı hazır}} yazar; o zaman {{ui:Yeniden kaydet (en yeni sürümü al)}} veya {{ui:Çevrimdışı kopyayı kaldır}} için ona tıklayın. Bkz. [Çevrimdışı çalışma](common:offline).
 - {{ui:Kâğıt}} açık, {{ui:Model}} koyu bir ekran verir. 3B görünüm hemen izler; modelinizde hiçbir şey değişmez.
 - Ekran modu düğmesi ve {{key:Ctrl+Shift+F}} normal, tam ekran ve çubukları gizli tam ekran arasında geçiş yapar. {{key:Ctrl+Shift+F}} her bilgisayarda, Mac dahil, Control tuşunu kullanır. Çubuklar gizliyken geri getirmek için ekranın üst kenarını işaret edin (veya oraya dokunun). {{key:Esc}} tam ekrandan çıkar.
 
@@ -70,7 +70,7 @@ Sayı alanları {{key:Enter}} tuşuna bastığınızda veya alandan çıktığı
 
 ## Rapor sekmeleri (altta)
 
-- {{ui:Sorunlar}}: DetailCraft'ın oluşturamadığı veya denetlemenizi istediği her şey, her satırda bir {{ui:Seç}} düğmesiyle. Sekme sayıyı parantez içinde gösterir.
+- {{ui:Sorunlar}}: Manafe3'ın oluşturamadığı veya denetlemenizi istediği her şey, her satırda bir {{ui:Seç}} düğmesiyle. Sekme sayıyı parantez içinde gösterir.
 - {{ui:Malzeme listesi}}: parçalar, montajlar ve cıvatalar ile ankraj çubukları, ağırlıklar ve bir {{ui:CSV indir}} bağlantısıyla. O parçayı seçmek için bir parça işaretine tıklayın.
 - {{ui:Büküm listesi}}: her temeldeki her donatı işareti, bir {{ui:CSV indir}} bağlantısıyla.
 
@@ -84,4 +84,4 @@ Modelde kaydetmediğiniz değişiklikler varken tarayıcı sekmesi başlığı b
 
 ## Dar bir ekranda
 
-Yaklaşık 760 piksel genişliğin altında sütunlar üst üste dizilir: araç çubuğu, görünüm, durum çubuğu, {{ui:Özellikler}}, rapor sekmeleri, sonra en son {{ui:Model}} paneli. Onlara ulaşmak için sayfayı kaydırın. DetailCraft bir masaüstü veya dizüstü ekranı için düzenlenmiştir; telefon bakmak için çalışır, detaylandırma için değil.
+Yaklaşık 760 piksel genişliğin altında sütunlar üst üste dizilir: araç çubuğu, görünüm, durum çubuğu, {{ui:Özellikler}}, rapor sekmeleri, sonra en son {{ui:Model}} paneli. Onlara ulaşmak için sayfayı kaydırın. Manafe3 bir masaüstü veya dizüstü ekranı için düzenlenmiştir; telefon bakmak için çalışır, detaylandırma için değil.

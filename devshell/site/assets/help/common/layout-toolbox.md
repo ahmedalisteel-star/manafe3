@@ -43,7 +43,7 @@ The left and right panels keep everything described in [Arrange the panels](comm
 
 ## Go back to the classic layout
 
-Open {{ui:Settings}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} and choose {{ui:CadCraft classic}}. Every toolbar, tab and panel goes back where it was.
+Open {{ui:Settings}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} and choose {{ui:Classic}}. Every toolbar, tab and panel goes back where it was.
 
 :::note
 On a phone, or in a window 760 pixels wide or narrower, the app uses its phone layout whatever you picked. A wider window brings your layout back.

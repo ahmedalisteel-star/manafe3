@@ -1,17 +1,17 @@
 ---
 title: Kierros näyttöön
-summary: Jokainen DetailCraftin palkki, paneeli ja välilehti näyttönimellään ja se, mihin kukin on tarkoitettu.
+summary: Jokainen Manafe3in palkki, paneeli ja välilehti näyttönimellään ja se, mihin kukin on tarkoitettu.
 keywords: näyttö, asettelu, työkalurivi, paneelit, ominaisuudet, tilarivi, raportit, käyttöliittymä, välilehdet
 from: 454f74fd
 ---
 
-DetailCraft täyttää selainikkunan sovelluspalkin alapuolella. Ylhäältä alas: työkalurivi, sitten kolme saraketta ({{ui:Malli}}-paneeli, näkymä, {{ui:Ominaisuudet}}-paneeli), sitten raporttivälilehdet ja tilarivi.
+Manafe3 täyttää selainikkunan sovelluspalkin alapuolella. Ylhäältä alas: työkalurivi, sitten kolme saraketta ({{ui:Malli}}-paneeli, näkymä, {{ui:Ominaisuudet}}-paneeli), sitten raporttivälilehdet ja tilarivi.
 
 ## Sovelluspalkki
 
-Aivan ylhäällä oleva kapea palkki kuuluu CadCraft-sivustolle, ei mallille. Siinä näkyvät sovelluksen nimi ja versio, linkki kohtaan {{ui:Tietoja: DetailCraft}}, {{ui:Ohje}} (tai {{key:F1}}) tähän ohjeeseen, {{ui:Tallenna offline-käyttöön}}, näyttötilapainike sekä {{ui:Paperi}} / {{ui:Malli}} -kytkin.
+Aivan ylhäällä oleva kapea palkki kuuluu Manafe3-sivustolle, ei mallille. Siinä näkyvät sovelluksen nimi ja versio, linkki kohtaan {{ui:Tietoja: Manafe3}}, {{ui:Ohje}} (tai {{key:F1}}) tähän ohjeeseen, {{ui:Tallenna offline-käyttöön}}, näyttötilapainike sekä {{ui:Paperi}} / {{ui:Malli}} -kytkin.
 
-- {{ui:Tallenna offline-käyttöön}} säilyttää DetailCraftin, sen 3D-näkymän ja tämän ohjeen selaimessasi, jotta se aukeaa ilman yhteyttä. Tallennuksen jälkeen siinä lukee {{ui:Offline valmis}}; napsauta sitä silloin saadaksesi {{ui:Tallenna uudelleen (hae uusin versio)}} tai {{ui:Poista offline-kopio}}. Katso [Työskentely offline-tilassa](common:offline).
+- {{ui:Tallenna offline-käyttöön}} säilyttää Manafe3in, sen 3D-näkymän ja tämän ohjeen selaimessasi, jotta se aukeaa ilman yhteyttä. Tallennuksen jälkeen siinä lukee {{ui:Offline valmis}}; napsauta sitä silloin saadaksesi {{ui:Tallenna uudelleen (hae uusin versio)}} tai {{ui:Poista offline-kopio}}. Katso [Työskentely offline-tilassa](common:offline).
 - {{ui:Paperi}} antaa vaalean näytön ja {{ui:Malli}} tumman. 3D-näkymä seuraa heti; mikään mallissasi ei muutu.
 - Näyttötilapainike ja {{key:Ctrl+Shift+F}} kiertävät normaalin, koko näytön ja koko näytön piilotetuin palkein. {{key:Ctrl+Shift+F}} käyttää Control-näppäintä kaikilla tietokoneilla, myös Macilla. Kun palkit on piilotettu, osoita näytön yläreunaa (tai napauta sitä) tuodaksesi ne takaisin. {{key:Esc}} poistuu koko näytöstä.
 
@@ -70,7 +70,7 @@ Lukukentät tulevat voimaan, kun painat {{key:Enter}} tai poistut kentästä. Jo
 
 ## Raporttivälilehdet (alareunassa)
 
-- {{ui:Ongelmat}}: kaikki, mitä DetailCraft ei voinut rakentaa tai mitä se haluaa sinun tarkistavan, {{ui:Valitse}}-painikkeella jokaisella rivillä. Välilehti näyttää määrän sulkeissa.
+- {{ui:Ongelmat}}: kaikki, mitä Manafe3 ei voinut rakentaa tai mitä se haluaa sinun tarkistavan, {{ui:Valitse}}-painikkeella jokaisella rivillä. Välilehti näyttää määrän sulkeissa.
 - {{ui:Osaluettelo}}: osat, kokoonpanot sekä pultit ja ankkuripultit painoineen ja {{ui:Lataa CSV}} -linkki. Napsauta osamerkkiä valitaksesi sen osan.
 - {{ui:Taivutusluettelo}}: jokainen tankomerkki jokaisessa anturaperustuksessa ja {{ui:Lataa CSV}} -linkki.
 
@@ -84,4 +84,4 @@ Selaimen välilehden otsikko alkaa pisteellä (•), kun mallissa on muutoksia, 
 
 ## Kapealla näytöllä
 
-Alle noin 760 pikselin leveydellä sarakkeet pinotaan: työkalurivi, näkymä, tilarivi, {{ui:Ominaisuudet}}, raporttivälilehdet ja viimeisenä {{ui:Malli}}-paneeli. Vieritä sivua päästäksesi niihin. DetailCraft on asettelultaan tarkoitettu työpöytä- tai kannettavan näytölle; puhelimella voi katsella, mutta ei detaljoida.
+Alle noin 760 pikselin leveydellä sarakkeet pinotaan: työkalurivi, näkymä, tilarivi, {{ui:Ominaisuudet}}, raporttivälilehdet ja viimeisenä {{ui:Malli}}-paneeli. Vieritä sivua päästäksesi niihin. Manafe3 on asettelultaan tarkoitettu työpöytä- tai kannettavan näytölle; puhelimella voi katsella, mutta ei detaljoida.

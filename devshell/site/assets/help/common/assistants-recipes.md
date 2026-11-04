@@ -1,6 +1,6 @@
 ---
 title: Recipes for AI assistants
-summary: Worked examples for using your own AI assistant with the CadCraft apps: what to ask, the tools it calls, and the permissions each needs. Every recipe here is run by our tests with the same calls.
+summary: Worked examples for using your own AI assistant with the Manafe3 apps: what to ask, the tools it calls, and the permissions each needs. Every recipe here is run by our tests with the same calls.
 section: tasks
 order: 62
 keywords: ai, assistant, mcp, recipes, examples, prompts, automation, batch, convert, plot, check, takeoff, cut, fill, parameters, script
@@ -10,7 +10,7 @@ keywords: ai, assistant, mcp, recipes, examples, prompts, automation, batch, con
 
 Ready-made requests for your own AI assistant, and what it does with them. The apps contain no AI: your assistant reads the files and calls the apps' tools, and you decide which permissions it has. Each recipe names the tools it calls, so you can check its work in the activity log, and each one is run by our tests with exactly these calls, so they keep working.
 
-There are two ways in. In **CadCraft Studio**, an assistant works with the apps you have open (Settings › Assistants in each app). **Without a window**, the CadCraft file server for assistants (`npx @getcadcraft/mcp --root <folder>`) works on files in folders you name; the `cadcraft` command line does the same jobs for your own scripts. The recipes say which way they use; most work both ways.
+There are two ways in. In **Manafe3 Desktop**, an assistant works with the apps you have open (Settings › Assistants in each app). **Without a window**, the Manafe3 file server for assistants (`npx @getcadcraft/mcp --root <folder>`) works on files in folders you name; the `cadcraft` command line does the same jobs for your own scripts. The recipes say which way they use; most work both ways.
 
 :::tip
 Start read-only. Ask the assistant to describe a file before it changes anything; its answers are better when it has looked first, and Read is the only permission that is on to begin with.

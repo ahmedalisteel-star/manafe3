@@ -1,11 +1,11 @@
 ---
-title: Primeros pasos con DetailCraft
-summary: Qué hace DetailCraft hoy, cómo abrirlo y un primer modelo, de los ejes a un plano de taller, en diez minutos.
+title: Primeros pasos con Manafe3
+summary: Qué hace Manafe3 hoy, cómo abrirlo y un primer modelo, de los ejes a un plano de taller, en diez minutos.
 keywords: inicio, primer modelo, introducción, detallado de acero, varilla, inicio rápido, tutorial, resumen
 from: 3682c0d8
 ---
 
-DetailCraft es la aplicación de detallado de acero y varilla de la familia CadCraft. Usted arma un modelo 3D de una estructura de acero sobre ejes y niveles, lo conecta y obtiene lo que el taller necesita: marcas de pieza y de ensamblaje, una lista de materiales, planos de taller de una sola pieza, archivos NC DSTV, un modelo IFC y una planilla de doblado para las zapatas.
+Manafe3 es la aplicación de detallado de acero y varilla de la familia Manafe3. Usted arma un modelo 3D de una estructura de acero sobre ejes y niveles, lo conecta y obtiene lo que el taller necesita: marcas de pieza y de ensamblaje, una lista de materiales, planos de taller de una sola pieza, archivos NC DSTV, un modelo IFC y una planilla de doblado para las zapatas.
 
 Esta es una versión temprana. Hace pocas cosas, pero con cuidado, en lugar de todo a la vez. Lea [Lo que aún no está construido](topic:not-built-yet) antes de planear trabajo real con ella.
 
@@ -19,24 +19,24 @@ Esta es una versión temprana. Hace pocas cosas, pero con cuidado, en lugar de t
 - Marcas de pieza y de ensamblaje que se actualizan solas después de cada cambio.
 - Exportaciones: IFC4, archivos NC DSTV (perfiles I y placas), lista de materiales como CSV, planilla de doblado como CSV y un PDF de plano de taller de una pieza.
 
-## Abrir DetailCraft
+## Abrir Manafe3
 
-1. Abra DetailCraft en un navegador de escritorio: Chrome, Edge, Firefox o Safari. Vea [Navegadores y computadoras](common:browsers).
+1. Abra Manafe3 en un navegador de escritorio: Chrome, Edge, Firefox o Safari. Vea [Navegadores y computadoras](common:browsers).
 2. Espere a que se llene la pantalla. La barra de estado, abajo, dice "Ready. Open the Sample, or set grids and levels and start placing members."
 
 La vista del modelo necesita gráficos 3D (WebGL). Si el centro de la pantalla dice "This browser could not start 3D graphics (WebGL)", vea [Solución de problemas](topic:troubleshooting#the-3d-view-is-missing).
 
 :::note
-Sus modelos se quedan en su computadora. Abrir un modelo lo lee en el navegador y guardar descarga un archivo. No se sube nada. Aún no se puede guardar en la nube. Vea [A dónde van sus archivos](common:your-files). Para usar DetailCraft sin conexión más adelante, elija {{ui:Guardar para usar sin conexión}} en la barra de la aplicación una vez, con conexión; vea [Trabajar sin conexión](common:offline).
+Sus modelos se quedan en su computadora. Abrir un modelo lo lee en el navegador y guardar descarga un archivo. No se sube nada. Aún no se puede guardar en la nube. Vea [A dónde van sus archivos](common:your-files). Para usar Manafe3 sin conexión más adelante, elija {{ui:Guardar para usar sin conexión}} en la barra de la aplicación una vez, con conexión; vea [Trabajar sin conexión](common:offline).
 :::
 
 :::offline
-No tiene conexión. DetailCraft funciona sin conexión solo si se guardó antes para ese uso: el botón {{ui:Guardar para usar sin conexión}} de la barra de la aplicación dice entonces {{ui:Lista sin conexión}}. Vea [Trabajar sin conexión](common:offline).
+No tiene conexión. Manafe3 funciona sin conexión solo si se guardó antes para ese uso: el botón {{ui:Guardar para usar sin conexión}} de la barra de la aplicación dice entonces {{ui:Lista sin conexión}}. Vea [Trabajar sin conexión](common:offline).
 :::
 
 ## Mire primero el ejemplo
 
-La forma más rápida de ver lo que hace DetailCraft es la estructura de ejemplo.
+La forma más rápida de ver lo que hace Manafe3 es la estructura de ejemplo.
 
 1. Elija {{ui:Ejemplo}} en el grupo {{ui:Archivo}} de la barra de herramientas.
 2. La vista muestra una estructura de dos crujías: seis columnas con placas base, cuatro vigas con placas de extremo, un contraviento y siete zapatas con varilla.
@@ -49,7 +49,7 @@ El recorrido [Explore la estructura de ejemplo](topic:sample-model) la revisa pi
 
 Un modelo nuevo ya trae ejes de 1 a 3 por A a B a 6000 mm y dos niveles, Nivel 1 en 0 y Nivel 2 en 4000.
 
-1. Elija {{ui:Nuevo}}. Si el modelo actual tiene cambios, DetailCraft pregunta si desea guardarlos primero.
+1. Elija {{ui:Nuevo}}. Si el modelo actual tiene cambios, Manafe3 pregunta si desea guardarlos primero.
 2. Elija {{ui:Planta}} arriba de la vista. La lista de niveles a su lado elige el Nivel 1.
 3. Elija {{ui:Columna}} en la barra de herramientas, o pulse {{key:C}}.
 4. Haga clic en la intersección de ejes A/1. Aparece una columna W12x50 del Nivel 1 al Nivel 2. La barra de estado dice dónde quedó.

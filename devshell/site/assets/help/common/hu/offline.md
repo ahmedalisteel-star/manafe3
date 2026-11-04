@@ -41,4 +41,4 @@ Most offline van. Ha ezt az alkalmazást elmentette offline használatra, minden
 A Safari eltávolítja a mentett webhelyadatokat azokról az oldalakról, amelyeket néhány hete nem látogatott. Nyissa meg az alkalmazást időnként online, vagy mentse el újra egy utazás előtt.
 :::
 
-- A CadCraft Studio, az asztali alkalmazás, amely mind a nyolc alkalmazást egyetlen telepítésben tartalmazza, a getcadcraft.com/download oldalon található.
+- A Manafe3 Desktop, az asztali alkalmazás, amely mind a nyolc alkalmazást egyetlen telepítésben tartalmazza, a getcadcraft.com/download oldalon található.

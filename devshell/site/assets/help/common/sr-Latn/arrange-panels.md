@@ -42,7 +42,7 @@ Da izvučete panel iz grupe, izaberite {{ui:Izbaci iz grupe kartica}} u njegovom
 
 ## Izbor broja redova trake sa alatima
 
-{{ui:Podešavanja}} › {{ui:Opšte}} › {{ui:Redovi alatki}} ima tri izbora. {{ui:Prelomi}} je podrazumevano: svaka grupa alata se prikazuje, u onoliko redova koliko treba. {{ui:2 reda}} drži traku na dva reda, a {{ui:1 red}} na jednom, pa crtež dobija visinu; grupe koje ne staju se pomeraju u stranu unutar trake (koristite točkić miša, dvoprstni pomak ili {{key:Tab}} do alata). Traka koja već staje u dva reda ostaje kakva jeste pod {{ui:2 reda}}, jer bi mreža samo bila viša. Izbor se čuva za svaku aplikaciju. Ekran osetljiv na dodir i telefon zadržavaju svoj raspored. CadCraft ima sopstveno podešavanje za svoju traku, pod {{ui:Podešavanja}} › {{ui:CadCraft}}.
+{{ui:Podešavanja}} › {{ui:Opšte}} › {{ui:Redovi alatki}} ima tri izbora. {{ui:Prelomi}} je podrazumevano: svaka grupa alata se prikazuje, u onoliko redova koliko treba. {{ui:2 reda}} drži traku na dva reda, a {{ui:1 red}} na jednom, pa crtež dobija visinu; grupe koje ne staju se pomeraju u stranu unutar trake (koristite točkić miša, dvoprstni pomak ili {{key:Tab}} do alata). Traka koja već staje u dva reda ostaje kakva jeste pod {{ui:2 reda}}, jer bi mreža samo bila viša. Izbor se čuva za svaku aplikaciju. Ekran osetljiv na dodir i telefon zadržavaju svoj raspored. Manafe3 ima sopstveno podešavanje za svoju traku, pod {{ui:Podešavanja}} › {{ui:Manafe3}}.
 
 ## Korišćenje tastature
 
@@ -82,7 +82,7 @@ S tastature, pritisnite {{key:Alt}}+{{key:Shift}}+strelicu dok je fokus unutar d
 
 Na telefonu dijalozi ostaju listovi pune širine i ne pomeraju se.
 
-U CadCraft Studio, u dijalogu {{ui:Štampa u PDF}}, koji možete ostaviti otvoren dok radite, nalazi se dugme u naslovnoj traci: {{ui:Otvori u sopstvenom prozoru}}. Dijalog prelazi u sopstveni prozor koji možete staviti na drugi monitor. Zatvaranje dijaloga zatvara prozor, a zatvaranje prozora zatvara dijalog.
+U Manafe3 Desktop, u dijalogu {{ui:Štampa u PDF}}, koji možete ostaviti otvoren dok radite, nalazi se dugme u naslovnoj traci: {{ui:Otvori u sopstvenom prozoru}}. Dijalog prelazi u sopstveni prozor koji možete staviti na drugi monitor. Zatvaranje dijaloga zatvara prozor, a zatvaranje prozora zatvara dijalog.
 
 ## Vraćanje panela
 

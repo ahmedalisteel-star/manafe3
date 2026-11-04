@@ -6,7 +6,7 @@ order: 62
 keywords: hidden lines, hidden line removal, dashed, revision cloud, clouds, revision triangle, anchor bolt plan, anchor rods, rod schedule, base plate schedule, setting out, issue, revision, rev, revision table, re-issue, issue log, transmittal, dwg, dxf, cad file, export drawings, drawings, general arrangement, ga, plan, elevation, assembly drawing, sheet size, paper size, a4, a3, a2, a1, ansi b, ansi c, ansi d, tabloid, 11 x 17, 22 x 34, pdf, print, scale, title block, model ref
 ---
 
-Choose {{ui:Drawings}} in the {{ui:Output}} group. DetailCraft makes the whole set from the model as it is now. Nothing is stored: change the model, open {{ui:Drawings}} again, and the set is made again.
+Choose {{ui:Drawings}} in the {{ui:Output}} group. Manafe3 makes the whole set from the model as it is now. Nothing is stored: change the model, open {{ui:Drawings}} again, and the set is made again.
 
 ## What is in the set
 
@@ -21,7 +21,7 @@ Each sheet has a title block with the drawing number, the scale, the model name,
 
 ## Choose the sheet size
 
-Pick the size in the list at the top of the {{ui:Drawings}} window: {{ui:A4}}, {{ui:A3}}, {{ui:A2}}, {{ui:A1}}, {{ui:ANSI B}} (11 × 17 in), {{ui:ANSI C}} (17 × 22 in) or {{ui:ANSI D}} (22 × 34 in). Every sheet is landscape. The set is made again on the new size at once, and the same size is used for shop drawings. It is also in [DetailCraft settings](topic:settings#drawings), and this browser remembers it.
+Pick the size in the list at the top of the {{ui:Drawings}} window: {{ui:A4}}, {{ui:A3}}, {{ui:A2}}, {{ui:A1}}, {{ui:ANSI B}} (11 × 17 in), {{ui:ANSI C}} (17 × 22 in) or {{ui:ANSI D}} (22 × 34 in). Every sheet is landscape. The set is made again on the new size at once, and the same size is used for shop drawings. It is also in [Manafe3 settings](topic:settings#drawings), and this browser remembers it.
 
 - A bigger sheet draws at a larger scale. Scales are always standard ones (1:10, 1:20, 1:25, 1:50, 1:100 and so on).
 - Text stays the same size on every sheet, so it stays readable when printed.
@@ -46,7 +46,7 @@ From the second issue of a sheet on, every part or footing that changed is drawn
 - Each sheet clouds only changes it shows. Plans and elevations draw no holes or copes, so they cloud a member that moved, was turned or resized, or whose mark changed. Assembly drawings and the anchor bolt plan also cloud new or moved holes and copes.
 - A renumbered mark counts: when a change makes a beam a new assembly, the beams whose mark moved up (B1 to B2) are clouded on plans and elevations.
 - A part that was deleted leaves nothing to cloud.
-- Sheets issued before revision clouds came in (DetailCraft 0.4) start clouding from their next issue.
+- Sheets issued before revision clouds came in (Manafe3 0.4) start clouding from their next issue.
 - Clouds are in the PDF, DXF and DWG downloads, and never count as a change themselves.
 
 ## Download
@@ -57,7 +57,7 @@ Choose the format in the list beside the buttons, then {{ui:This sheet}} for the
 - **DWG**, in the 2018, 2013, 2010, 2007, 2004 or 2000 format: to open the sheets in a CAD program. Pick an older format for an older program.
 - **DXF (R12)**: the version almost every CAD program opens.
 
-A DWG or DXF sheet is drawn at full size: one drawing unit is one millimeter on the paper, so it prints at 1:1 and every view keeps the scale its title says. Each pen is its own layer: DC-OUTLINE, DC-THICK, DC-THIN, DC-HIDDEN, DC-CENTER, DC-GRID and so on, with its line weight (DWG) and its dashes. Words are text in the DetailCraft text style (Arial). Dimensions are the lines and figures you see, not dimension objects. {{ui:All sheets}} puts the DWG or DXF files in one zip, one file per sheet.
+A DWG or DXF sheet is drawn at full size: one drawing unit is one millimeter on the paper, so it prints at 1:1 and every view keeps the scale its title says. Each pen is its own layer: DC-OUTLINE, DC-THICK, DC-THIN, DC-HIDDEN, DC-CENTER, DC-GRID and so on, with its line weight (DWG) and its dashes. Words are text in the Manafe3 text style (Arial). Dimensions are the lines and figures you see, not dimension objects. {{ui:All sheets}} puts the DWG or DXF files in one zip, one file per sheet.
 
 :::note
 DXF R12 has no line weights and no fills: the layers keep their names, so set the pens by layer when you plot, and filled shapes are left out (the status bar says how many).

@@ -54,7 +54,7 @@ Olemme lukeneet nämä 0.7-sovellusten koodista, emme arvanneet: jokainen tiedos
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS ja iOS 16.4) |
 
-CadCraft Studio sisältää Windowsissa oman verkkomoottorinsa, joten se vaatii Windows 10:n tai 11:n; Macilla se käyttää järjestelmän moottoria, joten se vaatii macOS 13.3:n tai uudemman. Studion kohta Asetukset › Päivitykset näyttää, minkä päällä oma kopiosi toimii.
+Manafe3 Desktop sisältää Windowsissa oman verkkomoottorinsa, joten se vaatii Windows 10:n tai 11:n; Macilla se käyttää järjestelmän moottoria, joten se vaatii macOS 13.3:n tai uudemman. Studion kohta Asetukset › Päivitykset näyttää, minkä päällä oma kopiosi toimii.
 
 Tämä on vanhin versio, joka *käynnistyy*, luettuna koodista. Se ei ole luettelo vanhoista selaimista, joilla olisimme ajaneet sovelluksia, joten vanhempikin selain, joka käynnistyy, voi silti puuttua jostakin ominaisuudesta.
 

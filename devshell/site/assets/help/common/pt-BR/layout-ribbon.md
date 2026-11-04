@@ -43,7 +43,7 @@ Os painéis da esquerda e da direita mantêm tudo o que está descrito em [Organ
 
 ## Voltar ao layout clássico
 
-Abra {{ui:Configurações}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Área de trabalho}} e escolha {{ui:CadCraft clássico}}. Cada barra de ferramentas, guia e painel volta ao lugar onde estava.
+Abra {{ui:Configurações}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Área de trabalho}} e escolha {{ui:Manafe3 clássico}}. Cada barra de ferramentas, guia e painel volta ao lugar onde estava.
 
 :::note
 Em um celular, ou em uma janela de 760 pixels de largura ou menos, o app usa seu layout de celular, qualquer que seja a sua escolha. Uma janela mais larga traz de volta o seu layout.

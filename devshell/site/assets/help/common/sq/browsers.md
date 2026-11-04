@@ -54,7 +54,7 @@ Këto i lexuam nga kodi i aplikacioneve 0.7, jo nga një supozim: çdo skedar u 
 | Firefox | 93 |
 | Safari (Mac, iPad, iPhone) | 16.4 (macOS 13.3, iPadOS dhe iOS 16.4) |
 
-CadCraft Studio ka motorin e vet të uebit në Windows, kështu që kërkon Windows 10 ose 11; në Mac përdor atë të sistemit, kështu që kërkon macOS 13.3 ose më të ri. Cilësimet › Përditësimet në Studio tregon mbi çfarë funksionon kopja jote.
+Manafe3 Desktop ka motorin e vet të uebit në Windows, kështu që kërkon Windows 10 ose 11; në Mac përdor atë të sistemit, kështu që kërkon macOS 13.3 ose më të ri. Cilësimet › Përditësimet në Studio tregon mbi çfarë funksionon kopja jote.
 
 Ky është versioni më i vjetër që *nis*, i lexuar nga kodi. Nuk është një listë shfletuesish të vjetër me të cilët i kemi provuar aplikacionet, kështu që një version më i vjetër që nis mund të mos ketë ndonjë veçori.
 

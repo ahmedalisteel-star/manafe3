@@ -1,17 +1,17 @@
 ---
 title: Ziara ya skrini
-summary: Kila upau, kidirisha na kichupo cha DetailCraft kwa jina lake la skrini, na kila kimoja kinatumika kwa nini.
+summary: Kila upau, kidirisha na kichupo cha Manafe3 kwa jina lake la skrini, na kila kimoja kinatumika kwa nini.
 keywords: skrini, mpangilio, upau wa zana, vidirisha, sifa, upau wa hali, ripoti, kiolesura, ui, vichupo
 from: 454f74fd
 ---
 
-DetailCraft inajaza dirisha la kivinjari chini ya upau wa programu. Kutoka juu hadi chini: upau wa zana, kisha safu tatu (kidirisha cha {{ui:Modeli}}, mwonekano, kidirisha cha {{ui:Sifa}}), kisha vichupo vya ripoti, kisha upau wa hali.
+Manafe3 inajaza dirisha la kivinjari chini ya upau wa programu. Kutoka juu hadi chini: upau wa zana, kisha safu tatu (kidirisha cha {{ui:Modeli}}, mwonekano, kidirisha cha {{ui:Sifa}}), kisha vichupo vya ripoti, kisha upau wa hali.
 
 ## Upau wa programu
 
-Upau mwembamba juu kabisa ni wa tovuti ya CadCraft, si wa modeli. Unaonyesha jina na toleo la programu, kiungo cha {{ui:Kuhusu DetailCraft}}, {{ui:Msaada}} (au {{key:F1}}) kwa msaada huu, {{ui:Hifadhi kwa matumizi ya nje ya mtandao}}, kitufe cha hali ya skrini, na kibadilishaji cha {{ui:Karatasi}} / {{ui:Modeli}}.
+Upau mwembamba juu kabisa ni wa tovuti ya Manafe3, si wa modeli. Unaonyesha jina na toleo la programu, kiungo cha {{ui:Kuhusu Manafe3}}, {{ui:Msaada}} (au {{key:F1}}) kwa msaada huu, {{ui:Hifadhi kwa matumizi ya nje ya mtandao}}, kitufe cha hali ya skrini, na kibadilishaji cha {{ui:Karatasi}} / {{ui:Modeli}}.
 
-- {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} huweka DetailCraft, mwonekano wake wa 3D na msaada huu kwenye kivinjari chako ili ufunguke bila muunganisho. Inasoma {{ui:Tayari kwa matumizi ya nje ya mtandao}} baada ya kuhifadhiwa; bofya kisha kwa {{ui:Hifadhi tena (pata toleo la hivi karibuni)}} au {{ui:Ondoa nakala ya nje ya mtandao}}. Tazama [Kufanya kazi nje ya mtandao](common:offline).
+- {{ui:Hifadhi kwa matumizi ya nje ya mtandao}} huweka Manafe3, mwonekano wake wa 3D na msaada huu kwenye kivinjari chako ili ufunguke bila muunganisho. Inasoma {{ui:Tayari kwa matumizi ya nje ya mtandao}} baada ya kuhifadhiwa; bofya kisha kwa {{ui:Hifadhi tena (pata toleo la hivi karibuni)}} au {{ui:Ondoa nakala ya nje ya mtandao}}. Tazama [Kufanya kazi nje ya mtandao](common:offline).
 - {{ui:Karatasi}} inatoa skrini nyepesi na {{ui:Modeli}} ya giza. Mwonekano wa 3D unafuata mara moja; hakuna kitu kwenye modeli yako kinachobadilika.
 - Kitufe cha hali ya skrini na {{key:Ctrl+Shift+F}} vinazunguka kati ya kawaida, skrini nzima, na skrini nzima yenye pau zimefichwa. {{key:Ctrl+Shift+F}} hutumia kitufe cha Control kwenye kila kompyuta, pamoja na Mac. Pau zikiwa zimefichwa, elekeza juu kabisa ya skrini (au gusa) ili zirudi. {{key:Esc}} inatoka kwenye skrini nzima.
 
@@ -70,7 +70,7 @@ Sehemu za namba zinaanza kutumika ukibonyeza {{key:Enter}} au ukiondoka kwenye s
 
 ## Vichupo vya ripoti (chini)
 
-- {{ui:Matatizo}}: kila kitu ambacho DetailCraft haikuweza kujenga au inataka uangalie, pamoja na kitufe cha {{ui:Chagua}} kwenye kila mstari. Kichupo kinaonyesha idadi kwenye mabano.
+- {{ui:Matatizo}}: kila kitu ambacho Manafe3 haikuweza kujenga au inataka uangalie, pamoja na kitufe cha {{ui:Chagua}} kwenye kila mstari. Kichupo kinaonyesha idadi kwenye mabano.
 - {{ui:Orodha ya vifaa}}: sehemu, mikusanyiko, na bolti na vijiti vya kutia nanga, pamoja na uzito na kiungo cha {{ui:Pakua CSV}}. Bofya alama ya sehemu ili kuchagua sehemu hiyo.
 - {{ui:Ratiba ya kupinda}}: kila alama ya baa katika kila msingi, pamoja na kiungo cha {{ui:Pakua CSV}}.
 
@@ -84,4 +84,4 @@ Kichwa cha kichupo cha kivinjari kinaanza na nukta (•) wakati modeli ina mabad
 
 ## Kwenye skrini nyembamba
 
-Chini ya takriban pikseli 760 kwa upana, safu zinapangwa juu ya nyingine: upau wa zana, mwonekano, upau wa hali, {{ui:Sifa}}, vichupo vya ripoti, kisha kidirisha cha {{ui:Modeli}} mwisho. Sogeza ukurasa ili kuvifikia. DetailCraft imepangwa kwa skrini ya kompyuta ya mezani au ya laptop; simu inafaa kwa kutazama, si kwa uchoraji wa kina.
+Chini ya takriban pikseli 760 kwa upana, safu zinapangwa juu ya nyingine: upau wa zana, mwonekano, upau wa hali, {{ui:Sifa}}, vichupo vya ripoti, kisha kidirisha cha {{ui:Modeli}} mwisho. Sogeza ukurasa ili kuvifikia. Manafe3 imepangwa kwa skrini ya kompyuta ya mezani au ya laptop; simu inafaa kwa kutazama, si kwa uchoraji wa kina.

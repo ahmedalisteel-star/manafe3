@@ -43,7 +43,7 @@ Mipangilio ya upau wa zana inatumika kwenye utepe: {{ui:Mipangilio}} › {{ui:Ki
 
 ## Rudi kwenye mpangilio wa kawaida
 
-Fungua {{ui:Mipangilio}} › {{ui:Kimataifa}} › {{ui:Mpangilio}} › {{ui:Nafasi ya kazi}}, kisha uchague {{ui:CadCraft ya kawaida}}. Kila upau, kila kichupo na kila paneli inarudi ilipokuwa.
+Fungua {{ui:Mipangilio}} › {{ui:Kimataifa}} › {{ui:Mpangilio}} › {{ui:Nafasi ya kazi}}, kisha uchague {{ui:Manafe3 ya kawaida}}. Kila upau, kila kichupo na kila paneli inarudi ilipokuwa.
 
 :::note
 Kwenye simu, au kwenye dirisha lenye upana wa pikseli 760 au chini yake, programu inatumia mpangilio wa simu bila kujali ulichochagua. Dirisha pana zaidi linarudisha mpangilio wako.

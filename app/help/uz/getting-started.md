@@ -1,11 +1,11 @@
 ---
-title: DetailCraft bilan boshlash
-summary: DetailCraft hozir nima qilishi, uni qanday ochish va setkalardan bitta ishlab chiqarish chizmasigacha birinchi modelni oʻn daqiqada yaratish.
+title: Manafe3 bilan boshlash
+summary: Manafe3 hozir nima qilishi, uni qanday ochish va setkalardan bitta ishlab chiqarish chizmasigacha birinchi modelni oʻn daqiqada yaratish.
 keywords: boshlash, birinchi model, kirish, poʻlat detallashtirish, armatura, tez boshlash, qoʻllanma, umumiy koʻrinish
 from: 3682c0d8
 ---
 
-DetailCraft — CadCraft oilasiga kiruvchi poʻlat va armatura detallashtirish ilovasi. Siz setkalar va sathlarda poʻlat ramaning 3D modelini quriasiz, uni bogʻlaysiz va sexga kerak boʻladigan narsalarni olasiz: detal va yigʻma belgilari, materiallar roʻyxati, bitta detalning ishlab chiqarish chizmasi (PDF), DSTV NC fayllari, IFC modeli va poydevorlar uchun armatura jadvali.
+Manafe3 — Manafe3 oilasiga kiruvchi poʻlat va armatura detallashtirish ilovasi. Siz setkalar va sathlarda poʻlat ramaning 3D modelini quriasiz, uni bogʻlaysiz va sexga kerak boʻladigan narsalarni olasiz: detal va yigʻma belgilari, materiallar roʻyxati, bitta detalning ishlab chiqarish chizmasi (PDF), DSTV NC fayllari, IFC modeli va poydevorlar uchun armatura jadvali.
 
 Bu erta versiya. U bir nechta narsani sinchkovlik bilan bajaradi, hammasini birdaniga emas. Haqiqiy ish rejalashtirishdan oldin [Hali qurilmagan narsalar](topic:not-built-yet) bilan tanishing.
 
@@ -19,9 +19,9 @@ Bu erta versiya. U bir nechta narsani sinchkovlik bilan bajaradi, hammasini bird
 - Har bir oʻzgarishdan keyin oʻzi yangilanadigan detal va yigʻma belgilari.
 - Eksportlar: IFC4, DSTV NC fayllari (I-shakllar va plastinalar), CSV koʻrinishidagi materiallar roʻyxati, CSV koʻrinishidagi armatura jadvali va bitta detalning ishlab chiqarish chizmasi PDF.
 
-## DetailCraftni ochish
+## Manafe3ni ochish
 
-1. DetailCraftni kompyuter brauzerida oching: Chrome, Edge, Firefox yoki Safari. Qarang: [Brauzerlar va kompyuterlar](common:browsers).
+1. Manafe3ni kompyuter brauzerida oching: Chrome, Edge, Firefox yoki Safari. Qarang: [Brauzerlar va kompyuterlar](common:browsers).
 2. Ekran toʻlishini kuting. Pastdagi holat satrida « Tayyor. Namunani oching yoki setkalar va sathlarni oʻrnating hamda elementlarni joylashtira boshlang. » yoziladi.
 
 Model koʻrinishi 3D grafika (WebGL) talab qiladi. Agar ekran oʻrtasida « Bu brauzer 3D grafikani (WebGL) ishga tushira olmadi » yozilsa, qarang: [Muammolarni bartaraf etish](topic:troubleshooting#the-3d-view-is-missing).
@@ -31,12 +31,12 @@ Modellaringiz kompyuteringizda qoladi. Modelni ochish brauzerda oʻqiladi, saqla
 :::
 
 :::offline
-Siz oflaynsiz. DetailCraft faqat oldindan oflayn foydalanish uchun saqlangan boʻlsa ulanishsiz ishlaydi: ilova panelidagi {{ui:Save for offline}} tugmasi {{ui:Offline ready}} deb yozadi. Qarang: [Oflaynda ishlash](common:offline).
+Siz oflaynsiz. Manafe3 faqat oldindan oflayn foydalanish uchun saqlangan boʻlsa ulanishsiz ishlaydi: ilova panelidagi {{ui:Save for offline}} tugmasi {{ui:Offline ready}} deb yozadi. Qarang: [Oflaynda ishlash](common:offline).
 :::
 
 ## Avval namunani koʻring
 
-DetailCraft nima yasashini koʻrishning eng tez usuli — namuna rama.
+Manafe3 nima yasashini koʻrishning eng tez usuli — namuna rama.
 
 1. Asboblar panelining {{ui:File}} guruhidan {{ui:Sample}} ni tanlang.
 2. Koʻrinishda ikki oraliqli rama paydo boʻladi: tayanch plastinali olti ustun, uchlik plastinali toʻrtta toʻsin, bitta bogʻlama va armaturali yetti poydevor.
@@ -49,7 +49,7 @@ DetailCraft nima yasashini koʻrishning eng tez usuli — namuna rama.
 
 Yangi modelda 1 dan 3 gacha raqamli va A dan B gacha harfli setkalar bor, qadami 6000 mm; hamda ikki sath: 0 da Sath 1 va 4000 da Sath 2.
 
-1. {{ui:New}} ni tanlang. Joriy modelda oʻzgarishlar boʻlsa, DetailCraft avval ularni saqlashni soraydi.
+1. {{ui:New}} ni tanlang. Joriy modelda oʻzgarishlar boʻlsa, Manafe3 avval ularni saqlashni soraydi.
 2. Koʻrinish ustidagi {{ui:Plan}} ni tanlang. Yonidagi sathlar roʻyxatida Sath 1 tanlanadi.
 3. Asboblar panelida {{ui:Column}} ni tanlang yoki {{key:C}} tugmasini bosing.
 4. A/1 setka kesishmasini bosing. Sath 1 dan Sath 2 gacha W12x50 ustun paydo boʻladi. Holat satrida u qayerga joylashgani yoziladi.
