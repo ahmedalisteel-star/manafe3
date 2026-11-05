@@ -78,6 +78,11 @@ members are tagged and replaced (a warning first); members you add yourself stay
   the same girt line as the main columns), top cut square under the rafter at the column centre. End rafter: constant
   rafter section, eave point to apex, plumb ends, 12 m split. Gable girts lapped over the wind columns; above the eave a
   row runs where it stays 300 mm under the roof.
+- Step 6 openings set-out by Claude — **TO CONFIRM with the user** (`engine/peb/openings.py`): an opening = { wall A/B/
+  first/last, at, width, sill (0 = door), height }; girt rows with sill < z < head cut between the jambs (2 new holes 40 mm
+  from each cut end); C jambs (eave-strut section) from the floor (doors) or the girt at/under the sill (windows) to the
+  first girt at/above the head (else the eave); C header at the head and C sill for windows unless a girt row is already
+  there; all in the girt plane, depth out of the building.
 - Planned defaults (Claude, approved): purlins on the rafters with the Z top flange up-slope; girts on the outer
   column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
   overlaps for the clash check.
