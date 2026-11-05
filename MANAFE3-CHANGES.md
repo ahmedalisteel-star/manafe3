@@ -20,6 +20,8 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `app/view3d.js` | a shaped plate (built-up web) is drawn from its true outline; a part's `look` sets its colour (built-up flanges as their member) | Phase 1 |
 | `app/detailcraft.js` (Phase 1) | Properties panel: the built-up section editor / "Make built-up…" (`app/manafe3/builtup-ui.js`); "Plate list" output (`app/manafe3/output-ui.js`) | Phase 1 |
 | `app/nc1.js` | a shaped plate (built-up web) is written as a sheet (code B) with its outline as the AK contour | Phase 1 |
+| `app/ifc.js` | a built-up web as IfcPlate with an IfcArbitraryClosedProfileDef; each built-up segment's assembly carries a `Manafe3_BuiltUp` property set (the member as JSON, mm); property-set name may vary | Phase 1 |
+| `app/ifc-import.js` | assemblies with `Manafe3_BuiltUp` come back as one built-up member each; their plates are not imported again | Phase 1 |
 | `app/nest.js` | built-up webs (`BUW…`) are left out of the bar cut list (they are plates) | Phase 1 |
 | `README.md` | moved to `docs/DETAILCRAFT-README.md`; a Manafe3 README took its place | the fork's own install guide |
 | `app/dwg/objects-write.js` | synced byte for byte from `tests/lib/dwg/objects-write.js` (R2004+ class header: version fields as BL) | upstream v0.8.1 shipped the two out of step and its own test `writer-sync --check` failed |

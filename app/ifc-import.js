@@ -277,6 +277,26 @@ function convert(W, api, mid, fallbackName) {
     return out.slice(0, 60);
   };
 
+  // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members — assemblies carrying the Manafe3_BuiltUp property set
+  // (ifc.js) — come back as one member each, from the member written there (mm); their plates are not imported again
+  const m3Asm = new Set(), m3Parts = new Set(), m3Members = new Map();
+  for (const rid of ids(W.IFCRELDEFINESBYPROPERTIES)) {
+    const r = line(rid), def = r ? line(ref(r.RelatingPropertyDefinition)) : null;
+    if (!def || clsName(def) !== 'IfcPropertySet' || val(def.Name) !== 'Manafe3_BuiltUp') continue;
+    const props = new Map();
+    for (const pr of def.HasProperties || []) { const p = line(ref(pr)); if (p) props.set(val(p.Name), val(p.NominalValue)); }
+    let mem = null;
+    try { mem = JSON.parse(String(props.get('Member'))); } catch { mem = null; }
+    if (!mem || !mem.bu) { warnings.push('A built-up member in this file could not be read; its plates come in as plates.'); continue; }   // i18n-ignore: Manafe3 words (English for now)
+    for (const o of r.RelatedObjects || []) { const a = ref(o); if (a !== null) m3Asm.add(a); }
+    const key = String(props.get('MemberRef') || rid);
+    if (!m3Members.has(key)) m3Members.set(key, mem);
+  }
+  for (const rid of ids(W.IFCRELAGGREGATES)) {
+    const r = line(rid);
+    if (r && m3Asm.has(ref(r.RelatingObject))) for (const o of r.RelatedObjects || []) m3Parts.add(ref(o));
+  }
+
   // steel
   const STEEL = [
     ['IFCBEAM', 'beam'], ['IFCBEAMSTANDARDCASE', 'beam'], ['IFCCOLUMN', 'column'], ['IFCCOLUMNSTANDARDCASE', 'column'],
@@ -288,6 +308,7 @@ function convert(W, api, mid, fallbackName) {
   for (const [T, type] of STEEL) {
     for (const id of ids(W[T])) {
       steelIds.add(id);
+      if (m3Parts.has(id)) continue;   // Manafe3: a plate of a built-up member (rebuilt from its assembly)
       const el = line(id);
       const cls = clsName(el);
       if (members.length >= MAX_MEMBERS) { skip(cls, t('ifcimp.why.too-many', { max: MAX_MEMBERS })); continue; }
@@ -390,7 +411,7 @@ function convert(W, api, mid, fallbackName) {
   };
   for (const ty of api.GetAllTypesOfModel(mid) || []) {
     if (!api.IsIfcElement(ty.typeID) || /^IFC(SITE|BUILDING|BUILDINGSTOREY|GRID|PROJECT)$/i.test(String(ty.typeName))) continue;
-    const list = ids(ty.typeID).filter((x) => !steelIds.has(x) && !handled.has(x));
+    const list = ids(ty.typeID).filter((x) => !steelIds.has(x) && !handled.has(x) && !m3Asm.has(x));   // Manafe3: + built-up assemblies
     if (!list.length) continue;
     const cls = clsName(line(list[0]));
     const why = t(REASON[cls] || 'ifcimp.why.not-steel');
@@ -406,6 +427,12 @@ function convert(W, api, mid, fallbackName) {
     for (const m of members) {
       try { const nid = tx.addMember({ ...m, material: m.material || undefined }); memberOf.set(m.src, nid); converted[m.cls] = (converted[m.cls] || 0) + 1; if (m.clipped) clippedN++; }
       catch (e) { skip(m.cls, e.message); }
+    }
+    for (const b of m3Members.values()) {   // Manafe3: built-up members, as they were written
+      try {
+        tx.addMember({ type: b.type, name: b.name, start: b.start, end: b.end, rotation: b.rotation, phase: b.phase, material: b.material, position: 'middle', bu: b.bu });
+        converted['Manafe3 built-up member'] = (converted['Manafe3 built-up member'] || 0) + 1;   // i18n-ignore: Manafe3 words
+      } catch (e) { skip('IfcElementAssembly', e.message); }
     }
     const got = (cls) => { converted[cls] = (converted[cls] || 0) + 1; };
     // holes and copes

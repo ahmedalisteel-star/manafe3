@@ -137,6 +137,15 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
     }
   };
 
+  // Manafe3 (changed file, MANAFE3-CHANGES.md): a shaped plate (built-up web). Its outline (x, v) lies in the part's local
+  // Z–Y plane (the placement's Z = x along, X = u, Y = v), so the solid gets its own position: profile X' = x, Y' = v, extruded
+  // along −u through the thickness from u = t/2.
+  const splSolid = (p) => {
+    const poly = w.add('IFCPOLYLINE((' + [...p.outline, p.outline[0]].map(([x, v]) => w.pt([x, v])).join(',') + '))');
+    const prof = w.add('IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,' + S(p.name) + ',' + poly + ')');
+    const pos = w.add('IFCAXIS2PLACEMENT3D(' + w.pt([p.t / 2, 0, 0]) + ',' + w.dir([-1, 0, 0]) + ',' + w.dir([0, 0, 1]) + ')');
+    return w.add('IFCEXTRUDEDAREASOLID(' + prof + ',' + pos + ',' + DZ + ',' + R(p.t) + ')');
+  };
   const voids = [];
   const materials = new Map();
   const psets = [];
@@ -146,7 +155,7 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
     const st = storeyFor(Math.min(part.start[2], part.end[2]));   // lowest point of the part's reference line
     const f = part.frame;
     const lp = place(st, f.o, f.x, f.u);
-    let solid = extrude(profileDef(part.profile, part.voff), part.length);
+    let solid = part.profile.kind === 'SPL' ? splSolid(part.profile) : extrude(profileDef(part.profile, part.voff), part.length);   // Manafe3: a built-up web
     // mitre ends: clip the extrusion by each cut plane (local X = u, Y = v + voff, Z = x; the face is x = x0 + ku·u + kv·v)
     for (const end of ['start', 'end']) {
       const c = part.endCuts && part.endCuts[end];
@@ -197,6 +206,13 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
       const asm = w.add('IFCELEMENTASSEMBLY(' + S(seed('asm' + mainId)) + ',$,' + S(a.mark) + ",$,'Assembly'," + w.add('IFCLOCALPLACEMENT(' + main.st.lp + ',' + WCS + ')') + ',$,' + S(a.mark) + ',.FACTORY.,.NOTDEFINED.)');
       w.add('IFCRELAGGREGATES(' + S(seed('rel-asm' + mainId)) + ',$,$,$,' + asm + ',(' + [main.id, ...subs.map((s) => elementOf.get(s.id).id)].join(',') + '))');
       main.st.contents.push(asm);
+      // Manafe3: a built-up segment's assembly carries its member (line, rotation, segments; mm) so Import IFC rebuilds it exactly
+      const mp = built.byId.get(mainId);
+      const mem = mp?.builtUp ? state.members.find((x) => x.id === mp.member) : null;
+      if (mem) {
+        const json = JSON.stringify({ units: 'mm', type: mem.type, name: mem.name, start: mem.start, end: mem.end, rotation: mem.rotation, phase: mem.phase || 1, material: mem.material, bu: mem.bu });
+        psets.push([asm, [['MemberRef', 'IFCLABEL', mem.id], ['Segment', 'IFCINTEGER', mp.segment], ['Segments', 'IFCINTEGER', mem.bu.segments.length], ['Member', 'IFCTEXT', json]], 'Manafe3_BuiltUp']);
+      }
     }
   }
 
@@ -264,9 +280,9 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
     const m = w.add('IFCMATERIAL(' + S(mat) + ',$,$)');
     w.add('IFCRELASSOCIATESMATERIAL(' + S(seed('mat' + mat)) + ',$,$,$,(' + els.join(',') + '),' + m + ')');
   }
-  psets.forEach(([el, props], i) => {
+  psets.forEach(([el, props, setName = 'DetailCraft'], i) => {   // Manafe3: an optional set name (Manafe3_BuiltUp)
     const ps = props.map(([n, t, v]) => w.add('IFCPROPERTYSINGLEVALUE(' + S(n) + ',$,' + t + '(' + (t === 'IFCINTEGER' ? String(Math.round(v)) : typeof v === 'number' ? R(v) : S(v)) + '),$)'));
-    const set = w.add('IFCPROPERTYSET(' + S(seed('pset' + i)) + ",$,'DetailCraft',$,(" + ps.join(',') + '))');
+    const set = w.add('IFCPROPERTYSET(' + S(seed('pset' + i)) + ',$,' + S(setName) + ',$,(' + ps.join(',') + '))');
     w.add('IFCRELDEFINESBYPROPERTIES(' + S(seed('rdp' + i)) + ',$,$,$,(' + el + '),' + set + ')');
   });
 
