@@ -3,6 +3,7 @@
 
     GET  /health      engine, PyNite, bimsteelauto (and anastruct) versions; which per-machine paths are set
     POST /peb/frame   {span, eave_height, roof_slope, bay_spacing, n_bays} -> a portal frame as members (mm)
+    POST /section/builtup  {segments: [...], x?: [...]} -> A, Ix, Iy, Zx, Sx_top/bot along a built-up member
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from . import __version__, settings
 from .peb.frame import FrameInput, portal_frame
+from .sections.builtup import BuiltUpError, BuiltUpMember
 
 app = FastAPI(title="Manafe3 engine", version=__version__)
 
@@ -54,6 +56,40 @@ class FrameRequest(BaseModel):
     roof_slope: float = Field(..., description="rise/run, 0.1 = 1:10")
     bay_spacing: float = Field(..., description="mm")
     n_bays: int = Field(..., description="number of bays; frames = n_bays + 1")
+
+
+class SegmentIn(BaseModel):
+    length: float
+    hw_start: float = Field(..., description="web plate depth at the segment start, mm")
+    hw_end: float = Field(..., description="web plate depth at the segment end, mm")
+    tw: float
+    bf_top: float
+    tf_top: float
+    bf_bot: float
+    tf_bot: float
+    grade: str = "S355"
+    straight: str = "top"
+
+
+class BuiltUpRequest(BaseModel):
+    segments: list[SegmentIn]
+    x: list[float] | None = Field(None, description="stations along the member, mm; default: ends, splices, quarters")
+
+
+@app.post("/section/builtup")
+def section_builtup(req: BuiltUpRequest) -> dict:
+    """Section properties of a built-up member along its length (bimsteelauto's WeldedI at each station)."""
+    try:
+        m = BuiltUpMember.from_dicts([s.model_dump() for s in req.segments])
+        xs = req.x if req.x is not None else m.stations()
+        rows = [m.properties_at(x) for x in xs]
+    except BuiltUpError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    return {
+        "units": {"length": "mm", "A": "mm2", "I": "mm4", "S": "mm3", "Z": "mm3", "mass": "kg"},
+        "length": m.length, "splices": m.splices, "mass_axis": m.mass_axis(), "stations": rows,
+        "source": "bimsteelauto.sections.WeldedI (closed form); cross-checked against sectionproperties in the tests",
+    }
 
 
 @app.post("/peb/frame")
