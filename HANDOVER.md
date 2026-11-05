@@ -11,8 +11,7 @@ engine section properties along the length, and "PEB frame…" now builds built-
 
 ## Next task
 
-**Phase 2 — secondary steel.** Plan below AGREED with the user's decisions (2026-11-05); waiting for the user's "go"
-to start step 1. Tests per step with hand-checked values, commit on `main` after each green step, everything
+**Phase 2 — secondary steel.** Plan below AGREED with the user's decisions (2026-11-05); user said go — in progress. Tests per step with hand-checked values, commit on `main` after each green step, everything
 `designed: false` until Phase 4, `end-work.ps1` at the end.
 
 ### Phase 2 plan
@@ -54,7 +53,11 @@ members are tagged and replaced (a warning first); members you add yourself stay
 - From the scope: Z lapped over frames by default, C at eaves / openings / where chosen; spacing 1.25 m; sag rods 1 row
   at mid-bay for bays ≤ 7.5 m, 2 rows above, M12; rod X-bracing M20 in chosen roof and wall bays with eave struts,
   angle option (default L75x6, editable).
-- Planned defaults (Claude, user may change): purlins on the rafters with the Z top flange up-slope; girts on the outer
+- Additions (user, 2026-11-05, defaults approved): **bolt size per job**, M12 default (14 mm holes) or M16 (18 mm
+  holes). **Ridge purlins**: one each side of the ridge at 150–300 mm from the apex (default 200 mm, measured along the
+  roof from the apex to the purlin's web line; editable); the first purlin at the eave strut; the rest evenly spaced
+  between them, never more than the set spacing.
+- Planned defaults (Claude, approved): purlins on the rafters with the Z top flange up-slope; girts on the outer
   column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
   overlaps for the clash check.
 
