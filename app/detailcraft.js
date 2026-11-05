@@ -1854,9 +1854,9 @@ async function start(root) {
     exports: { ifc: () => exportIfc(), nc: () => exportNc(), bom: () => exportBom(), bending: () => exportBending(), kiss: () => exportKiss(), cutlist: () => exportNest() },
   });
   // ---- Manafe3 (changed file, see MANAFE3-CHANGES.md): the "PEB frame…" button, app/manafe3/peb-frame-ui.js ----
-  import('./manafe3/peb-frame-ui.js')
-    .then(({ mountPebFrame }) => mountPebFrame({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
-    .catch((err) => console.warn('Manafe3: no PEB frame button —', err?.message || err));   // i18n-ignore: a console line
+  import('./manafe3/peb-building-ui.js')   // Phase 2: "PEB building…" (frames + secondary steel) replaces "PEB frame…"
+    .then(({ mountPebBuilding }) => mountPebBuilding({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
+    .catch((err) => console.warn('Manafe3: no PEB building button —', err?.message || err));   // i18n-ignore: a console line
   import('./manafe3/output-ui.js')   // Manafe3: the "Plate list" output (plate cut list CSV)
     .then(({ mountOutputs }) => mountOutputs({ built: () => built, marks: () => marks, name: () => safeName(), download, print }))
     .catch((err) => console.warn('Manafe3: no plate list button —', err?.message || err));   // i18n-ignore: a console line

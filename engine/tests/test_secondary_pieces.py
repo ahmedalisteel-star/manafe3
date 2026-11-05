@@ -80,6 +80,18 @@ def test_cleats():
     assert len(c[0]["holes"]) == 2
     g = [c for c in out["cleats"] if c["line"] == "GA1"]
     assert g and g[0]["host"] == "column A"
+    # geometry: a Z cleat starts t/2 + 4 = 5 mm up-slope of the line on the roof and rises 180 along the roof normal
+    import math
+    cs, sn = 1 / math.sqrt(1.01), 0.1 / math.sqrt(1.01)
+    k = z[1]
+    assert k["start"][1] == pytest.approx(k["base"][1] + 5 * cs, abs=1e-3) and k["start"][2] == pytest.approx(k["base"][2] + 5 * sn, abs=1e-3)
+    assert k["end"][1] == pytest.approx(k["start"][1] - 180 * sn, abs=2e-3) and k["end"][2] == pytest.approx(k["start"][2] + 180 * cs, abs=2e-3)   # start and end each rounded to 0.001
+    # a girt cleat (wall A, girts point out of the building): 5 mm above the girt line, 180 outwards (−Y)
+    gc = g[1]
+    assert gc["start"] == [6000, 0, gc["base"][2] + 5] and gc["end"] == [6000, -180, gc["base"][2] + 5]
+    # the eave strut (C) cleat sits at the back of its web: −(65/2 + 4) = −36.5 along u
+    ce = c[1]
+    assert ce["start"][1] == pytest.approx(ce["base"][1] - 36.5 * cs, abs=1e-3)
 
 
 def test_mixed_bays_and_fixed_lap():

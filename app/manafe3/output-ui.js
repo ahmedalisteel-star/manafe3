@@ -13,7 +13,7 @@ export function mountOutputs({ built, marks, name, download, print }) {
   btn.className = 'dc-tool';
   btn.dataset.m3Act = 'plate-list';
   btn.title = 'Plate cut list (CSV): every plate by mark — built-up webs and flanges, connection plates — with totals per grade and thickness';
-  btn.innerHTML = '<i class="bi bi-grid-3x3" aria-hidden="true"></i><span>Plate list</span>';
+  btn.innerHTML = '<i class="bi bi-grid-3x3" aria-hidden="true"></i><span>Plates</span>';
   const anchor = document.querySelector('[data-act="bom"]');
   if (anchor) anchor.after(btn); else document.querySelector('.dc-tools')?.append(btn);
   btn.addEventListener('click', () => {

@@ -246,10 +246,18 @@ def secondary_members(lines: dict, frames: list[float], end_overhang: float, bol
                 "rotation": line["rotation"], "position": line["position"], "length": _r(p["b"] - p["a"]), "holes": holes, "designed": False,
             })
         h = dims["H"] - 20.0
+        # the line's section axes (geom.js frame(): x along the line, v0 = Z, u0 = v0 × x, turned by the rotation)
+        a = math.radians(line["rotation"])
+        u0 = (0.0, sgn, 0.0)
+        u = (0.0, math.cos(a) * u0[1], math.sin(a))
+        v = (0.0, -math.sin(a) * u0[1], math.cos(a))
+        off = -(dims["B"] / 2 + 4.0) if is_c else dims["t"] / 2 + 4.0     # beside the web: C at its back, Z on its upper side
         for i, xf in enumerate(sorted(frames)):
             interior_c = is_c and 0 < i < len(frames) - 1
             along = [-BUTT_HOLE, BUTT_HOLE] if interior_c else [0.0]
+            st = [xf, line["start"][1] + off * u[1], line["start"][2] + off * u[2]]
             cleats.append({
+                "start": [_r(c) for c in st], "end": [_r(st[0]), _r(st[1] + h * v[1]), _r(st[2] + h * v[2])], "width_dir": [sgn, 0.0, 0.0],
                 "line": line["id"], "frame": i, "x": _r(xf), "base": [_r(xf), line["start"][1], line["start"][2]],
                 "rotation": line["rotation"], "profile": f"PL8x100", "height": _r(h), "side": "back" if is_c else "up",
                 "holes": [{"along": _r(a), "up": _r(dims["H"] / 2 + sy * g / 2), "d": d0} for a in along for sy in (-1, 1)],

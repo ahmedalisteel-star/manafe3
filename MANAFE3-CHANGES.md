@@ -14,7 +14,7 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `devshell/app.json` | name, role, tagline, short description | same |
 | `devshell/site/favicon.svg`, `favicon.ico`, `favicon-32.png` | the CadCraft logo replaced by the Manafe3 logo (concept B, M-frame; drawn by `branding/build-logos.mjs`) | TRADEMARKS.md: take out the CadCraft logo |
 | `app/detailcraft.js` | window title and file-type labels say Manafe3; loads the Manafe3 module `app/manafe3/peb-frame-ui.js` | renaming; Phase 0 feature |
-| `app/model.js` | a member may carry `bu` (built-up segments): checked by `app/manafe3/builtup.js` instead of the profile table, kept on save/open and undo | Phase 1 built-up members |
+| `app/model.js` | a member may carry `bu` (built-up segments): checked by `app/manafe3/builtup.js` instead of the profile table, kept on save/open and undo; Phase 2: a member's `gen` tag and `state.m3building` (the PEB building's inputs) are kept | Phase 1, Phase 2 |
 | `app/build.js` | a built-up member becomes its plates (`app/manafe3/builtup-parts.js`); a part's own `plateWeight` wins over profile mass × length | Phase 1 built-up members |
 | `app/marks.js` | a shaped plate (kind `SPL`, built-up web) is marked as it lies, its outline part of its signature; lipped C turns like a channel, a Z only about its axis | Phase 1, Phase 2 |
 | `app/profiles.js` | lipped C / Z (`C200x65x20x2.0`, custom kinds CFC / CFZ), rods (`RD20`) and metric equal angles (`L50x5`) from `app/manafe3/coldformed.js`: names, outlines, exact areas, hole faces | Phase 2 secondary steel |
