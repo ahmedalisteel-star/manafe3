@@ -28,6 +28,7 @@ const VARIANTS = {
   none: ['id'],
 };
 function variantsFor(profile) {
+  if (profile.kind === 'SPL') return VARIANTS.none;   // Manafe3: a shaped plate (built-up web) is marked as it lies
   if (profile.kind === 'C') return VARIANTS.C;
   if (profile.kind === 'L' || profile.kind === 'CHS') return VARIANTS.none;
   return VARIANTS.all;
@@ -80,7 +81,8 @@ function partSig(p, v, tol) {
   const holes = p.holes.map((h) => turnHole(h, v, L)).map((h) => [h.face, r(h.x, tol), r(h.y, tol), r(h.d, 0.1)]).sort(cmpArr);
   const cuts = p.cuts.map((c) => turnCut(c, v)).map((c) => [c.kind, c.end, c.side, r(c.length, tol), r(c.depth, tol)]).sort(cmpArr);
   const ends = endTrims(p, v, tol);
-  return JSON.stringify([p.type === 'plate' ? 'plate' : p.type, p.profileName.toUpperCase(), p.material.toUpperCase(), r(L, tol), holes, cuts, ...(ends ? [ends] : [])]);
+  const shape = p.profile.outline ? [p.profile.outline.map(([x, y]) => [r(x, tol), r(y, tol)])] : [];   // Manafe3: a shaped plate's outline is part of what it is
+  return JSON.stringify([p.type === 'plate' ? 'plate' : p.type, p.profileName.toUpperCase(), p.material.toUpperCase(), r(L, tol), holes, cuts, ...(ends ? [ends] : []), ...shape]);
 }
 function cmpArr(a, b) { for (let i = 0; i < Math.max(a.length, b.length); i++) { if (a[i] < b[i]) return -1; if (a[i] > b[i]) return 1; } return 0; }
 

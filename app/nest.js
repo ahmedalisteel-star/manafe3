@@ -66,7 +66,8 @@ export function nestBars(pieces, { stock = [6000, 12000], kerf = 3, trim = 0, ke
 
 /** The bill of materials' part rows → nesting pieces (linear parts only: plates are cut from sheet, not bars). */
 export function piecesFromMarks(marks) {
-  return marks.parts.filter((p) => p.type !== 'plate').map((p) => ({ mark: p.mark, profile: p.profile, material: p.material, length: p.length, count: p.count }));
+  // Manafe3 (changed line): a built-up web (profile BUW…) is a plate, not a bar
+  return marks.parts.filter((p) => p.type !== 'plate' && !/^BUW/.test(p.profile)).map((p) => ({ mark: p.mark, profile: p.profile, material: p.material, length: p.length, count: p.count }));
 }
 
 /**

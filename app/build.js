@@ -26,6 +26,7 @@ import { buildEndPlate, buildBasePlate, buildShearTab, buildSplice, buildGusset,
 import { footingBars, footingProblems } from './rebar.js';
 import { stairGeometry } from './stair.js';
 import { t } from './i18n.js';
+import { builtUpParts } from './manafe3/builtup-parts.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members → plates
 
 export const IFC_CLASS = { beam: 'IfcBeam', column: 'IfcColumn', brace: 'IfcMember', plate: 'IfcPlate', stringer: 'IfcMember' };
 const ROLE = { beam: 'build.role.beam', column: 'build.role.column', brace: 'build.role.brace', plate: 'build.role.plate' };
@@ -33,7 +34,9 @@ const ROLE = { beam: 'build.role.beam', column: 'build.role.column', brace: 'bui
 export function build(state) {
   const problems = [];
   const drafts = new Map();
+  const builtUp = [];   // Manafe3: members with segments (m.bu) become their plates below
   for (const m of state.members) {
+    if (m.bu) { builtUp.push(m); continue; }
     const profile = getProfile(m.profile, state.profiles);
     if (!profile) { problems.push({ ref: m.id, text: t('build.err.profile', { name: m.profile }) }); continue; }
     const f = frame(m.start, m.end, m.rotation);
@@ -86,6 +89,11 @@ export function build(state) {
       setback: { ...d.setback }, endCuts, attachTo: null,
     });
   }
+  for (const m of builtUp) {   // Manafe3: each segment = web (main part) + two flange plates
+    const r = builtUpParts(m);
+    problems.push(...r.problems);
+    for (const part of r.parts) finish(part);
+  }
   for (const p of plates) {
     const profile = getProfile(p.profileName, state.profiles);
     const f = frame(p.start, p.end, p.rotation);
@@ -121,7 +129,7 @@ export function build(state) {
   }
   for (const p of parts) {
     p.holes.sort((a, b) => a.x - b.x || a.y - b.y);
-    p.weight = p.profile.mass * p.length / 1000;        // gross: holes and copes are not deducted
+    p.weight = p.plateWeight ?? p.profile.mass * p.length / 1000;        // gross: holes and copes are not deducted (Manafe3: a built-up plate's own outline weight)
     for (const h of p.holes) if (h.x < -0.5 || h.x > p.length + 0.5) problems.push({ ref: p.member || p.conn || p.stair, text: t('build.err.hole-off', { part: p.role + ' ' + (p.name || '') }) });
   }
   const footings = state.footings.map((f) => ({ f, bars: footingBars(f), problems: footingProblems(f) }));
