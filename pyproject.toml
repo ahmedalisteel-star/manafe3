@@ -29,7 +29,7 @@ dev = [
 package = false
 
 [tool.uv.sources]
-bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "c0b23189cf99153c16f12ef5e8003cbac92b7ad2" }  # branch "packaging"
+bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "c0b23189cf99153c16f12ef5e8003cbac92b7ad2" }  # main (was branch "packaging")
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]

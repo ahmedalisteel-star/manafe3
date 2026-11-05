@@ -12,7 +12,7 @@ Read this and `CLAUDE.md` first, on either PC. Then `.\start-work.ps1`.
 **Phase 1 — tapered built-up member type** (web taper, flange plates, 3D, BOM, NC per plate). Start by reading
 `app/profiles.js`, `app/shapes/sections.js`, `app/build.js`, `app/nc1.js` and `app/marks.js` (how a member becomes
 parts, marks and NC), and `bimsteelauto/sections.py` (welded tapered I-sections, `parse_mark`). Write the plan into this
-file before coding. Two open decisions to settle first are in "Open items" below.
+file before coding.
 
 ## How to run
 
@@ -95,15 +95,17 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 | GitHub CLI installed with winget on ENG04-PC | user | 2026-11-04 |
 | BIMSteelAuto as a git dependency: `pyproject.toml` added on branch `packaging` of the public repo (only files already public) | user | 2026-11-05 |
 | Upstream CI workflow removed (no Actions minutes); tests run locally via start-work/end-work | user | 2026-11-05 |
-| Our code: "All rights reserved – Ahmed Ali" until the user decides | user | prompt |
+| Manafe3's own code stays "All rights reserved – Ahmed Ali" (final) | user | 2026-11-05 |
+| The 5 private peb files that differ from the public repo stay PRIVATE (used through `BIMSTEELAUTO_PEB_PATH`) | user | 2026-11-05 |
+| bimsteelauto `packaging` merged into its `main` (fast-forward; `main` = c0b2318, the commit Manafe3 pins) | user | 2026-11-05 |
 | Upstream bug fixed: `app/dwg/objects-write.js` synced from `tests/lib/dwg` (upstream's own test failed on v0.8.1) | Claude | 2026-11-04 |
 | UI added from JS (`app/manafe3/`), not `ui.inc`, because no PHP on the PCs and to keep merges easy | Claude | 2026-11-05 |
 | Phase 0 profiles: placeholders by span (≤15 m HEA300/IPE400, ≤24 m HEA400/IPE500, else HEA500/IPE600), `designed: false` | Claude | 2026-11-05 |
 
 ## Reusing existing work
 
-- **BIMSteelAuto (public, MIT)** — `bimsteelauto` in `pyproject.toml` from git, pinned to a commit of branch
-  `packaging` (`uv.lock`). Installs `bimsteelauto`, `bimsteelauto_connections`, and the vendored cfs modules
+- **BIMSteelAuto (public, MIT)** — `bimsteelauto` in `pyproject.toml` from git, pinned to commit c0b2318 of
+  `main` (`uv.lock`; it was branch `packaging`, merged 2026-11-05). Installs `bimsteelauto`, `bimsteelauto_connections`, and the vendored cfs modules
   `aisi_s100`, `direct_strength`. Optional extra `[fabdraw]` (ifcopenshell 0.8.5, ifcclash, ifctester, ezdxf, shapely,
   pymupdf) — not installed yet. Pins: PyNiteFEA 3.0.0, numpy 2.5.1, scipy 1.18.0, pyaisc360 @ 007a3f6.
 - **Private PEB pipeline (ENG04-PC)** `D:\Download\AI estimation\bimsteelauto_connections_v0.7.0\peb\`
@@ -118,8 +120,9 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
     `bimsteelauto_connections/__init__.py`. Everything else is identical.
   - **Import plan:** the engine uses the public package by default. Where the private version is needed, an opt-in
     module `engine/integrations/bsa_private.py` (Phase 3) will put `BIMSTEELAUTO_PEB_PATH` (and its `vendor\cfs`) at the
-    FRONT of `sys.path` only when the setting is present, and `/health` will report which copy is in use. Long-term:
-    publish the 5 changes (user decides) or make a private package — then the path setting goes away.
+    FRONT of `sys.path` only when the setting is present, and `/health` will report which copy is in use. **Decided
+    2026-11-05: the 5 files stay private**, so this opt-in override is the way to use them (a private package may
+    replace the path setting later). Never copy them into Manafe3 or into the public repo.
   - Its working agreements carry over (CLAUDE.md): VERIFIED flags, negative controls, no circular verification, never
     invent a value, NOT FOR ISSUE until verified, do not modify `bimsteelauto_connections`.
 - **MySteelApp Studio** (`C:\MyStructureApp`, laptop): **LAPTOP TASK** — on DESKTOP-VBCSCS0 inventory `main.py` and its
@@ -129,11 +132,10 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 
 ## Open items
 
-1. The 5 private-vs-public differences above: push them to the public repo, or keep a private override? (user)
-2. Merge the `packaging` branch of bimsteelauto into its `main`? Manafe3 pins the commit, so it works either way. (user)
-3. Laptop: choose its projects folder and fill `.env.local`; do the MySteelApp inventory.
-4. Upstream checks skipped on Windows (python venv for oracle readers, poppler, unzip, DSTV runners): optional.
-5. Licence of Manafe3's own code. (user)
+1. Laptop: choose its projects folder and fill `.env.local`; do the MySteelApp inventory.
+2. Upstream checks skipped on Windows (python venv for oracle readers, poppler, unzip, DSTV runners): optional.
+
+(Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`; own code All rights reserved.)
 
 ## Roadmap (do NOT build ahead of the current phase)
 

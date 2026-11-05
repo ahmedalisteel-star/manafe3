@@ -1,5 +1,11 @@
 # Manafe3 (منافع)
 
+<p align="center" dir="rtl">
+لَقَدْ أَرْسَلْنَا رُسُلَنَا بِالْبَيِّنَاتِ وَأَنزَلْنَا مَعَهُمُ الْكِتَابَ وَالْمِيزَانَ لِيَقُومَ النَّاسُ بِالْقِسْطِ ۖ وَأَنزَلْنَا الْحَدِيدَ فِيهِ بَأْسٌ شَدِيدٌ وَمَنَافِعُ لِلنَّاسِ وَلِيَعْلَمَ اللَّهُ مَن يَنصُرُهُ وَرُسُلَهُ بِالْغَيْبِ ۚ إِنَّ اللَّهَ قَوِيٌّ عَزِيزٌ
+<br>
+[سورة الحديد: 25]
+</p>
+
 A browser-based PEB / steel detailing app that runs on your own PC (localhost), with PEB design inside it.
 
 - **Front end:** JavaScript in the browser, based on [DetailCraft](https://github.com/getcadcraft/detailcraft) by
@@ -46,5 +52,5 @@ python manafe3.py --check   # starts both servers, checks them, stops
 - DetailCraft code: Apache-2.0 (`LICENSE`, `NOTICE`; changed files in `MANAFE3-CHANGES.md`). Manafe3 is based on
   DetailCraft by The Data Design Group, Inc. and is not made or endorsed by it (`TRADEMARKS.md`).
 - Manafe3's own code (`engine/`, `manafe3.py`, `app/manafe3/`, the `*.ps1` scripts, `tests/bin/test-manafe3-*`):
-  All rights reserved – Ahmed Ali (licence to be decided). `tools/manafe3-rebrand.mjs` is Apache-2.0 like the code it edits.
+  All rights reserved – Ahmed Ali. `tools/manafe3-rebrand.mjs` is Apache-2.0 like the code it edits.
 - Upstream's README: `docs/DETAILCRAFT-README.md`.
