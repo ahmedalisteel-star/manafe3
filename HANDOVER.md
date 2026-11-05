@@ -23,6 +23,9 @@ Sx_top/bot, Zx, …) and `TaperedMember` (only the depth varies; a flange change
 **Data model.** A member keeps its role (`column` / `beam`) and gets a built-up section: `segments[]`, each
 `{ length, hwStart, hwEnd, tw, top: {b, t}, bot: {b, t}, grade, straight }`. Each segment = one shipping assembly of
 3 plates (trapezoid web + 2 flange strips); segments meet at splice points. Minimums: web ≥ 6 mm, flange ≥ 8 mm.
+**Splice check (user, 2026-11-05):** at every splice the adjoining segments must have equal web depth (hwEnd of the
+one = hwStart of the next) and the same top and bottom flange widths; otherwise the member is refused with a message
+naming the splice. (Flange and web thicknesses may change at a splice.)
 Grades offered: S275, S355, A572 Gr 50, St 37, St 44, St 52.
 
 | # | Step | Tests |
@@ -48,8 +51,9 @@ them "not checked" (Phase 3), flange-to-web welds not sized (Phase 5).
 - "PEB frame…" sizes = **span rules, editable in the form, `designed: false`**:
   - knee web depth hw_knee = span / 30, rounded up to 50 mm (24 m → 800)
   - column: hw from 300 at the base to hw_knee at the eave (one tapered segment)
-  - haunch: length = span / 10 from the column face, hw from hw_knee to 0.6 · hw_knee
-  - rafter: hw = max(300, 0.5 · hw_knee) constant to the ridge; split again if a segment exceeds 12 m (transport)
+  - rafter: hw_rafter = max(300, 0.5 · hw_knee) constant to the ridge; split again if a segment exceeds 12 m (transport)
+  - haunch: length = span / 10 from the column face, hw from hw_knee to **hw_rafter** (24 m: 800 → 400), so the
+    splice joins equal webs (user fix, 2026-11-05)
   - flanges: span ≤ 20 m 200×10, ≤ 30 m 250×12, else 300×16; web t = 6 if hw ≤ 600, else 8; grade S355
   - knee: the rafter starts at the column's inner flange face; ridge: the two rafters cut plumb at the apex.
 
