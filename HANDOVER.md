@@ -9,9 +9,38 @@ Read this and `CLAUDE.md` first, on either PC. Then `.\start-work.ps1`.
 points — in the model, 3D, Properties panel, parts/marks/BOM, plate cut list, DSTV NC per plate, IFC4 out and back in,
 engine section properties along the length, and "PEB frame…" now builds built-up frames with a haunch at the knee.
 
+**Phase 2 done (2026-11-05, ENG04-PC):** "Building…" makes the whole PEB building — built-up frames, lapped Z purlins and
+girts, C eave struts, sag rods, rod/angle X-bracing, flange braces, end walls (main frame or end rafter, with wind columns),
+framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC, a C/Z punch list and IFC out and back in.
+
 ## Next task
 
-**Phase 2 — secondary steel.** Plan below AGREED with the user's decisions (2026-11-05); user said go — in progress. Tests per step with hand-checked values, commit on `main` after each green step, everything
+**Phase 3 — loads and analysis** (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`; PyNite analysis
+with taper discretisation and P-Delta; anastruct as the independent cross-check). Start by reading bimsteelauto
+`loads/`, `analysis/frame.py` and `pipeline.run_frame`, and the `ProjectSpec` / `DesignResult` contract. **Write the plan
+here and show it to the user before coding**; first ask the user to confirm the Phase 2 defaults marked "TO CONFIRM"
+below (or change them). Same rules: hand-checked tests, commit after each green step on `main`, `end-work.ps1` at the end.
+
+### Phase 2 — what was built (steps and commits)
+
+| # | Step | Commit |
+|---|---|---|
+| 1 | Lipped C / Z, rods, metric angles (`app/manafe3/coldformed.js`), job catalogue, starter sizes | a1944b9 |
+| 2 | Purlin and girt lines (`engine/peb/secondary.py`) | e0aad5c |
+| 3 | Lapped pieces, holes, cleats | dc37dfc |
+| 4 | Sag rods, X-bracing, flange braces (`engine/peb/bracing.py`) | a3dff9e |
+| 5 | End walls (`engine/peb/endwall.py`) | fae48bc |
+| 6 | Framed openings (`engine/peb/openings.py`) | 455e65e |
+| 7 | Whole building `POST /peb/building` (`engine/peb/building.py`) + the "Building…" form (`app/manafe3/peb-building*.js`) | 46001d2, ecbdde8 |
+| 8 | DSTV for C/Z, punch list CSV, IFC for every new part (+ import fix) | e8e0cf2, 1d0e545 |
+
+**Known limits / later.** Cleats are loose plates (not yet welded into the frame assemblies — Phase 5 connections);
+gable-girt cleats on wind columns are not generated yet; rods have no NC (cut and threaded); Z goes to DSTV as `SO`
+(test one file on the machine); cold-formed default grade S350GD, cleats S275, rods/angles the frame grade — editable,
+**to confirm**; members brought back by Import IFC lose their "generated" tag (a re-generation would not replace them);
+the upstream Analysis tab now sees purlins/rods as frame members (an aid only — Phase 3 replaces it with the PEB analysis).
+
+### Phase 2 plan (as agreed, kept for the record) Tests per step with hand-checked values, commit on `main` after each green step, everything
 `designed: false` until Phase 4, `end-work.ps1` at the end.
 
 ### Phase 2 plan
@@ -174,8 +203,9 @@ python manafe3.py --check           # start, check /health and the page, stop
 ```
 (If scripts are blocked: `powershell -ExecutionPolicy Bypass -File .\start-work.ps1`.)
 
-In the app: **Place › PEB frame…** → span, eave height, roof slope (rise/run), bay spacing, bays, section (built-up,
-default) and the built-up sizes (filled from the span rules) → **Add frame**. Click a member: its segments are edited in
+In the app: **Place › Building…** → the whole building (span, bays, eave, slope, frame sizes, purlin/girt spacing and
+first positions, end walls, braced bays, lap, bolts, sections, openings) → **Make building**; the same button edits it
+(generated members replaced, your own kept). **Output › Plates** / **Punch** download the plate list / C-Z punch list. Click a member: its segments are edited in
 the Properties panel; any catalog beam/column has **Make built-up…**. **Output › Plate list** downloads the plate cut list.
 After pulling new engine code, restart `python manafe3.py` (the engine does not reload itself).
 
@@ -301,7 +331,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Roadmap (do NOT build ahead of the current phase)
 
 - **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
-- **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames)
+- **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames) — **DONE 2026-11-05**
 - **Phase 3** loads (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`) + PyNite analysis with taper
   discretisation and P-Delta
 - **Phase 4** member design ECP 205 / AISC 360 + cold-formed AISI S100
@@ -310,6 +340,16 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - **Phase 6** drawings: anchor bolt plan, frame elevations, built-up member shop drawings, erection drawings; NC/DSTV,
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
+
+## Tests (baseline after Phase 2, 2026-11-05)
+
+- Engine `uv run pytest -q`: **71 passed** — Phase 1 (39) + purlin/girt lines, laps/holes/cleats, sag rods/bracing/flange
+  braces, end walls, openings, the whole building (hand values in each test header).
+- App `npm test`: **11 of 11 test files passed** — upstream 7714 + 13 unchanged; Manafe3 tests incl. cold-formed shapes,
+  the building fixture (`fixtures/manafe3/building1.json`, made by the engine) into a real model (596 parts by hand), NC /
+  punch list / IFC round trip of the whole building.
+- Browser: "Building…" 24 m × 4 bays + door → 364 members, 150 cleats, 1 996 holes, 596 parts, 47 marks, 39 assemblies,
+  22 463 kg, no console errors; toolbar on one row at 1600 px.
 
 ## Tests (baseline after Phase 1, 2026-11-05)
 
@@ -326,8 +366,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-05 11:19 on ENG04-PC
-- Did: Phase 1 done: tapered built-up members (model, 3D, editor, parts, plate list, NC, IFC, engine section properties, built-up PEB frames)
-- Tests: engine 39 passed, 1 warning in 3.19s | app 8 of 8 test files passed
-- Next: Phase 2 secondary steel: plan first, show the user, then build
+- When: 2026-11-05 14:17 on ENG04-PC
+- Did: Phase 2 done: secondary steel and the whole PEB building (purlins, girts, laps, sag rods, bracing, flange braces, end walls, openings, cleats; NC, punch list, IFC)
+- Tests: engine 71 passed, 1 warning in 6.53s | app 11 of 11 test files passed
+- Next: Phase 3 loads and analysis: confirm the Phase 2 defaults marked TO CONFIRM, plan first, show the user
 <!-- LAST-SESSION:END -->
