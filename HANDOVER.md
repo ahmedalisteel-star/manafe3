@@ -71,6 +71,13 @@ members are tagged and replaced (a warning first); members you add yourself stay
   the column web plane at mid-height, base to 100 mm below the eave; flange braces 50 mm into the purlin/girt; column
   flange braces horizontal in plan; at END columns only the inward brace of a pair (the outward one would leave the
   building); default braced bays = first and last bay.
+- Step 5 end-wall set-out by Claude — **TO CONFIRM with the user** (`engine/peb/endwall.py`): BOTH end-wall types get
+  wind columns (gable girts cannot span between the main columns): "main frame" = portal + interior wind columns under
+  its rafter; "rafter" = end rafter on corner columns (at y = bf/2, span − bf/2) + interior wind columns. Wind columns:
+  web = the span rules' rafter depth, constant, depth along X, outer flange on the end-wall plane (x = −bf/2 / L + bf/2,
+  the same girt line as the main columns), top cut square under the rafter at the column centre. End rafter: constant
+  rafter section, eave point to apex, plumb ends, 12 m split. Gable girts lapped over the wind columns; above the eave a
+  row runs where it stays 300 mm under the roof.
 - Planned defaults (Claude, approved): purlins on the rafters with the Z top flange up-slope; girts on the outer
   column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
   overlaps for the clash check.
