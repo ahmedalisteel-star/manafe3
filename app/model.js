@@ -55,6 +55,7 @@ import { cleanAcceptedDc } from './problems-detailcraft.js';
 import { cleanIdsRecord, cleanIdsRef, idsHash, idsTextStore } from './ids/record.js';   // 0.7.1 71.25 (cc-ids, lib/ids synced)
 import { cleanPicture, readPictures, MAX_PICTURES } from './picture.js';   // 0.8 D8.15: reference pictures (a copied area of a sheet)
 import { t } from './i18n.js';
+import { cleanBuiltUp, buMark } from './manafe3/builtup.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members (member.bu)
 
 export const FORMAT = 'detailcraft';
 export const VERSION = 2;              // 2: phases (0.4 D13)
@@ -323,6 +324,7 @@ class Tx {
       name: cleanText(m.name ?? '', 40), cuts: [], holes: [], phase: cleanPhase(m.phase) || 1,
     };
     if (m.panel) mem.panel = cleanText(m.panel, 40);   // 0.8 round 3 (EG.6): a piece of a placed framing panel
+    if (m.bu) mem.bu = m.bu;   // Manafe3: a built-up member (checked by checkMember)
     checkMember(mem, this.s.profiles);
     this.ensurePhase(mem.phase);
     this.s.members.push(mem);
@@ -337,7 +339,9 @@ class Tx {
     if (patch.name !== undefined) next.name = cleanText(patch.name, 40);
     if (patch.rotation !== undefined) next.rotation = Number(patch.rotation);
     if (patch.phase !== undefined) { next.phase = cleanPhase(patch.phase); if (!next.phase) throw new Error(t('phase.err.number', { max: MAX_PHASE })); this.ensurePhase(next.phase); }
+    if ('bu' in patch && !patch.bu) delete next.bu;   // Manafe3: back to a catalog profile
     checkMember(next, this.s.profiles);
+    if (!next.bu) delete m.bu;
     Object.assign(m, next);
   }
   removeMembers(ids) {
@@ -515,7 +519,11 @@ function vec(p) {
   return v;
 }
 function checkMember(m, custom) {
-  if (!getProfile(m.profile, custom)) throw new Error(t('model.err.profile-unknown', { name: m.profile }));
+  if (m.bu) {   // Manafe3: a built-up member is checked by its segments; its profile text is derived from them
+    const L = Math.hypot(m.end[0] - m.start[0], m.end[1] - m.start[1], m.end[2] - m.start[2]);
+    m.bu = cleanBuiltUp(m.bu, L);
+    m.profile = buMark(m.bu);
+  } else if (!getProfile(m.profile, custom)) throw new Error(t('model.err.profile-unknown', { name: m.profile }));
   if (!MATERIALS.includes(m.material) && !cleanText(m.material, 30)) throw new Error(t('model.err.material'));
   m.material = cleanText(m.material, 30);
   if (!['top', 'middle', 'bottom'].includes(m.position)) throw new Error(t('model.err.position'));
@@ -598,6 +606,7 @@ export function readModel(text) {
         phase: cleanPhase(m.phase) || 1,
       };
       if (m.panel) mem.panel = cleanText(m.panel, 40);
+      if (m.bu) mem.bu = m.bu;   // Manafe3: built-up member, checked by checkMember (a bad one is dropped with the others)
       checkMember(mem, s.profiles);
       s.members.push(mem);
     } catch { dropped++; }
