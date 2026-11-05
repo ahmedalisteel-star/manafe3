@@ -79,7 +79,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - `tools/manafe3-rebrand.mjs` (re-run after every upstream merge; `--check` lists leftovers): visible
   "DetailCraft"/"CadCraft" → "Manafe3" ("CadCraft Studio" → "Manafe3 Desktop") in `app/lang/*`, shell lang files,
   help (`.md` + compiled `help.js`), `devshell/index.html`, `app.json` name, window title, file-type labels.
-- By hand: placeholder "M3" logo (`devshell/site/favicon.*`), app-bar logo, "About" link to getcadcraft.com hidden.
+- By hand: Manafe3 logo (`devshell/site/favicon.*`, concept A from `branding/` — see `branding/README.md`), app-bar logo, "About" link to getcadcraft.com hidden.
 - **Kept on purpose (not visible / needed by tests):** internal slug `detailcraft` (test mirror paths), module and
   file names, the `.detailcraft.json` / `detailcraft-clip` formats, code comments, and the **producer strings inside
   exported files** (NC header `** DetailCraft`, IFC FILE_NAME / Pset 'DetailCraft', PDF Producer, KISS id line, USD
@@ -100,6 +100,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 | bimsteelauto `packaging` merged into its `main` (fast-forward; `main` = c0b2318, the commit Manafe3 pins) | user | 2026-11-05 |
 | Upstream bug fixed: `app/dwg/objects-write.js` synced from `tests/lib/dwg` (upstream's own test failed on v0.8.1) | Claude | 2026-11-04 |
 | UI added from JS (`app/manafe3/`), not `ui.inc`, because no PHP on the PCs and to keep merges easy | Claude | 2026-11-05 |
+| Logo: concept A "Tapered Frame" (navy + primer orange, wordmark with the 3 in orange); concepts kept in `branding/` | user | 2026-11-05 |
 | Phase 0 profiles: placeholders by span (≤15 m HEA300/IPE400, ≤24 m HEA400/IPE500, else HEA500/IPE600), `designed: false` | Claude | 2026-11-05 |
 
 ## Reusing existing work

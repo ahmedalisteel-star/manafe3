@@ -12,7 +12,7 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `devshell/index.html` | same renaming; app-bar logo → the Manafe3 placeholder; "About" link to getcadcraft.com hidden | same |
 | `devshell/render.php` | app-bar logo, "About" link, generator meta | same (keeps the PHP-rendered page equal to `index.html`) |
 | `devshell/app.json` | name, role, tagline, short description | same |
-| `devshell/site/favicon.svg`, `favicon.ico`, `favicon-32.png` | the CadCraft logo replaced by an "M3" placeholder | TRADEMARKS.md: take out the CadCraft logo |
+| `devshell/site/favicon.svg`, `favicon.ico`, `favicon-32.png` | the CadCraft logo replaced by the Manafe3 logo (concept A, tapered frame; drawn by `branding/build-logos.mjs`) | TRADEMARKS.md: take out the CadCraft logo |
 | `app/detailcraft.js` | window title and file-type labels say Manafe3; loads the Manafe3 module `app/manafe3/peb-frame-ui.js` | renaming; Phase 0 feature |
 | `README.md` | moved to `docs/DETAILCRAFT-README.md`; a Manafe3 README took its place | the fork's own install guide |
 | `app/dwg/objects-write.js` | synced byte for byte from `tests/lib/dwg/objects-write.js` (R2004+ class header: version fields as BL) | upstream v0.8.1 shipped the two out of step and its own test `writer-sync --check` failed |
