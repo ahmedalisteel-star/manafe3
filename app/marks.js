@@ -29,6 +29,8 @@ const VARIANTS = {
 };
 function variantsFor(profile) {
   if (profile.kind === 'SPL') return VARIANTS.none;   // Manafe3: a shaped plate (built-up web) is marked as it lies
+  if (profile.kind === 'CFC') return VARIANTS.C;       // Manafe3: a lipped C turns like a channel
+  if (profile.kind === 'CFZ') return ['id', 'rx'];     // Manafe3: a Z is the same only turned about its axis
   if (profile.kind === 'C') return VARIANTS.C;
   if (profile.kind === 'L' || profile.kind === 'CHS') return VARIANTS.none;
   return VARIANTS.all;

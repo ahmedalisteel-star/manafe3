@@ -19,6 +19,7 @@
 
 import { t } from './i18n.js';
 import { sectionRows, outline, exactArea, bbox, shoelace, loopLength, STEEL_DENSITY } from './shapes/sections.js';
+import { m3Parse, m3Shape, m3Check } from './manafe3/coldformed.js';   // Manafe3 (changed file): lipped C/Z, rods, metric angles
 
 export { outline, exactArea, bbox, shoelace, loopLength, STEEL_DENSITY };
 
@@ -72,6 +73,8 @@ export const CUSTOM_KINDS = {
   RHS: ['h', 'b', 't'],
   CHS: ['D', 't'],
   FLAT: ['b', 't'],
+  CFC: ['H', 'B', 'D', 't', 'r'],   // Manafe3: lipped C (job catalogue)
+  CFZ: ['H', 'B', 'D', 't', 'r'],   // Manafe3: lipped Z
 };
 
 /**
@@ -101,6 +104,7 @@ export function cleanCustom(c, { saved = false } = {}) {
   if (kind === 'L' && p.t >= p.b) return { ok: false, error: t('prof.err.leg') };
   if (kind === 'RHS') { if (2 * p.t >= Math.min(p.h, p.b)) return { ok: false, error: t('prof.err.wall') }; p.ro = 2 * p.t; p.ri = p.t; }
   if (kind === 'CHS' && 2 * p.t >= p.D) return { ok: false, error: t('prof.err.wall') };
+  if (kind === 'CFC' || kind === 'CFZ') { const e = m3Check(p); if (e) return { ok: false, error: e }; }   // Manafe3
   return { ok: true, profile: p };
 }
 
@@ -122,6 +126,8 @@ export function getProfile(name, custom = []) {
     const k = c.kind === 'FLAT' ? { ...c, kind: 'PL' } : c;
     return withDerived(k);
   }
+  const m3 = m3Parse(name);   // Manafe3: 'C200x65x20x2.0', 'Z200x65x20x2.0', 'RD20', 'L50x5'
+  if (m3) return withDerived(m3);
   return null;
 }
 
@@ -129,8 +135,9 @@ const derived = new WeakMap();
 function withDerived(p) {
   if (derived.has(p)) return derived.get(p);
   const q = { ...p };
-  q.loops = outline(q);
-  q.area = exactArea(q);
+  const m3 = m3Shape(q);   // Manafe3: lipped C/Z and rods draw and weigh themselves
+  q.loops = m3 ? m3.loops : outline(q);
+  q.area = m3 ? m3.area : exactArea(q);
   const rho = q.density || STEEL_DENSITY;
   q.mass = q.massPub ?? q.area * 1e-6 * rho;        // kg/m: published where there is one
   q.massFrom = q.massPub !== undefined ? SOURCES[q.source] : 'Area × ' + rho + ' kg/m³';
@@ -146,7 +153,7 @@ function withDerived(p) {
 /** Which hole faces a profile has (see geom.js holeFrame). */
 export function holeFaces(p) {
   if (!p) return [];
-  if (p.kind === 'I' || p.kind === 'C') return ['web', 'top', 'bottom'];
+  if (p.kind === 'I' || p.kind === 'C' || p.kind === 'CFC' || p.kind === 'CFZ') return ['web', 'top', 'bottom'];   // Manafe3: + lipped C/Z
   if (p.kind === 'RHS') return ['web', 'top', 'bottom'];
   if (p.kind === 'PL') return ['plate'];
   return [];
@@ -154,7 +161,7 @@ export function holeFaces(p) {
 
 /** Thickness a hole on a face goes through. */
 export function faceThickness(p, face) {
-  if (p.kind === 'PL' || p.kind === 'L') return p.t;                // an angle's legs (connection holes only: 'bottom' = the leg along u, 'web' = along v)
+  if (p.kind === 'PL' || p.kind === 'L' || p.kind === 'CFC' || p.kind === 'CFZ') return p.t;   // Manafe3: + lipped C/Z (one thickness)                // an angle's legs (connection holes only: 'bottom' = the leg along u, 'web' = along v)
   if (face === 'web') return p.kind === 'RHS' ? p.b : p.tw;
   if (p.kind === 'RHS') return p.t;
   return p.tf;
@@ -172,6 +179,8 @@ export function describe(p) {
   if (p.kind === 'RHS') rows.push([L('size'), mm(p.h) + ' × ' + mm(p.b)], [L('wall'), mm(p.t)]);
   if (p.kind === 'CHS') rows.push([L('diameter'), mm(p.D)], [L('wall'), mm(p.t)]);
   if (p.kind === 'PL') rows.push([L('thickness'), mm(p.t)], [L('width'), mm(p.b)]);
+  if (p.kind === 'CFC' || p.kind === 'CFZ') rows.push([L('depth'), mm(p.H)], [L('flange-width'), mm(p.B)], ['Lip', mm(p.D)], [L('thickness'), mm(p.t)], ['Inside radius', mm(p.r)]);   // Manafe3; i18n-ignore
+  if (p.kind === 'RD') rows.push(['Diameter', mm(p.d)]);   // Manafe3; i18n-ignore
   rows.push([L('area'), Number((p.area / 100).toFixed(2)) + ' cm²'], [L('mass'), Number(p.mass.toFixed(2)) + ' kg/m'], [L('from'), p.massPub !== undefined ? SOURCES[p.source] : SOURCES[p.source] || '']);
   return rows;
 }

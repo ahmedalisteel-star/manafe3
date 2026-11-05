@@ -16,7 +16,8 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `app/detailcraft.js` | window title and file-type labels say Manafe3; loads the Manafe3 module `app/manafe3/peb-frame-ui.js` | renaming; Phase 0 feature |
 | `app/model.js` | a member may carry `bu` (built-up segments): checked by `app/manafe3/builtup.js` instead of the profile table, kept on save/open and undo | Phase 1 built-up members |
 | `app/build.js` | a built-up member becomes its plates (`app/manafe3/builtup-parts.js`); a part's own `plateWeight` wins over profile mass × length | Phase 1 built-up members |
-| `app/marks.js` | a shaped plate (kind `SPL`, built-up web) is marked as it lies, its outline part of its signature | Phase 1 |
+| `app/marks.js` | a shaped plate (kind `SPL`, built-up web) is marked as it lies, its outline part of its signature; lipped C turns like a channel, a Z only about its axis | Phase 1, Phase 2 |
+| `app/profiles.js` | lipped C / Z (`C200x65x20x2.0`, custom kinds CFC / CFZ), rods (`RD20`) and metric equal angles (`L50x5`) from `app/manafe3/coldformed.js`: names, outlines, exact areas, hole faces | Phase 2 secondary steel |
 | `app/view3d.js` | a shaped plate (built-up web) is drawn from its true outline; a part's `look` sets its colour (built-up flanges as their member) | Phase 1 |
 | `app/detailcraft.js` (Phase 1) | Properties panel: the built-up section editor / "Make built-up…" (`app/manafe3/builtup-ui.js`); "Plate list" output (`app/manafe3/output-ui.js`) | Phase 1 |
 | `app/nc1.js` | a shaped plate (built-up web) is written as a sheet (code B) with its outline as the AK contour | Phase 1 |
