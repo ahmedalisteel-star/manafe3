@@ -15,8 +15,39 @@ framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC,
 
 ## Next task
 
-**Phase 3 — loads and analysis** (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`; PyNite analysis
-with taper discretisation and P-Delta; anastruct as the independent cross-check). Start by reading bimsteelauto
+**Phase 3 — loads and analysis.** Plan below AGREED with the user's decisions (2026-11-05); waiting for the user's "go".
+
+### Phase 3 plan
+
+**Reuse bimsteelauto unchanged:** `loads/wind.py` (Ch. 28 envelope, Load Cases A/B × ±GCpi, end zones, §28.3.4 minimum,
+longitudinal end-wall pressure; VERIFIED flags all True — keep them honest: nothing Manafe3 adds may flip one),
+`loads/gravity.py` (dead build-up; Lr = Lo·R1·R2 from the tributary area, bounded 0.58–0.96 — never hard-coded),
+`loads/combinations.py` (ASCE 7-16 LRFD/ASD; wind = four separate cases, positive factors), `analysis/frame.py`
+(`FrameAnalysis`: PyNite 2D, taper discretisation, P-Delta, pinned/fixed bases, envelope, reactions, drift).
+`FrameLayout` is generic, so the adapter builds one per frame line with ALL segments (column, haunch, rafter pieces;
+rigid knee, splices, ridge) and solves with bimsteelauto's verified solver; wind pressures per surface (wall, windward /
+leeward roof) are spread over every sub-member of that surface. bimsteelauto's 2D module has no tension-only bracing or
+end-wall frame: Manafe3 adds those (PyNite directly).
+
+| # | Step | Tests (hand values) |
+|---|---|---|
+| 1 | "Loads…" form stored in the model (`state.m3loads`): sheeting single skin / sandwich, collateral, Lo, wind V / exposure / enclosure / Kzt / risk category, bases pinned / fixed, LRFD + ASD | mapping |
+| 2 | Frame model adapter: building frame line → `FrameLayout` on centroid lines with rigid knee / ridge links; taper sub-elements refined until results change < 1 % | prismatic portal vs closed form; one tapered member vs independent integration; convergence |
+| 3 | Loads on frames: self-weight (frame plates + purlins / girts / sheeting by tributary width), dead, Lr with its reduction, four wind cases with end zones → line loads per frame | line loads by hand for an interior and an end-zone frame |
+| 4 | Solve every frame line, all combinations, P-Delta; reactions, forces at stations, eave drift, apex deflection | statics per case; closed-form portal |
+| 5 | Cross-checks: anastruct on one interior frame; STAAD .std export (`MEMBER TAPERED`) for STAAD.Pro V8i on this PC | agreement; .std content by hand |
+| 6 | Longitudinal system: 3D PyNite truss of the braced bays — tension-only rods, struts (eave struts / purlins at the nodes), end-wall wind via wind-column top reactions | statics; one diagonal slack |
+| 7 | End walls: end-rafter frame on wind columns pinned top and bottom (in-plane); wind columns as simple beams under end-wall wind (out-of-plane) feeding step 6 | closed-form simple beam |
+| 8 | Browser "Analysis…": per frame line and case / combination — deflected shape, N / V / M diagrams (SVG), base-reaction table per column per combination (+ CSV for the foundation designer), drift and deflections | mapping + browser check |
+| 9 | HANDOVER (ECP 201 hook: combinations as a pluggable factor set), `end-work.ps1` | |
+
+Notes: MySteelApp's STAAD export is on the laptop — a small writer here; comparing it is a laptop task. Results are
+re-run by the engine on demand, not stored in the model. No member design (Phase 4).
+
+**Decisions (user, 2026-11-05):** analysis on **centroid lines with rigid knee / ridge links**; sheeting defaults
+**single skin 0.07 kN/m², sandwich panel 0.12 kN/m² (50 mm PU, 0.5 / 0.5 mm facings)**, editable; collateral **0.10 kN/m²
+per horizontal plan**; combinations **LRFD and ASD** by default; Lr = 0.96 with the ASCE 7-16 §4.8 reduction; bases
+pinned by default (fixed as an option); P-Delta on. Start by reading bimsteelauto
 `loads/`, `analysis/frame.py` and `pipeline.run_frame`, and the `ProjectSpec` / `DesignResult` contract. **Write the plan
 here and show it to the user before coding** (the Phase 2 defaults are confirmed; two new sizes still to confirm: the
 ridge-tie strap PL3x50 and the wind-column cap plate PL10). Same rules: hand-checked tests, commit after each green step on `main`, `end-work.ps1` at the end.
