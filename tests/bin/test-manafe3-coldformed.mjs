@@ -77,5 +77,23 @@ for (const [name, A, kg] of [['C200x65x20x2.0', 713.699, 5.60254], ['Z200x65x20x
   ok(pcs.length === 3 && pcs.some((p) => p.profile === 'Z200x65x20x2.0' && p.count === 2), 'bar cut list: the Z ×2, the rod, the angle', pcs);
 }
 
+// ---- 4. step 3: lapped pieces with their holes (engine/tests/test_secondary_pieces.py, building 1, line RA1, by hand) --------
+{
+  const m = new Model(emptyState('t'));
+  const piece = (x0, len, xs) => m.change('p', (tx) => {
+    const id = tx.addMember({ type: 'beam', profile: 'Z200x65x20x2.0', material: 'S350GD', start: [x0, 0, 6000], end: [x0 + len, 0, 6000], position: 'bottom', rotation: 5.711 });
+    for (const x of xs) for (const y of [-55, 55]) tx.addHole(id, { face: 'web', x, y, d: 14 });
+    return id;
+  });
+  const p1 = piece(-325, 6925, [325, 5765, 6325, 6885]);
+  const p2 = piece(5400, 7200, [40, 600, 1160, 6040, 6600, 7160]);
+  const p3 = piece(11400, 7200, [40, 600, 1160, 6040, 6600, 7160]);
+  const b = build(m.state), mk = markParts(b);
+  ok(b.problems.length === 0, 'lapped pieces with holes build cleanly', b.problems);
+  ok(b.byId.get(p2).holes.length === 12 && b.byId.get(p1).holes.length === 8, 'holes on the parts: 12 and 8');
+  ok(mk.partMark.get(p2) === mk.partMark.get(p3) && mk.partMark.get(p1) !== mk.partMark.get(p2), 'identical interior pieces share a mark; the end piece differs');
+  ok(near(b.byId.get(p2).weight, 5.60254 * 7.2, 1e-3), 'interior piece 7 200: 40.338 kg gross (holes not deducted)', b.byId.get(p2).weight);
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

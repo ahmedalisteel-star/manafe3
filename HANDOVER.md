@@ -57,6 +57,10 @@ members are tagged and replaced (a warning first); members you add yourself stay
   holes). **Ridge purlins**: one each side of the ridge at 150–300 mm from the apex (default 200 mm, measured along the
   roof from the apex to the purlin's web line; editable); the first purlin at the eave strut; the rest evenly spaced
   between them, never more than the set spacing.
+- Step 3 details (user, 2026-11-05): the shop pattern's cleat was too short for its gauge (200 deep: holes at 45 / 155,
+  cleat 150) → **cleat = depth − 20** (180), top hole 25 below its top edge; **lap-end holes 40 mm** from the piece end;
+  purlins/girts run out to the **end-wall girt line** (end column flange/2 + end-wall girt depth, 125 + 200 = 325 by
+  default); **eave strut C: butt joints, 10 mm gap, 2 holes 25 mm each side of the frame line (4-hole cleat)**.
 - Planned defaults (Claude, approved): purlins on the rafters with the Z top flange up-slope; girts on the outer
   column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
   overlaps for the clash check.

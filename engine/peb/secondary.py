@@ -19,6 +19,7 @@ Axes: X along the building, Y across (wall A at y = 0, wall B at y = span), Z up
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, field
 
 DEFAULT_SPACING = 1250.0
@@ -139,3 +140,113 @@ def secondary_lines(inp: SecondaryInput) -> dict:
             walls.append(dict(id=f"G{side}{k + 1}", role="girt", side=side, z=_r(z), profile=inp.sections.girt,
                               start=[_r(x0), _r(y), _r(z)], end=[_r(x1), _r(y), _r(z)], rotation=90.0, position="bottom"))
     return {"roof": roof, "walls": walls, "slope_length": _r(roof_slope_length(span, slope)), "designed": False}
+
+
+# ---- step 3: pieces, laps, holes, cleats ------------------------------------------------------------------------------
+"""
+Decisions (user, 2026-11-05):
+    lap each side of a frame = 10 % of THAT side's bay (6 m → 600) unless the job sets a fixed lap; Z lines lap over every
+      interior frame (the piece of bay i runs lap(b_{i-1}) back past frame i, the piece of bay i-1 runs lap(b_i) past it)
+    holes: M12 → 14 mm (M16 → 18), 2 in the web at gauge g = H − 2·(lip + 25), centred on the web, at every frame; 2 at
+      each lap end, 40 mm from that piece's end, through both lapped pieces
+    cleat: PL8 × (H − 20) × 100 welded to the frame flange, standing on it, beside the web (Z: the up-slope / upper side,
+      C: the back of the web); its holes match the purlin's
+    ends: the pieces run out to the end-wall girt line (end_overhang past the end frame lines)
+    eave strut (C): one piece per bay, butt joints with a 10 mm gap at interior frames, 2 holes 25 mm each side of the
+      frame line (a 4-hole cleat); at the end frames 2 holes on the frame line
+"""
+
+HOLE ={"M12": 14.0, "M16": 18.0}
+LAP_END_EDGE = 40.0
+BUTT_GAP = 10.0
+BUTT_HOLE = 25.0
+_CF = re.compile(r"^([CZ])\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)$")
+
+
+def cf_dims(name: str) -> dict:
+    m = _CF.match(name.strip())
+    if not m:
+        raise ValueError(f"{name} is not a lipped C or Z name (e.g. Z200x65x20x2.0)")
+    return {"kind": m[1].upper(), "H": float(m[2]), "B": float(m[3]), "D": float(m[4]), "t": float(m[5])}
+
+
+def gauge(name: str) -> float:
+    d = cf_dims(name)
+    return d["H"] - 2.0 * (d["D"] + 25.0)
+
+
+def lap_at(bay: float, fixed: float | None) -> float:
+    return fixed if fixed is not None else 0.1 * bay
+
+
+def z_pieces(frames: list[float], overhang: float, fixed_lap: float | None) -> list[dict]:
+    """Lapped pieces of one line in line coordinates ℓ (frames ascending from the line's start). Each piece:
+    {a, b, holes_l}: its extent and the ℓ of its web-hole pairs (frames, its own lap ends, the neighbour's lap ends)."""
+    n = len(frames) - 1
+    bays = [frames[i + 1] - frames[i] for i in range(n)]
+    out = []
+    for j in range(n):
+        a = frames[j] - (lap_at(bays[j - 1], fixed_lap) if j > 0 else overhang)
+        b = frames[j + 1] + (lap_at(bays[j + 1], fixed_lap) if j < n - 1 else overhang)
+        holes = [frames[j], frames[j + 1]]
+        if j > 0:     # lap at frame j: own start, the previous piece's end
+            holes += [a + LAP_END_EDGE, frames[j] + lap_at(bays[j], fixed_lap) - LAP_END_EDGE]
+        if j < n - 1:  # lap at frame j+1: own end, the next piece's start
+            holes += [b - LAP_END_EDGE, frames[j + 1] - lap_at(bays[j], fixed_lap) + LAP_END_EDGE]
+        out.append({"a": a, "b": b, "holes_l": sorted(holes)})
+    return out
+
+
+def c_pieces(frames: list[float], overhang: float) -> list[dict]:
+    """Butt-jointed pieces (eave strut): one per bay, 10 mm gap at interior frames."""
+    n = len(frames) - 1
+    out = []
+    for j in range(n):
+        a = frames[j] + BUTT_GAP / 2 if j > 0 else frames[0] - overhang
+        b = frames[j + 1] - BUTT_GAP / 2 if j < n - 1 else frames[-1] + overhang
+        holes = [frames[j] + BUTT_HOLE if j > 0 else frames[0], frames[j + 1] - BUTT_HOLE if j < n - 1 else frames[-1]]
+        out.append({"a": a, "b": b, "holes_l": holes})
+    return out
+
+
+def secondary_members(lines: dict, frames: list[float], end_overhang: float, bolt: str = "M12", fixed_lap: float | None = None) -> dict:
+    """Pieces with their web holes (DetailCraft member holes: face web, x from the piece start, y across the web from the
+    section centre) and the cleats, from secondary_lines() and the frame lines' x (ascending)."""
+    if bolt not in HOLE:
+        raise ValueError("bolt must be M12 or M16")
+    if fixed_lap is not None and not (100 <= fixed_lap <= 3000):
+        raise ValueError("a fixed lap must be 100 to 3000 mm each side")
+    d0 = HOLE[bolt]
+    L = frames[-1] - frames[0]
+    members, cleats = [], []
+    for line in lines["roof"] + lines["walls"]:
+        dims = cf_dims(line["profile"])
+        g = gauge(line["profile"])
+        if g <= 2 * d0:
+            raise ValueError(f"{line['profile']}: the gauge {g:g} mm is too small for two {bolt} holes")
+        forward = line["end"][0] > line["start"][0]
+        x0 = line["start"][0]
+        to_l = (lambda x: x - x0) if forward else (lambda x: x0 - x)
+        fl = sorted(to_l(x) for x in frames)
+        is_c = dims["kind"] == "C"
+        pieces = c_pieces(fl, end_overhang) if is_c else z_pieces(fl, end_overhang, fixed_lap)
+        sgn = 1.0 if forward else -1.0
+        for k, p in enumerate(pieces):
+            holes = [{"face": "web", "x": _r(h - p["a"]), "y": _r(sy * g / 2), "d": d0} for h in p["holes_l"] for sy in (-1, 1)]
+            members.append({
+                "id": f"{line['id']}-{k + 1}", "role": line["role"], "side": line["side"], "line": line["id"], "profile": line["profile"],
+                "start": [_r(x0 + sgn * p["a"]), line["start"][1], line["start"][2]],
+                "end": [_r(x0 + sgn * p["b"]), line["start"][1], line["start"][2]],
+                "rotation": line["rotation"], "position": line["position"], "length": _r(p["b"] - p["a"]), "holes": holes, "designed": False,
+            })
+        h = dims["H"] - 20.0
+        for i, xf in enumerate(sorted(frames)):
+            interior_c = is_c and 0 < i < len(frames) - 1
+            along = [-BUTT_HOLE, BUTT_HOLE] if interior_c else [0.0]
+            cleats.append({
+                "line": line["id"], "frame": i, "x": _r(xf), "base": [_r(xf), line["start"][1], line["start"][2]],
+                "rotation": line["rotation"], "profile": f"PL8x100", "height": _r(h), "side": "back" if is_c else "up",
+                "holes": [{"along": _r(a), "up": _r(dims["H"] / 2 + sy * g / 2), "d": d0} for a in along for sy in (-1, 1)],
+                "host": ("column" if line["role"] in ("girt", "eave_strut") else "rafter") + " " + line["side"],
+            })
+    return {"members": members, "cleats": cleats, "bolt": bolt, "hole": d0, "length": L, "designed": False}

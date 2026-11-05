@@ -267,7 +267,7 @@ export class View3D {
       for (const h of p.holes) {
         // a dark plug through the face, a little proud of both sides
         let c, axis, len;
-        if (h.face === 'web') { c = [pr.kind === 'C' ? -pr.bf / 2 + pr.tw / 2 : pr.kind === 'L' ? -pr.b / 2 + pr.t / 2 : 0, h.y, h.x]; axis = [1, 0, 0]; len = (pr.kind === 'RHS' ? pr.b : pr.kind === 'L' ? pr.t : pr.tw) + 2; }
+        if (h.face === 'web') { c = [pr.kind === 'C' ? -pr.bf / 2 + pr.tw / 2 : pr.kind === 'CFC' ? -pr.B / 2 + pr.t / 2 : pr.kind === 'L' ? -pr.b / 2 + pr.t / 2 : 0, h.y, h.x]; axis = [1, 0, 0]; len = (pr.kind === 'RHS' ? pr.b : pr.kind === 'L' || pr.kind === 'CFC' || pr.kind === 'CFZ' ? pr.t : pr.tw) + 2; }   // Manafe3: + lipped C/Z webs
         else if (h.face === 'plate') { c = [h.y, 0, h.x]; axis = [0, 1, 0]; len = pr.t + 2; }
         else { const s = h.face === 'top' ? 1 : -1, t = pr.kind === 'RHS' || pr.kind === 'L' ? pr.t : pr.tf; c = [h.y, s * (pr.depth / 2 - t / 2), h.x]; axis = [0, 1, 0]; len = t + 2; }
         const local = new THREE.Matrix4().compose(new THREE.Vector3(...c), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(...axis)), new THREE.Vector3(h.d, h.d, len));
