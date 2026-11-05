@@ -11,12 +11,52 @@ engine section properties along the length, and "PEB frame…" now builds built-
 
 ## Next task
 
-**Phase 2 — secondary steel** (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall
-frames). Start by reading `bimsteelauto/design/purlins.py`, `aisi_s100` / `direct_strength` (cold-formed) and
-`bimsteelauto/loads/cladding.py`; how DetailCraft holds C/Z profiles (`app/shapes/sections.js`, `profiles.js`,
-`CUSTOM_KINDS`) and the brace gusset (`app/connections.js`). **Write the plan here and show it to the user before
-coding**; ask about every engineering decision (lap lengths, purlin spacing rules, sag-rod rows, flange-brace spacing,
-bracing type). Same rules: tests per step with hand-checked values, commit on `main` after each green step.
+**Phase 2 — secondary steel.** Plan below AGREED with the user's decisions (2026-11-05); waiting for the user's "go"
+to start step 1. Tests per step with hand-checked values, commit on `main` after each green step, everything
+`designed: false` until Phase 4, `end-work.ps1` at the end.
+
+### Phase 2 plan
+
+**Findings.** bimsteelauto `design/purlins.py` designs C/Z to AISI S100 from CATALOGUE properties only (A, Ix, Sx,
+Se_top/bot — never derived from dimensions), solves purlin lines as continuous beams, and treats the bottom flange as
+braced only where a sag rod / brace is fitted. DetailCraft has no lipped C, no Z, no round rod and no metric angle
+(its L sizes are AISC inch angles; EN covers IPE/HEA/HEB/UPN only) — Phase 2 adds them.
+
+**Building model.** "PEB building…" stores its inputs in the model (`state.m3building`); the engine lays out every
+member (Python, hand-checked) and the app builds parts. "Edit building…" reopens the form and regenerates: generated
+members are tagged and replaced (a warning first); members you add yourself stay.
+
+| # | Step | Tests (hand values) |
+|---|---|---|
+| 1 | App shapes: lipped C and Z (`C200x65x20x2.0`: depth × flange × lip × t, + inside radius), round rods (M12/M20, nuts + washers in the BOM), metric equal angles (L50x5 …); job catalogue (editable, generic starter sizes); outlines → 3D, marks, BOM, bar cut list | areas, kg/m, part weights for 2 C, 2 Z, rods, L50x5 |
+| 2 | Engine: purlin and girt lines — spacing 1.25 m default, first position and spacing editable per roof side and per wall; C at eaves (eave strut), Z elsewhere; cleats | line positions for 2 buildings |
+| 3 | Engine: laps and holes — lapped Z pieces over interior frames, simple at end frames; cut lengths; frame and lap holes; cleats PL8 | piece lengths, hole positions for 6 m and 7.5 m bays |
+| 4 | Engine: sag rods, X-bracing (rods or angles) + eave struts in the chosen bays, flange braces | rod / brace end points and lengths |
+| 5 | Engine: end walls — main frame, or end rafter + wind columns | geometry for both |
+| 6 | Engine + app: framed openings per wall (girts cut, C jambs + header, + sill for windows) | girt pieces and jamb positions by hand |
+| 7 | App: "PEB building…" form (span, length/bays, eave, slope, braced bays, spacings + first positions per side, lap, end walls, openings, sections), stored and regenerated | mapping tests + a browser check |
+| 8 | Outputs: DSTV NC with holes for C/Z (best effort; test one file on the machine), rods, angles, cleats; CSV punch list for C/Z; IFC export AND import of every new part; cut list | contours/holes by hand; IFC round trip |
+| 9 | HANDOVER, `end-work.ps1` | |
+
+**Decisions (user, 2026-11-05).**
+- Catalogue: **generic starter sizes** (Z/C 150–300 deep, t 1.5–3.0), geometry only; design properties blank, marked
+  "from supplier", until a manufacturer's table is loaded (needed before Phase 4). Editable per job.
+- Holes and cleats, **shop pattern "M12, 2+2, PL8 cleat"**: M12 bolts in 14 mm holes; at each frame 2 holes in the web,
+  vertical gauge = depth − 2 × (lip + 25); at each lap end 2 holes, same gauge; cleat PL8 × (depth − 50) × 100 welded
+  to the frame flange.
+- Z/C NC: **both** DSTV (best effort) and a CSV punch list (mark, length, quantity, holes along the length and across the web).
+- Openings: **framed openings** per wall (position, width, height): girts cut, C jambs + header (+ sill for windows).
+- Flange braces (L50x5) default: **knee + haunch zone** — every purlin over the haunch length plus the next one, both
+  sides of every interior frame; the top two girts of every column. Add / remove per position. (True hogging zones: Phase 3.)
+- End wall with rafter + wind columns: **built-up**, wind columns equally spaced at most 6 m; end rafter and wind
+  columns constant built-up sections from the span rules; editable.
+- Lap length: **10 % of the bay each side of the frame** (6 m → 600, 7.5 m → 750); per-job override.
+- From the scope: Z lapped over frames by default, C at eaves / openings / where chosen; spacing 1.25 m; sag rods 1 row
+  at mid-bay for bays ≤ 7.5 m, 2 rows above, M12; rod X-bracing M20 in chosen roof and wall bays with eave struts,
+  angle option (default L75x6, editable).
+- Planned defaults (Claude, user may change): purlins on the rafters with the Z top flange up-slope; girts on the outer
+  column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
+  overlaps for the clash check.
 
 ### Phase 1 — what was built (steps and commits)
 
