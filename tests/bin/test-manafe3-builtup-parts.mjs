@@ -104,5 +104,16 @@ const marks = markParts(built);
   ok(!/build threw/.test(String(err)), 'a connection to a built-up member does not break the build', err);
 }
 
+// ---- 5. drawings: GA sheets yes; assembly sheets of built-up members not yet (Phase 6), said; a web's shop drawing refused ----
+{
+  const { drawingSet } = await mod('drawings.js');
+  const { shopRefusal } = await mod('shop.js');
+  let set = null, err = null;
+  try { set = drawingSet(m.state, built, marks, { date: '2026-11-05' }); } catch (e) { err = e.message; }
+  ok(set && set.sheets.length > 0 && set.sheets.every((s) => s.kind !== 'assembly'), 'the drawing set is made, without built-up assembly sheets', err || set?.sheets.map((s) => s.kind));
+  ok(set && set.builtUpLeftOut.length === 3, 'the three built-up assemblies are named as left out', set?.builtUpLeftOut);
+  ok(shopRefusal(built.byId.get(c1 + '.s1.web')) !== null, 'a web\'s shop drawing is refused with a reason');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

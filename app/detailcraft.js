@@ -2147,7 +2147,11 @@ async function start(root) {
 
   // ---- drawings dialog: GA plans and elevations + assembly drawings, made from the model on every open ----
   let dwgSet = null;
-  function makeDrawings() { return drawingSet(model.state, built, marks, { date: new Date().toISOString().slice(0, 10), paper: settings.paper }); }
+  function makeDrawings() {
+    const set = drawingSet(model.state, built, marks, { date: new Date().toISOString().slice(0, 10), paper: settings.paper });
+    if (set.builtUpLeftOut?.length) print('Assembly drawings of built-up members come in Phase 6; left out: ' + set.builtUpLeftOut.join(', ') + '.');   // Manafe3; i18n-ignore (English for now)
+    return set;
+  }
   function openDrawings() {
     if (!built.parts.length) { print(tr('app.dwg.nothing')); return; }
     if (!fillDrawings(0)) return;

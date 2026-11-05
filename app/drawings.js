@@ -970,7 +970,8 @@ function makeSet(state, built, marks, date) {
   const anchor = anchorSheet(state, built, marks, raw.length);
   if (anchor) raw.push(anchor);
   const nGa = raw.length;
-  for (const a of marks.assemblies) raw.push(assemblySheet(built, marks, a));
+  const builtUpLeftOut = [];   // Manafe3 (changed file): assembly drawings of built-up members come in Phase 6
+  for (const a of marks.assemblies) { if (built.byId.get(a.ids[0])?.builtUp) { builtUpLeftOut.push(a.mark); continue; } raw.push(assemblySheet(built, marks, a)); }
   const printSets = partPrints(built, marks);
   const sheets = raw.map((r, k) => {
     const number = r.kind === 'assembly' ? 'A-' + r.id.slice('assembly:'.length) : 'GA-' + String(k + 1).padStart(2, '0');
@@ -986,5 +987,5 @@ function makeSet(state, built, marks, date) {
     revisionTable(r.S, log);
     return { id: r.id, kind: r.kind, number, title: r.title, scale: r.scale, w: SHEET.w, h: SHEET.h, paper: SHEET.key, items: r.S.items, dims: r.S.dims, labels: r.S.labels, asm: r.asm, rods: r.rods, welds: r.S.welds, hash, rev, prints, clouds };
   });
-  return { sheets, ref, gaCount: nGa, paper: SHEET.key };
+  return { sheets, ref, gaCount: nGa, paper: SHEET.key, builtUpLeftOut };
 }
