@@ -1848,6 +1848,10 @@ async function start(root) {
     download: (name, data, type) => download(name, data, type),
     exports: { ifc: () => exportIfc(), nc: () => exportNc(), bom: () => exportBom(), bending: () => exportBending(), kiss: () => exportKiss(), cutlist: () => exportNest() },
   });
+  // ---- Manafe3 (changed file, see MANAFE3-CHANGES.md): the "PEB frame…" button, app/manafe3/peb-frame-ui.js ----
+  import('./manafe3/peb-frame-ui.js')
+    .then(({ mountPebFrame }) => mountPebFrame({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
+    .catch((err) => console.warn('Manafe3: no PEB frame button —', err?.message || err));   // i18n-ignore: a console line
   // ---- the shell's modules (0.8 round 3; docs/apps/shell-modules.md § Mounting): calc sheets, design reasons, running totals, lessons, Suggest, activity, Ask ----
   shellMount = mountDetailShell({
     model: () => model, built: () => built, schedule: () => schedule, selected: () => selected(), setSelection: (refs) => { setTool('select'); setSelection(refs); },

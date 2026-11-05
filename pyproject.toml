@@ -1,0 +1,36 @@
+# Manafe3 engine (Python). Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Both PCs get identical packages from uv.lock:  uv sync
+[project]
+name = "manafe3"
+version = "0.1.0"
+description = "Manafe3 PEB engineering engine: a local FastAPI server the browser app calls."
+requires-python = ">=3.12,<3.13"
+license = { text = "All rights reserved - Ahmed Ali" }
+authors = [{ name = "Ahmed Ali" }]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    # production frame solver (pinned by bimsteelauto to the verified 3.0.0)
+    "PyNiteFEA==3.0.0",
+    # independent cross-check solver, as in BIMSteelAuto
+    "anastruct>=1.6",
+    # the engineering engine (public, MIT), a git dependency pinned to one commit in [tool.uv.sources]
+    "bimsteelauto",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+]
+
+[tool.uv]
+# a virtual project: the engine runs from the repo root, nothing is built or installed
+package = false
+
+[tool.uv.sources]
+bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "c0b23189cf99153c16f12ef5e8003cbac92b7ad2" }  # branch "packaging"
+
+[tool.pytest.ini_options]
+testpaths = ["engine/tests"]
+pythonpath = ["."]
