@@ -209,7 +209,8 @@ def c_pieces(frames: list[float], overhang: float) -> list[dict]:
     return out
 
 
-def secondary_members(lines: dict, frames: list[float], end_overhang: float, bolt: str = "M12", fixed_lap: float | None = None) -> dict:
+def secondary_members(lines: dict, frames: list[float], end_overhang: float, bolt: str = "M12", fixed_lap: float | None = None,
+                      extra_holes: list[dict] | None = None) -> dict:
     """Pieces with their web holes (DetailCraft member holes: face web, x from the piece start, y across the web from the
     section centre) and the cleats, from secondary_lines() and the frame lines' x (ascending)."""
     if bolt not in HOLE:
@@ -231,8 +232,13 @@ def secondary_members(lines: dict, frames: list[float], end_overhang: float, bol
         is_c = dims["kind"] == "C"
         pieces = c_pieces(fl, end_overhang) if is_c else z_pieces(fl, end_overhang, fixed_lap)
         sgn = 1.0 if forward else -1.0
+        extra = [h for h in (extra_holes or []) if h["line"] == line["id"]]   # e.g. sag-rod holes (bracing.py), world x
         for k, p in enumerate(pieces):
             holes = [{"face": "web", "x": _r(h - p["a"]), "y": _r(sy * g / 2), "d": d0} for h in p["holes_l"] for sy in (-1, 1)]
+            for h in extra:
+                lx = to_l(h["x"])
+                if p["a"] < lx < p["b"]:
+                    holes.append({"face": "web", "x": _r(lx - p["a"]), "y": h["y"], "d": h["d"]})
             members.append({
                 "id": f"{line['id']}-{k + 1}", "role": line["role"], "side": line["side"], "line": line["id"], "profile": line["profile"],
                 "start": [_r(x0 + sgn * p["a"]), line["start"][1], line["start"][2]],

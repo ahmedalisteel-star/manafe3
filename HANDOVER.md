@@ -61,6 +61,16 @@ members are tagged and replaced (a warning first); members you add yourself stay
   cleat 150) → **cleat = depth − 20** (180), top hole 25 below its top edge; **lap-end holes 40 mm** from the piece end;
   purlins/girts run out to the **end-wall girt line** (end column flange/2 + end-wall girt depth, 125 + 200 = 325 by
   default); **eave strut C: butt joints, 10 mm gap, 2 holes 25 mm each side of the frame line (4-hole cleat)**.
+- Step 4 (user, 2026-11-05): sag rods through the webs at **one third of the depth below the top flange**; roof
+  X-bracing nodes **near 45°** (panels ≈ bay long up the roof, snapped to purlin lines; eave strut and ridge purlin always
+  nodes); wall bracing **one X if eave ≤ 1.5 × bay**, else two panels (node at the girt nearest mid-height); flange braces
+  **45°, a pair** (one each side of the frame web).
+- Step 4 detailing defaults by Claude — **TO CONFIRM with the user** (editable constants in `engine/peb/bracing.py`):
+  sag-rod pieces end in their own holes, adjacent pieces 80 mm apart along the purlin; 50 mm thread each rod end; sag-rod
+  fasteners 4 nuts + 4 washers per rod; roof brace rods through the rafter web 75 mm below the top flange; wall braces in
+  the column web plane at mid-height, base to 100 mm below the eave; flange braces 50 mm into the purlin/girt; column
+  flange braces horizontal in plan; at END columns only the inward brace of a pair (the outward one would leave the
+  building); default braced bays = first and last bay.
 - Planned defaults (Claude, approved): purlins on the rafters with the Z top flange up-slope; girts on the outer
   column faces; sag rods purlin to purlin, eave to ridge; bracing node to node; nested laps are marked as intended
   overlaps for the clash check.
