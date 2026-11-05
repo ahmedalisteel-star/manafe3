@@ -16,7 +16,7 @@
 import { GRADES, STRAIGHT, MIN_WEB_T, MIN_FLANGE_T, cleanBuiltUp, plateWeights, segmentPlates } from './builtup.js';
 
 const r1 = (v) => Math.round(v * 10) / 10;
-const copy = (bu) => ({ segments: bu.segments.map((s) => ({ ...s, top: { ...s.top }, bot: { ...s.bot } })) });
+const copy = (bu) => ({ ...(bu.cuts ? { cuts: { ...bu.cuts } } : {}), segments: bu.segments.map((s) => ({ ...s, top: { ...s.top }, bot: { ...s.bot } })) });
 
 export function builtUpFrom(p) {
   const I = p && p.kind === 'I';

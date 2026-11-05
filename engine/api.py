@@ -4,6 +4,8 @@
     GET  /health      engine, PyNite, bimsteelauto (and anastruct) versions; which per-machine paths are set
     POST /peb/frame   {span, eave_height, roof_slope, bay_spacing, n_bays} -> a portal frame as members (mm)
     POST /section/builtup  {segments: [...], x?: [...]} -> A, Ix, Iy, Zx, Sx_top/bot along a built-up member
+    POST /peb/frame/defaults  {span} -> the built-up placeholder sizes from the span rules
+    /peb/frame takes section "builtup" (default, Phase 1) or "hot_rolled" (Phase 0), and optional sizes
 """
 
 from __future__ import annotations
@@ -15,6 +17,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from . import __version__, settings
+from typing import Literal
+
+from .peb.builtup_frame import BuiltUpSizes, default_sizes, sizes_dict
 from .peb.frame import FrameInput, portal_frame
 from .sections.builtup import BuiltUpError, BuiltUpMember
 
@@ -50,12 +55,24 @@ def health() -> dict:
     }
 
 
+class SizesIn(BaseModel):
+    hw_knee: float
+    hw_base: float
+    hw_rafter: float
+    haunch_length: float
+    bf: float
+    tf: float
+    grade: str = "S355"
+
+
 class FrameRequest(BaseModel):
     span: float = Field(..., description="mm, column line A to B")
     eave_height: float = Field(..., description="mm")
     roof_slope: float = Field(..., description="rise/run, 0.1 = 1:10")
     bay_spacing: float = Field(..., description="mm")
     n_bays: int = Field(..., description="number of bays; frames = n_bays + 1")
+    section: Literal["builtup", "hot_rolled"] = "builtup"
+    sizes: SizesIn | None = Field(None, description="built-up sizes, mm; default: the span rules (POST /peb/frame/defaults)")
 
 
 class SegmentIn(BaseModel):
@@ -95,6 +112,19 @@ def section_builtup(req: BuiltUpRequest) -> dict:
 @app.post("/peb/frame")
 def peb_frame(req: FrameRequest) -> dict:
     try:
-        return portal_frame(FrameInput(**req.model_dump()))
-    except ValueError as e:
+        d = req.model_dump()
+        sizes = BuiltUpSizes(**d.pop("sizes")) if req.sizes else None
+        d.pop("sizes", None)
+        return portal_frame(FrameInput(**d, sizes=sizes))
+    except (ValueError, BuiltUpError) as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+class DefaultsRequest(BaseModel):
+    span: float
+
+
+@app.post("/peb/frame/defaults")
+def peb_frame_defaults(req: DefaultsRequest) -> dict:
+    """The built-up placeholder sizes the span rules give (HANDOVER.md, Phase 1 decisions); the form shows them for editing."""
+    return {"sizes": sizes_dict(default_sizes(req.span)), "designed": False}

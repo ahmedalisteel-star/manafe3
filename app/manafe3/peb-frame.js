@@ -34,6 +34,8 @@ export function frameRequest(form) {
     n_bays: num('n_bays', 'Number of bays'),
   };
   if (!Number.isInteger(body.n_bays)) throw new Error('Number of bays must be a whole number');
+  if (form.section === 'hot_rolled') body.section = 'hot_rolled';   // Phase 0 IPE/HEA; the default is built-up
+  else { const sizes = sizesOf(form); if (sizes) body.sizes = sizes; }
   return body;
 }
 
@@ -41,16 +43,56 @@ export function frameRequest(form) {
 export function memberOf(m) {
   const type = TYPE_OF[m.role];
   if (!type) throw new Error(`Unknown member role from the engine: ${m.role}`);
-  return {
+  const out = {
     type,
     profile: m.profile,
     material: m.material || 'S355',
     start: [Number(m.start[0]), Number(m.start[1]), Number(m.start[2])],
     end: [Number(m.end[0]), Number(m.end[1]), Number(m.end[2])],
-    rotation: 0,
+    rotation: Number(m.rotation || 0),
     position: 'middle',
     name: String(m.id || '').slice(0, 40),
   };
+  if (m.section) out.bu = buOf(m.section);   // Phase 1: a built-up member (the model checks it)
+  return out;
+}
+
+/** The engine's built-up section (snake_case, engine/peb/builtup_frame.py) → the app's (camelCase, builtup.js). */
+export function buOf(sec) {
+  const bu = {
+    segments: sec.segments.map((s) => ({
+      length: Number(s.length), hwStart: Number(s.hw_start), hwEnd: Number(s.hw_end), tw: Number(s.tw),
+      top: { b: Number(s.bf_top), t: Number(s.tf_top) }, bot: { b: Number(s.bf_bot), t: Number(s.tf_bot) },
+      grade: String(s.grade || 'S355'), straight: String(s.straight || 'top'),
+    })),
+  };
+  const cs = Number(sec.cut_start || 0), ce = Number(sec.cut_end || 0);
+  if (cs || ce) bu.cuts = { start: cs, end: ce };
+  return bu;
+}
+
+/** The built-up size fields of the form (mm) → the request's `sizes`; empty fields → null (the engine's span rules). */
+export const SIZE_FIELDS = ['hw_knee', 'hw_base', 'hw_rafter', 'haunch_length', 'bf', 'tf'];
+export function sizesOf(form) {
+  const vals = SIZE_FIELDS.map((k) => String(form[k] ?? '').trim());
+  if (vals.every((v) => v === '')) return null;
+  const out = {};
+  SIZE_FIELDS.forEach((k, i) => {
+    const v = Number(vals[i]);
+    if (vals[i] === '' || !Number.isFinite(v) || v <= 0) throw new Error(`Size ${k.replace('_', ' ')} must be a number above 0 (or leave them all empty for the span rules)`);
+    out[k] = v;
+  });
+  out.grade = String(form.grade || 'S355');
+  return out;
+}
+
+/** POST /peb/frame/defaults: the span rules' sizes, for the form. */
+export async function requestDefaults(span, fetchFn = globalThis.fetch, base = ENGINE_URL) {
+  let r;
+  try { r = await fetchFn(base + '/peb/frame/defaults', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ span: Number(span) }) }); }
+  catch { throw new Error(`The Manafe3 engine is not running at ${base}. Start everything with: python manafe3.py`); }
+  if (!r.ok) throw new Error('Engine: HTTP ' + r.status);
+  return (await r.json()).sizes;
 }
 
 /** Puts the frame into the model inside one edit (Model.change): the grids and levels, then the members. */

@@ -21,6 +21,8 @@ import math
 import string
 from dataclasses import dataclass
 
+from .builtup_frame import BuiltUpSizes, builtup_frame_members, default_sizes, sizes_dict
+
 #: Placeholder sizes by span (mm): (max span, column profile, rafter profile). Names as DetailCraft's table has them.
 PLACEHOLDER_SIZES = [
     (15000.0, "HEA300", "IPE400"),
@@ -38,6 +40,8 @@ class FrameInput:
     roof_slope: float      # rise / run, e.g. 0.1 for 1:10
     bay_spacing: float     # mm, frame line to frame line
     n_bays: int            # number of bays; frames = n_bays + 1
+    section: str = "builtup"              # "builtup" (Phase 1, tapered welded) or "hot_rolled" (Phase 0 IPE/HEA)
+    sizes: BuiltUpSizes | None = None     # built-up sizes; None = the span rules (builtup_frame.default_sizes)
 
     def check(self) -> None:
         if not (3000 <= self.span <= 120000):
@@ -50,6 +54,8 @@ class FrameInput:
             raise ValueError("bay spacing must be 1000 to 20000 mm")
         if not (1 <= self.n_bays <= MAX_FRAME_LINES - 1):
             raise ValueError(f"number of bays must be 1 to {MAX_FRAME_LINES - 1}")
+        if self.section not in ("builtup", "hot_rolled"):
+            raise ValueError("section must be builtup or hot_rolled")
 
 
 def _r(v: float) -> float:
@@ -75,6 +81,21 @@ def portal_frame(inp: FrameInput) -> dict:
     apex_z = eave + slope * span / 2.0
     col_prof, raf_prof = placeholder_profiles(span)
     a, b = column_line_labels(2)
+
+    if inp.section == "builtup":   # Phase 1: tapered welded members, haunch at the knee (builtup_frame.py)
+        z = inp.sizes or default_sizes(span)
+        members = [m for i in range(nb + 1) for m in builtup_frame_members(span, eave, slope, i * bay, str(i + 1), z)]
+        r0 = members[1]
+        return {
+            "units": {"length": "mm"}, "section": "builtup", "sizes": sizes_dict(z),
+            "axes": "X along the building (frame lines), Y across the span (column lines = outer column faces), Z up",
+            "input": {"span": span, "eave_height": eave, "roof_slope": slope, "bay_spacing": bay, "n_bays": nb},
+            "apex_height": _r(apex_z), "rafter_length": _r(math.dist(r0["start"], r0["end"])),
+            "grids": {"x": [{"label": str(i + 1), "at": _r(i * bay)} for i in range(nb + 1)], "y": [{"label": a, "at": 0.0}, {"label": b, "at": _r(span)}]},
+            "levels": [{"name": "Ground", "z": 0.0}, {"name": "Eave", "z": _r(eave)}],
+            "members": members,
+            "notes": ["Built-up placeholder sizes from span rules: NOT designed. Splices, knee and ridge are points only until Phase 5."],
+        }
 
     members: list[dict] = []
     for i in range(nb + 1):

@@ -55,10 +55,11 @@ export function builtUpParts(m) {
   if (m.cuts?.length) problems.push({ ref: m.id, text: 'Copes on a built-up member are not built yet: ' + m.cuts.length + ' left out.' });
   for (const s of segmentPlates(m.bu, F.len)) {
     const n = s.index + 1, base = m.id + '.s' + n;
-    const L = s.x1 - s.x0;
-    const local = s.web.outline.map(([x, v]) => [r3(x - s.x0), r3(v)]);
+    // the web part runs from its outline's smallest x (a plumb end cut reaches behind the segment start) to its largest
+    const xs = s.web.outline.map((p) => p[0]), xa = Math.min(...xs), L = Math.max(...xs) - xa;
+    const local = s.web.outline.map(([x, v]) => [r3(x - xa), r3(v)]);
     const prof = shapedPlateProfile(s.web.t, local, `BUW${s.web.t} ${r3(s.hwStart)}-${r3(s.hwEnd)}`);
-    const o = world(s.x0, 0);
+    const o = world(xa, 0);
     const webFrame = { o, x: F.x, u: F.u, v: F.v, len: L };   // = frame(o, o + L·x, m.rotation)
     const voff = (prof.vmin + prof.vmax) / 2;
     const common = { member: m.id, conn: null, segment: n, material: s.grade, phase: m.phase || 1, holes: [], cuts: [], setback: { start: 0, end: 0 }, endCuts: null, builtUp: true };

@@ -62,5 +62,48 @@ ok(/not running.*python manafe3\.py/.test(msg), 'engine down → says how to sta
 try { await requestFrame(body, async () => ({ ok: false, status: 422, json: async () => ({ detail: 'number of bays must be 1 to 59' }) })); } catch (e) { msg = e.message; }
 ok(msg === 'Engine: number of bays must be 1 to 59', 'engine refusal → its message', msg);
 
+// 5. Phase 1: a built-up frame (the engine's answer for span 24 000, eave 6 000, slope 0.1 — engine/tests/test_builtup_frame.py
+//    case A — written out by hand, side A of frame line 1). Plumb cuts by hand: every corner of the rafter's start face lies on
+//    the column's inner face y = 824, every corner of its apex end on the ridge y = 12 000; the column top follows the roof
+//    z = 6 000 + 0.1·y; the column's inner face at the eave is y = 800 + 2·12 = 824, where the rafter starts: no overlap.
+{
+  const { build } = await mod('build.js');
+  const { toWorld } = await mod('geom.js');
+  const S = (length, a, b, tw) => ({ length, hw_start: a, hw_end: b, tw, bf_top: 250, tf_top: 12, bf_bot: 250, tf_bot: 12, grade: 'S355', straight: 'top' });
+  const bframe = {
+    section: 'builtup', apex_height: 7200,
+    grids: { x: [{ label: '1', at: 0 }], y: [{ label: 'A', at: 0 }, { label: 'B', at: 24000 }] },
+    levels: [{ name: 'Ground', z: 0 }, { name: 'Eave', z: 6000 }],
+    members: [
+      { id: 'F1-CA', role: 'column', rotation: 270, material: 'S355', start: [0, 0, 0], end: [0, 0, 6000], section: { segments: [S(6000, 300, 800, 8)], cut_start: 0, cut_end: -0.1 } },
+      { id: 'F1-RA', role: 'rafter', rotation: 0, material: 'S355', start: [0, 824, 6082.4], end: [0, 12000, 7200], section: { segments: [S(2400, 800, 400, 8), S(8831.741, 400, 400, 6)], cut_start: 0.1, cut_end: 0.1 } },
+    ],
+  };
+  const bm = memberOf(bframe.members[1]);
+  ok(bm.type === 'beam' && bm.rotation === 0 && bm.bu.segments.length === 2 && bm.bu.segments[0].hwStart === 800 && bm.bu.segments[1].tw === 6 && bm.bu.cuts.start === 0.1 && bm.bu.cuts.end === 0.1, 'engine section → bu (camelCase, cuts)', bm.bu);
+  ok(memberOf(bframe.members[0]).rotation === 270, 'column rotation kept');
+  const mb = new Model(emptyState('b'));
+  mb.change('PEB frame', (tx) => applyFrame(tx, bframe));
+  const bb = build(mb.state);
+  ok(bb.problems.length === 0 && bb.parts.length === 9, 'built: column 3 parts + rafter 2 segments × 3', [bb.problems, bb.parts.length]);
+  const [col, raf] = mb.state.members.map((x) => x.id);
+  const corners = (id) => { const p = bb.byId.get(id); return p.profile.outline.map(([x, v]) => toWorld(p.frame, x, 0, v)); };
+  const rw1 = corners(raf + '.s1.web'), rw2 = corners(raf + '.s2.web');
+  const startFace = [rw1[0], rw1[3]], endFace = [rw2[1], rw2[2]];
+  ok(startFace.every((p) => Math.abs(p[1] - 824) < 1e-3), 'rafter start cut plumb on the column face y = 824', startFace);
+  ok(endFace.every((p) => Math.abs(p[1] - 12000) < 1e-3), 'rafter end cut plumb on the ridge y = 12000', endFace);
+  ok(Math.abs(rw1[0][2] - (6082.4 - 812 * Math.sqrt(1.01))) < 1e-3, 'bottom web corner at the knee: 6082.4 − 812·√1.01 below the roof line', rw1[0]);
+  const cw = corners(col + '.s1.web');
+  ok([cw[1], cw[2]].every((p) => Math.abs(p[2] - (6000 + 0.1 * p[1])) < 1e-3), 'column top follows the roof line z = 6000 + 0.1·y', [cw[1], cw[2]]);
+  const cbot = bb.byId.get(col + '.s1.bot');
+  ok(Math.abs(cbot.end[1] - 818) < 1e-3, 'column inner flange mid-line at the eave y = 818 (face 824: the rafter starts there)', cbot.end);
+  ok(bb.byId.get(raf + '.s1.web').profile.outline.every(([x]) => x >= 0), 'web outline x ≥ 0 (DSTV: the smallest x is 0)');
+  // sizes in the request
+  const withSizes = frameRequest({ span: '24000', eave_height: '6000', roof_slope: '0.1', bay_spacing: '6000', n_bays: '1', hw_knee: '900', hw_base: '300', hw_rafter: '450', haunch_length: '2400', bf: '250', tf: '12', grade: 'S275' });
+  ok(same(withSizes.sizes, { hw_knee: 900, hw_base: 300, hw_rafter: 450, haunch_length: 2400, bf: 250, tf: 12, grade: 'S275' }), 'form sizes → request', withSizes);
+  ok(throws(() => frameRequest({ span: 1, eave_height: 1, roof_slope: 0, bay_spacing: 1, n_bays: 1, hw_knee: '900' }), /must be a number above 0/), 'half-filled sizes refused');
+  ok(frameRequest({ span: 1, eave_height: 1, roof_slope: 0, bay_spacing: 1, n_bays: 1, section: 'hot_rolled', hw_knee: '900' }).section === 'hot_rolled', 'hot-rolled: sizes ignored');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

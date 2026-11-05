@@ -1,5 +1,5 @@
 # Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
-"""Portal-frame geometry against coordinates worked out by hand (written out below, not recomputed by the code).
+"""Phase 0 hot-rolled portal-frame geometry (section="hot_rolled") against coordinates worked out by hand (written out below, not recomputed by the code).
 
 Case 1: span 20 000, eave 6 000, slope 1:10, bays 2 x 6 000
     frame lines x = 0, 6 000, 12 000                     -> 3 frames, 12 members
@@ -24,7 +24,7 @@ def by_id(frame):
 
 
 def test_case1_span20m_two_bays():
-    f = portal_frame(FrameInput(span=20000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=2))
+    f = portal_frame(FrameInput(span=20000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=2, section="hot_rolled"))
     m = by_id(f)
     assert len(f["members"]) == 12
     assert [g["at"] for g in f["grids"]["x"]] == [0.0, 6000.0, 12000.0]
@@ -45,7 +45,7 @@ def test_case1_span20m_two_bays():
 
 
 def test_case2_span30m_four_bays():
-    f = portal_frame(FrameInput(span=30000, eave_height=8000, roof_slope=1 / 12, bay_spacing=7500, n_bays=4))
+    f = portal_frame(FrameInput(span=30000, eave_height=8000, roof_slope=1 / 12, bay_spacing=7500, n_bays=4, section="hot_rolled"))
     m = by_id(f)
     assert len(f["members"]) == 20
     assert [g["at"] for g in f["grids"]["x"]] == [0.0, 7500.0, 15000.0, 22500.0, 30000.0]

@@ -74,7 +74,15 @@ export function cleanBuiltUp(bu, L) {
     if (Math.abs(a.top.b - b.top.b) > TOL) throw new Error(`${where}: top flange widths differ (${fmt(a.top.b)} | ${fmt(b.top.b)} mm)`);
     if (Math.abs(a.bot.b - b.bot.b) > TOL) throw new Error(`${where}: bottom flange widths differ (${fmt(a.bot.b)} | ${fmt(b.bot.b)} mm)`);
   }
-  return { segments: segs };
+  // member end cuts: the end face is x = end + k·v (k = 0 square; a rafter's plumb cut k = the roof slope)
+  const cuts = { start: Number(bu.cuts?.start ?? 0), end: Number(bu.cuts?.end ?? 0) };
+  for (const e of ['start', 'end']) if (!(Math.abs(cuts[e]) <= 2)) throw new Error(`The ${e} cut must be a slope from −2 to 2 (0 = square)`);
+  const s0 = segs[0], sN = segs[segs.length - 1];
+  const vs = (s, hw) => Object.values(levels(s, hw));
+  const reach = (s, hw, k) => Math.max(...vs(s, hw).map((v) => Math.abs(k * v)));
+  if (segs.length === 1 ? reach(s0, s0.hwStart, cuts.start) + reach(s0, s0.hwEnd, cuts.end) >= s0.length
+    : reach(s0, s0.hwStart, cuts.start) >= s0.length || reach(sN, sN.hwEnd, cuts.end) >= sN.length) throw new Error('The end cuts are too steep for the end segments');
+  return cuts.start || cuts.end ? { segments: segs, cuts } : { segments: segs };
 }
 
 /** The member's profile text, from its first and deepest dimensions: 'BU 300-800x8 250x12/250x12' (+ ' +n' segments). */
@@ -98,18 +106,20 @@ function levels(seg, hw) {
 export function segmentPlates(bu, L) {
   const c = cleanBuiltUp(bu, L);
   const out = [];
+  const n = c.segments.length, ks = c.cuts?.start || 0, ke = c.cuts?.end || 0;
   let x0 = 0;
   c.segments.forEach((s, index) => {
     const x1 = x0 + s.length;
+    const at0 = (v) => (index === 0 ? x0 + ks * v : x0), at1 = (v) => (index === n - 1 ? x1 + ke * v : x1);   // member end cuts; splices square
     const a = levels(s, s.hwStart), b = levels(s, s.hwEnd);
     const flange = (o, side) => {
       const mid = (lv) => (side === 'top' ? lv.topOut - o.t / 2 : lv.botOut + o.t / 2);
-      const A = [x0, mid(a)], C = [x1, mid(b)];
+      const A = [at0(mid(a)), mid(a)], C = [at1(mid(b)), mid(b)];
       return { b: o.b, t: o.t, a: A, c: C, length: Math.hypot(C[0] - A[0], C[1] - A[1]) };
     };
     out.push({
       index, x0, x1, grade: s.grade, straight: s.straight, hwStart: s.hwStart, hwEnd: s.hwEnd,
-      web: { t: s.tw, outline: [[x0, a.webBot], [x1, b.webBot], [x1, b.webTop], [x0, a.webTop]] },
+      web: { t: s.tw, outline: [[at0(a.webBot), a.webBot], [at1(b.webBot), b.webBot], [at1(b.webTop), b.webTop], [at0(a.webTop), a.webTop]] },
       top: flange(s.top, 'top'), bot: flange(s.bot, 'bot'),
     });
     x0 = x1;
