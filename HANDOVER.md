@@ -15,7 +15,15 @@ framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC,
 
 ## Next task
 
-**Phase 3 — loads and analysis.** Plan below AGREED with the user's decisions (2026-11-05); waiting for the user's "go".
+**Phase 3 — loads and analysis.** Plan below AGREED with the user's decisions (2026-11-05); user said go — in progress.
+
+**Additions (user, 2026-11-05):**
+1. **Collateral is its own load case** and is EXCLUDED from the uplift combinations (LRFD 0.9D + 1.0W, ASD 0.6D + 0.6W);
+   it stays in every gravity combination.
+2. **The reactions CSV also gives UNFACTORED base reactions per separate load case** — D, collateral, Lr and every wind
+   case (A / B with + / − GCpi) — not only the combinations, so the foundation designer can apply his own factors.
+3. **Strength results from the LRFD combinations; deflection and drift from the ASD combinations**; every result is
+   labelled with the set it comes from.
 
 ### Phase 3 plan
 
