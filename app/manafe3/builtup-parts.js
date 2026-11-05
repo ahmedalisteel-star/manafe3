@@ -71,6 +71,19 @@ export function builtUpParts(m) {
     for (const side of ['top', 'bot']) {
       const fl = s[side];
       const a = world(fl.a[0], fl.a[1]), c = world(fl.c[0], fl.c[1]);
+      if (fl.outlineW) {   // cut across the flange (a wind column's sloping top): a shaped plate, its outline in its own plane
+        const xd = [(c[0] - a[0]) / fl.length, (c[1] - a[1]) / fl.length, (c[2] - a[2]) / fl.length];
+        const vp = F.u, up = [vp[1] * xd[2] - vp[2] * xd[1], vp[2] * xd[0] - vp[0] * xd[2], vp[0] * xd[1] - vp[1] * xd[0]];   // v × x
+        const sp = shapedPlateProfile(fl.t, fl.outlineW.map(([x, w]) => [r3(x), r3(w)]), plateName(fl.t, fl.b) + ' cut');
+        const len = Math.max(...fl.outlineW.map((q) => q[0]));
+        parts.push({
+          ...common, id: base + '.' + side, type: 'plate', role: side === 'top' ? 'Top flange' : 'Bottom flange', ifc: 'IfcPlate', name: side === 'top' ? 'Top flange' : 'Bottom flange',
+          look: m.type === 'beam' || m.type === 'column' || m.type === 'brace' ? m.type : undefined,
+          profile: sp, profileName: sp.name, frame: { o: a, x: xd, u: up, v: vp, len }, voff: (sp.vmin + sp.vmax) / 2, length: len, start: a, end: add(a, mul(xd, len)),
+          position: 'middle', rotation: m.rotation, attachTo: base + '.web', plateWeight: sp.outlineArea * fl.t * 1e-9 * STEEL_DENSITY,
+        });
+        continue;
+      }
       const rot = rotationFor(a, c, F.u);
       const p = getProfile(plateName(fl.t, fl.b));
       parts.push({

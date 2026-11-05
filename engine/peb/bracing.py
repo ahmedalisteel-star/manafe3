@@ -45,6 +45,8 @@ class BracingInput:
     brace_rod: str = "RD20"
     brace_angle: str = "L75x6"
     sag_rod: str = "RD12"
+    ridge_tie: str = "rod"                # across the apex between the two ridge purlins: "rod" (the sag rod) or "strap"
+    ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (Claude, TO CONFIRM)
     flange_brace: str = "L50x5"
 
 
@@ -118,16 +120,23 @@ def sag_rods(lines: dict, inp: BracingInput) -> dict:
         oa, ob = (SAG_HOLE_OFFSET if (len(by_side[s]) - 2) % 2 else -SAG_HOLE_OFFSET for s in "AB")
         x_ridge = xr - oa if oa == ob else xr
         ends.append(("ridge", ra, rb, x_ridge, _pt("A", ra["s"], h_rod(ra), slope, span, eave), _pt("B", rb["s"], h_rod(rb), slope, span, eave)))
-        for side, a, b, xa, pa, pb in ends:
+        for side, a, b, xa, pa, pb in ends:   # the last one is the ridge tie (user, 2026-11-05: ties the ridge purlins so sag forces balance)
             web_len = math.hypot(pa[0] - pb[0], pa[1] - pb[1])
-            members.append({"role": "sag_rod", "side": side, "profile": inp.sag_rod, "start": [_r(xa), _r(pa[0]), _r(pa[1])],
+            tie = side == "ridge"
+            prof = (inp.ridge_strap if inp.ridge_tie == "strap" else inp.sag_rod) if tie else inp.sag_rod
+            members.append({"role": "ridge_tie" if tie else "sag_rod", "side": side, "profile": prof, "start": [_r(xa), _r(pa[0]), _r(pa[1])],
                             "end": [_r(xa), _r(pb[0]), _r(pb[1])], "cut_length": _r(web_len + 2 * THREAD), "designed": False})
             for m in (a, b):
                 holes.append({"line": m["id"], "x": _r(xa), "y": _r(h_rod(m) - cf_dims(m["profile"])["H"] / 2), "d": rod_d + 2})
-    n = len(members)
-    return {"members": members, "holes": holes, "rows": [_r(x) for x in rows],
-            "fasteners": [{"item": f"nut M{rod_d:g}", "count": 4 * n}, {"item": f"washer M{rod_d:g}", "count": 4 * n}],
-            "fastener_rule": "per rod: a nut and a washer each side of each web it ends at (4 + 4)"}
+    if inp.ridge_tie not in ("rod", "strap"):
+        raise ValueError("ridge tie must be rod or strap")
+    straps = sum(1 for m in members if m["role"] == "ridge_tie" and inp.ridge_tie == "strap")
+    n = len(members) - straps
+    fasteners = [{"item": f"nut M{rod_d:g}", "count": 4 * n}, {"item": f"washer M{rod_d:g}", "count": 4 * n}]
+    if straps:
+        fasteners.append({"item": f"bolt M{rod_d:g} with nut and washer", "count": 2 * straps})
+    return {"members": members, "holes": holes, "rows": [_r(x) for x in rows], "fasteners": fasteners,
+            "fastener_rule": "per rod: a nut and a washer each side of each web it ends at (4 + 4); per strap: one bolt each end"}
 
 
 def roof_nodes(ss: list[float], bay: float) -> list[float]:

@@ -165,6 +165,7 @@ class BuildingRequest(BaseModel):
     end_last: Literal["frame", "rafter"] = "frame"
     braced_bays: list[int] | None = Field(None, description="1-based; default the first and the last bay")
     brace_type: Literal["rod", "angle"] = "rod"
+    ridge_tie: Literal["rod", "strap"] = "rod"
     bolt: Literal["M12", "M16"] = "M12"
     fixed_lap: float | None = Field(None, description="mm each side of a frame; default 10 % of each bay")
     openings: list[OpeningIn] = []
@@ -181,7 +182,7 @@ def peb_building_api(req: BuildingRequest) -> dict:
             roof_a=RoofSide(**req.roof_a.model_dump()), roof_b=RoofSide(**req.roof_b.model_dump()),
             wall_a=Wall(**req.wall_a.model_dump()), wall_b=Wall(**req.wall_b.model_dump()), gable=Wall(**req.gable.model_dump()),
             sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
-            braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type,
+            braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
             bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings)))
     except (ValueError, BuiltUpError) as e:
         raise HTTPException(status_code=422, detail=str(e)) from e

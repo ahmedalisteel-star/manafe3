@@ -66,8 +66,8 @@ export function buOf(sec) {
       grade: String(s.grade || 'S355'), straight: String(s.straight || 'top'),
     })),
   };
-  const cs = Number(sec.cut_start || 0), ce = Number(sec.cut_end || 0);
-  if (cs || ce) bu.cuts = { start: cs, end: ce };
+  const cs = Number(sec.cut_start || 0), ce = Number(sec.cut_end || 0), cu = Number(sec.cut_end_u || 0);
+  if (cs || ce || cu) bu.cuts = { start: cs, end: ce, ...(cu ? { endU: cu } : {}) };
   return bu;
 }
 

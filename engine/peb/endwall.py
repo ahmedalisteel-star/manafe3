@@ -23,10 +23,15 @@ from __future__ import annotations
 import math
 
 from .bracing import BracingInput, rafter_depth
-from .builtup_frame import BuiltUpSizes, _seg, _split, mark
+from .builtup_frame import BuiltUpSizes, _split, mark
 from .secondary import HOLE, Wall, gauge, girt_heights, z_pieces
 
 MAX_WIND_SPACING = 6000.0
+# wind column placeholder (user, 2026-11-05): built-up web 300 constant, flanges 150x8, S355; NOT designed
+WIND_COLUMN = {"hw": 300.0, "tw": 6.0, "bf": 150.0, "tf": 8.0, "grade": "S355"}
+# its top follows the rafter slope under a cap plate (user); PL10, 20 mm past the column all round (Claude, TO CONFIRM)
+CAP_T = 10.0
+CAP_EDGE = 20.0
 
 
 def _r(v: float) -> float:
@@ -58,12 +63,23 @@ def end_wall(kind: str, end: str, span: float, eave: float, slope: float, x_fram
     members = []
     ys = wind_column_ys(span, z.bf, kind)
     bi = BracingInput(span=span, eave_height=eave, roof_slope=slope, frames=[x_frame], sizes=z)
+    u_sign = 1.0 if end == "first" else -1.0            # a wind column's u (across its flanges) is +Y at the first end, -Y at the last
+    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]       # its overall depth along X
     for k, y in enumerate(ys):
         under = raf_d if kind == "rafter" else rafter_depth(roof_s(y, span, slope), bi)
-        top = roof_z(y, span, eave, slope) - under * c
-        seg = _seg(top, z.hw_rafter, z.hw_rafter, z)
+        rise = 0.0 if abs(y - span / 2) < 1.0 else (slope if y < span / 2 else -slope)   # dz/dy of the roof over the column
+        top = roof_z(y, span, eave, slope) - (under + CAP_T) * c
+        seg = dict(length=_r(top), hw_start=WIND_COLUMN["hw"], hw_end=WIND_COLUMN["hw"], tw=WIND_COLUMN["tw"], bf_top=WIND_COLUMN["bf"], tf_top=WIND_COLUMN["tf"],
+                   bf_bot=WIND_COLUMN["bf"], tf_bot=WIND_COLUMN["tf"], grade=WIND_COLUMN["grade"], straight="top")
         members.append(dict(id=f"W{end[0].upper()}{k + 1}", role="wind_column", start=[_r(x_face), _r(y), 0.0], end=[_r(x_face), _r(y), _r(top)],
-                            rotation=180.0 if end == "first" else 0.0, section=dict(segments=[seg], cut_start=0.0, cut_end=0.0)))
+                            rotation=180.0 if end == "first" else 0.0,
+                            section=dict(segments=[seg], cut_start=0.0, cut_end=0.0, cut_end_u=_r(u_sign * rise))))
+        # cap plate: PL10, the column + 20 mm all round, lying on the roof slope over the column, its mid-plane 5 mm above the top
+        ny, nz = -rise / c, 1.0 / c                      # roof normal (y, z)
+        xa, xb = x_face + out_dir * CAP_EDGE, x_face - out_dir * (wd + CAP_EDGE)
+        members.append(dict(id=f"W{end[0].upper()}{k + 1}-CAP", role="cap_plate", profile=f"PL{CAP_T:g}x{WIND_COLUMN['bf'] + 2 * CAP_EDGE:g}",
+                            start=[_r(xa), _r(y + ny * CAP_T / 2), _r(top + nz * CAP_T / 2)], end=[_r(xb), _r(y + ny * CAP_T / 2), _r(top + nz * CAP_T / 2)],
+                            width_dir=[0.0, _r(1.0 / c), _r(rise / c)], rotation=0.0, position="middle", material=WIND_COLUMN["grade"], designed=False))
     if kind == "rafter":
         apex = [_r(x_frame), _r(span / 2), _r(eave + slope * span / 2)]
         for side, y0 in (("A", 0.0), ("B", span)):
@@ -71,8 +87,11 @@ def end_wall(kind: str, end: str, span: float, eave: float, slope: float, x_fram
             members.append(dict(id=f"E{end[0].upper()}R{side}", role="end_rafter", start=[_r(x_frame), _r(y0), _r(eave)], end=apex, rotation=0.0,
                                 section=dict(segments=_split(L, z.hw_rafter, z), cut_start=_r(slope), cut_end=_r(slope))))
     for m in members:
-        m.update(material=z.grade, designed=False, profile=mark(m["section"]["segments"]))
-    return {"members": members, "girts": gable_girts(kind, span, eave, slope, x_face, out_dir, ys, z, wall, girt, bolt, top_gap, end), "x_face": _r(x_face)}
+        if "section" in m:
+            m.update(material=m["section"]["segments"][0]["grade"], designed=False, profile=mark(m["section"]["segments"]))
+    supports = sorted(ys) if kind == "rafter" else sorted([z.bf / 2, *ys, span - z.bf / 2])
+    return {"members": members, "girts": gable_girts(kind, span, eave, slope, x_face, out_dir, ys, z, wall, girt, bolt, top_gap, end),
+            "x_face": _r(x_face), "supports": [_r(s) for s in supports]}
 
 
 def roof_s(y: float, span: float, slope: float) -> float:

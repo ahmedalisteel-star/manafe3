@@ -18,8 +18,8 @@ framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC,
 **Phase 3 — loads and analysis** (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`; PyNite analysis
 with taper discretisation and P-Delta; anastruct as the independent cross-check). Start by reading bimsteelauto
 `loads/`, `analysis/frame.py` and `pipeline.run_frame`, and the `ProjectSpec` / `DesignResult` contract. **Write the plan
-here and show it to the user before coding**; first ask the user to confirm the Phase 2 defaults marked "TO CONFIRM"
-below (or change them). Same rules: hand-checked tests, commit after each green step on `main`, `end-work.ps1` at the end.
+here and show it to the user before coding** (the Phase 2 defaults are confirmed; two new sizes still to confirm: the
+ridge-tie strap PL3x50 and the wind-column cap plate PL10). Same rules: hand-checked tests, commit after each green step on `main`, `end-work.ps1` at the end.
 
 ### Phase 2 — what was built (steps and commits)
 
@@ -34,8 +34,18 @@ below (or change them). Same rules: hand-checked tests, commit after each green 
 | 7 | Whole building `POST /peb/building` (`engine/peb/building.py`) + the "Building…" form (`app/manafe3/peb-building*.js`) | 46001d2, ecbdde8 |
 | 8 | DSTV for C/Z, punch list CSV, IFC for every new part (+ import fix) | e8e0cf2, 1d0e545 |
 
-**Known limits / later.** Cleats are loose plates (not yet welded into the frame assemblies — Phase 5 connections);
-gable-girt cleats on wind columns are not generated yet; rods have no NC (cut and threaded); Z goes to DSTV as `SO`
+**Phase 2 defaults CONFIRMED by the user (2026-11-05)** — every item marked "TO CONFIRM" below stands, with these changes
+(done, commit after 7045a4b):
+- **Ridge tie**: the two ridge purlins tied across the apex at every sag-rod row so sag forces balance — role `ridge_tie`,
+  rod (default, the sag rod) or **strap** (PL3x50, one M12 each end — strap size by Claude, **to confirm**).
+- **Wind column placeholder**: built-up web 300 constant, flanges 150×8, S355 (`endwall.py WIND_COLUMN`). Its top follows
+  the rafter slope (cut across the flanges: `cuts.endU`, flanges become trapezoid shaped plates) under a **cap plate** PL10,
+  20 mm past the column all round (size by Claude, **to confirm**).
+- **Gable-girt cleats** on the wind / corner columns, generated after openings (`building.py gable_cleats`).
+- **PHASE 5 MUST: vertical slotted holes at the wind-column top (cap plate / rafter connection) for the rafter's deflection.**
+
+**Known limits / later.** Cleats and cap plates are loose plates (not yet welded into the frame / column assemblies —
+Phase 5 connections); the column under the apex has a flat top (no ridge-shaped cap); rods have no NC (cut and threaded); Z goes to DSTV as `SO`
 (test one file on the machine); cold-formed default grade S350GD, cleats S275, rods/angles the frame grade — editable,
 **to confirm**; members brought back by Import IFC lose their "generated" tag (a re-generation would not replace them);
 the upstream Analysis tab now sees purlins/rods as frame members (an aid only — Phase 3 replaces it with the PEB analysis).
@@ -336,7 +346,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
   discretisation and P-Delta
 - **Phase 4** member design ECP 205 / AISC 360 + cold-formed AISI S100
 - **Phase 5** connections from bimsteelauto_connections (eave/apex end plates 4E/4ES/8ES, base plates + anchors, cleats,
-  gussets) with HTML calc sheets
+  gussets) with HTML calc sheets — **including vertical slotted holes at every wind-column top (rafter deflection)**,
+  and welding the generated cleats / cap plates into their frame and column assemblies
 - **Phase 6** drawings: anchor bolt plan, frame elevations, built-up member shop drawings, erection drawings; NC/DSTV,
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
@@ -349,7 +360,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
   the building fixture (`fixtures/manafe3/building1.json`, made by the engine) into a real model (596 parts by hand), NC /
   punch list / IFC round trip of the whole building.
 - Browser: "Building…" 24 m × 4 bays + door → 364 members, 150 cleats, 1 996 holes, 596 parts, 47 marks, 39 assemblies,
-  22 463 kg, no console errors; toolbar on one row at 1600 px.
+  22 463 kg, no console errors; toolbar on one row at 1600 px (before the ridge-tie / wind-column / gable-cleat changes;
+  after them the fixture gives 370 members, 196 cleats, 648 parts — checked by hand in `test-manafe3-building.mjs`).
 
 ## Tests (baseline after Phase 1, 2026-11-05)
 
@@ -366,8 +378,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-05 14:17 on ENG04-PC
-- Did: Phase 2 done: secondary steel and the whole PEB building (purlins, girts, laps, sag rods, bracing, flange braces, end walls, openings, cleats; NC, punch list, IFC)
-- Tests: engine 71 passed, 1 warning in 6.53s | app 11 of 11 test files passed
-- Next: Phase 3 loads and analysis: confirm the Phase 2 defaults marked TO CONFIRM, plan first, show the user
+- When: 2026-11-05 14:39 on ENG04-PC
+- Did: Phase 2 changes: ridge tie (rod or strap), wind column placeholder 300/150x8 with a roof-sloped top and cap plate, gable girt cleats
+- Tests: engine 71 passed, 1 warning in 2.35s | app 11 of 11 test files passed
+- Next: Phase 3 loads and analysis: plan first, show the user (confirm strap PL3x50 and cap plate PL10)
 <!-- LAST-SESSION:END -->

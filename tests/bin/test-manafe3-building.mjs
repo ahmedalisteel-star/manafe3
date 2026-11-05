@@ -4,9 +4,12 @@
  * "PEB building…" mapping (app/manafe3/peb-building.js) with the engine's real answer for building 1 + a door
  * (fixtures/manafe3/building1.json, made by engine/peb/building.py; engine tests check its geometry by hand).
  *
- * Hand counts: 364 members (358 + the door: 3 girt rows each cut into one more piece, 2 jambs, 1 header) and 150 cleats.
+ * Hand counts: 370 members (364 + the door: 3 girt rows each cut into one more piece, 2 jambs, 1 header) and 196 cleats
+ * (150 on frames + 46 gable-girt cleats on the wind / corner columns).
  * Parts: main frames 5 × (2 columns × 3 + 2 rafters × 2 segments × 3) = 90; wind columns 6 × 3 = 18; the other
- * 364 − 20 − 6 = 338 members one part each; 150 cleats → 596 parts.
+ * 370 − 20 − 6 = 344 members one part each (incl. 6 cap plates); 196 cleats → 90 + 18 + 344 + 196 = 648 parts.
+ * Wind column WF1 (y 6 000, top 6 163.835): flanges 150×8 cut across along the roof (0.1): a trapezoid, x 0 → L ∓ 7.5 at
+ * w = ∓75; area = 150 × 6 163.835 → 150 × 6 163.835 × 8 × 7.85e-6 = 58.063 kg.
  * A girt cleat (wall A): PL8x100 from (x, 0, z + 5) to (x, −180, z + 5), its width along X → its section u = ±X.
  */
 import fs from 'node:fs';
@@ -40,10 +43,10 @@ const m = new Model(emptyState('t'));
 const mine = m.change('mine', (tx) => tx.addMember({ type: 'beam', profile: 'IPE300', material: 'S355', start: [0, -3000, 3000], end: [6000, -3000, 3000] }));
 const spec = { ...B.BUILDING_DEFAULTS, openings: 'A 7000 4000 0 4000' };
 const r = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec));
-ok(r.members === 364 && r.cleats === 150 && r.replaced === 0, 'members and cleats added', r);
+ok(r.members === 370 && r.cleats === 196 && r.replaced === 0, 'members and cleats added', r);
 const b = build(m.state);
 ok(b.problems.length === 0, 'the whole building builds without problems', b.problems.slice(0, 5));
-ok(b.parts.length === 596 + 1, '596 parts by hand (+ my own beam)', b.parts.length);
+ok(b.parts.length === 648 + 1, '648 parts by hand (+ my own beam)', b.parts.length);
 {
   const gc = m.state.members.find((x) => x.name === 'Cleat GA1' && x.start[0] === 6000);
   const part = b.byId.get(gc.id);
@@ -57,12 +60,19 @@ ok(b.parts.length === 596 + 1, '596 parts by hand (+ my own beam)', b.parts.leng
 // ---- 3. edit = replace the generated members only; save and open keep everything ----------------------------------------
 {
   const r2 = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec));
-  ok(r2.replaced === 364 + 150 && m.state.members.length === 364 + 150 + 1 && m.state.members.some((x) => x.id === mine), 'regenerating replaces the generated members, mine stays', r2);
+  ok(r2.replaced === 370 + 196 && m.state.members.length === 370 + 196 + 1 && m.state.members.some((x) => x.id === mine), 'regenerating replaces the generated members, mine stays', r2);
   const back = readModel(m.toJSON());
-  ok(back.warnings.length === 0 && back.state.members.length === 515 && back.state.members.filter((x) => x.gen === 'peb').length === 514, 'save / open keep the members and their gen tag', back.warnings);
+  ok(back.warnings.length === 0 && back.state.members.length === 567 && back.state.members.filter((x) => x.gen === 'peb').length === 566, 'save / open keep the members and their gen tag', back.warnings);
   ok(back.state.m3building && back.state.m3building.openings === 'A 7000 4000 0 4000', 'the building inputs are kept for "Edit building"');
   m.undo();
-  ok(m.state.members.length === 515, 'one undo step per building edit');
+  ok(m.state.members.length === 567, 'one undo step per building edit');
+}
+{
+  const wc = m.state.members.find((x) => x.name === 'WF1');
+  const f = build(m.state).byId.get(wc.id + '.s1.top');
+  const o = f.profile.outline, L = 6163.835;
+  ok(f.profile.kind === 'SPL' && Math.abs(o[1][0] - (L - 7.5)) < 1e-3 && Math.abs(o[2][0] - (L + 7.5)) < 1e-3 && o[0][1] === -75 && o[2][1] === 75, 'wind column flange: a trapezoid cut along the roof', o);
+  ok(Math.abs(f.weight - 58.063) < 1e-3, 'its weight by hand 58.063 kg', f.weight);
 }
 
 console.log(`${pass} passed, ${fail} failed`);

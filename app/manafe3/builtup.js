@@ -74,15 +74,18 @@ export function cleanBuiltUp(bu, L) {
     if (Math.abs(a.top.b - b.top.b) > TOL) throw new Error(`${where}: top flange widths differ (${fmt(a.top.b)} | ${fmt(b.top.b)} mm)`);
     if (Math.abs(a.bot.b - b.bot.b) > TOL) throw new Error(`${where}: bottom flange widths differ (${fmt(a.bot.b)} | ${fmt(b.bot.b)} mm)`);
   }
-  // member end cuts: the end face is x = end + k·v (k = 0 square; a rafter's plumb cut k = the roof slope)
-  const cuts = { start: Number(bu.cuts?.start ?? 0), end: Number(bu.cuts?.end ?? 0) };
-  for (const e of ['start', 'end']) if (!(Math.abs(cuts[e]) <= 2)) throw new Error(`The ${e} cut must be a slope from −2 to 2 (0 = square)`);
+  // member end cuts: the end face is x = end + k·v (k = 0 square; a rafter's plumb cut k = the roof slope); endU: the end
+  // face also slopes ACROSS the flanges, x = end + endU·u (a wind column's top under a sloping rafter)
+  const cuts = { start: Number(bu.cuts?.start ?? 0), end: Number(bu.cuts?.end ?? 0), endU: Number(bu.cuts?.endU ?? 0) };
+  for (const e of ['start', 'end', 'endU']) if (!(Math.abs(cuts[e]) <= 2)) throw new Error(`The ${e} cut must be a slope from −2 to 2 (0 = square)`);
+  if (cuts.endU && Math.abs(cuts.endU) * Math.max(segs[segs.length - 1].top.b, segs[segs.length - 1].bot.b) / 2 >= segs[segs.length - 1].length) throw new Error('The end cut across the flanges is too steep for the last segment');
   const s0 = segs[0], sN = segs[segs.length - 1];
   const vs = (s, hw) => Object.values(levels(s, hw));
   const reach = (s, hw, k) => Math.max(...vs(s, hw).map((v) => Math.abs(k * v)));
   if (segs.length === 1 ? reach(s0, s0.hwStart, cuts.start) + reach(s0, s0.hwEnd, cuts.end) >= s0.length
     : reach(s0, s0.hwStart, cuts.start) >= s0.length || reach(sN, sN.hwEnd, cuts.end) >= sN.length) throw new Error('The end cuts are too steep for the end segments');
-  return cuts.start || cuts.end ? { segments: segs, cuts } : { segments: segs };
+  if (!cuts.endU) delete cuts.endU;
+  return cuts.start || cuts.end || cuts.endU ? { segments: segs, cuts } : { segments: segs };
 }
 
 /** The member's profile text, from its first and deepest dimensions: 'BU 300-800x8 250x12/250x12' (+ ' +n' segments). */
@@ -115,7 +118,11 @@ export function segmentPlates(bu, L) {
     const flange = (o, side) => {
       const mid = (lv) => (side === 'top' ? lv.topOut - o.t / 2 : lv.botOut + o.t / 2);
       const A = [at0(mid(a)), mid(a)], C = [at1(mid(b)), mid(b)];
-      return { b: o.b, t: o.t, a: A, c: C, length: Math.hypot(C[0] - A[0], C[1] - A[1]) };
+      const f = { b: o.b, t: o.t, a: A, c: C, length: Math.hypot(C[0] - A[0], C[1] - A[1]) };
+      // a cut across the flanges at the member end: the flange is a trapezoid in its own plane (x along it, w across)
+      const kU = index === n - 1 ? c.cuts?.endU || 0 : 0;
+      if (kU) f.outlineW = [[0, -o.b / 2], [f.length - kU * o.b / 2, -o.b / 2], [f.length + kU * o.b / 2, o.b / 2], [0, o.b / 2]];
+      return f;
     };
     out.push({
       index, x0, x1, grade: s.grade, straight: s.straight, hwStart: s.hwStart, hwEnd: s.hwEnd,
@@ -139,7 +146,8 @@ export function plateWeights(bu, L) {
   const kg = (mm3) => mm3 * 1e-9 * STEEL_DENSITY;
   return segmentPlates(bu, L).map((p) => {
     const web = kg(polygonArea(p.web.outline) * p.web.t);
-    const top = kg(p.top.b * p.top.t * p.top.length), bot = kg(p.bot.b * p.bot.t * p.bot.length);
+    const fl = (f) => kg((f.outlineW ? polygonArea(f.outlineW) : f.b * f.length) * f.t);   // a trapezoid flange by its outline
+    const top = fl(p.top), bot = fl(p.bot);
     return { index: p.index, web, top, bot, total: web + top + bot };
   });
 }
