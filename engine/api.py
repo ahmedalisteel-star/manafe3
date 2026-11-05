@@ -19,7 +19,9 @@ from pydantic import BaseModel, Field
 from . import __version__, settings
 from typing import Literal
 
+from .peb.building import BuildingInput, peb_building
 from .peb.builtup_frame import BuiltUpSizes, default_sizes, sizes_dict
+from .peb.secondary import RoofSide, Sections, Wall
 from .peb.frame import FrameInput, portal_frame
 from .sections.builtup import BuiltUpError, BuiltUpMember
 
@@ -116,6 +118,71 @@ def peb_frame(req: FrameRequest) -> dict:
         sizes = BuiltUpSizes(**d.pop("sizes")) if req.sizes else None
         d.pop("sizes", None)
         return portal_frame(FrameInput(**d, sizes=sizes))
+    except (ValueError, BuiltUpError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+class RoofSideIn(BaseModel):
+    spacing: float = 1250
+    first: float = 0
+    apex_gap: float = 200
+
+
+class WallIn(BaseModel):
+    spacing: float = 1250
+    first: float = 1250
+    top_gap: float = 300
+
+
+class SectionsIn(BaseModel):
+    purlin: str = "Z200x65x20x2.0"
+    eave_strut: str = "C200x65x20x2.0"
+    girt: str = "Z200x65x20x2.0"
+
+
+class OpeningIn(BaseModel):
+    wall: Literal["A", "B", "first", "last"]
+    at: float
+    width: float
+    sill: float = 0
+    height: float
+
+
+class BuildingRequest(BaseModel):
+    span: float
+    eave_height: float
+    roof_slope: float
+    bay_spacing: float
+    n_bays: int
+    sizes: SizesIn | None = None
+    roof_a: RoofSideIn = RoofSideIn()
+    roof_b: RoofSideIn = RoofSideIn()
+    wall_a: WallIn = WallIn()
+    wall_b: WallIn = WallIn()
+    gable: WallIn = WallIn()
+    sections: SectionsIn = SectionsIn()
+    end_first: Literal["frame", "rafter"] = "frame"
+    end_last: Literal["frame", "rafter"] = "frame"
+    braced_bays: list[int] | None = Field(None, description="1-based; default the first and the last bay")
+    brace_type: Literal["rod", "angle"] = "rod"
+    bolt: Literal["M12", "M16"] = "M12"
+    fixed_lap: float | None = Field(None, description="mm each side of a frame; default 10 % of each bay")
+    openings: list[OpeningIn] = []
+
+
+@app.post("/peb/building")
+def peb_building_api(req: BuildingRequest) -> dict:
+    """The whole PEB building: main frames, purlins, girts, eave struts, sag rods, bracing, flange braces, end walls,
+    openings and cleats (Phase 2). Geometry only, not designed."""
+    try:
+        return peb_building(BuildingInput(
+            span=req.span, eave_height=req.eave_height, roof_slope=req.roof_slope, bay_spacing=req.bay_spacing, n_bays=req.n_bays,
+            sizes=BuiltUpSizes(**req.sizes.model_dump()) if req.sizes else None,
+            roof_a=RoofSide(**req.roof_a.model_dump()), roof_b=RoofSide(**req.roof_b.model_dump()),
+            wall_a=Wall(**req.wall_a.model_dump()), wall_b=Wall(**req.wall_b.model_dump()), gable=Wall(**req.gable.model_dump()),
+            sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
+            braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type,
+            bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings)))
     except (ValueError, BuiltUpError) as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
 
