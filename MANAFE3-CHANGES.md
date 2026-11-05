@@ -17,6 +17,8 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `app/model.js` | a member may carry `bu` (built-up segments): checked by `app/manafe3/builtup.js` instead of the profile table, kept on save/open and undo | Phase 1 built-up members |
 | `app/build.js` | a built-up member becomes its plates (`app/manafe3/builtup-parts.js`); a part's own `plateWeight` wins over profile mass × length | Phase 1 built-up members |
 | `app/marks.js` | a shaped plate (kind `SPL`, built-up web) is marked as it lies, its outline part of its signature | Phase 1 |
+| `app/view3d.js` | a shaped plate (built-up web) is drawn from its true outline; a part's `look` sets its colour (built-up flanges as their member) | Phase 1 |
+| `app/detailcraft.js` (Phase 1) | Properties panel: the built-up section editor / "Make built-up…" (`app/manafe3/builtup-ui.js`); "Plate list" output (`app/manafe3/output-ui.js`) | Phase 1 |
 | `app/nest.js` | built-up webs (`BUW…`) are left out of the bar cut list (they are plates) | Phase 1 |
 | `README.md` | moved to `docs/DETAILCRAFT-README.md`; a Manafe3 README took its place | the fork's own install guide |
 | `app/dwg/objects-write.js` | synced byte for byte from `tests/lib/dwg/objects-write.js` (R2004+ class header: version fields as BL) | upstream v0.8.1 shipped the two out of step and its own test `writer-sync --check` failed |

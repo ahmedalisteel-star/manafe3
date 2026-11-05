@@ -75,6 +75,7 @@ export function builtUpParts(m) {
       parts.push({
         ...common, id: base + '.' + side, type: 'plate', role: side === 'top' ? 'Top flange' : 'Bottom flange', ifc: 'IfcPlate', name: side === 'top' ? 'Top flange' : 'Bottom flange',
         profile: p, profileName: p.name, frame: frame(a, c, rot), voff: 0, length: fl.length, start: a, end: c,
+        look: m.type === 'beam' || m.type === 'column' || m.type === 'brace' ? m.type : undefined,   // view3d: drawn in the member's colour
         position: 'middle', rotation: rot, attachTo: base + '.web', plateWeight: fl.b * fl.t * fl.length * 1e-9 * STEEL_DENSITY,
       });
     }

@@ -251,7 +251,7 @@ export class View3D {
     for (const p of built.parts) {
       if (!shown(p.phase)) continue;
       const geo = partGeometry(p);
-      const m = new THREE.Mesh(geo, this.mats[p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type]);
+      const m = new THREE.Mesh(geo, this.mats[p.look || (p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type)]);   // Manafe3: p.look = a built-up flange drawn as its member
       const f = p.frame;
       const basis = new THREE.Matrix4().makeBasis(v3(f.u), v3(f.v), v3(f.x));
       basis.setPosition(new THREE.Vector3(...f.o).addScaledVector(v3(f.v), p.voff));
@@ -774,6 +774,13 @@ const v3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 /** A part's solid in its own frame (u, v, x) — the profile extruded along +z, copes cut by splitting the length. */
 export function partGeometry(p) {
   const pr = p.profile, L = p.length;
+  if (pr.kind === 'SPL') {   // Manafe3 (changed file): a shaped plate (built-up web) — its outline (x, v) extruded across u by t
+    const sh = new THREE.Shape(pr.outline.map(([x, v]) => new THREE.Vector2(-x, v - p.voff)));
+    const g = new THREE.ExtrudeGeometry(sh, { depth: pr.t, bevelEnabled: false, steps: 1, curveSegments: 1 });
+    g.translate(0, 0, -pr.t / 2);
+    g.rotateY(Math.PI / 2);   // (X, Y, Z) → (Z, Y, −X): u = Z (across the web), x along = −X = the outline's x
+    return g;
+  }
   const copes = p.cuts.filter((c) => c.kind === 'cope');
   const cuts = new Set([0, L]);
   for (const c of copes) cuts.add(c.end === 'start' ? Math.min(c.length, L) : Math.max(L - c.length, 0));

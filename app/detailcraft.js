@@ -81,7 +81,8 @@ import { mountFoundation } from './foundation-ui.js';   // 0.8 EG.5: the Foundat
 import { mountCongestion } from './congestion-ui.js';   // 0.8 EG.74: the Congestion tab (rebar heat map per footing)
 import { mountAutopilot } from './autopilot-ui.js';   // 0.8 EG.73: the Autopilot tab (connections for the open joints)
 import { mountErection } from './erection-ui.js';   // 0.8 EG.72: the Erection tab (crane chart, picks, the movie file)
-import { mountAnalysis } from './analysis-ui.js';   // 0.6 LC.4: the Analysis tab (frame analysis, an aid, not a code check)
+import { mountAnalysis } from './analysis-ui.js';
+import { builtUpBlock, makeBuiltUpButton } from './manafe3/builtup-ui.js';   // Manafe3 (changed file): the built-up section editor   // 0.6 LC.4: the Analysis tab (frame analysis, an aid, not a code check)
 
 const root = document.querySelector('[data-detailcraft]');
 if (root) start(root);
@@ -1456,12 +1457,16 @@ async function start(root) {
       const pr = getProfile(m.profile, model.state.profiles);
       p.append(...field(tr('app.f.thickness'), numIn(pr?.t ?? 20, (v) => upd(tr('app.undo.plate-size'), { profile: plateName(v, pr?.b ?? 200) }), { min: 1 })),
         ...field(tr('app.f.width'), numIn(pr?.b ?? 200, (v) => upd(tr('app.undo.plate-size'), { profile: plateName(pr?.t ?? 20, v) }), { min: 1 })));
-    } else p.append(...field(tr('app.f.profile'), selectIn(profileOptions(), m.profile, (v) => upd(tr('app.undo.profile'), { profile: v }))));
+    } else if (m.bu) p.append(...field(tr('app.f.profile'), el('span', { className: 'v' }, m.profile)));   // Manafe3: built-up, edited below
+    else p.append(...field(tr('app.f.profile'), selectIn(profileOptions(), m.profile, (v) => upd(tr('app.undo.profile'), { profile: v }))));
     p.append(...field(tr('app.f.material'), selectIn(materialOptions(), m.material, (v) => upd(tr('app.undo.material'), { material: v }))));
-    if (m.type !== 'plate') p.append(...field(tr('app.f.position'), selectIn(positionOptions, m.position, (v) => upd(tr('app.undo.position'), { position: v }))));
+    if (m.type !== 'plate' && !m.bu) p.append(...field(tr('app.f.position'), selectIn(positionOptions, m.position, (v) => upd(tr('app.undo.position'), { position: v }))));
     p.append(...field(tr('app.f.rotation'), numIn(m.rotation, (v) => upd(tr('app.undo.rotate'), { rotation: v }))));
     p.append(...phaseField([{ kind: 'member', id: m.id }], m.phase || 1));
     out.push(p);
+    // Manafe3 (changed file, MANAFE3-CHANGES.md): the built-up section editor, or the button that makes one
+    if (m.bu) out.push(builtUpBlock(m, { edit, marks, built }));
+    else if (['beam', 'column', 'brace'].includes(m.type)) out.push(el('div', { className: 'dc-actions' }, makeBuiltUpButton(m, { edit, getProfile: (n) => getProfile(n, model.state.profiles) })));
     const ends = el('div', { className: 'dc-props dc-block' }, el('p', { className: 'dc-sub' }, tr('app.member.ends')));
     for (const end of ['start', 'end']) {
       const row = el('div', { className: 'dc-xyz' }, ...[0, 1, 2].map((k) => numIn(m[end][k], (v) => { const pt = [...m[end]]; pt[k] = v; upd(tr('app.undo.move.' + end), { [end]: pt }); }, { id: 'dc-' + end + k })));
@@ -1852,6 +1857,9 @@ async function start(root) {
   import('./manafe3/peb-frame-ui.js')
     .then(({ mountPebFrame }) => mountPebFrame({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
     .catch((err) => console.warn('Manafe3: no PEB frame button —', err?.message || err));   // i18n-ignore: a console line
+  import('./manafe3/output-ui.js')   // Manafe3: the "Plate list" output (plate cut list CSV)
+    .then(({ mountOutputs }) => mountOutputs({ built: () => built, marks: () => marks, name: () => safeName(), download, print }))
+    .catch((err) => console.warn('Manafe3: no plate list button —', err?.message || err));   // i18n-ignore: a console line
   // ---- the shell's modules (0.8 round 3; docs/apps/shell-modules.md § Mounting): calc sheets, design reasons, running totals, lessons, Suggest, activity, Ask ----
   shellMount = mountDetailShell({
     model: () => model, built: () => built, schedule: () => schedule, selected: () => selected(), setSelection: (refs) => { setTool('select'); setSelection(refs); },
