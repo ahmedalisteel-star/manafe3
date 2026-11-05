@@ -167,12 +167,13 @@ function convert(W, api, mid, fallbackName) {
 
   // ---- profiles ----
   const n = (x) => Number(val(x)) * toMm;
-  function readProfile(pd) {
+  function readProfile(pd, own = false) {
     const c = clsName(pd);
     const pname = cleanText(val(pd.ProfileName) || '', 40);
     const pos = pd.Position ? axis3(ref(pd.Position)) : I4();      // 2D position in the profile plane
-    // Manafe3 (changed file): our lipped C / Z, rods and metric angles come back by their profile name (ifc.js writes it)
-    const m3 = m3Parse(pname);
+    // Manafe3 (changed file): our lipped C / Z, rods and metric angles come back by their profile name (ifc.js writes it) —
+    // only from elements Manafe3 wrote (`own`: their part property set names the profile); other files import as before
+    const m3 = own ? m3Parse(pname) : null;
     if (m3 && ['IfcCShapeProfileDef', 'IfcCircleProfileDef', 'IfcLShapeProfileDef', 'IfcArbitraryClosedProfileDef'].includes(c)) {
       if (c !== 'IfcArbitraryClosedProfileDef') return { kind: 'M3', pname, pos, dims: {}, m3name: m3.name };
       const cv = line(ref(pd.OuterCurve));
@@ -291,8 +292,16 @@ function convert(W, api, mid, fallbackName) {
   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members — assemblies carrying the Manafe3_BuiltUp property set
   // (ifc.js) — come back as one member each, from the member written there (mm); their plates are not imported again
   const m3Asm = new Set(), m3Parts = new Set(), m3Members = new Map();
+  const m3Own = new Set();   // elements whose part property set names a Manafe3 profile (C/Z, rod, metric angle): ours
   for (const rid of ids(W.IFCRELDEFINESBYPROPERTIES)) {
     const r = line(rid), def = r ? line(ref(r.RelatingPropertyDefinition)) : null;
+    if (def && clsName(def) === 'IfcPropertySet' && val(def.Name) === 'DetailCraft') {
+      for (const pr of def.HasProperties || []) {
+        const p = line(ref(pr));
+        if (p && val(p.Name) === 'Profile' && m3Parse(String(val(p.NominalValue) || ''))) for (const o of r.RelatedObjects || []) m3Own.add(ref(o));
+      }
+      continue;
+    }
     if (!def || clsName(def) !== 'IfcPropertySet' || val(def.Name) !== 'Manafe3_BuiltUp') continue;
     const props = new Map();
     for (const pr of def.HasProperties || []) { const p = line(ref(pr)); if (p) props.set(val(p.Name), val(p.NominalValue)); }
@@ -326,7 +335,7 @@ function convert(W, api, mid, fallbackName) {
       const b = bodySolid(el);
       if (b.why) { skip(cls, b.why); continue; }
       const pd = line(ref(b.solid.SweptArea));
-      const prof = pd ? readProfile(pd) : { why: t('ifcimp.why.no-profile') };
+      const prof = pd ? readProfile(pd, m3Own.has(id)) : { why: t('ifcimp.why.no-profile') };   // Manafe3: own elements
       if (prof.why) { skip(cls, prof.why); continue; }
       // the solid in world: element placement ∘ item transform ∘ solid position ∘ profile position
       const Mel = el.ObjectPlacement ? placement(ref(el.ObjectPlacement)) : I4();
