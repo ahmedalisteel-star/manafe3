@@ -1,8 +1,9 @@
 # Manafe3: end a work session on this PC. Copyright (c) 2026 Ahmed Ali. All rights reserved.
 #   powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"
 #   -Next "..."   also replace the "Next task" line in the Last session block (optional)
+#   -Footer "..." extra lines at the end of the commit message, e.g. a Co-Authored-By trailer (optional)
 # Steps: tests -> update HANDOVER.md "Last session" -> git add -> commit -> git push. Nothing is pushed if a test fails.
-param([string]$Message, [string]$Next)
+param([string]$Message, [string]$Next, [string]$Footer)
 $ErrorActionPreference = 'Continue'   # native tools write progress to stderr; exit codes are checked instead
 Set-Location -LiteralPath $PSScriptRoot
 function Step($t) { Write-Host "`n== $t ==" -ForegroundColor Cyan }
@@ -50,7 +51,7 @@ git add -A
 $big = git diff --cached --name-only | Where-Object { (Test-Path -LiteralPath $_) -and (Get-Item -LiteralPath $_).Length -gt 20MB }
 if ($big) { Write-Host "Refusing: files over 20 MB staged:`n$($big -join "`n")" -ForegroundColor Red; git reset -q; exit 1 }
 $msgFile = Join-Path ([IO.Path]::GetTempPath()) ('manafe3-commit-' + [guid]::NewGuid() + '.txt')
-[IO.File]::WriteAllText($msgFile, "$Message`n`nend-work.ps1 on $env:COMPUTERNAME. Tests: engine $($pyLine.Trim()); app $($jsLine.Trim())`n", (New-Object Text.UTF8Encoding $false))
+[IO.File]::WriteAllText($msgFile, "$Message`n`nend-work.ps1 on $env:COMPUTERNAME. Tests: engine $($pyLine.Trim()); app $($jsLine.Trim())`n" + $(if ($Footer) { "`n$Footer`n" } else { "" }), (New-Object Text.UTF8Encoding $false))
 git commit -q -F $msgFile
 $c = $LASTEXITCODE
 Remove-Item -LiteralPath $msgFile -Force

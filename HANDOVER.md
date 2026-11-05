@@ -4,15 +4,53 @@ Read this and `CLAUDE.md` first, on either PC. Then `.\start-work.ps1`.
 
 ## Where we are
 
-**Phase 0 done (2026-11-05, ENG04-PC):** the DetailCraft fork runs as Manafe3, the Python engine answers, the
-"PEB frame…" button puts a portal frame on every grid line, and both PCs can continue from git.
+**Phase 0 done (2026-11-05):** the DetailCraft fork runs as Manafe3, the Python engine answers, two PCs work from git.
+**Phase 1 done (2026-11-05, ENG04-PC):** welded built-up members — tapered or constant, in segments joined at splice
+points — in the model, 3D, Properties panel, parts/marks/BOM, plate cut list, DSTV NC per plate, IFC4 out and back in,
+engine section properties along the length, and "PEB frame…" now builds built-up frames with a haunch at the knee.
 
 ## Next task
 
-**Phase 1 — tapered built-up member type.** Plan below is AGREED (2026-11-05); waiting for the user's go to start
-step 1. Work the steps in order; tests → green → commit on `main` after each.
+**Phase 2 — secondary steel** (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall
+frames). Start by reading `bimsteelauto/design/purlins.py`, `aisi_s100` / `direct_strength` (cold-formed) and
+`bimsteelauto/loads/cladding.py`; how DetailCraft holds C/Z profiles (`app/shapes/sections.js`, `profiles.js`,
+`CUSTOM_KINDS`) and the brace gusset (`app/connections.js`). **Write the plan here and show it to the user before
+coding**; ask about every engineering decision (lap lengths, purlin spacing rules, sag-rod rows, flange-brace spacing,
+bracing type). Same rules: tests per step with hand-checked values, commit on `main` after each green step.
 
-### Phase 1 plan
+### Phase 1 — what was built (steps and commits)
+
+| # | Step | Commit |
+|---|---|---|
+| 1 | Engine: `engine/sections/builtup.py` (segments, splice/minimum checks, properties at any x via bimsteelauto `WeldedI`), `POST /section/builtup` | 988d821 |
+| 2 | `app/manafe3/builtup.js` (cleanBuiltUp, segmentPlates, plateWeights, buMark) + `model.js` keeps `member.bu` | eea4d4c |
+| 3 | `app/manafe3/builtup-parts.js` (web = shaped plate `SPL`, flanges = PL), marks/BOM, `app/manafe3/platelist.js` | 2777998 |
+| 4 | 3D true taper (`view3d.js`), Properties segment editor + "Make built-up…" (`builtup-ui.js`), Output › Plate list | 6cbacec |
+| 5 | DSTV NC: web as a sheet with its outline contour (`nc1.js`) | a958b83 |
+| 6 | IFC4: web IfcPlate + IfcArbitraryClosedProfileDef, assembly per segment with `Manafe3_BuiltUp`; import rebuilds | 208c8f8 |
+| 7 | PEB frame: `engine/peb/builtup_frame.py` (span rules, plumb/roof-line end cuts, 12 m transport split), form sizes | f45b063 |
+| — | Drawings made safe: built-up assembly sheets left out and named (Phase 6) | 8920164 |
+
+**Design facts to know.**
+- `member.bu = { segments: [{ length, hwStart, hwEnd, tw, top:{b,t}, bot:{b,t}, grade, straight }], cuts?: { start, end } }`.
+  The last segment's length is always the rest of the member line. `straight: 'top'` = the +v flange's outer face on the
+  member line (rafter: roof line; column turned so −v points into the building: its outer face).
+- End cuts: the member's end face is x = end + k·v (k = 0 square). PEB frame: rafter both ends k = slope (plumb at the
+  column face and the ridge); column top k = −slope (follows the roof). Splices are always square.
+- Parts per segment: web `<member>.s<n>.web` (type = the member's, assembly main part, profile kind `SPL` with an
+  `outline`), flanges `.top` / `.bot` (type plate, `PL t×b` on their mid-thickness line, `look` = member colour).
+  Weights gross = outline area × t × 7850. A web part starts at its outline's smallest x (DSTV needs x ≥ 0).
+- Engine ↔ app names: engine snake_case (`hw_start`, `bf_top`, `cut_start`), app camelCase — converted only in
+  `app/manafe3/peb-frame.js` `buOf`.
+- Built-up PEB frames: column lines A/B are the columns' OUTER faces; eave height = roof line at the outer column face.
+
+**Known limits (on purpose, later phases).** Holes/copes/connections on built-up members are reported, not built
+(Phase 5); splices, knee and ridge are points only (Phase 5); flange-to-web welds not sized (Phase 5); a sloping flange's
+end skew through its thickness is not cut in NC; built-up shop and assembly drawings: refused / left out with a message,
+GA sheets draw built-up members approximately (Phase 6); the Analysis tab skips built-up members as "profile" (Phase 3);
+Manafe3's own UI words are English only (not in `app/lang/*.json` yet).
+
+### Phase 1 plan (as agreed, kept for the record)
 
 **Findings.** Every DetailCraft part is one constant profile along a straight line (build.js → view3d, nc1, marks,
 BOM, ifc, shop). A tapered web is a plate with a trapezoid outline, so the core addition is a **shaped-plate part**
@@ -67,7 +105,10 @@ python manafe3.py --check           # start, check /health and the page, stop
 ```
 (If scripts are blocked: `powershell -ExecutionPolicy Bypass -File .\start-work.ps1`.)
 
-In the app: **Place › PEB frame…** → span, eave height, roof slope (rise/run), bay spacing, bays → **Add frame**.
+In the app: **Place › PEB frame…** → span, eave height, roof slope (rise/run), bay spacing, bays, section (built-up,
+default) and the built-up sizes (filled from the span rules) → **Add frame**. Click a member: its segments are edited in
+the Properties panel; any catalog beam/column has **Make built-up…**. **Output › Plate list** downloads the plate cut list.
+After pulling new engine code, restart `python manafe3.py` (the engine does not reload itself).
 
 ## Architecture (decided)
 
@@ -75,7 +116,9 @@ In the app: **Place › PEB frame…** → span, eave height, roof slope (rise/r
 browser (JS, port 8000)                                      engine (Python, port 8765)
 DetailCraft fork: app/ + devshell/serve.mjs   --fetch-->     FastAPI engine/api.py
   app/manafe3/peb-frame-ui.js  (button, form)                  GET  /health
-  app/manafe3/peb-frame.js     (DOM-free mapping)              POST /peb/frame  -> engine/peb/frame.py
+  app/manafe3/peb-frame.js     (DOM-free mapping)              POST /peb/frame (+ /defaults) -> engine/peb/frame.py,
+  app/manafe3/builtup*.js      (built-up members)                                               builtup_frame.py
+  app/manafe3/platelist.js, output-ui.js                       POST /section/builtup -> engine/sections/builtup.py
 manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ```
 
@@ -145,6 +188,11 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 | UI added from JS (`app/manafe3/`), not `ui.inc`, because no PHP on the PCs and to keep merges easy | Claude | 2026-11-05 |
 | Logo: concept B "M-Frame" (M as a two-span tapered frame; navy + primer orange, wordmark with the 3 in orange); replaced concept A the same day; all concepts kept in `branding/` | user | 2026-11-05 |
 | Phase 0 profiles: placeholders by span (≤15 m HEA300/IPE400, ≤24 m HEA400/IPE500, else HEA500/IPE600), `designed: false` | Claude | 2026-11-05 |
+| Phase 1: web plate depth input; PEB-standard straight flange; splice points only; span-rule sizes; haunch ends at the rafter depth; splice check (equal webs, same flange widths) | user | 2026-11-05 |
+| Phase 1: section properties = bimsteelauto `WeldedI` (reused, not rewritten); `sectionproperties` (MIT) as the independent check, dev dependency only | Claude | 2026-11-05 |
+| Phase 1: member end cuts (k·v) to make the agreed plumb ridge / column-face cuts; column top along the roof line | Claude | 2026-11-05 |
+| Phase 1: built-up frame column lines = outer column faces; `section: "hot_rolled"` keeps the Phase 0 frame | Claude | 2026-11-05 |
+| Phase 1: grades S275, S355, A572 Gr 50, St 37, St 44, St 52; web part = assembly main (marks C…/B…) | Claude | 2026-11-05 |
 
 ## Reusing existing work
 
@@ -183,7 +231,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 
 ## Roadmap (do NOT build ahead of the current phase)
 
-- **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate)
+- **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
 - **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames)
 - **Phase 3** loads (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`) + PyNite analysis with taper
   discretisation and P-Delta
@@ -194,17 +242,23 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
 
-## Tests (Phase 0 baseline)
+## Tests (baseline after Phase 1, 2026-11-05)
 
-- Engine `uv run pytest -q`: **10 passed** (health versions; frame geometry for 2 hand-calculated cases; bad input
-  refused; HTTP endpoint; CORS).
-- App `npm test`: **3 of 3 test files passed** — upstream 7714 + 13 checks, Manafe3 `test-manafe3-pebframe.mjs` 18.
-- Browser end-to-end (headless Edge, 2026-11-05): button present, dialog opens, 24 m × 5 bays → 24 members on 6 frame
-  lines, apex 8200 mm, 23 609 kg, no console errors.
+- Engine `uv run pytest -q`: **39 passed** — health, CORS, hot-rolled frames by hand (Phase 0), built-up sections S1/T1/T2
+  by hand (A, Ix, Iy, Zx, Sx top/bottom), `sectionproperties` within 1 % at 5 stations (agrees to < 0.0001 %), a negative
+  control (web depth taken as overall depth is 7.5 % off and must fail), splice/minimum refusals, built-up frames 24 m and
+  36 m by hand (36 m rafter split for transport).
+- App `npm test`: **8 of 8 test files passed** — upstream 7714 + 13 (unchanged), Manafe3: built-up model 26, parts 28,
+  editor 16, NC 10, IFC 14, PEB frame 30.
+- Browser (headless Edge): built-up members in 3D with true tapers; panel edit 800 → 900 gives 509.4 kg (hand 509.38);
+  tw 4 refused; PEB frame 24 m × 4 bays → 20 members, 90 parts, 9 part marks, 3 assemblies, 12 812.4 kg, no console errors.
+- Independent hand values are written out in each test's header; none is recomputed by the code under test.
 
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-05 on ENG04-PC
-- Did: Phase 0 — fork, rename, engine skeleton, PEB frame button, two-PC scripts, docs.
+- When: 2026-11-05 11:19 on ENG04-PC
+- Did: Phase 1 done: tapered built-up members (model, 3D, editor, parts, plate list, NC, IFC, engine section properties, built-up PEB frames)
+- Tests: engine 39 passed, 1 warning in 3.19s | app 8 of 8 test files passed
+- Next: Phase 2 secondary steel: plan first, show the user, then build
 <!-- LAST-SESSION:END -->
