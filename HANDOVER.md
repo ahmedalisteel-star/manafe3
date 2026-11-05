@@ -9,10 +9,49 @@ Read this and `CLAUDE.md` first, on either PC. Then `.\start-work.ps1`.
 
 ## Next task
 
-**Phase 1 — tapered built-up member type** (web taper, flange plates, 3D, BOM, NC per plate). Start by reading
-`app/profiles.js`, `app/shapes/sections.js`, `app/build.js`, `app/nc1.js` and `app/marks.js` (how a member becomes
-parts, marks and NC), and `bimsteelauto/sections.py` (welded tapered I-sections, `parse_mark`). Write the plan into this
-file before coding.
+**Phase 1 — tapered built-up member type.** Plan below is AGREED (2026-11-05); waiting for the user's go to start
+step 1. Work the steps in order; tests → green → commit on `main` after each.
+
+### Phase 1 plan
+
+**Findings.** Every DetailCraft part is one constant profile along a straight line (build.js → view3d, nc1, marks,
+BOM, ifc, shop). A tapered web is a plate with a trapezoid outline, so the core addition is a **shaped-plate part**
+(polygon outline × thickness) that each consumer learns. bimsteelauto `sections.py` already has `WeldedI` (A, Ix, Iy,
+Sx_top/bot, Zx, …) and `TaperedMember` (only the depth varies; a flange change = a new member) — **reuse it**, with the
+`sectionproperties` library (MIT, FE section solver, dev dependency) as the independent cross-check.
+
+**Data model.** A member keeps its role (`column` / `beam`) and gets a built-up section: `segments[]`, each
+`{ length, hwStart, hwEnd, tw, top: {b, t}, bot: {b, t}, grade, straight }`. Each segment = one shipping assembly of
+3 plates (trapezoid web + 2 flange strips); segments meet at splice points. Minimums: web ≥ 6 mm, flange ≥ 8 mm.
+Grades offered: S275, S355, A572 Gr 50, St 37, St 44, St 52.
+
+| # | Step | Tests |
+|---|---|---|
+| 1 | Engine: properties at any x (A, Ix, Iy, Zx, Sx_top/bot) via bimsteelauto; `POST /section/builtup` | 2 tapered sections by hand at start/mid/end; `sectionproperties` within 1 % at 5 stations |
+| 2 | Model + DOM-free geometry: store/validate/save/undo; segments → web outline + flange lines | outlines, areas, weights by hand (2 sections); minimums refused |
+| 3 | Parts: shaped-plate part, assemblies per segment, marks, BOM, gross weight per plate (outline area × t × 7850, holes not deducted), a plate cut list | marks group identical plates; totals = hand totals |
+| 4 | 3D true taper; Properties panel segment editor; convert a member to built-up | Node mapping tests + one browser check |
+| 5 | NC: one DSTV file per plate, web with its trapezoid AK contour | contour points by hand |
+| 6 | IFC4: assembly of 3 IfcPlate per segment (web = IfcArbitraryClosedProfileDef) + Pset `Manafe3_BuiltUp`; Import IFC rebuilds the member; other imports unchanged | export → import round trip; upstream suite green |
+| 7 | "PEB frame…": built-up columns and rafters, haunch at the knee, splices at haunch end and ridge | geometry by hand for 2 frames |
+| 8 | HANDOVER, `end-work.ps1` | |
+
+Made safe, not built: shop/assembly drawings of built-up parts (Phase 6: buttons say "not yet"), Analysis tab marks
+them "not checked" (Phase 3), flange-to-web welds not sized (Phase 5).
+
+**Decisions (user, 2026-11-05).**
+- Depth typed = **web plate depth hw**; overall d = hw + tf_top + tf_bot shown beside it (bimsteelauto uses d).
+- Taper side = **PEB standard**, per segment: column outer flange plumb on the column line, inner flange sloping;
+  rafter top flange straight along the roof line, bottom flange sloping.
+- Splices in Phase 1 = **splice points only**: each segment its own assembly, cut square to the member at the splice;
+  end plates and bolts come in Phase 5 (nothing invented).
+- "PEB frame…" sizes = **span rules, editable in the form, `designed: false`**:
+  - knee web depth hw_knee = span / 30, rounded up to 50 mm (24 m → 800)
+  - column: hw from 300 at the base to hw_knee at the eave (one tapered segment)
+  - haunch: length = span / 10 from the column face, hw from hw_knee to 0.6 · hw_knee
+  - rafter: hw = max(300, 0.5 · hw_knee) constant to the ridge; split again if a segment exceeds 12 m (transport)
+  - flanges: span ≤ 20 m 200×10, ≤ 30 m 250×12, else 300×16; web t = 6 if hw ≤ 600, else 8; grade S355
+  - knee: the rafter starts at the column's inner flange face; ridge: the two rafters cut plumb at the apex.
 
 ## How to run
 
