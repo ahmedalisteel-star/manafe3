@@ -42,6 +42,9 @@
  * Any other profile with a plane-cut end is refused.
  * Read back in the test by two independent readers (DSTV.Net 1.3.0 and the Rust crate dstv 0.8.0).
  * Not written: bevels, markings (SI), saw cuts, unrolled hole positions on round tubes.
+ * Manafe3 (changed file): a shaped plate (kind SPL, a built-up web) is a sheet (code B): header height = its width across the
+ * sheet (vmax − vmin), one AK contour on v = its outline with y from its lowest edge. Seen from −u (x × v = −u). A built-up
+ * flange is an ordinary PL; its through-thickness end skew at a tapered splice is not cut (Phase 1 note).
  */
 
 import { STEEL_DENSITY as STEEL_KG_PER_M3 } from './profiles.js';
@@ -53,7 +56,7 @@ const pad = (s, n = 12) => String(s).padStart(n);
 const txt = (s) => String(s ?? '').replace(/[^\x20-\x7e]/g, '?').slice(0, 50) || '-';
 
 /** Can this part go to an NC file? null if yes, else the reason. */
-const CODE = { I: 'I', C: 'U', L: 'L', RHS: 'M', CHS: 'RO', PL: 'B' };
+const CODE = { I: 'I', C: 'U', L: 'L', RHS: 'M', CHS: 'RO', PL: 'B', SPL: 'B' };   // Manafe3: SPL = a shaped plate (built-up web), a sheet
 export function ncRefusal(part) {
   const k = part.profile.kind;
   const KIND = { L: 'nc.kind.l', CHS: 'nc.kind.chs' };
@@ -88,7 +91,8 @@ function flangeSpan(L, copes, side, t) {
  */
 export function writeNc1(part, info) {
   const p = part.profile, L = part.length;
-  const isPlate = p.kind === 'PL', k = p.kind;
+  const isPlate = p.kind === 'PL' || p.kind === 'SPL', k = p.kind;   // Manafe3: a shaped plate is a sheet too
+  const pw = k === 'SPL' ? p.vmax - p.vmin : p.b;   // Manafe3: the plate's width across the sheet (a web: its deepest depth)
   const lines = ['ST', '** DetailCraft ' + txt(info.mark) + '.nc1'];
   const field = (v) => lines.push('  ' + v);
   field(txt(info.order));
@@ -97,10 +101,10 @@ export function writeNc1(part, info) {
   field(txt(info.mark));
   field(txt(part.material));
   field(String(info.count || 1));
-  field(txt(isPlate ? 'PL' + p.t + '*' + p.b : part.profileName));
+  field(txt(isPlate ? 'PL' + p.t + '*' + Number(pw.toFixed(2)) : part.profileName));
   field(CODE[k]);
   const per = p.perimeter / 1000;
-  const nums = isPlate ? [L, p.b, 0, 0, p.t, 0, p.t * STEEL_KG_PER_M3 / 1000, 2]
+  const nums = isPlate ? [L, pw, 0, 0, p.t, 0, p.t * STEEL_KG_PER_M3 / 1000, 2]
     : k === 'L' ? [L, p.b, p.b, p.t, p.t, 0, p.mass, per]
       : k === 'RHS' ? [L, p.h, p.b, p.t, p.t, p.ro, p.mass, per]
         : k === 'CHS' ? [L, p.D, p.D, p.t, p.t, 0, p.mass, per]
@@ -121,7 +125,8 @@ export function writeNc1(part, info) {
   };
   const copes = (part.cuts || []).filter((c) => c.kind === 'cope');
   const rect = (face, x0, x1, w) => ak(face, [[x0, 0], [x1, 0], [x1, w], [x0, w]]);
-  if (isPlate) rect('v', 0, L, p.b);
+  if (k === 'SPL') ak('v', p.outline.map(([x, v]) => [x, v - p.vmin]));   // Manafe3: the web's own outline, y from its lowest edge (CCW kept)
+  else if (isPlate) rect('v', 0, L, p.b);
   else if (k === 'L') { rect('v', 0, L, p.b); rect('u', 0, L, p.b); }
   else if (k === 'CHS') rect('v', 0, L, p.D);
   else if (k === 'C') {
@@ -147,7 +152,7 @@ export function writeNc1(part, info) {
 
   // holes
   const holes = part.holes.flatMap((hh) => {
-    if (isPlate) return [['v', hh.x, hh.y + p.b / 2, hh.d]];
+    if (isPlate) return [['v', hh.x, hh.y + pw / 2, hh.d]];
     if (k === 'C') {
       if (hh.face === 'web') return [['v', hh.x, p.d / 2 - hh.y, hh.d]];
       return [[hh.face === 'top' ? 'u' : 'o', hh.x, hh.y + p.bf / 2, hh.d]];      // from the back of the web
