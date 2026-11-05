@@ -17,4 +17,5 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `README.md` | moved to `docs/DETAILCRAFT-README.md`; a Manafe3 README took its place | the fork's own install guide |
 | `app/dwg/objects-write.js` | synced byte for byte from `tests/lib/dwg/objects-write.js` (R2004+ class header: version fields as BL) | upstream v0.8.1 shipped the two out of step and its own test `writer-sync --check` failed |
 | `tests/bin/test-detailcraft.mjs` | five error-message patterns say Manafe3 | the messages were renamed |
+| `.github/workflows/test.yml` | removed | user decision 2026-11-05: no GitHub Actions minutes on the private repo; tests run on both PCs via start-work/end-work |
 | `NOTICE`, `.gitignore` | Manafe3 notice line; per-machine and private files kept out of git | licence; two-PC workflow |
