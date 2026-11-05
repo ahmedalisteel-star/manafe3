@@ -40,6 +40,7 @@ import { t } from './i18n.js';
  * Length units: IfcSIUnit (any prefix) or an IfcConversionBasedUnit (foot, inch) — all converted to mm.
  */
 import { CATALOG, getProfile, cleanCustom, plateName } from './profiles.js';
+import { m3Parse } from './manafe3/coldformed.js';   // Manafe3: lipped C/Z, rods, metric angles by name
 import { emptyState, Model, cleanText } from './model.js';
 import { frame, cross, dot, norm, sub, add, mul, len, toLocal, voffFor } from './geom.js';
 
@@ -170,6 +171,16 @@ function convert(W, api, mid, fallbackName) {
     const c = clsName(pd);
     const pname = cleanText(val(pd.ProfileName) || '', 40);
     const pos = pd.Position ? axis3(ref(pd.Position)) : I4();      // 2D position in the profile plane
+    // Manafe3 (changed file): our lipped C / Z, rods and metric angles come back by their profile name (ifc.js writes it)
+    const m3 = m3Parse(pname);
+    if (m3 && ['IfcCShapeProfileDef', 'IfcCircleProfileDef', 'IfcLShapeProfileDef', 'IfcArbitraryClosedProfileDef'].includes(c)) {
+      if (c !== 'IfcArbitraryClosedProfileDef') return { kind: 'M3', pname, pos, dims: {}, m3name: m3.name };
+      const cv = line(ref(pd.OuterCurve));
+      const pts = clsName(cv) === 'IfcPolyline' ? (cv.Points || []).map((p) => coords(ref(p))) : [];
+      if (pts.length < 3) return { why: t('ifcimp.why.not-rect') };
+      const us = pts.map((p) => p[0]), vs = pts.map((p) => p[1]);   // the outline's box centre = the section centre (file units)
+      return { kind: 'M3', pname, dims: {}, m3name: m3.name, pos: { X: [1, 0, 0], Y: [0, 1, 0], Z: [0, 0, 1], O: [(Math.min(...us) + Math.max(...us)) / 2, (Math.min(...vs) + Math.max(...vs)) / 2, 0] } };
+    }
     switch (c) {
       case 'IfcIShapeProfileDef': return { kind: 'I', pname, pos, dims: { d: n(pd.OverallDepth), bf: n(pd.OverallWidth), tw: n(pd.WebThickness), tf: n(pd.FlangeThickness), r: pd.FilletRadius ? n(pd.FilletRadius) : 0 } };
       case 'IfcUShapeProfileDef': return { kind: 'C', pname, pos, dims: { d: n(pd.Depth), bf: n(pd.FlangeWidth), tw: n(pd.WebThickness), tf: n(pd.FlangeThickness) } };
@@ -349,7 +360,7 @@ function convert(W, api, mid, fallbackName) {
           profileName = custom(customs, prof.pname, { kind: 'FLAT', b: prof.dims.x, t: prof.dims.y }, key);
         }
       } else {
-        const cat = catalogMatch(kind, prof.dims, prof.pname);
+        const cat = kind === 'M3' ? prof.m3name : catalogMatch(kind, prof.dims, prof.pname);   // Manafe3: M3 = ours, by name
         if (cat) profileName = cat;
         else {
           const p = { kind, ...prof.dims };

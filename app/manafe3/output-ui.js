@@ -5,6 +5,7 @@
  * "Plate list" downloads the plate cut list (platelist.js) as CSV: every plate part by mark, with totals per grade and thickness.
  */
 import { plateList, plateListCsv } from './platelist.js';
+import { punchList, punchListCsv } from './punchlist.js';
 
 export function mountOutputs({ built, marks, name, download, print }) {
   if (document.querySelector('[data-m3-act="plate-list"]')) return;
@@ -22,6 +23,18 @@ export function mountOutputs({ built, marks, name, download, print }) {
     download((name() || 'model') + '-plates.csv', plateListCsv(list), 'text/csv');
     const kg = list.totals.reduce((a, g) => a + g.kg, 0);
     print(`Plate list: ${list.rows.length} marks, ${Math.round(kg * 10) / 10} kg gross.`);
+  });
+  // Phase 2: the C/Z punch list (CSV), beside it
+  const punch = document.createElement('button');
+  punch.type = 'button'; punch.className = 'dc-tool'; punch.dataset.m3Act = 'punch-list';
+  punch.title = 'Punch list (CSV) for cold-formed C and Z: every hole of every part mark, for the roll-former';
+  punch.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i><span>Punch</span>';
+  btn.after(punch);
+  punch.addEventListener('click', () => {
+    const rows = punchList(built(), marks());
+    if (!rows.length) { print('No cold-formed C or Z in this model.'); return; }
+    download((name() || 'model') + '-punch.csv', punchListCsv(rows), 'text/csv');
+    print(`Punch list: ${new Set(rows.map((r) => r.mark)).size} C/Z marks, ${rows.filter((r) => r.x !== '').length} holes.`);
   });
   return btn;
 }

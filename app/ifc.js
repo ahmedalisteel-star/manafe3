@@ -133,6 +133,11 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
       case 'RHS': return w.add('IFCRECTANGLEHOLLOWPROFILEDEF(.AREA.,' + nm + ',' + pos + ',' + [p.b, p.h, p.t, p.ri, p.ro].map(R).join(',') + ')');
       case 'CHS': return w.add('IFCCIRCLEHOLLOWPROFILEDEF(.AREA.,' + nm + ',' + pos + ',' + R(p.D / 2) + ',' + R(p.t) + ')');
       case 'PL': return w.add('IFCRECTANGLEPROFILEDEF(.AREA.,' + nm + ',' + pos + ',' + R(p.b) + ',' + R(p.t) + ')');
+      // Manafe3 (changed file): lipped C = IFC4's own lipped channel; Z = its outline (no Position in IFC4, so the points
+      // carry voff and Import IFC finds the centre from their box); rods = circles. Metric angles are the 'L' case above.
+      case 'CFC': return w.add('IFCCSHAPEPROFILEDEF(.AREA.,' + nm + ',' + pos + ',' + [p.H, p.B, p.t, p.D, p.r].map(R).join(',') + ')');
+      case 'CFZ': return w.add('IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,' + nm + ',' + w.add('IFCPOLYLINE((' + [...p.loops[0], p.loops[0][0]].map(([u, v]) => w.pt([u, v + voff])).join(',') + '))') + ')');
+      case 'RD': return w.add('IFCCIRCLEPROFILEDEF(.AREA.,' + nm + ',' + pos + ',' + R(p.d / 2) + ')');
       default: throw new Error(t('ifcout.err.profile', { kind: p.kind }));
     }
   };
@@ -175,7 +180,7 @@ export function writeIfc(state, built, marks, schedule, { name = state.name || '
     const p = part.profile;
     part.holes.forEach((h, i) => {
       let c, axis, depth;
-      if (h.face === 'web') { c = [0, h.y + part.voff, h.x]; axis = [1, 0, 0]; depth = (p.kind === 'RHS' ? p.b : p.tw) + 2; }
+      if (h.face === 'web') { c = [p.kind === 'CFC' ? -p.B / 2 + p.t / 2 : 0, h.y + part.voff, h.x]; axis = [1, 0, 0]; depth = (p.kind === 'RHS' ? p.b : p.kind === 'CFC' || p.kind === 'CFZ' ? p.t : p.tw) + 2; }   // Manafe3: + lipped C/Z webs
       else if (h.face === 'plate') { c = [h.y, part.voff, h.x]; axis = [0, 1, 0]; depth = p.t + 2; }
       else { const sg = h.face === 'top' ? 1 : -1, t = p.kind === 'RHS' ? p.t : p.tf; c = [h.y, part.voff + sg * (p.depth / 2 - t / 2), h.x]; axis = [0, 1, 0]; depth = t + 2; }
       const start = sub(c, mul(axis, depth / 2));

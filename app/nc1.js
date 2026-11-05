@@ -56,12 +56,13 @@ const pad = (s, n = 12) => String(s).padStart(n);
 const txt = (s) => String(s ?? '').replace(/[^\x20-\x7e]/g, '?').slice(0, 50) || '-';
 
 /** Can this part go to an NC file? null if yes, else the reason. */
-const CODE = { I: 'I', C: 'U', L: 'L', RHS: 'M', CHS: 'RO', PL: 'B', SPL: 'B' };   // Manafe3: SPL = a shaped plate (built-up web), a sheet
+const CODE = { I: 'I', C: 'U', L: 'L', RHS: 'M', CHS: 'RO', PL: 'B', SPL: 'B', CFC: 'C', CFZ: 'SO' };   // Manafe3: SPL built-up web; CFC lipped C as 'C', CFZ Z as 'SO' (special) — best effort, test on the machine   // Manafe3: SPL = a shaped plate (built-up web), a sheet
 export function ncRefusal(part) {
   const k = part.profile.kind;
   const KIND = { L: 'nc.kind.l', CHS: 'nc.kind.chs' };
   if ((k === 'L' || k === 'CHS') && (part.cuts || []).some((c) => c.kind === 'cope')) return t('nc.refusal.cope', { profile: part.profileName, kind: t(KIND[k]) });
   if (part.endCuts && k !== 'I') return t('nc.refusal.endcut', { profile: part.profileName });
+  if (k === 'RD') return 'Rods are cut and threaded, not punched: they are in the cut list (' + part.profileName + ').';   // Manafe3; i18n-ignore
   if (CODE[k]) return null;
   return t('nc.refusal.profile', { profile: part.profileName });
 }
@@ -105,6 +106,7 @@ export function writeNc1(part, info) {
   field(CODE[k]);
   const per = p.perimeter / 1000;
   const nums = isPlate ? [L, pw, 0, 0, p.t, 0, p.t * STEEL_KG_PER_M3 / 1000, 2]
+    : k === 'CFC' || k === 'CFZ' ? [L, p.H, p.B, p.t, p.t, p.r, p.mass, per]   // Manafe3: lipped C / Z (lips not contoured)
     : k === 'L' ? [L, p.b, p.b, p.t, p.t, 0, p.mass, per]
       : k === 'RHS' ? [L, p.h, p.b, p.t, p.t, p.ro, p.mass, per]
         : k === 'CHS' ? [L, p.D, p.D, p.t, p.t, 0, p.mass, per]
@@ -128,6 +130,7 @@ export function writeNc1(part, info) {
   if (k === 'SPL') ak('v', p.outline.map(([x, v]) => [x, v - p.vmin]));   // Manafe3: the web's own outline, y from its lowest edge (CCW kept)
   else if (isPlate) rect('v', 0, L, p.b);
   else if (k === 'L') { rect('v', 0, L, p.b); rect('u', 0, L, p.b); }
+  else if (k === 'CFC' || k === 'CFZ') { rect('v', 0, L, p.H); rect('o', 0, L, p.B); rect('u', 0, L, p.B); }   // Manafe3: web and flanges
   else if (k === 'CHS') rect('v', 0, L, p.D);
   else if (k === 'C') {
     // Y = d/2 − v: the web outline mirrored top for bottom (reversed to stay counter-clockwise)
@@ -162,6 +165,7 @@ export function writeNc1(part, info) {
       return [[hh.face === 'top' ? 'o' : 'u', hh.x, p.b / 2 - hh.y, hh.d]];
     }
     if (k === 'L') return [hh.face === 'web' ? ['u', hh.x, hh.y + p.b / 2, hh.d] : ['v', hh.x, hh.y + p.b / 2, hh.d]];
+    if (k === 'CFC' || k === 'CFZ') return [hh.face === 'web' ? ['v', hh.x, hh.y + p.H / 2, hh.d] : [hh.face === 'top' ? 'o' : 'u', hh.x, hh.y + p.B / 2, hh.d]];   // Manafe3: web y from the underside
     if (hh.face === 'web') return [['v', hh.x, hh.y + p.d / 2, hh.d]];
     return [[hh.face === 'top' ? 'o' : 'u', hh.x, p.bf / 2 - hh.y, hh.d]];          // from the behind (+u) edge
   });
