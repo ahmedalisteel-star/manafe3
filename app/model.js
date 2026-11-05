@@ -669,6 +669,7 @@ export function readModel(text) {
   if (fr) s.framing = fr;
   // Manafe3: the PEB building's inputs (app/manafe3/peb-building.js), kept as plain data for 'Edit building'
   if (j.m3building && typeof j.m3building === 'object' && !Array.isArray(j.m3building)) { const txt = JSON.stringify(j.m3building); if (txt.length < 200000) s.m3building = JSON.parse(txt); }
+  if (j.m3loads && typeof j.m3loads === 'object' && !Array.isArray(j.m3loads)) { const txt = JSON.stringify(j.m3loads); if (txt.length < 20000) s.m3loads = JSON.parse(txt); }   // Manafe3: the job's load inputs
   const sp = readSupply(j.supply);   // 0.8 round 3, EG.51: supplier stock and lead-time rows (lib/supply)
   if (sp) s.supply = sp;
   for (const k of ['calcs', 'reasons']) {   // 0.8 round 3: the shell's calc sheets and design reasons, kept as saved (the shell's modules clean them on load)

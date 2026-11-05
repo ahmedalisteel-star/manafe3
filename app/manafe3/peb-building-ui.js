@@ -9,6 +9,7 @@
 import { BUILDING_DEFAULTS, buildingRequest, requestBuilding, applyBuilding, SIZE_FIELDS } from './peb-building.js';
 import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
+import { pebMenuItem } from './peb-menu.js';
 import { GRADES } from './builtup.js';
 
 const GROUPS = [
@@ -61,10 +62,7 @@ function buildDialog() {
 
 export function mountPebBuilding({ model, edit, print, fit }) {
   if (document.querySelector('[data-m3-act="peb-building"]')) return;
-  const btn = h('button', { type: 'button', class: 'dc-tool', 'data-m3-act': 'peb-building', title: 'Make or edit the whole PEB building: frames, purlins, girts, bracing, end walls, openings' });
-  btn.innerHTML = '<i class="bi bi-buildings" aria-hidden="true"></i><span>Building…</span>';
-  const anchor = document.querySelector('[data-act="tool:stair"]') || document.querySelector('[data-act="tool:beam"]');
-  if (anchor) anchor.after(btn); else document.querySelector('.dc-tools')?.append(btn);
+  const btn = pebMenuItem('peb-building', 'Building…', 'Make or edit the whole PEB building: frames, purlins, girts, bracing, end walls, openings', () => {});
   const ui = buildDialog();
   document.body.append(ui.dlg);
   const edited = new Set();

@@ -252,7 +252,8 @@ python manafe3.py --check           # start, check /health and the page, stop
 ```
 (If scripts are blocked: `powershell -ExecutionPolicy Bypass -File .\start-work.ps1`.)
 
-In the app: **Place › Building…** → the whole building (span, bays, eave, slope, frame sizes, purlin/girt spacing and
+In the app: **Place › PEB** opens Manafe3's menu (Building…, Loads…; Analysis… in Phase 3) — one button so the
+toolbar stays on one row; **Output › Lists** has the plate list and the C/Z punch list. **PEB › Building…** → the whole building (span, bays, eave, slope, frame sizes, purlin/girt spacing and
 first positions, end walls, braced bays, lap, bolts, sections, openings) → **Make building**; the same button edits it
 (generated members replaced, your own kept). **Output › Plates** / **Punch** download the plate list / C-Z punch list. Click a member: its segments are edited in
 the Properties panel; any catalog beam/column has **Make built-up…**. **Output › Plate list** downloads the plate cut list.

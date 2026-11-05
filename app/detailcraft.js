@@ -1856,7 +1856,9 @@ async function start(root) {
   // ---- Manafe3 (changed file, see MANAFE3-CHANGES.md): the "PEB frame…" button, app/manafe3/peb-frame-ui.js ----
   import('./manafe3/peb-building-ui.js')   // Phase 2: "PEB building…" (frames + secondary steel) replaces "PEB frame…"
     .then(({ mountPebBuilding }) => mountPebBuilding({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
-    .catch((err) => console.warn('Manafe3: no PEB building button —', err?.message || err));   // i18n-ignore: a console line
+    .then(() => import('./manafe3/loads-ui.js'))   // Phase 3: "Loads…" beside it
+    .then(({ mountLoads }) => mountLoads({ model: () => model, edit, print }))
+    .catch((err) => console.warn('Manafe3: no PEB building / loads button —', err?.message || err));   // i18n-ignore: a console line
   import('./manafe3/output-ui.js')   // Manafe3: the "Plate list" output (plate cut list CSV)
     .then(({ mountOutputs }) => mountOutputs({ built: () => built, marks: () => marks, name: () => safeName(), download, print }))
     .catch((err) => console.warn('Manafe3: no plate list button —', err?.message || err));   // i18n-ignore: a console line

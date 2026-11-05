@@ -1,40 +1,51 @@
 /* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
 /**
- * output-ui.js — Manafe3's Output buttons. Loaded by detailcraft.js:
- *   mountOutputs({ built: () => built, marks: () => marks, name: () => model name, download(name, data, type), print })
- * "Plate list" downloads the plate cut list (platelist.js) as CSV: every plate part by mark, with totals per grade and thickness.
+ * output-ui.js — Manafe3's Output button "Lists" (one button, so the toolbar stays on one row), a small menu of:
+ *   Plate list (CSV)       platelist.js: every plate part by mark, totals per grade and thickness
+ *   C/Z punch list (CSV)   punchlist.js: every hole of every cold-formed C/Z part mark, for the roll-former
+ * Loaded by detailcraft.js: mountOutputs({ built: () => built, marks: () => marks, name: () => model name, download, print })
  */
 import { plateList, plateListCsv } from './platelist.js';
 import { punchList, punchListCsv } from './punchlist.js';
 
 export function mountOutputs({ built, marks, name, download, print }) {
-  if (document.querySelector('[data-m3-act="plate-list"]')) return;
+  if (document.querySelector('[data-m3-act="lists"]')) return;
   const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'dc-tool';
-  btn.dataset.m3Act = 'plate-list';
-  btn.title = 'Plate cut list (CSV): every plate by mark — built-up webs and flanges, connection plates — with totals per grade and thickness';
-  btn.innerHTML = '<i class="bi bi-grid-3x3" aria-hidden="true"></i><span>Plates</span>';
+  btn.type = 'button'; btn.className = 'dc-tool'; btn.dataset.m3Act = 'lists';
+  btn.title = 'Plate list and C/Z punch list (CSV)';
+  btn.setAttribute('aria-haspopup', 'menu');
+  btn.innerHTML = '<i class="bi bi-list-columns" aria-hidden="true"></i><span>Lists</span>';
   const anchor = document.querySelector('[data-act="bom"]');
   if (anchor) anchor.after(btn); else document.querySelector('.dc-tools')?.append(btn);
-  btn.addEventListener('click', () => {
+  const menu = document.createElement('div');
+  menu.setAttribute('role', 'menu');
+  menu.dataset.m3ListsMenu = '';
+  menu.hidden = true;
+  menu.style.cssText = 'position:fixed;z-index:1000;background:var(--cc-bg, #fff);border:1px solid var(--cc-line, #999);padding:.25rem;display:flex;flex-direction:column;gap:.15rem';
+  const item = (act, text, run) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn-line btn-sm-dc'; b.dataset.m3Act = act; b.textContent = text; b.setAttribute('role', 'menuitem');
+    b.addEventListener('click', () => { menu.hidden = true; run(); });
+    menu.append(b);
+  };
+  item('plate-list', 'Plate list (CSV)', () => {
     const list = plateList(built(), marks());
     if (!list.rows.length) { print('No plates in this model.'); return; }
     download((name() || 'model') + '-plates.csv', plateListCsv(list), 'text/csv');
-    const kg = list.totals.reduce((a, g) => a + g.kg, 0);
-    print(`Plate list: ${list.rows.length} marks, ${Math.round(kg * 10) / 10} kg gross.`);
+    print(`Plate list: ${list.rows.length} marks, ${Math.round(list.totals.reduce((a, g) => a + g.kg, 0) * 10) / 10} kg gross.`);
   });
-  // Phase 2: the C/Z punch list (CSV), beside it
-  const punch = document.createElement('button');
-  punch.type = 'button'; punch.className = 'dc-tool'; punch.dataset.m3Act = 'punch-list';
-  punch.title = 'Punch list (CSV) for cold-formed C and Z: every hole of every part mark, for the roll-former';
-  punch.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i><span>Punch</span>';
-  btn.after(punch);
-  punch.addEventListener('click', () => {
+  item('punch-list', 'C/Z punch list (CSV)', () => {
     const rows = punchList(built(), marks());
     if (!rows.length) { print('No cold-formed C or Z in this model.'); return; }
     download((name() || 'model') + '-punch.csv', punchListCsv(rows), 'text/csv');
     print(`Punch list: ${new Set(rows.map((r) => r.mark)).size} C/Z marks, ${rows.filter((r) => r.x !== '').length} holes.`);
   });
+  document.body.append(menu);
+  btn.addEventListener('click', () => {
+    const r = btn.getBoundingClientRect();
+    menu.style.left = r.left + 'px'; menu.style.top = r.bottom + 'px';
+    menu.hidden = !menu.hidden;
+  });
+  document.addEventListener('click', (e) => { if (!menu.hidden && e.target !== btn && !btn.contains(e.target) && !menu.contains(e.target)) menu.hidden = true; });
   return btn;
 }

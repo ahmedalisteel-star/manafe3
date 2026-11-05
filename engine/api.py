@@ -21,6 +21,7 @@ from typing import Literal
 
 from .peb.building import BuildingInput, peb_building
 from .peb.builtup_frame import BuiltUpSizes, default_sizes, sizes_dict
+from .peb.loads_input import LoadsInput
 from .peb.secondary import RoofSide, Sections, Wall
 from .peb.frame import FrameInput, portal_frame
 from .sections.builtup import BuiltUpError, BuiltUpMember
@@ -185,6 +186,32 @@ def peb_building_api(req: BuildingRequest) -> dict:
             braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
             bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings)))
     except (ValueError, BuiltUpError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+class LoadsIn(BaseModel):
+    V: float | None = None
+    exposure: Literal["B", "C", "D"] | None = None
+    enclosure: Literal["enclosed", "partially_enclosed", "partially_open", "open"] = "enclosed"
+    Kzt: float = 1.0
+    risk: Literal["I", "II", "III", "IV"] = "II"
+    roof_cladding: Literal["single", "sandwich"] = "single"
+    roof_cladding_kpa: float | None = None
+    wall_cladding: Literal["single", "sandwich"] = "single"
+    wall_cladding_kpa: float | None = None
+    collateral: float = 0.10
+    Lo: float = 0.96
+    base: Literal["pinned", "fixed"] = "pinned"
+    lrfd: bool = True
+    asd: bool = True
+
+
+@app.post("/peb/loads/check")
+def peb_loads_check(req: LoadsIn) -> dict:
+    """The job's load inputs, checked, with what follows from them (Kd, GCpi, the sheeting values used)."""
+    try:
+        return LoadsInput(**req.model_dump()).summary()
+    except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
 
 
