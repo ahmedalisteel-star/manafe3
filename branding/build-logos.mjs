@@ -102,7 +102,7 @@ const SYMBOLS = {
 };
 
 // ---- seal (200 x 200): for calc sheets, drawings and the "NOT FOR ISSUE" stamp ----------------------------------
-function seal(t, { top = 'PEB ENGINEERING', bottom = 'DESIGN · DETAIL · FABRICATE', ring = t.ink, id = 's' } = {}) {
+function seal(t, { top = 'PEB ENGINEERING', bottom = 'DESIGN · DETAIL · FABRICATE', ring = t.ink, id = 's', sym = 'mframe' } = {}) {
   return `<defs><path id="${id}t" d="M25,100A75,75 0 0 1 175,100"/><path id="${id}b" d="M21,100A79,79 0 0 0 179,100"/></defs>` +
     `<circle cx="100" cy="100" r="95" fill="none" stroke="${ring}" stroke-width="5"/>` +
     `<circle cx="100" cy="100" r="66" fill="none" stroke="${ring}" stroke-width="2"/>` +
@@ -111,7 +111,7 @@ function seal(t, { top = 'PEB ENGINEERING', bottom = 'DESIGN · DETAIL · FABRIC
     `<text font-family="${FONT}" font-weight="700" font-size="10.5" letter-spacing="1.5" fill="${ring}">` +
     `<textPath href="#${id}b" startOffset="50%" text-anchor="middle">${bottom}</textPath></text>` +
     `<circle cx="20" cy="100" r="3.5" fill="${t.accent}"/><circle cx="180" cy="100" r="3.5" fill="${t.accent}"/>` +
-    `<g transform="translate(62.8,52) scale(0.62)">${SYMBOLS.taper(t)}</g>` +
+    `<g transform="translate(62.8,${sym === 'taper' ? 52 : 54}) scale(0.62)">${SYMBOLS[sym](t)}</g>` +
     word(WORD, { x: 61.26, y: 130, h: 13, ink: t.ink, accent: t.accent }).svg;
 }
 
@@ -180,6 +180,7 @@ for (const [mode, t] of Object.entries(THEMES)) {
   save(`stacked-taper-${mode}.svg`, lockupStacked(t, 'taper'));
   save(`stacked-mframe-${mode}.svg`, lockupStacked(t, 'mframe'));
   save(`bilingual-taper-${mode}.svg`, lockupBilingual(t, 'taper'));
+  save(`bilingual-mframe-${mode}.svg`, lockupBilingual(t, 'mframe'));
   save(`wordmark-${mode}.svg`, wordOnly(t));
   save(`seal-${mode}.svg`, svg(200, 200, seal(t), 'Manafe3 seal'));
   save(`loader-${mode}.svg`, loader(t));
@@ -190,10 +191,10 @@ save('stamp-not-for-issue.svg', svg(200, 200,
     { top: 'NOT FOR ISSUE', bottom: 'CHECKS NOT VERIFIED', ring: red, id: 'n' })}</g>`, 'NOT FOR ISSUE'));
 save('icon-taper.svg', tile('taper'));
 save('icon-taper-small.svg', tile('taper', { rear: false, slab: false, scale: 0.9, dy: -3 }));
-// The app's favicon and app-bar mark (shown at 16-22 px, so the small tile without the rear bays). favicon-32.png and
-// favicon.ico are rendered from this file — see branding/README.md.
+// The app's favicon and app-bar mark: concept B, the M-frame (chosen 2026-11-05). favicon-32.png and favicon.ico are
+// rendered from this file — see branding/README.md.
 writeFileSync(join(here, '..', 'devshell', 'site', 'favicon.svg'),
-  tile('taper', { rear: false, slab: false, scale: 0.9, dy: -3 }).replace('<title>', '<!-- Manafe3 logo, concept A (branding/build-logos.mjs) --><title>'));
+  tile('mframe', { scale: 0.8 }).replace('<title>', '<!-- Manafe3 logo, concept B M-frame (branding/build-logos.mjs) --><title>'));
 save('icon-mframe.svg', tile('mframe', { scale: 0.8 }));
 save('icon-hex.svg', tile('hex', { scale: 0.8 }));
 save('icon-grid.svg', tile('grid', { scale: 0.8 }));
