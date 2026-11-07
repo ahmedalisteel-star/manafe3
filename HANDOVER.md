@@ -25,6 +25,19 @@ framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC,
 3. **Strength results from the LRFD combinations; deflection and drift from the ASD combinations**; every result is
    labelled with the set it comes from.
 
+**Phase 3 progress / findings (2026-11-07).** Steps 1–4 done (`engine/peb/loads_input.py`, `engine/analysis/frame_model.py`,
+`frame_loads.py`, `solve.py`). Two things learnt:
+- **Wall wind direction defect (found by the statics test, fixed in the adapter):** bimsteelauto applies wall wind NORMAL
+  to a column, relying on PyNite's local axes of an EXACTLY vertical member; a Manafe3 column on its tapered centroid line
+  is slightly inclined, PyNite turns its local y the other way and the load flipped (the frame swayed against the wind).
+  The adapter now applies wall wind as global X (bimsteelauto's sign: + toward +X) × height/length. bimsteelauto itself is
+  unchanged; its own layouts have vertical columns and are not affected.
+- `Envelope.eave_drift` only looks at nodes named "E…" (bimsteelauto's layouts) — it would read 0 on Manafe3 layouts;
+  Manafe3 computes drift (largest eave movement) and sway (mean of the eaves) itself.
+- On building 1 the ASCE §28.3.4 minimum governs Load Case A (87.4 kN computed vs 121.3 kN minimum → × 1.3887; the load's
+  origin says so). Under ASD 1.0D + 0.6W the light roof is in net uplift: columns in tension, P-Delta REDUCES the sway
+  there (tested as the negative control); with columns in compression it amplifies it.
+
 ### Phase 3 plan
 
 **Reuse bimsteelauto unchanged:** `loads/wind.py` (Ch. 28 envelope, Load Cases A/B × ±GCpi, end zones, §28.3.4 minimum,

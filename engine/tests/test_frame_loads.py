@@ -71,9 +71,14 @@ def test_wind_copied_from_bimsteelauto_onto_every_sub_member():
     ref = {(x.case, x.member_mark): x for x in wind_loads_for_frame(std, 2, envelope_pressures(info.layout.geometry, LI.site()), from_left=True)}
     for nm, case in (("WA+L", "W_A_pi_pos"), ("WB-", "W_B_pi_neg")):
         assert one(r, nm, "RA1").w == ref[(case, "R1")].w and one(r, nm, "RA2").w == ref[(case, "R1")].w   # both segments
-        assert one(r, nm, "RB1").w == ref[(case, "R2")].w and one(r, nm, "CA").w == ref[(case, "C1")].w and one(r, nm, "CB").w == ref[(case, "C2")].w
+        assert one(r, nm, "RB1").w == ref[(case, "R2")].w
+        # columns: bimsteelauto's NORMAL w (+ = toward +X) as global X, x height/length of the inclined centroid line
+        for mk, std_mk in (("CA", "C1"), ("CB", "C2")):
+            m = next(f for f in info.layout.members if f.mark == mk)
+            k = abs(m.j_point[1] - m.i_point[1]) / m.length
+            assert one(r, nm, mk).direction.name == "GLOBAL_X" and one(r, nm, mk).w == pytest.approx(ref[(case, std_mk)].w * k, rel=1e-12)
     right = {(x.case, x.member_mark): x for x in wind_loads_for_frame(std, 2, envelope_pressures(info.layout.geometry, LI.site()), from_left=False)}
-    assert one(r, "WA+R", "CA").w == right[("W_A_pi_pos", "C1")].w
+    assert one(r, "WA+R", "RA1").w == right[("W_A_pi_pos", "R1")].w
     assert one(r, "WA+L", "CA").w != one(r, "WA+R", "CA").w        # windward and leeward differ
     _, e = fl(0)
     assert abs(one(e, "WA+L", "RA1").w) / e.tributary_m > abs(one(r, "WA+L", "RA1").w) / r.tributary_m   # end zone: bigger per m²

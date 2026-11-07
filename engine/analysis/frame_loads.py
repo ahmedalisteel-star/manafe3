@@ -108,7 +108,17 @@ def frame_loads(info, frame_index: int, li: LoadsInput, roof_secondary_kpa: floa
             if nm not in names:
                 names.append(nm)
             for mk in by_role.get(SURFACE_OF[fl.member_mark], []):
-                loads.append(Load(nm, mk, fl.w, fl.direction, fl.origin))
+                if fl.member_mark.startswith("C"):
+                    # A wall pressure is horizontal. bimsteelauto applies it NORMAL to an exactly vertical column (local
+                    # axes of a vertical PyNite member); a Manafe3 column on its tapered centroid line is slightly inclined
+                    # and PyNite turns its local y the other way — the load flipped (found by the statics test). So: global
+                    # X (positive w = toward +X, bimsteelauto's convention for columns), per metre of member, scaled by
+                    # height / length so the total stays p × tributary × height.
+                    m = next(f for f in lay.members if f.mark == mk)
+                    k = abs(m.j_point[1] - m.i_point[1]) / m.length
+                    loads.append(Load(nm, mk, fl.w * k, LoadDirection.GLOBAL_X, fl.origin + f" (global X, x {k:.5f} height/length)"))
+                else:
+                    loads.append(Load(nm, mk, fl.w, fl.direction, fl.origin))
     order = ["WA+L", "WA-L", "WA+R", "WA-R", "WB+", "WB-"]                # a fixed order for tables and the CSV
     names = sorted(names, key=order.index)
     cases = ("D", "C", "Lr", *names)
