@@ -71,6 +71,8 @@ def test_building_dedup_and_labels(whole):
     same = {f["line"]: f["same_as"] for f in r["frames"]}
     assert same == {"2": "2", "3": "2", "4": "2", "5": "5"}              # line 1 is an end-rafter wall; 5 has half the tributary
     assert [f for f in r["frames"] if f["line"] == "3"][0].get("result") is None
+    std = [f for f in r["frames"] if f["line"] == "2"][0]["result"]["staad"]
+    assert std.startswith("STAAD PLANE") and "NOT FOR ISSUE" in std and std.rstrip().endswith("FINISH")
     assert len(r["end_frames"]) == 1 and r["end_frames"][0]["end"] == "first"
     assert r["sets"] == {"strength": "LRFD", "serviceability": "ASD", "foundation": "case (unfactored)"}
     # the de-duplicated line 4, solved on its own, must give line 2's numbers

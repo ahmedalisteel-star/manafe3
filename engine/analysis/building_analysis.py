@@ -26,6 +26,7 @@ from .frame_loads import frame_loads
 from .frame_model import frame_line_model
 from .secondary_weight import secondary_kpa
 from .solve import analyse_frame_line
+from .staad import staad_frame
 
 TAPER_STEP = 0.10
 BANNER = "NOT FOR ISSUE — analysis only, members not designed (Phase 4)"
@@ -42,7 +43,9 @@ def _line_setup(b: BuildingInput, li: LoadsInput, i: int, sec: dict, step: float
 def _solve_line(args):
     b, li, i, sec, step, p_delta = args
     info, fl = _line_setup(b, li, i, sec, step)
-    return analyse_frame_line(info, fl, p_delta=p_delta, label=f"Frame line {i + 1}")
+    r = analyse_frame_line(info, fl, p_delta=p_delta, label=f"Frame line {i + 1}")
+    r["staad"] = staad_frame(info, fl, title=f"Manafe3 frame line {i + 1} (NOT FOR ISSUE)", base=li.base)   # for STAAD.Pro
+    return r
 
 
 def _signature(fl) -> tuple:

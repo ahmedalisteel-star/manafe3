@@ -44,6 +44,8 @@ export function mountFrameAnalysis({ model, print, download }) {
   const note = h('span', { class: 'dc-note', 'data-m3-a-note': true });
   const run = h('button', { type: 'button', class: 'btn-plot btn-sm-dc', 'data-m3-a-run': true, text: 'Run analysis' });
   const csv = h('button', { type: 'button', class: 'btn-line btn-sm-dc', 'data-m3-a-csv': true, text: 'Reactions CSV', disabled: true });
+  const std = h('button', { type: 'button', class: 'btn-line btn-sm-dc', 'data-m3-a-std': true, text: 'STAAD .std (this line)', disabled: true,
+    title: 'This frame line as a STAAD.Pro input file (first order; to compare with Manafe3 — see the notes in the file)' });
   const close = h('button', { type: 'button', class: 'dc-x', 'aria-label': 'Close' });
   close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
   const lab = (t, e) => h('label', { style: 'display:flex;gap:.3rem;align-items:center' }, h('span', { text: t }), e);
@@ -54,7 +56,7 @@ export function mountFrameAnalysis({ model, print, download }) {
     h('h3', { class: 'dc-h', style: 'font-size:.95em;margin:.5rem 0 .2rem', text: 'Base reactions — this frame line, this set (kN, kN·m)' }), reactions);
   const dlg = h('dialog', { class: 'dc-dialog', 'data-m3-analysis': true, 'aria-labelledby': 'm3-a-h' },
     h('div', { class: 'dc-dlg' }, h('div', { class: 'dc-dlg-head' }, h('h2', { class: 'dc-h', id: 'm3-a-h', text: 'Analysis' }), close), body,
-      h('div', { class: 'dc-dlg-foot' }, note, csv, run)));
+      h('div', { class: 'dc-dlg-foot' }, note, std, csv, run)));
   document.body.append(dlg);
   close.addEventListener('click', () => dlg.close());
 
@@ -125,23 +127,26 @@ export function mountFrameAnalysis({ model, print, download }) {
   run.addEventListener('click', async () => {
     let req;
     try { req = analysisRequest(model().state); } catch (err) { note.textContent = err.message; return; }
-    run.disabled = true; csv.disabled = true; note.textContent = 'Solving every frame line, P-Delta (about 20 s to a minute)…';
+    run.disabled = true; csv.disabled = true; std.disabled = true; note.textContent = 'Solving every frame line, P-Delta (about 20 s to a minute)…';
     try {
       res = await requestAnalysis(req);
       lineSel.replaceChildren(...res.frames.map((f) => h('option', { value: f.line, text: `Line ${f.line}` + (f.same_as !== f.line ? ` (= line ${f.same_as})` : '') })));
       fillCombos(); fillSummary(); draw();
-      csv.disabled = false;
+      csv.disabled = false; std.disabled = false;
       note.textContent = `Solved ${res.frames.filter((f) => f.result).length} distinct frame line(s) of ${res.frames.length}. ${BANNER}`;
       print?.(`Analysis done: ${res.frames.length} frame lines, ${res.frames[0] ? frameResult(res, res.frames[0].line).combos.length : 0} cases and combinations. ${BANNER}`);
     } catch (err) { note.textContent = err.message; }
     finally { run.disabled = false; }
   });
-  csv.addEventListener('click', () => {
-    if (!res) return;
-    const text = reactionsCsv(res);
-    if (download) { download('base-reactions.csv', text, 'text/csv'); return; }
-    const a = h('a', { href: URL.createObjectURL(new Blob([text], { type: 'text/csv' })), download: 'base-reactions.csv' });
+  const save = (name, text, type) => {
+    if (download) { download(name, text, type); return; }
+    const a = h('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name });
     document.body.append(a); a.click(); a.remove();
+  };
+  csv.addEventListener('click', () => { if (res) save('base-reactions.csv', reactionsCsv(res), 'text/csv'); });
+  std.addEventListener('click', () => {
+    const f = fr();
+    if (f?.staad) save(`frame-line-${lineSel.value}.std`, f.staad.split('\n').join('\r\n'), 'text/plain');   // Windows line ends for STAAD
   });
   return { button: btn, dialog: dlg };
 }

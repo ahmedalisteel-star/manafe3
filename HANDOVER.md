@@ -13,32 +13,72 @@ engine section properties along the length, and "PEB frame…" now builds built-
 girts, C eave struts, sag rods, rod/angle X-bracing, flange braces, end walls (main frame or end rafter, with wind columns),
 framed openings, cleats — with part marks, BOM, cut list, plate list, DSTV NC, a C/Z punch list and IFC out and back in.
 
+**Phase 3 done (2026-11-07, ENG04-PC):** loads and analysis — PEB › "Loads…" (kept in the model) and PEB › "Analysis…":
+every frame line (P-Delta, LRFD + ASD + every load case unfactored), the end walls, the longitudinal bracing; N / V / M and
+deflected-shape diagrams, base reactions with a CSV for the foundation designer, a STAAD.Pro `.std` per frame line.
+Everything NOT FOR ISSUE: analysis only, no member design.
+
 ## Next task
 
-**Phase 3 — loads and analysis.** Plan below AGREED with the user's decisions (2026-11-05); user said go — in progress.
+**Answer the Phase 3 open questions below, then plan Phase 4 (member design) and show the plan before coding.** Do not
+start Phase 4 code before the user has seen the plan.
 
-**Additions (user, 2026-11-05):**
-1. **Collateral is its own load case** and is EXCLUDED from the uplift combinations (LRFD 0.9D + 1.0W, ASD 0.6D + 0.6W);
-   it stays in every gravity combination.
-2. **The reactions CSV also gives UNFACTORED base reactions per separate load case** — D, collateral, Lr and every wind
-   case (A / B with + / − GCpi) — not only the combinations, so the foundation designer can apply his own factors.
-3. **Strength results from the LRFD combinations; deflection and drift from the ASD combinations**; every result is
-   labelled with the set it comes from.
+**Open questions for the user (Phase 3) — each is printed in the results where it applies:**
+1. **Wind columns: MWFRS or components-and-cladding pressures?** They now use MWFRS Load Case B (5E / 6E with ±GCpi, the
+   E-zone value for every column — conservative). C&C (ASCE 7-16 Ch. 30) usually gives more for a wind column.
+2. **End-rafter frame lateral stability:** assumed held in its plane by the end-wall bracing / sheeting (one horizontal
+   restraint at eave A, its force reported). Is there end-wall bracing on these jobs, or should the end frame be a moment
+   frame?
+3. **eave_share 0.5** in the longitudinal system (wind columns span base to rafter: half the end wall to the eave). OK?
+4. **ECP 201:** the combination slot exists (`engine/analysis/frame_loads.py`, `COMBINATION_SETS["ECP201"]`) and refuses
+   until the factors are entered — which edition and which combinations?
+5. Still to confirm from Phase 2: the ridge-tie strap **PL3x50** and the wind-column cap plate **PL10**.
+6. Run one `.std` (Analysis… › "STAAD .std (this line)") in STAAD.Pro V8i and compare with Manafe3's FIRST-ORDER numbers
+   (the file is first order; P-Delta instructions are in it). MySteelApp's own STAAD export comparison is a laptop task.
 
-**Phase 3 progress / findings (2026-11-07).** Steps 1–4 done (`engine/peb/loads_input.py`, `engine/analysis/frame_model.py`,
-`frame_loads.py`, `solve.py`). Two things learnt:
+### Phase 3 — what was built (steps and commits)
+
+| # | Step | Commit |
+|---|---|---|
+| 1 | "Loads…" form, `state.m3loads`, `POST /peb/loads/check` (`engine/peb/loads_input.py`) | efcea4c |
+| 2 | Frame line → bimsteelauto `FrameLayout` on centroid lines, rigid knee / ridge links (`engine/analysis/frame_model.py`) | c438f17 |
+| 3 | Loads and combinations on each frame (`frame_loads.py`): D (plates + sheeting + secondary), C, Lr (§4.8), 6 wind cases | 4c3bfc4 |
+| 4 | Solve a frame line: every case unfactored + LRFD + ASD, P-Delta (`solve.py`); wall-wind direction fix | cf2a688 |
+| 5 | anastruct cross-check (`crosscheck.py`), STAAD.Pro `.std` writer (`staad.py`) | 2aa6954 |
+| 6 | Longitudinal tension-only bracing (`bracing_system.py`) | 39ce7a4 |
+| 7 | End walls: wind columns (simple beams), end-rafter frame (`endwall_analysis.py`) | 39e4402 |
+| 8a | Whole building (`building_analysis.py`), secondary steel weighed (`secondary_weight.py`), `POST /peb/analysis` | 812c2e0 |
+| 8b | Browser "Analysis…" (`app/manafe3/frame-analysis.js`, `frame-analysis-ui.js`) | 609c615 |
+| 9 | ECP 201 hook (pluggable combination sets), `.std` download, this HANDOVER | (end-work) |
+
+**What was learnt / decided while building (2026-11-07):**
 - **Wall wind direction defect (found by the statics test, fixed in the adapter):** bimsteelauto applies wall wind NORMAL
   to a column, relying on PyNite's local axes of an EXACTLY vertical member; a Manafe3 column on its tapered centroid line
   is slightly inclined, PyNite turns its local y the other way and the load flipped (the frame swayed against the wind).
   The adapter now applies wall wind as global X (bimsteelauto's sign: + toward +X) × height/length. bimsteelauto itself is
   unchanged; its own layouts have vertical columns and are not affected.
-- `Envelope.eave_drift` only looks at nodes named "E…" (bimsteelauto's layouts) — it would read 0 on Manafe3 layouts;
-  Manafe3 computes drift (largest eave movement) and sway (mean of the eaves) itself.
-- On building 1 the ASCE §28.3.4 minimum governs Load Case A (87.4 kN computed vs 121.3 kN minimum → × 1.3887; the load's
-  origin says so). Under ASD 1.0D + 0.6W the light roof is in net uplift: columns in tension, P-Delta REDUCES the sway
-  there (tested as the negative control); with columns in compression it amplifies it.
+- **The same PyNite rule sets the moment sign the browser draws:** + = tension on the member's local +y face (top of a
+  rafter, outside of an inclined column; an exactly vertical member has local y = −X going up). The diagrams use PyNite's
+  rule (`localY`), so M is drawn on the tension side for tapered AND constant columns (`test_moment_sign_is_tension_on_local_y`).
+- `Envelope.eave_drift` only looks at nodes named "E…" (bimsteelauto's layouts) — it would read 0 on Manafe3 layouts.
+  Manafe3 reports **sway** (mean sideways movement of the two eaves — the drift to judge) and the **largest eave movement**
+  (which also holds the knees spreading under gravity) separately.
+- anastruct keeps ONE distributed load per element — a second `q_load` REPLACES the first (found by the cross-check,
+  pinned in `test_crosscheck.py`); its reported reactions and displacements are the negative of the real ones.
+- On building 1 the ASCE §28.3.4 minimum governs Load Case A (87.4 kN computed vs 121.3 kN → × 1.3887, stated in each
+  load's origin). Under ASD 1.0D + 0.6W the light roof is in net uplift: columns in tension, P-Delta REDUCES the sway
+  (the negative control); with columns in compression it amplifies it.
+- **Speed:** time grows with slices × combinations (49 per line). Taper step 0.10 is used (within 0.2 % of 0.025 on
+  building 1; `test_taper_step_converged` keeps it); identical frame lines are solved once, distinct ones in parallel:
+  building 1 (5 lines, 2 distinct) takes ~37 s from the browser.
+- **Step 6 differs from the plan:** the plan said a 3D PyNite truss; built instead as bimsteelauto's verified
+  `solve_longitudinal` chain on Manafe3's own panel depths, with the wall diagonal checked by a PyNite tension-only truss
+  (the slack diagonal is the negative control). Strut forces are bimsteelauto's (0 with the end bays braced).
+- Secondary steel in D is weighed from the model (C/Z centre-line area with square corners, rods, angles, cleats): building 1
+  roof 0.070 kN/m², walls 0.056 kN/m². End walls (gable girts, wind columns) are not in the frames' D — their own path.
+- With an end wall of type "frame" the wind columns take no gravity (vertical slotted holes at the top, Phase 5).
 
-### Phase 3 plan
+### Phase 3 plan (as agreed, kept for the record)
 
 **Reuse bimsteelauto unchanged:** `loads/wind.py` (Ch. 28 envelope, Load Cases A/B × ±GCpi, end zones, §28.3.4 minimum,
 longitudinal end-wall pressure; VERIFIED flags all True — keep them honest: nothing Manafe3 adds may flip one),
@@ -72,6 +112,14 @@ pinned by default (fixed as an option); P-Delta on. Start by reading bimsteelaut
 `loads/`, `analysis/frame.py` and `pipeline.run_frame`, and the `ProjectSpec` / `DesignResult` contract. **Write the plan
 here and show it to the user before coding** (the Phase 2 defaults are confirmed; two new sizes still to confirm: the
 ridge-tie strap PL3x50 and the wind-column cap plate PL10). Same rules: hand-checked tests, commit after each green step on `main`, `end-work.ps1` at the end.
+
+**Additions (user, 2026-11-05) — built as stated:**
+1. **Collateral is its own load case** and is EXCLUDED from the uplift combinations (LRFD 0.9D + 1.0W, ASD 0.6D + 0.6W);
+   it stays in every gravity combination.
+2. **The reactions CSV also gives UNFACTORED base reactions per separate load case** — D, collateral, Lr and every wind
+   case (A / B with + / − GCpi) — not only the combinations, so the foundation designer can apply their own factors.
+3. **Strength results from the LRFD combinations; deflection and drift from the ASD combinations**; every result is
+   labelled with the set it comes from.
 
 ### Phase 2 — what was built (steps and commits)
 
@@ -396,7 +444,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
 - **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames) — **DONE 2026-11-05**
 - **Phase 3** loads (dead, live, ASCE 7-16 Ch. 28 wind from bimsteelauto `loads/wind.py`) + PyNite analysis with taper
-  discretisation and P-Delta
+  discretisation and P-Delta — **DONE 2026-11-07**
 - **Phase 4** member design ECP 205 / AISC 360 + cold-formed AISI S100
 - **Phase 5** connections from bimsteelauto_connections (eave/apex end plates 4E/4ES/8ES, base plates + anchors, cleats,
   gussets) with HTML calc sheets — **including vertical slotted holes at every wind-column top (rafter deflection)**,
@@ -404,6 +452,21 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - **Phase 6** drawings: anchor bolt plan, frame elevations, built-up member shop drawings, erection drawings; NC/DSTV,
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
+
+## Tests (baseline after Phase 3, 2026-11-07)
+
+- Engine `uv run pytest -q`: **104 passed** (~5 min; the frame solves dominate) — Phase 2 (71) + loads input; the frame
+  model (closed-form portal H = 15 kN, tapered cantilever vs Simpson within 1 %); loads by hand; statics of every load
+  case; P-Delta amplifies the sway with columns in compression and reduces it in tension (negative control); the moment
+  sign; PyNite vs anastruct (independent code) within 1–2 % for D and WA+L; the `.std` text by hand; the bracing chain
+  longhand + a PyNite tension-only truss (slack diagonal); wind columns as closed-form simple beams; the end-rafter frame
+  by longhand statics and anastruct; taper-step convergence; secondary weights by hand; de-duplicated lines re-solved;
+  the ECP 201 slot refuses; the API refuses a missing wind speed.
+- App `npm test`: **13 of 13 test files passed** — + `test-manafe3-analysis.mjs` (21: diagram points by hand, PyNite's
+  local-y rule incl. vertical members, reactions CSV, summary ratios, refusals).
+- Browser (headless Edge, fresh engine): the default building (24 m span, 4 × 6 m bays, main frames at
+  both ends) → Analysis… in 29–38 s, 5 lines / 2 distinct, 49 cases and combinations, symmetric M on the tension side, sway under
+  wind downwind, `.std` download 206 lines; no console errors.
 
 ## Tests (baseline after Phase 2, 2026-11-05)
 
@@ -431,8 +494,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-05 14:39 on ENG04-PC
-- Did: Phase 2 changes: ridge tie (rod or strap), wind column placeholder 300/150x8 with a roof-sloped top and cap plate, gable girt cleats
-- Tests: engine 71 passed, 1 warning in 2.35s | app 11 of 11 test files passed
-- Next: Phase 3 loads and analysis: plan first, show the user (confirm strap PL3x50 and cap plate PL10)
+- When: 2026-11-07 12:32 on ENG04-PC
+- Did: Phase 3 step 9: ECP 201 hook (pluggable combination sets), STAAD .std download, HANDOVER - Phase 3 done
+- Tests: engine 104 passed, 1 warning in 344.75s (0:05:44) | app 13 of 13 test files passed
+- Next: User: answer the Phase 3 open questions in HANDOVER (C&C for wind columns, end-frame lateral restraint, eave_share, ECP 201 factors, PL3x50 / PL10, STAAD comparison); then plan Phase 4 member design and show the plan
 <!-- LAST-SESSION:END -->

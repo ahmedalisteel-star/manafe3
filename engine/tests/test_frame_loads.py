@@ -96,3 +96,22 @@ def test_combinations_and_collateral():
     assert all(c[0].startswith(c[2] + ": ") for c in r.combinations)
     only = frame_loads(fl(2)[0], 2, LoadsInput(V=45, exposure="C", asd=False))
     assert {c[2] for c in only.combinations} == {"LRFD"}
+
+
+def test_combination_sets_are_pluggable_the_ecp201_hook():
+    """The ECP 201 slot exists and refuses until its factors are supplied; a registered set is used and labelled, with
+    collateral at D's factor except in its uplift combination."""
+    from engine.analysis.frame_loads import COMBINATION_SETS, CombinationSet, combinations, register_combination_set
+    wc = ("WA+L",)
+    assert "ECP201" in COMBINATION_SETS
+    with pytest.raises(NotImplementedError, match="never invents"):
+        combinations(LI, wc, extra=("ECP201",))
+    demo = CombinationSet("DEMO", "a test set, not a code", lambda w: [("1.5D+1.5Lr", {"D": 1.5, "Lr": 1.5}), ("0.8D+1.2W", {"D": 0.8, w[0]: 1.2})], 0.8, "strength")
+    register_combination_set(demo)
+    try:
+        out = {n: (f, s) for n, f, s in combinations(LI, wc, extra=("DEMO",))}
+        assert out["DEMO: 1.5D+1.5Lr (+C)"] == ({"D": 1.5, "Lr": 1.5, "C": 1.5}, "DEMO")
+        assert out["DEMO: 0.8D+1.2W"] == ({"D": 0.8, "WA+L": 1.2}, "DEMO")          # uplift: no collateral
+        assert sum(1 for _, s in out.values() if s in ("LRFD", "ASD")) > 0          # the defaults stay
+    finally:
+        COMBINATION_SETS.pop("DEMO")

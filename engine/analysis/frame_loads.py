@@ -11,7 +11,7 @@ Cases (all kN/m on the frame's members):
            (6 cases), end-zone coefficients where the frame line is in the end zone, the §28.3.4 minimum — computed by
            wind_loads_for_frame on bimsteelauto's own 4-member layout (C1 R1 R2 C2) and copied onto every Manafe3
            sub-member of the same surface (column A ← C1, rafter A segments ← R1, rafter B ← R2, column B ← C2)
-Combinations: bimsteelauto's ASCE 7-16 LRFD and ASD sets over the 6 wind cases, with C at D's factor in every one EXCEPT
+Combinations: pluggable sets (COMBINATION_SETS — the ECP 201 hook); by default bimsteelauto's ASCE 7-16 LRFD and ASD over the 6 wind cases, with C at D's factor in every one EXCEPT
 the uplift combinations (LRFD 0.9D + 1.0W, ASD 0.6D + 0.6W) — user decision; names prefixed "LRFD: " / "ASD: ".
 Rigid links carry no load.
 """
@@ -56,17 +56,53 @@ class FrameLoads:
     wind: object
 
 
-def combinations(li: LoadsInput, wind_cases: tuple[str, ...]) -> tuple[tuple[str, dict, str], ...]:
+@dataclass(frozen=True)
+class CombinationSet:
+    """One pluggable set of load combinations — the ECP 201 hook. ``build(wind_cases)`` gives (name, factors) pairs over
+    the cases D, Lr and the wind cases; collateral C is added at D's factor except in the set's uplift combinations
+    (D at ``uplift_d`` with wind and without Lr — user decision)."""
+    key: str                      # the label every result carries ("LRFD", "ASD", "ECP201-…")
+    reference: str
+    build: object
+    uplift_d: float
+    role: str                     # "strength" | "serviceability"
+
+
+def _from_bsa(fn):
+    return lambda wind_cases: [(c.name, dict(c.factors)) for c in fn(wind_cases=wind_cases)]
+
+
+def _ecp201_not_entered(wind_cases):
+    raise NotImplementedError("ECP 201 load combinations: the factors are not entered yet. They are the user's to supply "
+                              "(code edition and clause); Manafe3 never invents them. Register them with "
+                              "register_combination_set(CombinationSet(...)).")
+
+
+#: The registry. LRFD / ASD: bimsteelauto's ASCE 7-16 §2.3 / §2.4 sets (VERIFIED there). ECP201: the slot for the Egyptian
+#: code (ECP 201) — registered, refusing until its factors are supplied.
+COMBINATION_SETS: dict[str, CombinationSet] = {
+    "LRFD": CombinationSet("LRFD", "ASCE 7-16 §2.3.1 (bimsteelauto lrfd_combinations)", _from_bsa(lrfd_combinations), 0.9, "strength"),
+    "ASD": CombinationSet("ASD", "ASCE 7-16 §2.4.1 (bimsteelauto asd_combinations)", _from_bsa(asd_combinations), 0.6, "serviceability"),
+    "ECP201": CombinationSet("ECP201", "ECP 201 (factors to be supplied by the user)", _ecp201_not_entered, 0.0, "strength"),
+}
+
+
+def register_combination_set(cs: CombinationSet) -> None:
+    COMBINATION_SETS[cs.key] = cs
+
+
+def combinations(li: LoadsInput, wind_cases: tuple[str, ...], extra: tuple[str, ...] = ()) -> tuple[tuple[str, dict, str], ...]:
+    keys = [k for k, on in (("LRFD", li.lrfd), ("ASD", li.asd)) if on] + [k for k in extra if k not in ("LRFD", "ASD")]
     out = []
-    for on, label, fn, uplift_d in ((li.lrfd, "LRFD", lrfd_combinations, 0.9), (li.asd, "ASD", asd_combinations, 0.6)):
-        if not on:
-            continue
-        for c in fn(wind_cases=wind_cases):
-            f = dict(c.factors)
+    for key in keys:
+        cs = COMBINATION_SETS[key]
+        label, uplift_d = cs.key, cs.uplift_d
+        for name, factors in cs.build(wind_cases):
+            f = dict(factors)
             uplift = f.get("D") == uplift_d and any(k in wind_cases for k in f) and "Lr" not in f
             if "D" in f and not uplift:
                 f["C"] = f["D"]
-            out.append((f"{label}: {c.name}" + ("" if uplift or "D" not in f else " (+C)"), f, label))
+            out.append((f"{label}: {name}" + ("" if uplift or "D" not in f else " (+C)"), f, label))
     return tuple(out)
 
 
