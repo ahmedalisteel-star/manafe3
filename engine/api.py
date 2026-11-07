@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from . import __version__, settings
 from typing import Literal
 
+from .analysis.building_analysis import analyse_building
 from .peb.building import BuildingInput, peb_building
 from .peb.builtup_frame import BuiltUpSizes, default_sizes, sizes_dict
 from .peb.loads_input import LoadsInput
@@ -177,16 +178,20 @@ def peb_building_api(req: BuildingRequest) -> dict:
     """The whole PEB building: main frames, purlins, girts, eave struts, sag rods, bracing, flange braces, end walls,
     openings and cleats (Phase 2). Geometry only, not designed."""
     try:
-        return peb_building(BuildingInput(
-            span=req.span, eave_height=req.eave_height, roof_slope=req.roof_slope, bay_spacing=req.bay_spacing, n_bays=req.n_bays,
-            sizes=BuiltUpSizes(**req.sizes.model_dump()) if req.sizes else None,
-            roof_a=RoofSide(**req.roof_a.model_dump()), roof_b=RoofSide(**req.roof_b.model_dump()),
-            wall_a=Wall(**req.wall_a.model_dump()), wall_b=Wall(**req.wall_b.model_dump()), gable=Wall(**req.gable.model_dump()),
-            sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
-            braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
-            bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings)))
+        return peb_building(_building_input(req))
     except (ValueError, BuiltUpError) as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+def _building_input(req: BuildingRequest) -> BuildingInput:
+    return BuildingInput(
+        span=req.span, eave_height=req.eave_height, roof_slope=req.roof_slope, bay_spacing=req.bay_spacing, n_bays=req.n_bays,
+        sizes=BuiltUpSizes(**req.sizes.model_dump()) if req.sizes else None,
+        roof_a=RoofSide(**req.roof_a.model_dump()), roof_b=RoofSide(**req.roof_b.model_dump()),
+        wall_a=Wall(**req.wall_a.model_dump()), wall_b=Wall(**req.wall_b.model_dump()), gable=Wall(**req.gable.model_dump()),
+        sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
+        braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
+        bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings))
 
 
 class LoadsIn(BaseModel):
@@ -212,6 +217,22 @@ def peb_loads_check(req: LoadsIn) -> dict:
     try:
         return LoadsInput(**req.model_dump()).summary()
     except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+class AnalysisRequest(BaseModel):
+    building: BuildingRequest
+    loads: LoadsIn
+    p_delta: bool = True
+
+
+@app.post("/peb/analysis")
+def peb_analysis(req: AnalysisRequest) -> dict:
+    """Phase 3: every frame line, the end walls and the longitudinal bracing for all load cases (unfactored) and the
+    LRFD / ASD combinations. Run on demand, not stored. NOT FOR ISSUE: analysis only, members not designed."""
+    try:
+        return analyse_building(_building_input(req.building), LoadsInput(**req.loads.model_dump()), p_delta=req.p_delta)
+    except (ValueError, BuiltUpError) as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
 
 
