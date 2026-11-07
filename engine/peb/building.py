@@ -91,11 +91,13 @@ def peb_building(b: BuildingInput) -> dict:
 
     # end walls
     gable_sets = []
+    end_walls = []
     for end, kind, x in (("first", b.end_first, frames[0]), ("last", b.end_last, L)):
         w = end_wall(kind, end, b.span, b.eave_height, b.roof_slope, x, z, wall=b.gable, girt=b.sections.girt, bolt=b.bolt)
         members += [{**m, "type": ROLE_TYPE[m["role"]]} for m in w["members"]]
         girts += w["girts"]
         gable_sets.append((end, w["supports"]))
+        end_walls.append({"end": end, "kind": kind, "x_frame": _r(x), "x_face": w["x_face"], "supports": w["supports"]})
 
     op = apply_openings(girts, list(b.openings), b.eave_height, jamb=b.sections.eave_strut, bolt=b.bolt)
     cleats = sec["cleats"] + [c for end, sup in gable_sets for c in gable_cleats(op["girts"], end, sup, b.bolt)]
@@ -115,7 +117,7 @@ def peb_building(b: BuildingInput) -> dict:
         "grids": {"x": [{"label": str(i + 1), "at": _r(x)} for i, x in enumerate(frames)], "y": [{"label": labels[0], "at": 0.0}, {"label": labels[1], "at": _r(b.span)}]},
         "levels": [{"name": "Ground", "z": 0.0}, {"name": "Eave", "z": _r(b.eave_height)}],
         "members": members, "cleats": cleats, "fasteners": rods["fasteners"], "bolt": b.bolt,
-        "braced_bays": [j + 1 for j in braced], "apex_height": _r(b.eave_height + b.roof_slope * b.span / 2),
+        "braced_bays": [j + 1 for j in braced], "end_walls": end_walls, "apex_height": _r(b.eave_height + b.roof_slope * b.span / 2),
         "notes": ["Geometry only: NOT designed (Phase 4). Splices, knee, ridge and brace connections are points only (Phase 5).",
                   "Cold-formed design properties come from the supplier's catalogue (needed before Phase 4)."],
     }
