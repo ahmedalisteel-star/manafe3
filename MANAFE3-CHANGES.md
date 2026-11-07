@@ -20,6 +20,7 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `app/profiles.js` | lipped C / Z (`C200x65x20x2.0`, custom kinds CFC / CFZ), rods (`RD20`) and metric equal angles (`L50x5`) from `app/manafe3/coldformed.js`: names, outlines, exact areas, hole faces | Phase 2 secondary steel |
 | `app/view3d.js` | a shaped plate (built-up web) is drawn from its true outline; a part's `look` sets its colour (built-up flanges as their member) | Phase 1 |
 | `app/detailcraft.js` (Phase 1) | Properties panel: the built-up section editor / "Make built-up…" (`app/manafe3/builtup-ui.js`); "Plate list" output (`app/manafe3/output-ui.js`) | Phase 1 |
+| `app/detailcraft.js` (Phase 2, 3) | the PEB menu: "Building…" (`app/manafe3/peb-building-ui.js`), "Loads…" (`loads-ui.js`), "Analysis…" (`frame-analysis-ui.js`), chained after the toolbar is built | Phase 2, Phase 3 |
 | `app/nc1.js` | a shaped plate (built-up web) is written as a sheet (code B) with its outline as the AK contour | Phase 1 |
 | `app/ifc.js` | a built-up web as IfcPlate with an IfcArbitraryClosedProfileDef; each built-up segment's assembly carries a `Manafe3_BuiltUp` property set (the member as JSON, mm); property-set name may vary | Phase 1 |
 | `app/ifc-import.js` | assemblies with `Manafe3_BuiltUp` come back as one built-up member each; their plates are not imported again | Phase 1 |

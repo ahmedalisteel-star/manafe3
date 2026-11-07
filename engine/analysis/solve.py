@@ -55,6 +55,7 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "") -> di
         "max_M_LRFD": gov("M", strength), "max_P_LRFD": gov("P", strength),
         "drift_ASD": max(((c, results[c]["drift"]) for c in service), key=lambda x: x[1], default=None),
         "apex_ASD": min(((c, results[c]["apex"]) for c in service), key=lambda x: x[1], default=None),
+        "sway_ASD": max(((c, results[c]["sway"]) for c in service), key=lambda x: abs(x[1]), default=None),
         "uplift": max(((c, b, -results[c]["reactions"][b][1]) for c in results for b in lay.base_nodes), key=lambda x: x[2]),
     }
     return {

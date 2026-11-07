@@ -91,3 +91,18 @@ def test_labels_drift_and_p_delta():
     assert comp["sway"] > c1["sway"] > 0 and comp["sway"] / c1["sway"] < 1.2     # amplified, modestly for this frame
     assert 0 < tens["sway"] < t1["sway"]                                         # reduced under tension
     assert set(r["results"]["D"]["members"]) == {"CA", "CB", "RA1", "RA2", "RB1", "RB2"}                # no rigid links in the output
+
+
+def test_moment_sign_is_tension_on_local_y():
+    """The browser draws M on PyNite's local +y (app/manafe3/frame-analysis.js localY), i.e. on the tension side, which
+    rests on: + = tension on the local +y face (top of a rafter, outside of an inclined column). Pinned portal under
+    gravity (D): hogging over the haunches and outer-flange tension at the knees (+), sagging near the apex (−), and the
+    two halves mirror-equal."""
+    info, fl, r = setup(p_delta=False)
+    d = r["results"]["D"]["members"]
+    knee_col = d["CA"][-1][3]
+    assert knee_col > 0 and d["CB"][-1][3] == pytest.approx(knee_col, rel=1e-6)
+    assert d["RA1"][0][3] > 0 and d["RB1"][0][3] == pytest.approx(d["RA1"][0][3], rel=1e-6)
+    assert min(s[3] for s in d["RA2"]) < 0 and d["RA2"][-1][3] < 0              # sagging toward the apex
+    # the knee joint: the column's top moment and the rafter's start moment (the rigid arm adds V·e) are the same sign
+    assert knee_col * d["RA1"][0][3] > 0
