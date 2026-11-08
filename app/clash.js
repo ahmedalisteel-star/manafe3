@@ -37,6 +37,7 @@ export function solids(state, built, phases) {
   const out = [];
   for (const p of built.parts) {
     if (!keep(p.phase)) continue;
+    if (p.concrete) continue;   // Manafe3 (changed file, field fix 15): a steel profile with a concrete material is not steel
     const w = p.profile.width, d = p.profile.depth;
     const c = add(p.frame.o, add(mul(p.frame.x, p.length / 2), mul(p.frame.v, p.voff)));
     out.push({ ref: p.member ? { kind: 'member', id: p.member } : p.stair ? { kind: 'stair', id: p.stair } : { kind: 'conn', id: p.conn }, id: p.id, kind: 'steel', phase: p.phase || 1, conn: p.conn, member: p.member, stair: p.stair || null,

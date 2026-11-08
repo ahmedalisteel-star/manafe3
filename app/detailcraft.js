@@ -57,6 +57,7 @@ import { PAPER_KEYS, paperLabel, DEFAULT_PAPER } from './paper.js';
 import { sheetModel, sheetDxf } from './dwgout.js';
 import { phaseReport, reportTables, reportCsv, reportSheets } from './report.js';
 import { clashCheck } from './clash.js';
+import { concreteTotals } from './manafe3/materials.js';   // Manafe3 (changed file): concrete volume total
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
 import { getHost } from "./host.js";
@@ -492,7 +493,7 @@ async function start(root) {
     btn('shop').disabled = !part || !!shopRefusal(part);
     for (const b of ui.tools.querySelectorAll('[data-act^="tool:"]')) b.setAttribute('aria-pressed', String(b.dataset.act === 'tool:' + tool));
     const steel = built.parts.reduce((s, p) => s + p.weight, 0), bars = schedule.rows.reduce((s, r) => s + r.totalWeight, 0);
-    ui.counts.textContent = tr('app.bar.counts', { parts: built.parts.length, bolts: built.bolts.length, steel: kg(steel) }) + (bars ? ' ' + tr('app.bar.counts.rebar', { rebar: kg(bars) }) : '');
+    ui.counts.textContent = tr('app.bar.counts', { parts: built.parts.length, bolts: built.bolts.length, steel: kg(steel) }) + (bars ? ' ' + tr('app.bar.counts.rebar', { rebar: kg(bars) }) : '') + concreteText();   // Manafe3: concrete as m³ (field fix 2)
     document.title = (model.dirty ? '• ' : '') + model.state.name + ' — Manafe3';
     workspace?.refresh();
   }
@@ -1728,11 +1729,13 @@ async function start(root) {
   }
   function deepAssign(o, patch) { for (const [k, v] of Object.entries(patch)) { if (v && typeof v === 'object' && !Array.isArray(v)) Object.assign(o[k], v); else o[k] = v; } }
 
+  /** Manafe3 (field fix 2): the concrete total, m³ (concrete members + footings); steel and rebar stay kg. */
+  function concreteText() { const c = concreteTotals(built.parts, model.state.footings); return c.m3 > 0 ? ' · concrete ' + c.m3.toFixed(2) + ' m³' : ''; }
   function modelSummary() {
     const s = model.state;
     const steel = built.parts.reduce((t, p) => t + p.weight, 0), bars = schedule.rows.reduce((t, r) => t + r.totalWeight, 0);
     const dl = el('dl', { className: 'dc-props' });
-    fillDl(dl, [[tr('app.k.members'), s.members.length], [tr('app.k.connections'), s.connections.length], [tr('app.k.footings'), s.footings.length], [tr('app.k.parts'), built.parts.length], [tr('app.k.part-marks'), marks.parts.length], [tr('app.k.assemblies'), marks.assemblies.length], [tr('app.k.bolts-rods'), built.bolts.length], [tr('app.k.steel'), tr('app.unit.kg', { v: kg(steel) })], [tr('app.k.rebar'), tr('app.unit.kg', { v: kg(bars) })], [tr('app.k.grids'), s.grids.x.length + ' × ' + s.grids.y.length], [tr('app.k.levels'), s.levels.length]]);
+    fillDl(dl, [[tr('app.k.members'), s.members.length], [tr('app.k.connections'), s.connections.length], [tr('app.k.footings'), s.footings.length], [tr('app.k.parts'), built.parts.length], [tr('app.k.part-marks'), marks.parts.length], [tr('app.k.assemblies'), marks.assemblies.length], [tr('app.k.bolts-rods'), built.bolts.length], [tr('app.k.steel'), tr('app.unit.kg', { v: kg(steel) })], [tr('app.k.rebar'), tr('app.unit.kg', { v: kg(bars) })], ['Concrete', concreteTotals(built.parts, s.footings).m3.toFixed(2) + ' m³'], [tr('app.k.grids'), s.grids.x.length + ' × ' + s.grids.y.length], [tr('app.k.levels'), s.levels.length]]);
     for (const n of dl.querySelectorAll('dt')) n.className = 'k';
     for (const n of dl.querySelectorAll('dd')) n.className = 'v';
     const out = [dl, el('p', { className: 'dc-note' }, tr('app.model.note'))];

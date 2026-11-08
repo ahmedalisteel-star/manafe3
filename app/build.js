@@ -27,6 +27,7 @@ import { footingBars, footingProblems } from './rebar.js';
 import { stairGeometry } from './stair.js';
 import { t } from './i18n.js';
 import { builtUpParts } from './manafe3/builtup-parts.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members → plates
+import { isConcrete, CONCRETE_NOTE } from './manafe3/materials.js';   // Manafe3: concrete members weigh nothing as steel
 
 export const IFC_CLASS = { beam: 'IfcBeam', column: 'IfcColumn', brace: 'IfcMember', plate: 'IfcPlate', stringer: 'IfcMember' };
 const ROLE = { beam: 'build.role.beam', column: 'build.role.column', brace: 'build.role.brace', plate: 'build.role.plate' };
@@ -130,6 +131,10 @@ export function build(state) {
   for (const p of parts) {
     p.holes.sort((a, b) => a.x - b.x || a.y - b.y);
     p.weight = p.plateWeight ?? p.profile.mass * p.length / 1000;        // gross: holes and copes are not deducted (Manafe3: a built-up plate's own outline weight)
+    if (p.member && isConcrete(p.material)) {   // Manafe3 (field fix 2/15): a concrete member is a volume, never steel weight
+      p.concreteM3 = p.profile.area * p.length * 1e-9; p.weight = 0; p.concrete = true;
+      problems.push({ ref: p.member, text: (p.name || p.profileName) + ' (' + p.material + '): ' + CONCRETE_NOTE });
+    }
     for (const h of p.holes) if (h.x < -0.5 || h.x > p.length + 0.5) problems.push({ ref: p.member || p.conn || p.stair, text: t('build.err.hole-off', { part: p.role + ' ' + (p.name || '') }) });
   }
   const footings = state.footings.map((f) => ({ f, bars: footingBars(f), problems: footingProblems(f) }));

@@ -33,3 +33,4 @@ scripts, `pyproject.toml`, `uv.lock`, `.env.local.example`, `tests/bin/test-mana
 | `tests/bin/test-detailcraft.mjs` | five error-message patterns say Manafe3 | the messages were renamed |
 | `.github/workflows/test.yml` | removed | user decision 2026-11-05: no GitHub Actions minutes on the private repo; tests run on both PCs via start-work/end-work |
 | `NOTICE`, `.gitignore` | Manafe3 notice line; per-machine and private files kept out of git | licence; two-PC workflow |
+| `app/build.js`, `app/detailcraft.js`, `app/clash.js` (field fixes 2, 15) | a member with a concrete material (`app/manafe3/materials.js`) weighs 0 kg as steel, carries its concrete volume and a warning; the status bar and model summary show concrete m³ separately; `clash.js` leaves such parts out of the steel clash check | R1 field fixes: concrete never weighed at 7850 kg/m³ |

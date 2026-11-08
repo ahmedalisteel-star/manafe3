@@ -57,5 +57,31 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(p.state.grids.x.length === 3, 'one undo brings my grids back');
 }
 
+// ---- 2 / 15. weight by material: concrete is a volume, never steel ------------------------------------------------------
+{
+  const M = await mod('manafe3/materials.js');
+  const { build } = await mod('build.js');
+  const { clashCheck } = await mod('clash.js');
+  for (const s of ['C30', 'C 25', 'C30/37', 'C35 fcu', 'Concrete', 'RC', 'B25']) ok(M.isConcrete(s), 'concrete: ' + s);
+  for (const s of ['S355', 'A992', 'S350GD', 'A572 Gr 50', 'St 37', 'SS400', 'CS Type B', '']) ok(!M.isConcrete(s), 'steel: ' + s);
+  const m = new Model(emptyState('mat'));
+  m.change('x', (tx) => {
+    tx.addMember({ type: 'beam', profile: 'IPE300', material: 'S355', start: [0, 0, 3000], end: [6000, 0, 3000] });
+    tx.addMember({ type: 'column', profile: 'PL300x300', material: 'C30', start: [3000, 0, 0], end: [3000, 0, 3000] });   // runs into the beam
+    tx.addFooting({ x: 20000, y: 0, top: 0, L: 1500, B: 1500, H: 600 });
+  });
+  const b = build(m.state);
+  const steel = b.parts.reduce((t, p) => t + p.weight, 0);
+  // IPE300: 42.2 kg/m (EN 10365) × 6 m = 253.2 kg; the C30 "plate" 0 kg; 300 × 300 × 3000 = 0.27 m³; footing 1.5 × 1.5 × 0.6 = 1.35 m³
+  ok(Math.abs(steel - 42.2 * 6) < 0.5, 'steel total = the IPE300 only', steel);
+  const c = M.concreteTotals(b.parts, m.state.footings);
+  ok(Math.abs(c.m3 - (0.27 + 1.35)) < 1e-9 && c.parts === 1, 'concrete 1.62 m³ (member 0.27 + footing 1.35)', c);
+  ok(b.problems.some((p) => /concrete material on a steel profile/.test(p.text)), 'warned: geometry only, RC on the roadmap');
+  const cl = clashCheck(m.state, b, { tol: 1 });
+  ok(cl.clashes.length === 0, 'the concrete column is left out of the steel clash check', cl.clashes.length);
+  m.change('steel', (tx) => tx.updateMember(m.state.members[1].id, { material: 'S355' }));
+  ok(clashCheck(m.state, build(m.state), { tol: 1 }).clashes.length === 1, 'negative control: as S355 it clashes with the beam');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
