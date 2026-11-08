@@ -41,7 +41,7 @@ export function solids(state, built, phases) {
     const w = p.profile.width, d = p.profile.depth;
     const c = add(p.frame.o, add(mul(p.frame.x, p.length / 2), mul(p.frame.v, p.voff)));
     out.push({ ref: p.member ? { kind: 'member', id: p.member } : p.stair ? { kind: 'stair', id: p.stair } : { kind: 'conn', id: p.conn }, id: p.id, kind: 'steel', phase: p.phase || 1, conn: p.conn, member: p.member, stair: p.stair || null,
-      frame: p.frame, L: p.length, loops: p.profile.loops, voff: p.voff, cuts: p.cuts.filter((k) => k.kind === 'cope'), depth: d, lug: !!p.conn && p.id === p.conn + '.lug',
+      frame: p.frame, L: p.length, loops: p.profile.loops, voff: p.voff, cuts: p.cuts.filter((k) => k.kind === 'cope'), depth: d, lug: !!p.conn && p.id === p.conn + '.lug', segment: p.segment ?? null,
       box: { c, ax: [p.frame.x, p.frame.u, p.frame.v], h: [p.length / 2, w / 2, d / 2] } });
   }
   for (const f of state.footings) {
@@ -191,6 +191,7 @@ export function clashCheck(state, built, { tol = 1, phases = null } = {}) {
     if (skip.has(A.id + '|' + B.id)) continue;
     if (A.conn && A.conn === B.conn) continue;                  // two plates of one connection
     if (A.stair && A.stair === B.stair) continue;                // the stringers and treads of one stair (welded together)
+    if (A.member && A.member === B.member && A.segment === B.segment) continue;   // Manafe3 (field fix 16): the plates of one built-up segment (welded together; a splice between segments still shows)
     if ((A.kind === 'concrete' && B.lug) || (B.kind === 'concrete' && A.lug)) continue;
     if (!obbOverlap(A.box, B.box, tol)) continue;
     pairs++;

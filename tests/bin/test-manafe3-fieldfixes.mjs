@@ -272,5 +272,31 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(!!sheet, 'the anchor bolt plan sheet is made');
 }
 
+// ---- 16. clashes grouped by type; generated connection points hidden until Phase 5 ----------------------------------------
+{
+  const G = await mod('manafe3/clash-groups.js');
+  const { build } = await mod('build.js');
+  const { clashCheck } = await mod('clash.js');
+  const m = new Model(emptyState('cl'));
+  m.change('b', (tx) => B.applyBuilding(tx, RES, spec));
+  const r0 = clashCheck(m.state, build(m.state), { tol: 1 });
+  // building 1 had 327; 20 were a tapered segment's web box against its own sloping flange (10 columns, 10 rafter haunches)
+  ok(r0.clashes.length === 307 && !r0.clashes.some((c) => c.a.id === c.b.id), 'no clash between plates of one built-up segment: 327 − 20 = 307 (splices between segments still listed)', r0.clashes.length);
+  const all = G.groupClashes(m.state, r0.clashes);
+  const fb = all.groups.find((g) => g.key === 'flange_brace×rafter');
+  ok(fb && fb.clashes.length === 72 && fb.generatedJoint && fb.label === 'flange brace × rafter', 'grouped by type: flange brace × rafter, 72, a generated joint', fb && [fb.label, fb.clashes.length]);
+  const hid = G.groupClashes(m.state, r0.clashes, { hideGenerated: true });
+  ok(hid.hidden === 307 && hid.shown === 0 && hid.groups.length === 0, 'filter on: every generated connection point hidden', hid);
+  // a real clash: my own beam through column F2-CA at 3 m, and a beam the PEB generator did not join (purlin role) through a wind column
+  const ca = m.state.members.find((x) => x.name === 'F2-CA');
+  m.change('mine', (tx) => tx.addMember({ type: 'beam', profile: 'IPE300', material: 'S355', start: [6000, -2000, 3000], end: [6000, 3000, 3000] }));
+  const r1 = clashCheck(m.state, build(m.state), { tol: 1 });
+  const g1 = G.groupClashes(m.state, r1.clashes, { hideGenerated: true });
+  ok(g1.shown >= 1 && g1.groups.every((g) => !g.generatedJoint) && g1.groups.some((g) => g.clashes.some((c) => c.a.id === ca.id || c.b.id === ca.id)), 'filter on: my beam into the column is still shown', g1.groups.map((g) => [g.label, g.clashes.length]));
+  ok(g1.hidden === 307, 'the generated ones stay hidden', g1.hidden);
+  // a generated pair that is NOT a known joint shows (e.g. a girt into a rafter would be a real fault)
+  ok(!G.clashKind({ members: [{ id: 'a', gen: 'peb:B1', m3role: 'girt' }, { id: 'b', gen: 'peb:B1', m3role: 'rafter' }] }, { a: { kind: 'member', id: 'a' }, b: { kind: 'member', id: 'b' } }).generatedJoint, 'girt × rafter is not a generated joint: shown');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

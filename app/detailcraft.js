@@ -58,7 +58,8 @@ import { sheetModel, sheetDxf } from './dwgout.js';
 import { phaseReport, reportTables, reportCsv, reportSheets } from './report.js';
 import { clashCheck } from './clash.js';
 import { modelLoaded as m3ModelLoaded } from './manafe3/panels.js';   // Manafe3 (changed file, field fix 3): panels hear a load
-import { concreteTotals } from './manafe3/materials.js';   // Manafe3 (changed file): concrete volume total
+import { concreteTotals } from './manafe3/materials.js';
+import { groupClashes } from './manafe3/clash-groups.js';   // Manafe3 (changed file, field fix 16)   // Manafe3 (changed file): concrete volume total
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
 import { getHost } from "./host.js";
@@ -2036,7 +2037,7 @@ async function start(root) {
     print(tr('app.export.bom', { n: marks.parts.length }));
   }
   // ---- clash check (D15): on demand, visible phases only; the result is kept until the model changes ----
-  let clashRes = null, clashTol = 1;
+  let clashRes = null, clashTol = 1, clashHideGen = false;   // Manafe3: clashHideGen (field fix 16)
   function runClashes() {
     const phases = new Set(model.state.phases.map((p) => p.n).filter((n) => !hiddenPhases.has(n)));
     clashRes = { ...clashCheck(model.state, built, { tol: clashTol, phases }), version: model.version, hidden: hiddenPhases.size };
@@ -2061,9 +2062,17 @@ async function start(root) {
     if (clashRes.version !== model.version) out.push(el('p', { className: 'dc-warn' }, tr('clash.stale')));
     if (!clashRes.clashes.length) out.push(el('p', { className: 'dc-note' }, tr('clash.clean', { parts: clashRes.checked })));
     else {
-      const rows = clashRes.clashes.map((c) => el('tr', { dataset: { clash: '' } },
+      // Manafe3 (changed file, field fix 16): grouped by type; generated connection points can be hidden until Phase 5
+      const hideBox = el('input', { type: 'checkbox', id: 'dc-clash-hidegen', checked: clashHideGen });
+      hideBox.dataset.clashHideGen = '';
+      hideBox.addEventListener('change', () => { clashHideGen = hideBox.checked; renderReport(); });
+      const grp = groupClashes(model.state, clashRes.clashes, { hideGenerated: clashHideGen });
+      out.push(el('p', { className: 'dc-note' }, hideBox, el('label', { for: 'dc-clash-hidegen' }, ' Hide clashes at generated connection points (until Phase 5)'),
+        grp.hidden ? ` — ${grp.hidden} hidden, ${grp.shown} shown` : ''));
+      const row = (c) => el('tr', { dataset: { clash: '' } },
         el('td', {}, refLabel(c.a)), el('td', {}, refLabel(c.b)), el('td', { className: 'n' }, String(c.depth)), el('td', {}, nodeName(model.state, c.at)),
-        el('td', {}, el('button', { type: 'button', className: 'dc-linkbtn', onclick: () => { if (tool !== 'select') setTool('select'); setSelection([c.a, c.b].filter(exists)); view?.focusPoint(c.at, 2500); print(tr('clash.shown', { a: refLabel(c.a), b: refLabel(c.b), d: c.depth })); } }, tr('clash.show')))));
+        el('td', {}, el('button', { type: 'button', className: 'dc-linkbtn', onclick: () => { if (tool !== 'select') setTool('select'); setSelection([c.a, c.b].filter(exists)); view?.focusPoint(c.at, 2500); print(tr('clash.shown', { a: refLabel(c.a), b: refLabel(c.b), d: c.depth })); } }, tr('clash.show'))));
+      const rows = grp.groups.flatMap((g) => [el('tr', { dataset: { clashGroup: g.key } }, el('th', { colSpan: 5, scope: 'rowgroup' }, `${g.label}${g.generatedJoint ? ' (generated connection point)' : ''} — ${g.clashes.length}`)), ...g.clashes.map(row)]);
       out.push(el('table', { className: 'dc-table' },
         el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, tr('clash.col.a')), el('th', { scope: 'col' }, tr('clash.col.b')), el('th', { scope: 'col', className: 'n' }, tr('clash.col.depth')), el('th', { scope: 'col' }, tr('clash.col.at')), el('th', { scope: 'col' }, ''))),
         el('tbody', {}, ...rows)));

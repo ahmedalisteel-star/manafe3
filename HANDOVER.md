@@ -74,6 +74,13 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   sizes from the base section (plate (d + 200) x (bf + 100) x 20, 4 rods at sx = d + 100, sy = bf; rods, grout, weld from
   BASEPLATE_DEFAULTS) - NOT designed (Phase 5). The connection sees the built-up column's base section; the plate joins the
   bottom segment's assembly; the anchor bolt plan sheet appears in Drawings.
+- **16 Clashes:** the Clashes panel groups by type (the two members' generator roles, kept on each generated member as
+  `m3role`) and has "Hide clashes at generated connection points (until Phase 5)": both members generated AND a joint the
+  generator leaves as a point (`app/manafe3/clash-groups.js` GENERATED_JOINTS - the user's list plus what building 1
+  showed: brace ends at rafters / columns, flange braces at purlins / girts and in pairs, wind-column top and cap plate
+  under the rafter, eave strut on the column). Anything else, or any member you placed, always shows. Found and fixed:
+  20 false clashes in building 1 - a tapered segment's web was checked as its bounding box against its own sloping
+  flange; plates of ONE built-up segment are no longer checked against each other (a splice between segments still is).
 
 ### Phase 4 plan (approved 2026-11-08)
 

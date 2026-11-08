@@ -116,7 +116,7 @@ export function buildingRequest(form, state = null) {
 
 export function memberFromEngine(m, gen = 'peb') {
   const out = {
-    type: m.type || 'beam', material: m.material || 'S355', name: String(m.id || '').slice(0, 40), gen,
+    type: m.type || 'beam', material: m.material || 'S355', name: String(m.id || '').slice(0, 40), gen, m3role: m.role || '',
     start: m.start.map(Number), end: m.end.map(Number), rotation: Number(m.rotation || 0), position: m.position || 'middle',
   };
   if (m.section) { out.bu = buOf(m.section); out.position = 'middle'; } else out.profile = m.profile;
@@ -126,7 +126,7 @@ export function memberFromEngine(m, gen = 'peb') {
 
 export function cleatMember(c, gen = 'peb') {
   return {
-    type: 'plate', profile: 'PL8x100', material: 'S275', name: ('Cleat ' + c.line).slice(0, 40), gen, position: 'middle',
+    type: 'plate', profile: 'PL8x100', material: 'S275', name: ('Cleat ' + c.line).slice(0, 40), gen, m3role: 'cleat', position: 'middle',
     start: c.start.map(Number), end: c.end.map(Number), rotation: rotationFor(c.start, c.end, c.width_dir),
   };
 }
