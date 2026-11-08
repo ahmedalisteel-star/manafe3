@@ -20,42 +20,54 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 ## Next task
 
-**Phase 4 — member design: the plan below is a DRAFT shown to the user (2026-11-08). Do not code until the user has
-approved it and answered its questions.**
+**Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
+next step 2 (Direct Analysis Method).**
 
-### Phase 4 plan (DRAFT, awaiting the user)
+### Phase 4 plan (approved 2026-11-08)
 
-**Findings.** bimsteelauto already has: `design/members.py` — AISC 360-16 E / D / F (with LTB, Cb from the real moment
-diagram) / G / H1 at every station, station-wise prismatic for tapers, via `pyaisc360`, VERIFIED flags True; its own
-COVERAGE_GAPS: no AISC DG 25 web-taper stability (conservative), **no Direct Analysis Method stiffness reduction or
-notional loads (so K = 1 in plane is not yet justified)**, no serviceability limits, no web crippling at load points.
-`design/purlins.py` — AISI S100 C/Z lines (continuous beams, laps, sag-rod bracing) from CATALOGUE properties only.
-`design/bracing.py` — rods / angles in tension, struts. The ECP 205-LRFD engine found on this PC with clause references:
-`~/.claude/skills/ecp-steel-code/scripts/ecp_lrfd.py` (ton / cm). The private copy of `design/members.py` differs from
-the public one (opt-in override, decided 2026-11-05).
+**Decisions (user, 2026-11-08):**
+- **Both codes, side by side**; a project setting chooses which GOVERNS: **AISC 360-16 LRFD** for GCC / Oman jobs
+  (default), **ECP 205-LRFD** for Egypt jobs.
+- ECP: the user's repo **https://github.com/ahmedalisteel-star/ecp205-lrfd** as a pinned git dependency (add a
+  `pyproject.toml` on a `packaging` branch if missing) — NOT the skills-folder copy. Every equation keeps its clause
+  reference; Claude confirms equations WITH THE USER against the printed code; **never commit the HBRC PDF**.
+- **Check + sizing loop**: target utilisation **0.90** (never above 1.00). Plates **6, 8, 10, 12, 14, 16, 18, 20, 22, 25 mm**
+  (web min 6, flange min 8); flange widths **150, 180, 200, 220, 250, 300 mm**; web depths in **25 mm** steps.
+- Limits (editable per job): **wind sway H/100**, **rafter vertical under roof live L/180**, **purlins and girts L/150**.
+  No cranes now (keep a hook).
+- **Direct Analysis Method.**
+- No supplier catalogue yet: **Z / C properties computed from their geometry** with the vendored AISI S100 engine
+  (DSM / EWM); a supplier table loaded later overrides them.
+- **A. Tapered members per AISC Design Guide 25** (compression and LTB of web-tapered segments), not prismatic formulas
+  alone — VERIFIED False until hand-checked.
+- **B. Slender elements:** AISC **E7** (slender compression elements), **F5** (slender web in flexure), **G2 shear
+  buckling WITHOUT tension field action** — thin PEB webs checked correctly.
 
 | # | Step | Tests (independent) |
 |---|---|---|
-| 1 | Design inputs from the MODEL: restraint points — rafter top flange at every purlin, bottom flange at flange braces; column outer flange at girts, inner at flange braces → `BracingSpec`; grades Fy / Fu per plate | brace points by hand on building 1 |
-| 2 | Direct Analysis Method in the Phase 3 analysis: 0.8 EI (τb = 1 while αPr/Py ≤ 0.5, else iterate), notional loads 0.002 Yi per level in every gravity combination | notional-load statics; a portal by hand; K = 1 then justified (closes a bimsteelauto gap) |
-| 3 | Main frames: `check_member` at every station, every LRFD combination; utilisation per limit state with clause; the governing one named | one rafter and one column station by longhand AISC (a negative control: a section that must fail) |
-| 4 | Serviceability from ASD: sway and apex against limits **the user sets** | ratios by hand |
-| 5 | Wind columns (C&C) and the end rafter: `check_member`; end-wall and side-wall bracing, eave struts: `design/bracing.py` | longhand per member type |
-| 6 | Purlins / girts: AISI S100 via `design/purlins.py`, C&C roof zones 1 / 2 / 3 (and walls 4 / 5) with the user's effective area rule, laps continuous, sag rods as bracing — **needs the supplier's catalogue properties** | one purlin line by hand |
-| 7 | ECP 205-LRFD as a second design basis (the user's library at a units boundary: ton / cm inside), the same members, side by side with AISC | one member by longhand ECP |
-| 8 | Optional sizing loop: change plates / thicknesses toward a target utilisation, re-analyse (stiffness changes), stop when stable | converges on building 1; never below the minimums |
-| 9 | Browser "Design…": utilisation colours in 3D, a table per member, HTML calc sheet per member (NOT FOR ISSUE until every flag is verified); `designed: true` only when every check passes | mapping + browser check |
+| 1 | Design inputs from the MODEL: plate strengths by grade and thickness, design members (rafter halves across splices), restraint points (outer flange: purlins / girts; inner: flange braces), the moment-sign boundary into bimsteelauto (`engine/design/inputs.py`) | **done** — `test_design_inputs.py` |
+| 2 | Direct Analysis Method in the analysis: 0.8 τb EI, notional loads 0.002 Yi in the gravity combinations | notional-load statics; a portal by hand |
+| 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | longhand per limit state; a section that must fail |
+| 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | ratios by hand |
+| 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | longhand per type |
+| 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | one line by hand |
+| 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | one member longhand ECP, equations confirmed with the user |
+| 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | converges on building 1, minimums kept |
+| 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
 | 10 | HANDOVER, `end-work.ps1` | |
 
-**Questions for the user (Phase 4):**
-1. Design basis: AISC 360-16 LRFD only, ECP 205-LRFD only, or both side by side? Which governs on Egyptian jobs?
-2. Is "my ecp205-lrfd library" the skill's `ecp_lrfd.py`, or another package (path / git URL)? It must become a
-   dependency like bimsteelauto, not copied.
-3. Check only, or also the sizing loop (step 8)? If sizing: target utilisation (e.g. ≤ 0.95?) and the plate-thickness
-   list to choose from.
-4. Serviceability limits: wind sway (H / ?), roof live deflection (L / ?), with or without cranes — never assumed.
-5. Direct Analysis Method (step 2) vs the effective length method: DAM recommended.
-6. Cold-formed catalogue: which manufacturer's table for purlins / girts (A, Ix, Sx, Se top / bottom, …)?
+**Findings (2026-11-08):**
+- **bimsteelauto moment sign (reported to the user; bimsteelauto NOT modified):** PyNite gives Mz + for tension on the
+  local +y face (sagging NEGATIVE on a simply supported beam — tested). `bimsteelauto.design.members` takes Mz ≥ 0 as
+  "top flange in compression" and `pipeline.run_frame` passes PyNite's value unchanged — so on its own pipeline the
+  compression flange (and with it Lb, Sxc and the flange slenderness) is chosen BACKWARDS: unconservative at the haunch
+  under gravity (it uses the purlin-braced top flange's short Lb where the bottom flange is compressed). Manafe3 converts
+  in ONE function (`engine/design/inputs.py bsa_moment`, with PyNite's vertical-member rule). The user decides whether
+  to fix bimsteelauto.
+- End frame lines have NO rafter flange braces in the model (Phase 2 generates them at interior frames only): their
+  rafters' bottom flange is unbraced over the whole half — step 3 will show what that does under uplift.
+- St 37 Fu: 3.7 t/cm² (skill transcription) vs 3.6 (Claude's memory) — to be confirmed against the printed Table 1.1;
+  all plate strengths are VERIFIED False with their sources until the user confirms them.
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),
