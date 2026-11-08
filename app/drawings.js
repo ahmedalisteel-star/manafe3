@@ -758,7 +758,7 @@ export function anchorSheet(state, built, marks, i) {
   const conns = state.connections.filter((c) => c.type === 'baseplate');
   const groups = [];
   for (const c of conns) {
-    const plate = built.byId.get(c.id + '.plate'), col = built.byId.get(c.column);
+    const plate = built.byId.get(c.id + '.plate'), col = built.byId.get(c.column) || built.byId.get(plate?.attachTo);   // Manafe3 (field fix 10): a built-up column = its bottom segment's web
     const rods = built.bolts.filter((b) => b.conn === c.id && b.kind === 'ANCHORBOLT');
     if (!plate || !col || !rods.length) continue;
     const p = c.params;

@@ -13,7 +13,7 @@ import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
 import { onModelLoaded } from './panels.js';
-import { addPadFootings, footingsWithoutColumn, removeFootingsWithoutColumn } from './peb-footings.js';
+import { addPadFootings, footingsWithoutColumn, removeFootingsWithoutColumn, addBasePlates } from './peb-footings.js';
 import { GRADES } from './builtup.js';
 
 const NEW = '(new)';
@@ -139,6 +139,11 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
       print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}${r.footings ? `, ${r.footings.added} footings added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }
+  });
+  // field fix 10: base plates (placeholders, not designed) for every PEB column that has none; the anchor bolt plan sheet follows
+  pebMenuItem('peb-baseplates', 'Base plates for all PEB columns', 'Adds a base plate with 4 anchor rods under every main-frame and wind column that has none (placeholder sizes, NOT designed)', () => {
+    const r = edit('Base plates for PEB columns', (tx) => addBasePlates(tx, tx.s));
+    if (r) print(r.added ? `Base plates added: ${r.added}${r.skipped ? ` (${r.skipped} columns already had one)` : ''}. The anchor bolt plan is in Drawings. Not designed.` : 'Every PEB column already has a base plate.');
   });
   // field fix 9: footings no column stands on (after columns were moved or deleted)
   pebMenuItem('peb-footings-clean', 'Remove footings with no column', 'Deletes every footing that no column of the model stands on (one undo step)', () => {

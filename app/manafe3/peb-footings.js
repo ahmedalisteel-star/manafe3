@@ -59,6 +59,34 @@ export function footingsWithoutColumn(state) {
   return state.footings.filter((f) => !bases.some((b) => footingHolds(f, b.point))).map((f) => f.id);
 }
 
+// ---- base plates for the PEB columns (field fix 10) ----------------------------------------------------------------------
+const r5 = (v) => Math.ceil(v / 5) * 5;
+
+/**
+ * Placeholder base plate of a column from its base section (NOT designed — Phase 5 designs connections): plate
+ * (d + 200) × (bf + 100), 4 rods outside the flanges at sx = d + 100 (50 mm clear of each flange face, 50 to the edge),
+ * sy = bf; the other values BASEPLATE_DEFAULTS. Rounded up to 5 mm.
+ */
+export function basePlateParams(m, profiles = []) {
+  const bottom = m.start[2] <= m.end[2] ? 'start' : 'end';
+  const p = m.bu ? builtUpEndSection(m, bottom).profile : getProfile(m.profile, profiles);
+  const d = p.depth, bf = p.width;
+  return { length: r5(d + 200), width: r5(bf + 100), sx: r5(d + 100), sy: r5(bf), tp: 20 };
+}
+
+/** A base plate under every PEB column (of one building, or all) that has none. One undo step with the caller's edit. */
+export function addBasePlates(tx, state, { building = null } = {}) {
+  let added = 0, skipped = 0;
+  const ms = building ? membersOfBuilding(state, building) : state.members;
+  for (const m of ms) {
+    if (m.type !== 'column' || !m.gen || !PEB_COLUMN.test(m.name)) continue;
+    if (tx.s.connections.some((c) => c.type === 'baseplate' && c.column === m.id)) { skipped++; continue; }
+    tx.addConnection({ type: 'baseplate', column: m.id, params: basePlateParams(m, state.profiles) });
+    added++;
+  }
+  return { added, skipped };
+}
+
 export function removeFootingsWithoutColumn(tx, state) {
   const ids = footingsWithoutColumn(state);
   if (ids.length) tx.removeFootings(ids);

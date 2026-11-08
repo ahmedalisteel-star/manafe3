@@ -244,5 +244,33 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(m.state.footings.length === 17, 'undo brings them back');
 }
 
+// ---- 10. base plates for all PEB columns; the anchor bolt plan sheet -----------------------------------------------------
+{
+  const F = await mod('manafe3/peb-footings.js');
+  const { build } = await mod('build.js');
+  const { markParts } = await mod('marks.js');
+  const { anchorSheet } = await mod('drawings.js');
+  const m = new Model(emptyState('bp'));
+  m.change('b', (tx) => B.applyBuilding(tx, RES, spec));
+  const r = m.change('bp', (tx) => F.addBasePlates(tx, tx.s));
+  ok(r.added === 16 && m.change('again', (tx) => F.addBasePlates(tx, tx.s)).skipped === 16, '16 base plates (10 frame + 6 wind columns), none twice', r);
+  const b = build(m.state);
+  ok(!b.problems.some((p) => p.hard), 'they build without hard problems', b.problems.filter((p) => p.hard).slice(0, 3));
+  // F2-CA: base 324 deep × 250 wide → plate PL20x350 × 525 long (324 + 200 → 525), centred on the section centre (6000, 162), top of plate z 20
+  const ca = m.state.members.find((x) => x.name === 'F2-CA');
+  const c = m.state.connections.find((x) => x.column === ca.id);
+  const pl = b.byId.get(c.id + '.plate');
+  const mid = [0, 1, 2].map((i) => (pl.start[i] + pl.end[i]) / 2);
+  ok(pl.profileName === 'PL20x350' && Math.abs(pl.length - 525) < 1e-6 && Math.abs(mid[0] - 6000) < 1e-6 && Math.abs(mid[1] - 162) < 1e-6 && Math.abs(mid[2] - 10) < 1e-6, 'F2-CA plate PL20x350 × 525 at (6000, 162) by hand', { n: pl.profileName, L: pl.length, mid });
+  ok(pl.attachTo === ca.id + '.s1.web', 'welded to the column\'s bottom web (its assembly)', pl.attachTo);
+  const rods = b.bolts.filter((x) => x.kind === 'ANCHORBOLT');
+  ok(rods.length === 64, '4 anchor rods each: 64', rods.length);
+  // rods at sx 425 along the depth (x of the plate's line) and sy 250 across: (6000 ± 125, 162 ± 212.5) for a column whose depth runs along y
+  const mine = rods.filter((x) => x.conn === c.id).map((x) => [Math.round(x.head[0] * 10) / 10, Math.round(x.head[1] * 10) / 10]).sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+  ok(JSON.stringify(mine) === JSON.stringify([[5875, -50.5], [5875, 374.5], [6125, -50.5], [6125, 374.5]]), 'rod pattern by hand: x 6000 ± 125, y 162 ± 212.5', mine);
+  const sheet = anchorSheet(m.state, b, markParts(b), 0);
+  ok(!!sheet, 'the anchor bolt plan sheet is made');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

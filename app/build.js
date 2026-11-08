@@ -26,7 +26,7 @@ import { buildEndPlate, buildBasePlate, buildShearTab, buildSplice, buildGusset,
 import { footingBars, footingProblems } from './rebar.js';
 import { stairGeometry } from './stair.js';
 import { t } from './i18n.js';
-import { builtUpParts } from './manafe3/builtup-parts.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members → plates
+import { builtUpParts, builtUpEndSection } from './manafe3/builtup-parts.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members → plates
 import { isConcrete, CONCRETE_NOTE } from './manafe3/materials.js';   // Manafe3: concrete members weigh nothing as steel
 
 export const IFC_CLASS = { beam: 'IfcBeam', column: 'IfcColumn', brace: 'IfcMember', plate: 'IfcPlate', stringer: 'IfcMember' };
@@ -44,7 +44,30 @@ export function build(state) {
     drafts.set(m.id, { m, profile, frame: f, voff: voffFor(m.position, profile.depth), setback: { start: 0, end: 0 }, plane: { start: null, end: null }, extraHoles: [] });
   }
   const plates = [], worldHoles = [], bolts = [], welds = [], infos = new Map();
+  // Manafe3 (field fix 10): a base plate on a built-up column sees the column's BASE section (an I of that end's size,
+  // centred on the section) — a stand-in for the connection only; the column's parts stay its plates
+  const buBase = new Map();
+  for (const m of builtUp) {
+    if (m.type !== 'column' || !state.connections.some((c) => c.type === 'baseplate' && c.column === m.id)) continue;
+    const bottom = m.start[2] <= m.end[2] ? 'start' : 'end';
+    const s = builtUpEndSection(m, bottom), dv = mul(s.frame.v, s.vc);
+    const mm = { ...m, start: add(m.start, dv), end: add(m.end, dv) };
+    buBase.set(m.id, { m: mm, profile: s.profile, frame: frame(mm.start, mm.end, m.rotation), voff: 0, setback: { start: 0, end: 0 }, plane: { start: null, end: null }, extraHoles: [], builtUp: true, bottomSeg: bottom === 'start' ? 1 : (m.bu.segments || []).length });
+  }
+  const connParts = buBase.size ? new Map([...drafts, ...buBase]) : drafts;
   for (const c of state.connections) {
+    if (c.type === 'baseplate' && buBase.has(c.column)) {   // Manafe3: the plate belongs to the bottom segment's web (its assembly)
+      const r = buildBasePlate(c, { parts: connParts });
+      const web = c.column + '.s' + buBase.get(c.column).bottomSeg + '.web';
+      for (const text of r.problems || []) problems.push({ ref: c.id, text, hard: !r.plates });
+      if (r.info) infos.set(c.id, r.info);
+      if (!r.plates) continue;
+      for (const p of r.plates) plates.push({ ...p, conn: c.id, attachTo: p.attachTo === c.column ? web : p.attachTo });
+      for (const h of r.holes) worldHoles.push({ ...h, conn: c.id });
+      bolts.push(...r.bolts.map((b) => ({ ...b, phase: buBase.get(c.column).m.phase || 1 })));
+      welds.push(...r.welds.map((w) => ({ ...w, between: w.between.map((x) => (x === c.column ? web : x)) })));
+      continue;
+    }
     const r = c.type === 'endplate' ? buildEndPlate(c, { parts: drafts }) : c.type === 'sheartab' ? buildShearTab(c, { parts: drafts }) : c.type === 'baseplate' ? buildBasePlate(c, { parts: drafts }) : c.type === 'splice' ? buildSplice(c, { parts: drafts }) : c.type === 'gusset' ? buildGusset(c, { parts: drafts, conns: state.connections }) : c.type === 'mitre' ? buildMitre(c, { parts: drafts }) : { problems: [t('build.err.connection')] };
     for (const text of r.problems || []) problems.push({ ref: c.id, text, hard: !r.plates });
     if (r.info) infos.set(c.id, r.info);

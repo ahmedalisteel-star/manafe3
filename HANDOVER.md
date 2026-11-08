@@ -69,7 +69,11 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
 - **9 Footings:** Building form "Footings: none / pads" (default none): a pad (FOOTING_DEFAULTS 2000 × 2000 × 600 —
   placeholder, NOT designed) centred under the base section of every main-frame column (F<n>-CA/CB) and wind column
   (WF/WL<n>) of THAT building that has no footing yet; door jambs get none. PEB › "Remove footings with no column":
-  a footing is kept while any column's base point lies in its plan within 1 000 mm of its top (pp/manafe3/peb-footings.js).
+  a footing is kept while any column's base point lies in its plan within 1 000 mm of its top (`app/manafe3/peb-footings.js`).
+- **10 Base plates:** PEB > "Base plates for all PEB columns": one per main-frame / wind column without one; placeholder
+  sizes from the base section (plate (d + 200) x (bf + 100) x 20, 4 rods at sx = d + 100, sy = bf; rods, grout, weld from
+  BASEPLATE_DEFAULTS) - NOT designed (Phase 5). The connection sees the built-up column's base section; the plate joins the
+  bottom segment's assembly; the anchor bolt plan sheet appears in Drawings.
 
 ### Phase 4 plan (approved 2026-11-08)
 
