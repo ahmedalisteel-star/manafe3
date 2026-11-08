@@ -221,5 +221,28 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(rl.id === 'B1' && rl.replaced === 566 && old.state.members.every((x) => x.gen === 'peb:B1') && !old.state.m3building, 'edited in place, members re-tagged peb:B1', rl);
 }
 
+// ---- 9. pad footings under the PEB columns; footings with no column -------------------------------------------------------
+{
+  const F = await mod('manafe3/peb-footings.js');
+  const m = new Model(emptyState('ft'));
+  m.change('b', (tx) => { const r = B.applyBuilding(tx, RES, spec); tx.addFooting({ x: 6000, y: 162, top: 0, L: 2500, B: 2500, H: 700 }); return r; });   // one already there (F2-CA)
+  const r = m.change('pads', (tx) => F.addPadFootings(tx, tx.s, { building: 'B1' }));
+  // 5 frames × 2 columns + 6 wind columns = 16 bases; F2-CA already has one → 15 added; the 2 door jambs get none
+  ok(r.added === 15 && r.skipped === 1 && m.state.footings.length === 16, '15 pads added, the existing one kept, jambs none', r);
+  // F2-CA: base web 300 + 2 × 12 = 324 deep, outer face on y = 0 (straight top) → centre (6000, 162, 0); F2-CB at y = 24000 − 162
+  ok(m.state.footings.some((f) => f.x === 6000 && f.y === 23838 && f.top === 0 && f.L === 2000), 'F2-CB pad centred at (6000, 23838, 0) by hand');
+  ok(m.state.footings.find((f) => f.x === 6000 && f.y === 162).L === 2500, 'my own footing untouched');
+  ok(F.footingsWithoutColumn(m.state).length === 0, 'every footing has a column');
+  // move one column away (with the transform) and add a stray footing: two footings without a column
+  const X = await mod('transform.js');
+  const col = m.state.members.find((x) => x.name === 'F4-CA');   // (F3-CA's pad also holds the door jamb at x 11 000: still a column)
+  m.change('move', (tx) => { X.transformRefs(tx, tx.s, [{ kind: 'member', id: col.id }], X.moveXf(0, -5000, 0)); tx.addFooting({ x: -20000, y: -20000, top: 0 }); });
+  ok(F.footingsWithoutColumn(m.state).length === 2, 'the moved column\'s pad and the stray one have no column', F.footingsWithoutColumn(m.state));
+  const rm = m.change('clean', (tx) => F.removeFootingsWithoutColumn(tx, tx.s));
+  ok(rm.removed === 2 && m.state.footings.length === 15, 'removed, one undo step', rm);
+  m.undo();
+  ok(m.state.footings.length === 17, 'undo brings them back');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

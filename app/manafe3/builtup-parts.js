@@ -46,6 +46,27 @@ export function shapedPlateProfile(t, outline, label) {
   });
 }
 
+/**
+ * The section at a built-up member's END (field fixes 9, 10): { point (world, the section's centre), profile (an I with
+ * that end's depth, flanges and web: kind 'I', d, bf, tw, tf, depth, width, perimeter, loops), frame } — what the base
+ * plate generator and the footing placer need. The flanges: the wider / thicker of the two (a base plate covers both).
+ */
+export function builtUpEndSection(m, end = 'start') {
+  const F = frame(m.start, m.end, m.rotation);
+  const segs = segmentPlates(m.bu, F.len);
+  const s = end === 'start' ? segs[0] : segs[segs.length - 1];
+  const vTop = end === 'start' ? s.top.a[1] + s.top.t / 2 : s.top.c[1] + s.top.t / 2;
+  const vBot = end === 'start' ? s.bot.a[1] - s.bot.t / 2 : s.bot.c[1] - s.bot.t / 2;
+  const x = end === 'start' ? 0 : F.len;
+  const vc = (vTop + vBot) / 2, d = vTop - vBot;
+  const bf = Math.max(s.top.b, s.bot.b), tf = Math.max(s.top.t, s.bot.t), tw = s.web.t;
+  const loops = [[[-bf / 2, -d / 2], [bf / 2, -d / 2], [bf / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [bf / 2, d / 2 - tf], [bf / 2, d / 2],
+    [-bf / 2, d / 2], [-bf / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-bf / 2, -d / 2 + tf]]];
+  const profile = { name: `BU ${r3(d)}x${r3(bf)}`, kind: 'I', family: 'BU', source: 'param', d, bf, tw, tf, r: 0, depth: d, width: bf,
+    perimeter: 4 * bf + 2 * d - 2 * tw, loops, area: 2 * bf * tf + (d - 2 * tf) * tw };
+  return { point: add(add(F.o, mul(F.x, x)), mul(F.v, vc)), profile, frame: F, vc };
+}
+
 export function builtUpParts(m) {
   const problems = [];
   const F = frame(m.start, m.end, m.rotation);

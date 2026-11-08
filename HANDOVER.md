@@ -66,6 +66,10 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   an id makes a NEW building; with `{ id }` it regenerates only that one. Levels of a second building with a taken
   name get the building's name ("Eave F&S-2"). Analysis… has a building picker. Still open: a button in the
   Properties panel ("Edit this building") — the picker preselection covers it for now.
+- **9 Footings:** Building form "Footings: none / pads" (default none): a pad (FOOTING_DEFAULTS 2000 × 2000 × 600 —
+  placeholder, NOT designed) centred under the base section of every main-frame column (F<n>-CA/CB) and wind column
+  (WF/WL<n>) of THAT building that has no footing yet; door jambs get none. PEB › "Remove footings with no column":
+  a footing is kept while any column's base point lies in its plan within 1 000 mm of its top (pp/manafe3/peb-footings.js).
 
 ### Phase 4 plan (approved 2026-11-08)
 

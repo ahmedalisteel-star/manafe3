@@ -30,7 +30,7 @@ export const BUILDING_DEFAULTS = {
   girt_spacing_a: 1250, girt_spacing_b: 1250, girt_first: 1250, gable_spacing: 1250,
   end_first: 'frame', end_last: 'frame', braced_bays: '', end_braced_bays: '', brace_type: 'rod', ridge_tie: 'rod', bolt: 'M12', lap: '',
   purlin: 'Z200x65x20x2.0', eave_strut: 'C200x65x20x2.0', girt: 'Z200x65x20x2.0', openings: '',
-  grids_mode: 'merge',
+  grids_mode: 'merge', footings: 'none',
 };
 export const SPAN_REFS = ['outside', 'centreline', 'grid'];
 export const MAX_BUILDINGS = 50;

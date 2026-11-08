@@ -13,6 +13,7 @@ import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
 import { onModelLoaded } from './panels.js';
+import { addPadFootings, footingsWithoutColumn, removeFootingsWithoutColumn } from './peb-footings.js';
 import { GRADES } from './builtup.js';
 
 const NEW = '(new)';
@@ -23,7 +24,8 @@ const GROUPS = [
     ['grid_inset', 'Grid inset (mm)', 'span measured to grid: from the grid line in to the outer face of the column'],
     ['n_bays', 'Number of bays'], ['bay_spacing', 'Bay spacing (mm)'],
     ['bays', 'Uneven bays', 'overrides the two above: spacings "6600 6000 6000 …" or site grids "A-L" (their spacings, their labels)', null, 'text'],
-    ['eave_height', 'Eave height (mm)', 'Where the roof line meets the outer column face'], ['roof_slope', 'Roof slope (rise/run)', '0.1 = 1:10']]],
+    ['eave_height', 'Eave height (mm)', 'Where the roof line meets the outer column face'], ['roof_slope', 'Roof slope (rise/run)', '0.1 = 1:10'],
+    ['footings', 'Footings', 'pads: a pad footing (2000 x 2000 x 600, placeholder, not designed) under every main-frame and wind column that has none', ['none', 'pads']]]],
   ['Placement on site', [['origin_x', 'Origin X (mm)', 'where the building\'s first frame line meets its span reference line A'], ['origin_y', 'Origin Y (mm)'], ['origin_z', 'Origin Z (mm)', 'the building\'s ground level'],
     ['plan_rotation', 'Plan rotation (°)', 'about Z, counter-clockwise seen from above; 90 = frames along +Y. Any angle; grids are added for multiples of 90° only']]],
   ['Frame sizes (span rules, editable)', [['hw_knee', 'Knee web depth (mm)'], ['hw_base', 'Column base web (mm)'], ['hw_rafter', 'Rafter web depth (mm)'],
@@ -126,13 +128,24 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
     ui.add.disabled = true; ui.note.textContent = 'Asking the engine…';
     try {
       const res = await requestBuilding(body);
-      const r = edit('PEB building', (tx) => applyBuilding(tx, res, form, { grids: form.grids_mode, id: which() }));
+      const r = edit('PEB building', (tx) => {
+        const out = applyBuilding(tx, res, form, { grids: form.grids_mode, id: which() });
+        if (form.footings === 'pads') out.footings = addPadFootings(tx, tx.s, { building: out.id });   // field fix 9, same undo step
+        return out;
+      });
       if (!r) { ui.note.textContent = 'The model refused the building; see the status bar.'; return; }
       ui.dlg.close();
       fit?.();
-      print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
+      print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}${r.footings ? `, ${r.footings.added} footings added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }
+  });
+  // field fix 9: footings no column stands on (after columns were moved or deleted)
+  pebMenuItem('peb-footings-clean', 'Remove footings with no column', 'Deletes every footing that no column of the model stands on (one undo step)', () => {
+    const n = footingsWithoutColumn(model().state).length;
+    if (!n) { print('Every footing has a column on it.'); return; }
+    const r = edit('Remove footings with no column', (tx) => removeFootingsWithoutColumn(tx, tx.s));
+    if (r) print(`Removed ${r.removed} footing(s) with no column.`);
   });
   onModelLoaded(() => { if (ui.dlg.open) ui.dlg.close(); });   // field fix 3: the form held the old model's values; it refills on open
   return { button: btn, dialog: ui.dlg };
