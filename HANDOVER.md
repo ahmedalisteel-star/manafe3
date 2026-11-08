@@ -21,8 +21,8 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
-the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 in progress (E7 fixed
-in bimsteelauto 0.14.3; next F5 / G2 routing tests, then DG 25 in bimsteelauto, then Manafe3's frame checks).**
+the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
+in the engine — DG 25 NOT VERIFIED until the user has the printed guide; next step 4 (serviceability).**
 
 ### Phase 4 plan (approved 2026-11-08)
 
@@ -48,7 +48,7 @@ in bimsteelauto 0.14.3; next F5 / G2 routing tests, then DG 25 in bimsteelauto, 
 |---|---|---|
 | 1 | Design inputs from the MODEL: plate strengths by grade and thickness, design members (rafter halves across splices), restraint points (outer flange: purlins / girts; inner: flange braces), the moment-sign boundary into bimsteelauto (`engine/design/inputs.py`) | **done** — `test_design_inputs.py` |
 | 2 | Direct Analysis Method for the LRFD set (`engine/analysis/solve.py`): every stiffness × 0.8 (a `FrameAnalysis` subclass scales E and G — bimsteelauto has no stiffness setting), τb = 1 checked by αPr/Pns ≤ 0.5 (else C2.3(c): + 0.001·Yi), notional 0.002·Yi as horizontal twins of every D / C / Lr load in EVERY LRFD combination along its net lateral load (gravity-only: both ways); ASD and cases on the nominal stiffness | **done** — `test_dam.py`: movement × 1.25 with forces unchanged, notional statics longhand, direction, τb by hand, C2.3(c) forced, service set unchanged |
-| 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | longhand per limit state; a section that must fail |
+| 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | **done** (engine) — `engine/design/frame_checks.py`, `test_frame_checks.py`; limit states longhand in bimsteelauto 0.14.3 – 0.15.1 |
 | 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | ratios by hand |
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | longhand per type |
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | one line by hand |
@@ -111,6 +111,48 @@ in bimsteelauto 0.14.3; next F5 / G2 routing tests, then DG 25 in bimsteelauto, 
    guide when the user has it.
 3. The PyNite tension-only workaround (lengthening diagonal per sway direction, rod = max(model, H / cos θ)) is
    **APPROVED**.
+
+**Step 3 — what was built (2026-11-08):**
+- **bimsteelauto `verify/slender-webs`** (8a223f1): F4 (h/tw 97) and F5 (h/tw 163) in all three Lb zones and G2.1 shear
+  buckling (Cv1 0.63 / 0.38, φ 0.90, no tension field), all longhand from the plates, within 0.2 %. The 2026-09-01
+  verification had compared a compact (F2) section only. VERIFIED gains compression_E7, flexure_F4_noncompact_web,
+  flexure_F5_slender_web and shear_G2_1_web_buckling.
+- **bimsteelauto 0.15.0 `feature/dg25-nonprismatic`** (355c55b), new module `design/nonprismatic.py`.
+  - Elastic buckling of a segment with the varying section integrated along it: in plane under P(x); out of plane
+    flexural-torsional under P(x) (singly-symmetric shear-centre offset); LTB under M(x) (Wagner term).
+  - Two independent methods: cubic Hermite FE (16 elements, converged within 3e-5) and a sine-series Ritz.
+  - Closed forms reproduced: Euler; the exactly solvable column I ∝ x⁴, Pcr = π²E√(I1·I2)/L² (derived longhand); AISC
+    E4 singly symmetric; uniform-moment LTB of a doubly and a singly symmetric beam, including Wagner.
+  - Application, opt-in `MemberDesignInput.stability = "dg25"` (bimsteelauto's default stays prismatic):
+    - compression: Fe = γe·fr per station (in plane K = 1 over the member, out of plane over the segment), then E3 and E7;
+    - LTB: Fe = κ·γLTB·fr, mapped to the Lb that gives it in the dispatched F2-4 / F4-5 / F5-4, Cb = 1. κ = Fe,AISC /
+      Fe,exact of the section keeps AISC's margin.
+  - A prismatic member reproduces AISC exactly: uniform moment in F2, F4 (singly symmetric, both signs) and F5; axial
+    E3/E4/E7. Under a moment gradient, elastic Cb ≈ 1.85 against F1-1's 1.67; inelastic 3 % below AISC.
+  - The governing station is re-run with Ritz; the difference is printed in its note.
+  - `pipeline.OPT_IN_MODULES`: gated modules the pipeline does not call carry their flags themselves.
+- **bimsteelauto 0.15.1 `feature/dg25-restraints`** (ad33eb6): the OTHER flange's brace points inside a
+  compression-flange segment become rigid lateral restraints AT THAT FLANGE.
+  - Example: purlins on the top flange inside a rafter's bottom-flange segment.
+  - It is a penalty of 1e6·EIy/L³, scaled on the physical stiffness (scaling on K's diagonal ill-conditioned the
+    eigenproblem: mixed mm / rad dofs).
+  - The sign is pinned by physics: a compression-flange restraint is a full brace, a tension-flange one adds less than
+    5 %.
+  - `dg25_other_flange=False` gives the bare segment.
+  - **To confirm with the user / DG 25: whether the guide's procedure takes such restraints.**
+- **Manafe3 `engine/design/frame_checks.py`:** one design member per column / rafter half. `ChainTaper` gives the
+  section at the station; splice stations are nudged into their own piece. Inputs and checks:
+  - forces from the strength (DAM) solve's LRFD combinations;
+  - Lb from the step 1 restraints; Fy = the lowest plate of the whole design member; K = 1;
+  - `check_member(stability="dg25")`, with the prismatic ratio alongside;
+  - the result carries the NOT FOR ISSUE banner and the open flags (DG 25, EN / ASTM grades, restraints).
+
+  Building 1 line 3 (default sizes): rafters 0.329 (prismatic 0.390), columns 0.351 (FLB governs, both methods); 8 s
+  for the four members. Tests (`test_frame_checks.py`): chain sections; force / bracing / Fy plumbing on a synthetic
+  result; shear longhand through the chain; a section that must fail; frame line 3 (slow, the governing forces are
+  the analysis' own, Ritz within 1 %).
+- **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
+  the Lb,eq mapping, and the other-flange restraints).
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),

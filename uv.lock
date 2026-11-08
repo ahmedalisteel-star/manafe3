@@ -62,7 +62,7 @@ wheels = [
 [[package]]
 name = "bimsteelauto"
 version = "0.9.0.dev0"
-source = { git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=548bef40906206fd0acdefdfdb64defec74f34a9#548bef40906206fd0acdefdfdb64defec74f34a9" }
+source = { git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=ad33eb64d66bfa6eaa7add58995a81ac955e0e84#ad33eb64d66bfa6eaa7add58995a81ac955e0e84" }
 dependencies = [
     { name = "numpy" },
     { name = "pyaisc360" },
@@ -368,7 +368,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anastruct", specifier = ">=1.6" },
-    { name = "bimsteelauto", git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=548bef40906206fd0acdefdfdb64defec74f34a9" },
+    { name = "bimsteelauto", git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=ad33eb64d66bfa6eaa7add58995a81ac955e0e84" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pynitefea", specifier = "==3.0.0" },
     { name = "uvicorn", specifier = ">=0.30" },
