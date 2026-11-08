@@ -44,7 +44,7 @@ def _length(m: dict) -> float:
 def secondary_kpa(out: dict) -> dict:
     inp = out["input"]
     span, eave, slope = inp["span"], inp["eave_height"], inp["roof_slope"]
-    L = inp["bay_spacing"] * inp["n_bays"]
+    L = sum(inp["bays"]) if inp.get("bays") else inp["bay_spacing"] * inp["n_bays"]   # field fix 6: uneven bays
     roof_area = 2 * (span / 2) * math.sqrt(1 + slope * slope) * L * 1e-6       # m², sloping
     wall_area = 2 * L * eave * 1e-6
     kn = {"roof": 0.0, "wall": 0.0}

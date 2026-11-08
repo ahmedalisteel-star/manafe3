@@ -1868,7 +1868,7 @@ async function start(root) {
   });
   // ---- Manafe3 (changed file, see MANAFE3-CHANGES.md): the "PEB frame…" button, app/manafe3/peb-frame-ui.js ----
   import('./manafe3/peb-building-ui.js')   // Phase 2: "PEB building…" (frames + secondary steel) replaces "PEB frame…"
-    .then(({ mountPebBuilding }) => mountPebBuilding({ model: () => model, edit, print, fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
+    .then(({ mountPebBuilding }) => mountPebBuilding({ model: () => model, edit, print, selected: () => selected(), fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
     .then(() => import('./manafe3/loads-ui.js'))   // Phase 3: "Loads…" beside it
     .then(({ mountLoads }) => mountLoads({ model: () => model, edit, print }))
     .then(() => import('./manafe3/frame-analysis-ui.js'))   // Phase 3: "Analysis…" (diagrams, reactions, CSV)

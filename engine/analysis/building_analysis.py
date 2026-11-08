@@ -17,7 +17,7 @@ from __future__ import annotations
 import os
 from concurrent.futures import ProcessPoolExecutor
 
-from ..peb.building import BuildingInput, peb_building
+from ..peb.building import BuildingInput, peb_building, resolve
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from ..design.inputs import section_strength
@@ -35,9 +35,10 @@ BANNER = "NOT FOR ISSUE — analysis only, members not designed (Phase 4)"
 
 
 def _line_setup(b: BuildingInput, li: LoadsInput, i: int, sec: dict, step: float, with_fy: bool = False):
-    sizes = b.sizes or default_sizes(b.span)
-    ms = builtup_frame_members(b.span, b.eave_height, b.roof_slope, i * b.bay_spacing, str(i + 1), sizes)
-    info = frame_line_model(ms, b.span, b.eave_height, b.roof_slope, (b.bay_spacing,) * b.n_bays, base=li.base, max_taper_step=step)
+    b, _ = resolve(b)                                   # the steel span and the list of bays (field fixes 6, 7)
+    sizes = b.sizes
+    ms = builtup_frame_members(b.span, b.eave_height, b.roof_slope, b.frame_xs()[i], str(i + 1), sizes)
+    info = frame_line_model(ms, b.span, b.eave_height, b.roof_slope, b.bay_list(), base=li.base, max_taper_step=step)
     fl = frame_loads(info, i, li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"])
     return (info, fl, fy_by_mark(ms)) if with_fy else (info, fl)
 
@@ -70,6 +71,8 @@ def _signature(fl) -> tuple:
 def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None,
                      limits: ServiceLimits | None = None) -> dict:
     li.check()
+    b.check()
+    b, _ = resolve(b)                                   # steel span, explicit bays: every line below uses them
     limits = (limits or ServiceLimits()).check()
     out = peb_building(b)
     sec = secondary_kpa(out)
@@ -90,7 +93,7 @@ def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, 
         solved = {i: _solve_line(j) for i, j in zip(unique, jobs)}
     frames = []
     for i in lines:
-        f = {"line": str(i + 1), "x": i * b.bay_spacing, "kind": "frame", "same_as": str(same_as[i] + 1)}
+        f = {"line": str(i + 1), "x": b.frame_xs()[i], "kind": "frame", "same_as": str(same_as[i] + 1)}
         if same_as[i] == i:
             f["result"] = solved[i]
             f["serviceability"] = frame_serviceability(solved[i], b.span, limits)   # Phase 4 step 4

@@ -42,8 +42,13 @@ from .secondary_weight import area_mm2
 FACTORS = {"case": 1.0, "LRFD": 1.0, "ASD": 0.6}
 
 
+def bays_of(inp: dict) -> tuple[float, ...]:
+    """The bays of a building's "input": the list (field fix 6), else n_bays x bay_spacing (older outputs)."""
+    return tuple(float(v) for v in inp["bays"]) if inp.get("bays") else (float(inp["bay_spacing"]),) * int(inp["n_bays"])
+
+
 def _geom(inp: dict) -> PEBGeometry:
-    return PEBGeometry(span_widths=(float(inp["span"]),), bay_spacings=(float(inp["bay_spacing"]),) * int(inp["n_bays"]),
+    return PEBGeometry(span_widths=(float(inp["span"]),), bay_spacings=bays_of(inp),
                        eave_height=float(inp["eave_height"]), roof_slope=float(inp["roof_slope"]), purlin_spacing=1250.0, girt_spacing=1250.0)
 
 
@@ -151,7 +156,8 @@ def longitudinal_feed(out: dict, li) -> dict:
 def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, wall_secondary_kpa: float = 0.0) -> dict:
     inp = out["input"]
     span, eave, slope = float(inp["span"]), float(inp["eave_height"]), float(inp["roof_slope"])
-    nb, bay = int(inp["n_bays"]), float(inp["bay_spacing"])
+    bays = bays_of(inp)
+    nb = len(bays)
     ew = next(e for e in out["end_walls"] if e["end"] == end)
     if ew["kind"] != "rafter":
         raise ValueError(f"the {end} end wall is a main frame (step 4 solves it); no end-rafter frame here")
@@ -159,7 +165,7 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     tag = "F" if end == "first" else "L"
     # the loads of this frame line, from the same adapter as the main frames (the sections do not change them)
     ms = builtup_frame_members(span, eave, slope, float(ew["x_frame"]), str(idx + 1), default_sizes(span))
-    info = frame_line_model(ms, span, eave, slope, (bay,) * nb)
+    info = frame_line_model(ms, span, eave, slope, bays)
     fl = frame_loads(info, idx, li, roof_secondary_kpa=roof_secondary_kpa, wall_secondary_kpa=wall_secondary_kpa)
     trib = tributary_width(info.layout.geometry, idx)
     raf = next(m for m in out["members"] if m["role"] == "end_rafter" and m["id"] == f"E{tag}RA")

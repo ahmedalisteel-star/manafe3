@@ -172,6 +172,9 @@ class BuildingRequest(BaseModel):
     bolt: Literal["M12", "M16"] = "M12"
     fixed_lap: float | None = Field(None, description="mm each side of a frame; default 10 % of each bay")
     openings: list[OpeningIn] = []
+    bays: list[float] | None = Field(None, description="uneven bays, mm frame line to frame line (field fix 6); overrides bay_spacing x n_bays")
+    span_ref: Literal["outside", "centreline", "grid"] = Field("outside", description="what span measures (field fix 7)")
+    grid_inset: float = Field(0.0, description="span_ref grid: grid line to the columns' outer face, mm")
 
 
 @app.post("/peb/building")
@@ -193,7 +196,8 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
         braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
         end_braced_bays=tuple(req.end_braced_bays) if req.end_braced_bays is not None else None,
-        bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings))
+        bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings),
+        bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset)
 
 
 class LoadsIn(BaseModel):

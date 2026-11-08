@@ -8,6 +8,7 @@ Every member carries `gen: "peb"` so the app can replace the generated members w
 
 from __future__ import annotations
 
+import dataclasses
 import math
 import string
 from dataclasses import dataclass, field
@@ -18,6 +19,7 @@ from .endwall import end_wall, endwall_braces
 from .openings import apply_openings
 from .secondary import HOLE, RoofSide, SecondaryInput, Sections, Wall, cf_dims, gauge, secondary_lines, secondary_members
 
+SPAN_REFS = ("outside", "centreline", "grid")
 ROLE_TYPE = {"column": "column", "rafter": "beam", "wind_column": "column", "end_rafter": "beam", "jamb": "column", "cap_plate": "plate"}
 
 
@@ -44,6 +46,19 @@ class BuildingInput:
     bolt: str = "M12"
     fixed_lap: float | None = None
     openings: tuple[dict, ...] = ()
+    bays: tuple[float, ...] | None = None   # field fix 6: uneven bays, frame line to frame line; None = n_bays x bay_spacing
+    span_ref: str = "outside"               # field fix 7: what `span` measures — outside (of steel: the columns' outer
+                                            # faces), centreline (of the columns at the base) or grid (grid_inset outside steel)
+    grid_inset: float = 0.0                 # span_ref "grid": from a grid line in to the columns' outer face, mm
+
+    def bay_list(self) -> tuple[float, ...]:
+        return tuple(float(v) for v in self.bays) if self.bays else (float(self.bay_spacing),) * int(self.n_bays)
+
+    def frame_xs(self) -> list[float]:
+        xs = [0.0]
+        for v in self.bay_list():
+            xs.append(xs[-1] + v)
+        return xs
 
     def check(self) -> None:
         if not (6000 <= self.span <= 90000):
@@ -52,10 +67,41 @@ class BuildingInput:
             raise ValueError("eave height must be 3000 to 20000 mm")
         if not (0.02 <= self.roof_slope <= 0.5):
             raise ValueError("roof slope must be 0.02 to 0.5 (rise/run) for a purlin roof")
-        if not (3000 <= self.bay_spacing <= 12000):
-            raise ValueError("bay spacing must be 3000 to 12000 mm")
-        if not (1 <= self.n_bays <= 40):
+        bays = self.bay_list()
+        if not (1 <= len(bays) <= 40):
             raise ValueError("number of bays must be 1 to 40")
+        for k, v in enumerate(bays):
+            if not (3000 <= v <= 12000):
+                raise ValueError(f"bay {k + 1}: spacing {v:g} mm - must be 3000 to 12000 mm")
+        if self.span_ref not in SPAN_REFS:
+            raise ValueError(f"span reference must be one of {', '.join(SPAN_REFS)}")
+
+
+def resolve(b: BuildingInput) -> tuple[BuildingInput, float]:
+    """The steel geometry of a building input (field fixes 6, 7) and the shift y0 that puts it on its reference lines.
+
+    The generator and the analysis work on the STEEL span (the columns' outer faces at y = 0 and y = span) and an explicit
+    list of bays. `span` as typed may be measured to the column centrelines (at the base: outer face + d_base / 2,
+    d_base = hw_base + 2 tf) or to grid lines grid_inset outside the outer faces:
+        outside      steel span = span                     y0 = 0
+        centreline   steel span = span + d_base            y0 = -d_base / 2  (centrelines land on y = 0 and y = span)
+        grid         steel span = span - 2 grid_inset      y0 = +grid_inset  (grid lines on y = 0 and y = span)
+    The sizes are fixed from the TYPED span (default_sizes(span)) so the steel span cannot change them. Idempotent."""
+    if b.span_ref not in SPAN_REFS:
+        raise ValueError(f"span reference must be one of {', '.join(SPAN_REFS)}")
+    z = b.sizes or default_sizes(b.span)
+    if b.span_ref == "centreline":
+        d = z.hw_base + 2 * z.tf
+        span, y0 = b.span + d, -d / 2
+    elif b.span_ref == "grid":
+        if not (0 <= b.grid_inset <= 2000):
+            raise ValueError("grid inset (grid line to the columns' outer face) must be 0 to 2000 mm")
+        span, y0 = b.span - 2 * b.grid_inset, b.grid_inset
+    else:
+        span, y0 = b.span, 0.0
+    bays = b.bay_list()
+    r = dataclasses.replace(b, span=span, sizes=z, span_ref="outside", grid_inset=0.0, bays=bays, bay_spacing=bays[0], n_bays=len(bays))
+    return r, y0
 
 
 def _r(v: float) -> float:
@@ -64,8 +110,11 @@ def _r(v: float) -> float:
 
 def peb_building(b: BuildingInput) -> dict:
     b.check()
-    z = b.sizes or default_sizes(b.span)
-    frames = [i * b.bay_spacing for i in range(b.n_bays + 1)]
+    typed = b
+    b, y0 = resolve(b)
+    b.check()
+    z = b.sizes
+    frames = b.frame_xs()
     L = frames[-1]
     braced = [i - 1 for i in (b.braced_bays if b.braced_bays is not None else sorted({1, b.n_bays}))]
     members: list[dict] = []
@@ -119,8 +168,12 @@ def peb_building(b: BuildingInput) -> dict:
     labels = list(string.ascii_uppercase)
     return {
         "units": {"length": "mm"}, "section": "builtup", "designed": False,
-        "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays},
-        "grids": {"x": [{"label": str(i + 1), "at": _r(x)} for i, x in enumerate(frames)], "y": [{"label": labels[0], "at": 0.0}, {"label": labels[1], "at": _r(b.span)}]},
+        "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays,
+                  "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset},
+        # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
+        # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)
+        "y_shift": _r(y0),
+        "grids": {"x": [{"label": str(i + 1), "at": _r(x)} for i, x in enumerate(frames)], "y": [{"label": labels[0], "at": 0.0}, {"label": labels[1], "at": _r(typed.span)}]},
         "levels": [{"name": "Ground", "z": 0.0}, {"name": "Eave", "z": _r(b.eave_height)}],
         "members": members, "cleats": cleats, "fasteners": rods["fasteners"], "bolt": b.bolt,
         "braced_bays": [j + 1 for j in braced], "end_walls": end_walls, "apex_height": _r(b.eave_height + b.roof_slope * b.span / 2),

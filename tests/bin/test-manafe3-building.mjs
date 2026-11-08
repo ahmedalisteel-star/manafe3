@@ -59,11 +59,11 @@ ok(b.parts.length === 648 + 1, '648 parts by hand (+ my own beam)', b.parts.leng
 
 // ---- 3. edit = replace the generated members only; save and open keep everything ----------------------------------------
 {
-  const r2 = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec));
+  const r2 = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec, { id: r.id }));   // field fix 8: regenerate THIS building
   ok(r2.replaced === 370 + 196 && m.state.members.length === 370 + 196 + 1 && m.state.members.some((x) => x.id === mine), 'regenerating replaces the generated members, mine stays', r2);
   const back = readModel(m.toJSON());
-  ok(back.warnings.length === 0 && back.state.members.length === 567 && back.state.members.filter((x) => x.gen === 'peb').length === 566, 'save / open keep the members and their gen tag', back.warnings);
-  ok(back.state.m3building && back.state.m3building.openings === 'A 7000 4000 0 4000', 'the building inputs are kept for "Edit building"');
+  ok(back.warnings.length === 0 && back.state.members.length === 567 && back.state.members.filter((x) => x.gen === 'peb:B1').length === 566, 'save / open keep the members and their gen tag', back.warnings);
+  ok(back.state.m3buildings?.length === 1 && back.state.m3buildings[0].id === 'B1' && back.state.m3buildings[0].spec.openings === 'A 7000 4000 0 4000', 'the building inputs are kept for "Edit building" (m3buildings, field fix 8)');
   m.undo();
   ok(m.state.members.length === 567, 'one undo step per building edit');
 }

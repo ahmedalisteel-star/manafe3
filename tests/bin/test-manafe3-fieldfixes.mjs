@@ -44,7 +44,7 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(JSON.stringify(m.state.levels) === JSON.stringify([{ name: 'Ground', z: 0 }, { name: 'Mezz', z: 3500 }, { name: 'Eave', z: 6000 }]), 'levels merged (Mezz kept, Eave added)', m.state.levels);
   ok(m.state.footings.length === 1 && m.state.members.filter((x) => !x.gen).length === 1, 'my footing and my beam stay', m.state.footings.length);
   // regenerating: no further grid lines, still my things
-  const r2 = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec));
+  const r2 = m.change('PEB building', (tx) => B.applyBuilding(tx, RES, spec, { id: r.id }));
   ok(r2.gridsAdded === 0 && m.state.grids.x.length === 6 && m.state.footings.length === 1, 'regenerating adds no duplicates', r2);
 
   const n = site();
@@ -135,6 +135,90 @@ const spec = { ...B.BUILDING_DEFAULTS };
   const b1 = build(m.state);
   const cfc = b0.parts.filter((p) => kind.get(p.member) === 'CFC');
   ok(cfc.length === 11 && cfc.every((p) => { const q = b1.byId.get(p.id); return near(X.applyDir(xf, p.frame.v).map((n) => -n), q.frame.v, 1e-6) && near(X.applyPt(xf, cen(p)), cen(q), 1e-3); }), 'mirror: lipped C eave struts / jambs turned over like a channel, in the image place', cfc.length);
+}
+
+// ---- 5. placement: origin X, Y, Z and plan rotation ----------------------------------------------------------------------
+{
+  const { build } = await mod('build.js');
+  const X = await mod('transform.js');
+  const at = (m, name) => m.state.members.find((x) => x.name === name);
+  const base = new Model(emptyState('p0'));
+  base.change('b', (tx) => B.applyBuilding(tx, RES, spec));
+  const b0 = build(base.state);
+  const place = { ...spec, origin_x: 100000, origin_y: 50000, origin_z: 500, plan_rotation: 90 };
+  const m = new Model(emptyState('p1'));
+  const r = m.change('b', (tx) => B.applyBuilding(tx, RES, place));
+  const b1 = build(m.state);
+  // by hand: (x, y, z) → (100000 − y, 50000 + x, z + 500)
+  const ca = at(base, 'F2-CA'), ca1 = at(m, 'F2-CA');
+  ok(JSON.stringify(ca1.start) === JSON.stringify([100000 - ca.start[1], 50000 + ca.start[0], ca.start[2] + 500]), 'a column base lands at (100000 − y, 50000 + x, z + 500)', [ca.start, ca1.start]);
+  const xf = B.placementXf(place, 0);
+  let bad = 0;
+  for (const p of b0.parts) {
+    const q = b1.byId.get(p.id.replace(/^m\d+/, (s) => s));   // same ids: the same order of adds
+    const same = q && [0, 1, 2].every((i) => Math.abs(X.applyDir(xf, p.frame.u)[i] - q.frame.u[i]) < 1e-6 && Math.abs(X.applyDir(xf, p.frame.v)[i] - q.frame.v[i]) < 1e-6 && Math.abs(X.applyPt(xf, p.frame.o)[i] - q.frame.o[i]) < 1e-3);
+    if (!same) bad++;
+  }
+  ok(bad === 0, 'every part (webs of columns and wind columns included) keeps its roll relative to the frame', bad);
+  // grids rotated 90°: the frame lines 1–5 (x 0 … 24000) become y lines 50000 … 74000; span lines A (0), B (24000) become x 100000, 76000
+  ok(JSON.stringify(m.state.grids.y.map((g) => [g.label, g.at])) === JSON.stringify([['1', 50000], ['2', 56000], ['3', 62000], ['4', 68000], ['5', 74000]])
+    && JSON.stringify(m.state.grids.x.map((g) => [g.label, g.at])) === JSON.stringify([['B', 76000], ['A', 100000]]), 'grids placed (90°)', m.state.grids);
+  ok(m.state.levels.some((l) => l.z === 500) && m.state.levels.some((l) => l.z === 6500), 'levels at origin Z (ground 500, eave 6500)', m.state.levels);
+  const o = new Model(emptyState('p2'));
+  const r30 = o.change('b', (tx) => B.applyBuilding(tx, RES, { ...spec, plan_rotation: 30 }));
+  ok(r30.gridsSkipped && o.state.grids.x.length === 0, 'any angle: 30° places the members, grid lines are not added (said)', r30);
+  ok(r.rotation === 90 && r.origin.join() === '100000,50000,500', 'the result says where it went');
+}
+
+// ---- 6. uneven bays, from site grids ------------------------------------------------------------------------------------
+{
+  const R1 = { x: 'A B C D E F G H J K L'.split(' ').map((label, i) => ({ label, at: [0, 6600, 12600, 18600, 25100, 31100, 36600, 42600, 48600, 54600, 60000][i] })), y: [] };
+  const bl = B.parseBayList('A-L', R1);
+  ok(JSON.stringify(bl.bays) === JSON.stringify([6600, 6000, 6000, 6500, 6000, 5500, 6000, 6000, 6000, 5400]) && bl.labels.join('') === 'ABCDEFGHJKL', 'A-L → the site spacings and labels', bl);
+  ok(B.parseBayList('F to L', R1).bays.length === 5 &&   // F G H J K L: 6 lines, 5 bays
+     B.parseBayList('L-F', R1).bays[0] === 5400, '"F to L" and the reverse');
+  ok(JSON.stringify(B.parseBayList('6600 6000, 6000', R1).bays) === '[6600,6000,6000]' && B.parseBayList('', R1) === null, 'typed spacings; empty = even bays');
+  const f = Object.fromEntries(Object.entries(B.BUILDING_DEFAULTS).map(([k, v]) => [k, String(v)]));
+  const body = B.buildingRequest({ ...f, bays: 'A-L' }, { grids: R1 });
+  ok(body.bays.length === 10 && body.n_bays === 10 && body.bay_spacing === 6600, 'the request carries the bays');
+  let err = ''; try { B.parseBayList('A-Z', R1); } catch (e) { err = e.message; }
+  ok(/no grid axis has both A and Z/.test(err), 'an unknown grid is refused', err);
+}
+
+// ---- 7. span reference --------------------------------------------------------------------------------------------------
+{
+  const f = Object.fromEntries(Object.entries(B.BUILDING_DEFAULTS).map(([k, v]) => [k, String(v)]));
+  const body = B.buildingRequest({ ...f, span_ref: 'centreline' });
+  ok(body.span_ref === 'centreline' && body.grid_inset === 0 && B.buildingRequest({ ...f, span_ref: 'nonsense' }).span_ref === 'outside', 'span reference in the request');
+  // the engine's y_shift (here −400: centreline, d_base 800) moves every member onto the reference lines
+  const a = new Model(emptyState('s0')), c = new Model(emptyState('s1'));
+  a.change('b', (tx) => B.applyBuilding(tx, RES, spec));
+  c.change('b', (tx) => B.applyBuilding(tx, { ...RES, y_shift: -400 }, spec));
+  const ya = a.state.members.find((x) => x.name === 'F2-CA').start, yc = c.state.members.find((x) => x.name === 'F2-CA').start;
+  ok(yc[1] === ya[1] - 400 && yc[0] === ya[0] && yc[2] === ya[2], 'y_shift applied: the column 400 mm toward −y', [ya, yc]);
+  ok(JSON.stringify(c.state.grids.y.map((g) => g.at)) === '[0,24000]', 'grids stay on the reference lines');
+}
+
+// ---- 8. several buildings -----------------------------------------------------------------------------------------------
+{
+  const { readModel } = await mod('model.js');
+  const m = new Model(emptyState('two'));
+  const r1 = m.change('b1', (tx) => B.applyBuilding(tx, RES, { ...spec, name: 'STORE' }, { id: null }));
+  const r2 = m.change('b2', (tx) => B.applyBuilding(tx, RES, { ...spec, name: 'F&S-2', origin_x: 40000 }, { id: null }));
+  ok(r1.id === 'B1' && r2.id === 'B2' && B.buildingsOf(m.state).map((b) => b.name).join() === 'STORE,F&S-2', 'two buildings, each with id and name', B.buildingsOf(m.state));
+  const ids2 = B.membersOfBuilding(m.state, 'B2').map((x) => x.id).join();
+  const r1b = m.change('edit B1', (tx) => B.applyBuilding(tx, RES, { ...spec, name: 'STORE', eave_height: 6000 }, { id: 'B1' }));
+  ok(r1b.replaced === 566 && B.membersOfBuilding(m.state, 'B2').map((x) => x.id).join() === ids2 && B.membersOfBuilding(m.state, 'B1').length === 566, '"Edit building" regenerates only that building', r1b);
+  const back = readModel(m.toJSON());
+  ok(back.state.m3buildings.length === 2 && back.state.m3buildings[1].spec.origin_x === 40000, 'saved and opened: both buildings and their placement');
+  const rm = m.change('del', (tx) => B.removeBuilding(tx, 'B2'));
+  ok(rm.removed === 566 && B.buildingsOf(m.state).length === 1 && B.membersOfBuilding(m.state, 'B1').length === 566, 'delete one building, the other stays');
+  // an older file: one m3building and gen 'peb' members → building B1, edited in place, its members re-tagged
+  const old = new Model(emptyState('old'));
+  old.change('legacy', (tx) => { B.applyBuilding(tx, RES, spec); tx.s.m3building = tx.s.m3buildings[0].spec; delete tx.s.m3buildings; for (const x of tx.s.members) x.gen = 'peb'; });
+  ok(B.buildingsOf(old.state)[0].id === 'B1' && B.membersOfBuilding(old.state, 'B1').length === 566, 'an older model reads as building B1');
+  const rl = old.change('edit', (tx) => B.applyBuilding(tx, RES, spec));
+  ok(rl.id === 'B1' && rl.replaced === 566 && old.state.members.every((x) => x.gen === 'peb:B1') && !old.state.m3building, 'edited in place, members re-tagged peb:B1', rl);
 }
 
 console.log(`${pass} passed, ${fail} failed`);

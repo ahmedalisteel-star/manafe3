@@ -3,7 +3,7 @@
  * frame-analysis.js — the "Analysis…" data side, DOM-free (tests/bin/test-manafe3-analysis.mjs). The engine solves on
  * demand (POST /peb/analysis, engine/analysis/building_analysis.py); nothing is stored in the model.
  *
- *   analysisRequest(state) → body        the kept building (state.m3building) and loads (state.m3loads) → the request
+ *   analysisRequest(state, {building}) → body   one kept building (state.m3buildings, by id; default the first) and the loads (state.m3loads)
  *   requestAnalysis(body, fetch)         → the engine's result (NOT FOR ISSUE: analysis only, members not designed)
  *   frameResult(res, line)               a frame line's result (following "same_as" for identical lines)
  *   combos(fr, set)                      [{ name, set }] — set "case" (unfactored), "LRFD" (strength), "ASD" (service)
@@ -17,7 +17,7 @@
  * one conversion from PyNite is bimsteelauto's design_moment_factor). P + = compression.
  */
 import { ENGINE_URL } from './peb-frame.js';
-import { buildingRequest } from './peb-building.js';
+import { buildingRequest, buildingsOf } from './peb-building.js';
 import { loadsRequest, LOADS_DEFAULTS } from './loads.js';
 
 export const BANNER = 'NOT FOR ISSUE — analysis only, members not designed (Phase 4)';
@@ -34,12 +34,14 @@ export function sideOf(role) {
   throw new Error(`no drawing side for member role ${role}`);
 }
 
-export function analysisRequest(state, { pDelta = true } = {}) {
-  if (!state?.m3building || !Object.keys(state.m3building).length) throw new Error('No PEB building in this model: make it first (PEB › Building…).');
+export function analysisRequest(state, { pDelta = true, building = null } = {}) {
+  const list = buildingsOf(state);   // field fix 8: several buildings — the chosen one (default the first)
+  const b = building ? list.find((x) => x.id === building) : list[0];
+  if (!b) throw new Error(list.length ? `No PEB building ${building} in this model` : 'No PEB building in this model: make it first (PEB › Building…).');
   if (!state.m3loads) throw new Error('No loads in this model: enter them first (PEB › Loads…).');
   const loads = loadsRequest({ ...LOADS_DEFAULTS, ...state.m3loads });
   if (loads.V === null || loads.exposure === null) throw new Error('Wind speed V and exposure are site facts: enter them in PEB › Loads….');
-  return { building: buildingRequest(state.m3building), loads, p_delta: pDelta };
+  return { building: buildingRequest(b.spec, state), loads, p_delta: pDelta };
 }
 
 export async function requestAnalysis(body, fetchFn = globalThis.fetch, base = ENGINE_URL) {

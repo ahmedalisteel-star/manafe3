@@ -49,6 +49,23 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   Real defect found and fixed: a MIRROR treated a lipped C (CFC) as an I (kept v) instead of turning it over like a
   channel. A Z's mirror image is a Z of the other hand, which no profile here describes: a mirrored Z stays a Z of the
   same hand at the image place (stated, not changed).
+- **5 Placement:** "Placement on site" in the Building form: origin X, Y, Z (where the first frame line meets span line A,
+  and the building's ground) and plan rotation (any angle, about Z, counter-clockwise). Applied in the app through
+  transform.js (`placementXf`), so every member keeps its roll. Grid lines are placed for multiples of 90° only (grids
+  here are x = c / y = c lines); at other angles the members are placed and the status bar says the grids were not added.
+- **6 Uneven bays:** "Uneven bays" overrides number × spacing: "6600 6000 …" or a site-grid range "A-L" / "A to L"
+  (spacings of those lines on whichever axis has both labels; the frame lines take those labels). Engine
+  `BuildingInput.bays`, `frame_xs()`; analysis tributary widths follow (line B of 6600 / 6000 = 6.3 m, tested).
+  The origin is NOT moved to the first grid automatically: set origin X/Y to grid A's position.
+- **7 Span reference:** outside (default, as before) / centreline (column centrelines AT THE BASE: steel span = span +
+  hw_base + 2 tf) / grid (grid lines `grid_inset` outside the steel). Engine `resolve()` gives the steel span and a
+  `y_shift` the app applies with the placement; sizes come from the TYPED span.
+- **8 Several buildings:** `state.m3buildings = [{ id B1…, name, spec }]`; members tagged `gen: 'peb:<id>'`. An older
+  file's single `m3building` and `'peb'` members read as B1 and are re-tagged on the next edit. The Building form has a
+  building picker (opens on the selected member's building), a Name and "Delete this building". `applyBuilding` without
+  an id makes a NEW building; with `{ id }` it regenerates only that one. Levels of a second building with a taken
+  name get the building's name ("Eave F&S-2"). Analysis… has a building picker. Still open: a button in the
+  Properties panel ("Edit this building") — the picker preselection covers it for now.
 
 ### Phase 4 plan (approved 2026-11-08)
 

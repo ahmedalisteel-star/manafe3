@@ -8,6 +8,7 @@
  */
 import { BANNER, analysisRequest, requestAnalysis, frameResult, combos, diagram, maxValue, reactionsCsv, summaryRows } from './frame-analysis.js';
 import { pebMenuItem } from './peb-menu.js';
+import { buildingsOf } from './peb-building.js';
 import { onModelLoaded } from './panels.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -33,6 +34,7 @@ export function mountFrameAnalysis({ model, print, download }) {
   const btn = pebMenuItem('analysis', 'Analysis…', 'Analyse every frame line, the end walls and the bracing (on demand; NOT FOR ISSUE)', () => {});
   let res = null;
   const sel = (attrs) => h('select', { class: 'form-select form-select-sm', ...attrs });
+  const bldSel = sel({ 'data-m3-a-building': true });   // field fix 8: which building to analyse
   const lineSel = sel({ 'data-m3-a-line': true }), kindSel = sel({ 'data-m3-a-kind': true }), setSel = sel({ 'data-m3-a-set': true }), comboSel = sel({ 'data-m3-a-combo': true, style: 'min-width:20rem' });
   for (const [v, t] of KINDS) kindSel.append(h('option', { value: v, text: t }));
   for (const [v, t] of SETS) setSel.append(h('option', { value: v, text: t }));
@@ -51,7 +53,7 @@ export function mountFrameAnalysis({ model, print, download }) {
   close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
   const lab = (t, e) => h('label', { style: 'display:flex;gap:.3rem;align-items:center' }, h('span', { text: t }), e);
   const controls = h('div', { style: 'display:flex;flex-wrap:wrap;gap:.6rem;align-items:center' },
-    lab('Frame line', lineSel), lab('Show', kindSel), lab('Set', setSel), lab('Case / combination', comboSel));
+    lab('Building', bldSel), lab('Frame line', lineSel), lab('Show', kindSel), lab('Set', setSel), lab('Case / combination', comboSel));
   const body = h('div', { style: 'padding:.5rem 1rem;max-height:80vh;overflow:auto;width:min(1000px,92vw)' }, banner, controls, svg, info,
     h('h3', { class: 'dc-h', style: 'font-size:.95em;margin:.5rem 0 .2rem', text: 'Summary (sway, eave movement and apex from ASD; peaks from LRFD)' }), summary,
     h('h3', { class: 'dc-h', style: 'font-size:.95em;margin:.5rem 0 .2rem', text: 'Base reactions — this frame line, this set (kN, kN·m)' }), reactions);
@@ -125,10 +127,13 @@ export function mountFrameAnalysis({ model, print, download }) {
   setSel.addEventListener('change', () => { fillCombos(); draw(); });
   kindSel.addEventListener('change', draw);
   comboSel.addEventListener('change', draw);
-  btn.addEventListener('click', () => { note.textContent = res ? 'Results of the last run (not stored in the model).' : 'Run the analysis of the kept building and loads.'; dlg.showModal(); });
+  btn.addEventListener('click', () => {
+    const keep = bldSel.value;
+    bldSel.replaceChildren(...buildingsOf(model().state).map((b) => h('option', { value: b.id, text: `${b.name} (${b.id})` })));
+    if ([...bldSel.options].some((o) => o.value === keep)) bldSel.value = keep; note.textContent = res ? 'Results of the last run (not stored in the model).' : 'Run the analysis of the kept building and loads.'; dlg.showModal(); });
   run.addEventListener('click', async () => {
     let req;
-    try { req = analysisRequest(model().state); } catch (err) { note.textContent = err.message; return; }
+    try { req = analysisRequest(model().state, { building: bldSel.value || null }); } catch (err) { note.textContent = err.message; return; }
     run.disabled = true; csv.disabled = true; std.disabled = true; note.textContent = 'Solving every frame line, P-Delta (about 20 s to a minute)…';
     try {
       res = await requestAnalysis(req);
