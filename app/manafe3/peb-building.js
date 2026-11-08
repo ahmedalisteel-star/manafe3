@@ -6,8 +6,10 @@
  *   buildingRequest(form) → body          the form (strings) → POST /peb/building JSON
  *   parseOpenings(text) → [opening]       one per line: "<wall> <at> <width> <sill> <height>", wall A | B | first | last
  *   memberFromEngine(m) / cleatMember(c)  engine members and cleats → Tx.addMember objects (holes added separately)
- *   applyBuilding(tx, result, spec)       ONE undo step: the members generated before (gen 'peb') go, the new ones come,
- *                                         and the form's inputs are kept in state.m3building for "Edit building…"
+ *   applyBuilding(tx, result, spec, {grids}) ONE undo step: the members generated before (gen 'peb') go, the new ones come,
+ *                                         and the form's inputs are kept in state.m3building for "Edit building…".
+ *                                         Grids: merge (default, no duplicates) / none / replace; levels merged; footings
+ *                                         and your own members never touched (field fix 1, R1)
  *   requestBuilding(body, fetchFn)        calls the engine
  * Members you placed yourself are never touched; generated members you edited are replaced (the form says so).
  */
@@ -20,6 +22,7 @@ export const BUILDING_DEFAULTS = {
   girt_spacing_a: 1250, girt_spacing_b: 1250, girt_first: 1250, gable_spacing: 1250,
   end_first: 'frame', end_last: 'frame', braced_bays: '', end_braced_bays: '', brace_type: 'rod', ridge_tie: 'rod', bolt: 'M12', lap: '',
   purlin: 'Z200x65x20x2.0', eave_strut: 'C200x65x20x2.0', girt: 'Z200x65x20x2.0', openings: '',
+  grids_mode: 'merge',
 };
 
 const num = (form, k, label, { int = false, blank = false } = {}) => {
@@ -89,12 +92,55 @@ export function cleatMember(c) {
   };
 }
 
-export function applyBuilding(tx, result, spec) {
+export const GRID_MODES = ['none', 'merge', 'replace'];
+const SAME = 1;   // mm: a line within this of an existing one IS that line
+
+/**
+ * One axis of grid lines merged: every existing line stays (label and position); an incoming line at an existing
+ * position is that line; a new position is added with its label, or label' (label'', …) if the label is taken.
+ */
+export function mergeLines(existing, incoming) {
+  const out = (existing || []).map((g) => ({ ...g }));
+  let added = 0;
+  for (const g of incoming || []) {
+    if (out.some((e) => Math.abs(e.at - g.at) <= SAME)) continue;
+    let label = String(g.label);
+    while (out.some((e) => e.label === label)) label += "'";
+    out.push({ label, at: g.at });
+    added++;
+  }
+  out.sort((a, b) => a.at - b.at);
+  return { lines: out, added };
+}
+
+/** Levels merged: existing ones stay; an incoming level at an existing z or with an existing name is not added. */
+export function mergeLevels(existing, incoming) {
+  const out = (existing || []).map((l) => ({ ...l }));
+  for (const l of incoming || []) {
+    if (out.some((e) => Math.abs(e.z - l.z) <= SAME || e.name === l.name)) continue;
+    out.push({ name: l.name, z: l.z });
+  }
+  return out.sort((a, b) => a.z - b.z);
+}
+
+/**
+ * opts.grids: 'merge' (default: the building's grid lines added where none is, nothing removed), 'none' (grids left
+ * as they are), 'replace' (the building's grids replace them — the UI asks first). Levels are always merged; footings
+ * and members you placed are never touched.
+ */
+export function applyBuilding(tx, result, spec, opts = {}) {
   if (!result || !Array.isArray(result.members) || !result.members.length) throw new Error('The engine returned no members');
+  const mode = GRID_MODES.includes(opts.grids) ? opts.grids : 'merge';
   const old = tx.s.members.filter((m) => m.gen === 'peb').map((m) => m.id);
   if (old.length) tx.removeMembers(old);
-  if (result.grids) tx.setGrids(result.grids);
-  if (Array.isArray(result.levels) && result.levels.length) tx.setLevels(result.levels);
+  let gridsAdded = 0;
+  if (result.grids && mode === 'replace') tx.setGrids(result.grids);
+  else if (result.grids && mode === 'merge') {
+    const gx = mergeLines(tx.s.grids?.x, result.grids.x), gy = mergeLines(tx.s.grids?.y, result.grids.y);
+    gridsAdded = gx.added + gy.added;
+    tx.setGrids({ x: gx.lines, y: gy.lines });
+  }
+  if (Array.isArray(result.levels) && result.levels.length) tx.setLevels(mergeLevels(tx.s.levels, result.levels));
   let members = 0, holes = 0, cleats = 0;
   for (const m of result.members) {
     const id = tx.addMember(memberFromEngine(m));
@@ -107,7 +153,7 @@ export function applyBuilding(tx, result, spec) {
     for (const h of c.holes || []) { tx.addHole(id, { face: 'plate', x: h.up, y: h.along, d: h.d }); holes++; }
   }
   tx.s.m3building = JSON.parse(JSON.stringify(spec || {}));
-  return { members, cleats, holes, replaced: old.length };
+  return { members, cleats, holes, replaced: old.length, gridsAdded, grids: mode };
 }
 
 export async function requestBuilding(body, fetchFn = globalThis.fetch, base = ENGINE_URL) {

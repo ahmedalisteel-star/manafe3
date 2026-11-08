@@ -13,7 +13,7 @@ import { pebMenuItem } from './peb-menu.js';
 import { GRADES } from './builtup.js';
 
 const GROUPS = [
-  ['Building', [['span', 'Span (mm)', 'Column line A to B: the columns\' outer faces'], ['n_bays', 'Number of bays'], ['bay_spacing', 'Bay spacing (mm)'],
+  ['Building', [['grids_mode', 'Building grids', 'merge: add the building\'s grid lines where none is (nothing removed); none: leave the grids; replace: the building\'s grids replace yours (asks first)', ['merge', 'none', 'replace']], ['span', 'Span (mm)', 'Column line A to B: the columns\' outer faces'], ['n_bays', 'Number of bays'], ['bay_spacing', 'Bay spacing (mm)'],
     ['eave_height', 'Eave height (mm)', 'Where the roof line meets the outer column face'], ['roof_slope', 'Roof slope (rise/run)', '0.1 = 1:10']]],
   ['Frame sizes (span rules, editable)', [['hw_knee', 'Knee web depth (mm)'], ['hw_base', 'Column base web (mm)'], ['hw_rafter', 'Rafter web depth (mm)'],
     ['haunch_length', 'Haunch length (mm)'], ['bf', 'Flange width (mm)'], ['tf', 'Flange thickness (mm)'], ['grade', 'Grade', '', GRADES]]],
@@ -74,7 +74,7 @@ export function mountPebBuilding({ model, edit, print, fit }) {
   ui.inputs.span.addEventListener('change', fill);
   btn.addEventListener('click', () => {
     const kept = model().state.m3building;
-    const vals = { ...BUILDING_DEFAULTS, grade: 'S355', ...(kept || {}) };
+    const vals = { ...BUILDING_DEFAULTS, grade: 'S355', ...(kept || {}), grids_mode: 'merge' };   // never remembers 'replace'
     for (const [k, inp] of Object.entries(ui.inputs)) inp.value = vals[k] ?? '';
     edited.clear();
     if (kept) SIZE_FIELDS.forEach((k) => { if (kept[k] !== undefined && kept[k] !== '') edited.add(k); });
@@ -89,14 +89,15 @@ export function mountPebBuilding({ model, edit, print, fit }) {
     const form = Object.fromEntries(Object.entries(ui.inputs).map(([k, i]) => [k, i.value]));
     let body;
     try { body = buildingRequest(form); } catch (err) { ui.note.textContent = err.message; return; }
+    if (form.grids_mode === 'replace' && !window.confirm('Replace ALL grid lines of the model with the building\'s grids? Your other grid lines will be removed (Undo brings them back).')) return;
     ui.add.disabled = true; ui.note.textContent = 'Asking the engine…';
     try {
       const res = await requestBuilding(body);
-      const r = edit('PEB building', (tx) => applyBuilding(tx, res, form));
+      const r = edit('PEB building', (tx) => applyBuilding(tx, res, form, { grids: form.grids_mode }));
       if (!r) { ui.note.textContent = 'The model refused the building; see the status bar.'; return; }
       ui.dlg.close();
       fit?.();
-      print(`PEB building: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
+      print(`PEB building: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }
   });
