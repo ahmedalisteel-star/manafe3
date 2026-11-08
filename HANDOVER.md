@@ -678,8 +678,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-08 16:45 on ENG04-PC
-- Did: Phase 4 step 4: serviceability of the main frames (sway H/100 under ASD wind, rafter L/180 under Lr, editable limits, crane hook)
-- Tests: engine 136 passed, 2 warnings in 654.89s (0:10:54) | app 13 of 13 test files passed
-- Next: Field fixes list (P1 bugs first), then Phase 4 step 5
+- When: 2026-11-08 17:05 on ENG04-PC
+- Did: Field fixes P1 done: grids merge, concrete as m3, panels refresh on load, transform checked (CFC mirror fixed)
+- Tests: engine 136 passed, 2 warnings in 722.37s (0:12:02) | app 14 of 14 test files passed
+- Next: Field fixes P2 (item 5: PEB placement origin + rotation)
 <!-- LAST-SESSION:END -->
