@@ -8,6 +8,7 @@
  */
 import { BANNER, analysisRequest, requestAnalysis, frameResult, combos, diagram, maxValue, reactionsCsv, summaryRows } from './frame-analysis.js';
 import { pebMenuItem } from './peb-menu.js';
+import { onModelLoaded } from './panels.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const W = 960, H = 440, PAD = 50;
@@ -148,6 +149,14 @@ export function mountFrameAnalysis({ model, print, download }) {
   std.addEventListener('click', () => {
     const f = fr();
     if (f?.staad) save(`frame-line-${lineSel.value}.std`, f.staad.split('\n').join('\r\n'), 'text/plain');   // Windows line ends for STAAD
+  });
+  // field fix 3: another model is open — the old results go
+  onModelLoaded(() => {
+    res = null;
+    for (const e of [lineSel, comboSel]) e.replaceChildren();
+    svg.replaceChildren(); info.textContent = ''; summary.replaceChildren(); reactions.replaceChildren();
+    csv.disabled = true; std.disabled = true; note.textContent = '';
+    if (dlg.open) dlg.close();
   });
   return { button: btn, dialog: dlg };
 }

@@ -83,5 +83,25 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(clashCheck(m.state, build(m.state), { tol: 1 }).clashes.length === 1, 'negative control: as S355 it clashes with the beam');
 }
 
+// ---- 3. every panel hears a load ---------------------------------------------------------------------------------------
+{
+  const P = await mod('manafe3/panels.js');
+  const seen = [];
+  const off1 = P.onModelLoaded(() => seen.push('analysis'));
+  P.onModelLoaded(() => { throw new Error('a broken panel'); });
+  P.onModelLoaded(() => seen.push('building'));
+  const m = new Model(emptyState('first'));
+  const whys = [];
+  m.on((why) => { whys.push(why); if (why === 'load') P.modelLoaded(); });   // what detailcraft.js onModelEvent does
+  const other = new Model(emptyState('R1 site'));
+  m.load(other.toJSON());
+  ok(whys.includes('load') && m.state.name === 'R1 site', 'model.load emits "load" with the new name', whys);
+  ok(seen.join() === 'analysis,building', 'every panel told, a broken one does not stop the others', seen);
+  off1();
+  // the wiring in detailcraft.js: the Name field is rewritten after a load even when it has focus
+  const src = fs.readFileSync(path.join(APP, 'detailcraft.js'), 'utf8');
+  ok(/model\.on\(onModelEvent\)/.test(src) && /if \(why === 'load'\) \{[^}]*forceName = true; m3ModelLoaded\(\)/.test(src) && /focused !== ui\.name \|\| forceName/.test(src), 'detailcraft.js wires the load event');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

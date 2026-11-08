@@ -10,6 +10,7 @@ import { BUILDING_DEFAULTS, buildingRequest, requestBuilding, applyBuilding, SIZ
 import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
+import { onModelLoaded } from './panels.js';
 import { GRADES } from './builtup.js';
 
 const GROUPS = [
@@ -101,5 +102,6 @@ export function mountPebBuilding({ model, edit, print, fit }) {
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }
   });
+  onModelLoaded(() => { if (ui.dlg.open) ui.dlg.close(); });   // field fix 3: the form held the old model's values; it refills on open
   return { button: btn, dialog: ui.dlg };
 }

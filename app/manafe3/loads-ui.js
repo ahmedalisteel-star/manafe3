@@ -6,6 +6,7 @@
  */
 import { LOADS_DEFAULTS, loadsRequest, applyLoads, requestLoadsCheck } from './loads.js';
 import { pebMenuItem } from './peb-menu.js';
+import { onModelLoaded } from './panels.js';
 
 const FIELDS = [
   ['Wind (ASCE 7-16 Ch. 28)', [['V', 'Basic wind speed V (m/s)', 'Site fact: 3-s gust at 10 m, Exposure C (ASCE 7-16 Fig. 26.5-1 or the local map)'],
@@ -67,5 +68,6 @@ export function mountLoads({ model, edit, print }) {
     } catch (err) { note.textContent = err.message; }
     finally { save.disabled = false; }
   });
+  onModelLoaded(() => { if (dlg.open) dlg.close(); });   // field fix 3: refills from the open model next time
   return { button: btn, dialog: dlg };
 }

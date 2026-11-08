@@ -57,6 +57,7 @@ import { PAPER_KEYS, paperLabel, DEFAULT_PAPER } from './paper.js';
 import { sheetModel, sheetDxf } from './dwgout.js';
 import { phaseReport, reportTables, reportCsv, reportSheets } from './report.js';
 import { clashCheck } from './clash.js';
+import { modelLoaded as m3ModelLoaded } from './manafe3/panels.js';   // Manafe3 (changed file, field fix 3): panels hear a load
 import { concreteTotals } from './manafe3/materials.js';   // Manafe3 (changed file): concrete volume total
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
@@ -373,7 +374,14 @@ async function start(root) {
     renderBar();
     ui.hint.hidden = model.state.members.length > 0 || model.state.footings.length > 0;
   }
-  model.on(refresh);
+  // Manafe3 (changed file, field fix 3): a 'load' (File › Open in place, an agent's model.load / replace, a recovery) is a
+  // different model: selection reset, the Name field rewritten even when focused, every Manafe3 panel told
+  let forceName = false;
+  function onModelEvent(why) {
+    if (why === 'load') { sel = null; multi = []; pending = null; forceName = true; m3ModelLoaded(); }
+    refresh();
+  }
+  model.on(onModelEvent);
   model.on(() => refreshAutosave());
   // The add-on host (add-on API 1.4, addons.js): the open model, for the Building regulations add-on. `model` is replaced when a file is opened.
   window.ccAddonModel = { current: () => ({ name: model.state.name || '' }), read: (fn) => fn(model) };
@@ -389,7 +397,8 @@ async function start(root) {
 
   function setModel(m) {
     model = m;
-    model.on(refresh);
+    model.on(onModelEvent);   // Manafe3 (field fix 3)
+    forceName = true; m3ModelLoaded();
     model.on(() => refreshAutosave());
     model.on(addonModelChanged); addonModelChanged();
     sel = null; multi = []; pending = null;
@@ -1042,7 +1051,8 @@ async function start(root) {
   function renderLeft() {
     const s = model.state;
     const focused = ui.name.ownerDocument.activeElement;   // the panel's own document: it may be in the panels window
-    if (focused !== ui.name) ui.name.value = s.name;
+    if (focused !== ui.name || forceName) ui.name.value = s.name;   // Manafe3 (field fix 3): always after a load
+    forceName = false;
     const inGrid = ui.gridForm.contains(focused);
     if (!inGrid) {
       ui.gx.value = s.grids.x.map((g) => g.label).join(' '); ui.gxs.value = spacingsOf(s.grids.x);
