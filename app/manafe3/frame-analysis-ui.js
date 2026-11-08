@@ -116,7 +116,7 @@ export function mountFrameAnalysis({ model, print, download }) {
     summary.replaceChildren(h('table', { class: 'table table-sm' }, h('thead', {}, h('tr', {}, ...['Frame line', 'Sway (ASD)', 'Largest eave movement (ASD, incl. gravity spread)', 'Apex (ASD)', 'Max M (LRFD)'].map((t) => h('th', { text: t })))), h('tbody', {}, ...rows)),
       h('div', { text: `Longitudinal bracing (LRFD): roof diagonal ${fmt(b.roof_diagonal, 2)} kN, wall diagonal ${fmt(b.wall_diagonal, 2)} kN, strut up to ${fmt(b.max_strut, 2)} kN (end-wall pressure ${fmt(res.bracing.pressure_kpa, 3)} kN/m²).` }),
       h('div', { text: `Wind columns (C&C, ASCE 7-16 Ch. 30, LRFD, simple beams): max M ${fmt(wmax, 2)} kN·m. ${w.notes[1]}` }),
-      ...(res.end_frames || []).map((e) => h('div', { text: `End-rafter frame (${e.end} end): rafter M ${fmt(e.summary.rafter_M_LRFD[1], 2)} kN·m (LRFD), wind column P ${fmt(e.summary.column_P_LRFD[2], 2)} kN; lateral restraint assumed (end-wall bracing).` })),
+      ...(res.end_frames || []).map((e) => h('div', { text: `End-rafter frame (${e.end} end): rafter M ${fmt(e.summary.rafter_M_LRFD[1], 2)} kN·m (LRFD), wind column P ${fmt(e.summary.column_P_LRFD[2], 2)} kN; end-wall X-brace up to ${fmt(e.summary.brace_T_LRFD[2], 2)} kN in ${e.summary.brace_T_LRFD[1]} (LRFD).` })),
       h('div', { text: `Secondary steel in D: roof ${fmt(res.secondary.roof_kpa, 3)} kN/m², walls ${fmt(res.secondary.wall_kpa, 3)} kN/m² (weighed from the model).` }));
   }
   lineSel.addEventListener('change', () => { fillCombos(); draw(); });

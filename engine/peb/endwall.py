@@ -22,14 +22,14 @@ from __future__ import annotations
 
 import math
 
-from .bracing import BracingInput, rafter_depth
+from .bracing import WALL_BRACE_TOP, BracingInput, rafter_depth
 from .builtup_frame import BuiltUpSizes, _split, mark
 from .secondary import HOLE, Wall, gauge, girt_heights, z_pieces
 
 MAX_WIND_SPACING = 6000.0
 # wind column placeholder (user, 2026-11-05): built-up web 300 constant, flanges 150x8, S355; NOT designed
 WIND_COLUMN = {"hw": 300.0, "tw": 6.0, "bf": 150.0, "tf": 8.0, "grade": "S355"}
-# its top follows the rafter slope under a cap plate (user); PL10, 20 mm past the column all round (Claude, TO CONFIRM)
+# its top follows the rafter slope under a cap plate (user); PL10, 20 mm past the column all round (CONFIRMED by the user)
 CAP_T = 10.0
 CAP_EDGE = 20.0
 
@@ -126,4 +126,28 @@ def gable_girts(kind, span, eave, slope, x_face, out_dir, ys, z, wall, girt, bol
                             rotation=270.0 if out_dir < 0 else 90.0, position="bottom", length=_r(p["b"] - p["a"]),
                             holes=[{"face": "web", "x": _r(h - p["a"]), "y": _r(sy * g / 2), "d": d0} for h in p["holes_l"] for sy in (-1, 1)],
                             designed=False))
+    return out
+
+
+def endwall_braces(end: str, x_face: float, span: float, eave: float, supports: list[float], tops: dict[float, float],
+                   bays: tuple[int, ...], profile: str) -> list[dict]:
+    """X-bracing in the end-wall plane (user decision 2026-11-08: the end-rafter frame does NOT rely on sheeting; default
+    one braced bay per end-rafter wall). An end-wall bay k (1-based, counted from column line A) lies between supports
+    k−1 and k. Set-out (Claude, as the side walls): the diagonals run in the wind columns' centre plane, from a column's
+    base to 100 mm below the other column's top (a main-frame corner column: below the eave), one X per bay.
+    tops: support y → its top z (wind columns); a support missing there is a main-frame column (eave)."""
+    sup = sorted(supports)
+    out_dir = -1.0 if end == "first" else 1.0
+    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]
+    x = x_face - out_dir * wd / 2
+    out = []
+    for k in bays:
+        if not (1 <= k < len(sup)):
+            raise ValueError(f"end-wall braced bay {k} does not exist (the {end} end wall has {len(sup) - 1} bays)")
+        ya, yb = sup[k - 1], sup[k]
+        for y0, y1 in ((ya, yb), (yb, ya)):
+            z1 = tops.get(round(y1, 3), eave) - WALL_BRACE_TOP
+            out.append({"id": f"X{end[0].upper()}{k}{'a' if y0 == ya else 'b'}", "role": "endwall_brace", "wall": end, "bay": k,
+                        "profile": profile, "start": [_r(x), _r(y0), 0.0], "end": [_r(x), _r(y1), _r(z1)],
+                        "length": _r(math.hypot(y1 - y0, z1)), "designed": False})
     return out

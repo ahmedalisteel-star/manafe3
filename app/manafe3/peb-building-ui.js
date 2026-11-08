@@ -21,7 +21,7 @@ const GROUPS = [
     ['roof_first_b', 'Eave strut B from eave (mm)'], ['apex_gap', 'Ridge purlin from apex (mm)', '150 to 300, along the roof']]],
   ['Walls', [['girt_spacing_a', 'Girt spacing A (mm)'], ['girt_spacing_b', 'Girt spacing B (mm)'], ['girt_first', 'First girt height (mm)'],
     ['gable_spacing', 'Gable girt spacing (mm)'], ['end_first', 'End wall at frame 1', '', ['frame', 'rafter']], ['end_last', 'End wall at the last frame', '', ['frame', 'rafter']]]],
-  ['Bracing, laps, bolts', [['braced_bays', 'Braced bays', 'e.g. 1, 4 — empty = the first and the last bay', null, 'text'], ['brace_type', 'Bracing', '', ['rod', 'angle']], ['ridge_tie', 'Ridge tie', 'Ties the two ridge purlins across the apex at every sag-rod row', ['rod', 'strap']],
+  ['Bracing, laps, bolts', [['braced_bays', 'Braced bays', 'e.g. 1, 4 — empty = the first and the last bay', null, 'text'], ['end_braced_bays', 'End-wall braced bays', 'bays of the end walls counted from line A, e.g. 1 — empty = 1 on an end-rafter wall, none on a main-frame wall', null, 'text'], ['brace_type', 'Bracing', '', ['rod', 'angle']], ['ridge_tie', 'Ridge tie', 'Ties the two ridge purlins across the apex at every sag-rod row', ['rod', 'strap']],
     ['lap', 'Lap each side (mm)', 'empty = 10 % of each bay', null, 'text'], ['bolt', 'Bolts', '', ['M12', 'M16']]]],
   ['Sections', [['purlin', 'Purlin', 'e.g. Z200x65x20x2.0', 'cf', 'text'], ['eave_strut', 'Eave strut, jambs', 'e.g. C200x65x20x2.0', 'cf', 'text'], ['girt', 'Girt', '', 'cf', 'text']]],
   ['Openings', [['openings', 'One per line', 'wall at width sill height — e.g. A 7000 4000 0 4000 (wall A, B, first or last; sill 0 = door)', null, 'area']]],

@@ -4,7 +4,8 @@ on wind columns, last = main frame; V 45 m/s, exposure C).
 
 Checked: the wind-column strips and the longitudinal feed (areas longhand, total = bimsteelauto's p × area);
 the end-rafter frame by statics computed LONGHAND from the geometry (not from the module's own tally) and by an
-independent anastruct model of the same frame under Lr (hinged column tops, pinned bases, one lateral restraint).
+independent anastruct model of the same frame under Lr (hinged column tops, pinned bases, one lateral restraint —
+under Lr the end-wall diagonals carry nothing, so it is the same structure); the end-wall bracing load path.
 """
 
 import math
@@ -86,12 +87,12 @@ def test_end_frame_statics_longhand(out, frame):
     for case, total in (("D", D), ("Lr", Lr), ("C", C)):
         res = frame["results"][case]
         assert sum(v[1] for v in res["reactions"].values()) == pytest.approx(total, rel=1e-4, abs=3e-3), case   # 5 × 0.0005 rounding
-        assert abs(res["restraint_H"]) < 1e-6 and all(abs(v[0]) < 1e-6 for v in res["reactions"].values())
-    # wind: horizontal balance including the end-wall restraint; reactions equal and opposite to the applied loads
+        assert all(v == 0.0 for v in res["braces"].values()) and all(abs(v[0]) < 1e-6 for v in res["reactions"].values())
+    # wind: horizontal balance — no external restraint any more, the bracing lands on the column bases
     for case in ("WA+L", "WB+"):
         res = frame["results"][case]
         fx, fy = frame["applied"][case]
-        assert sum(v[0] for v in res["reactions"].values()) + res["restraint_H"] + fx == pytest.approx(0.0, abs=4e-3)   # 6 values rounded to 0.001
+        assert sum(v[0] for v in res["reactions"].values()) + fx == pytest.approx(0.0, abs=4e-3)   # values rounded to 0.001
         assert sum(v[1] for v in res["reactions"].values()) + fy == pytest.approx(0.0, abs=4e-3)   # 6 values rounded to 0.001
     s = frame["summary"]
     assert s["rafter_M_LRFD"][0].startswith("LRFD: ") and s["apex_ASD"][0].startswith("ASD: ")
@@ -124,3 +125,31 @@ def test_end_frame_vs_anastruct_under_Lr(out, frame):
     res = frame["results"]["Lr"]["reactions"]
     for cid, n in bases.items():
         assert -rf[n].Fy == pytest.approx(res[cid][1], rel=0.01), cid
+
+
+def test_end_wall_bracing_geometry_and_load_path(out, frame):
+    """Default: one braced bay (bay 1, between the corner column at y 125 and WF2 at 6 000) on the end-rafter wall, none on
+    the main-frame wall. Geometry by hand: the wind columns' centre plane x = −125 + (300 + 2·8)/2 = 33; XF1a from WF1's base
+    to 100 below WF2's top (6 163.835 → 6 063.835): length √(5 875² + 6 063.835²) = 8 443.087.
+    Load path: everything horizontal that reaches rafter level (roof wind + half of each corner column's side-wall wind,
+    a pinned-pinned column) goes into ONE diagonal: T·cos θ = H_roof; the other diagonal is slack (negative control), and
+    the wind from the other side loads the other diagonal."""
+    xb = {m["id"]: m for m in out["members"] if m["role"] == "endwall_brace"}
+    assert set(xb) == {"XF1a", "XF1b"} and xb["XF1a"]["profile"] == "RD20"
+    assert xb["XF1a"]["start"] == [33.0, 125.0, 0.0] and xb["XF1a"]["end"][2] == pytest.approx(6063.835, abs=1e-3)
+    assert xb["XF1a"]["length"] == pytest.approx(8443.087, abs=1e-3)
+    for case, works, slack in (("WA+L", "XF1a", "XF1b"), ("WA+R", "XF1b", "XF1a"), ("WB+", "XF1b", "XF1a")):
+        b = frame["results"][case]["braces"]
+        H = frame["roof_H"][case]
+        assert b[works] * frame["brace_cos"][works] == pytest.approx(abs(H), abs=2e-3), case
+        assert b[slack] == 0.0, case
+    assert frame["summary"]["brace_T_LRFD"][0].startswith("LRFD: ")
+
+
+def test_end_rafter_wall_without_bracing_is_refused():
+    o = peb_building(BuildingInput(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter", end_braced_bays=()))
+    assert not any(m["role"] == "endwall_brace" for m in o["members"])
+    with pytest.raises(ValueError, match="no in-plane stability"):
+        end_rafter_frame(o, "first", LI)
+    with pytest.raises(ValueError, match="does not exist"):
+        peb_building(BuildingInput(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter", end_braced_bays=(5,)))

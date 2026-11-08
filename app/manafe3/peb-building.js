@@ -18,7 +18,7 @@ export const BUILDING_DEFAULTS = {
   span: 24000, eave_height: 6000, roof_slope: 0.1, bay_spacing: 6000, n_bays: 4,
   roof_spacing_a: 1250, roof_spacing_b: 1250, roof_first_a: 0, roof_first_b: 0, apex_gap: 200,
   girt_spacing_a: 1250, girt_spacing_b: 1250, girt_first: 1250, gable_spacing: 1250,
-  end_first: 'frame', end_last: 'frame', braced_bays: '', brace_type: 'rod', ridge_tie: 'rod', bolt: 'M12', lap: '',
+  end_first: 'frame', end_last: 'frame', braced_bays: '', end_braced_bays: '', brace_type: 'rod', ridge_tie: 'rod', bolt: 'M12', lap: '',
   purlin: 'Z200x65x20x2.0', eave_strut: 'C200x65x20x2.0', girt: 'Z200x65x20x2.0', openings: '',
 };
 
@@ -65,7 +65,7 @@ export function buildingRequest(form) {
     sections: { purlin: String(form.purlin || '').trim(), eave_strut: String(form.eave_strut || '').trim(), girt: String(form.girt || '').trim() },
     end_first: form.end_first === 'rafter' ? 'rafter' : 'frame', end_last: form.end_last === 'rafter' ? 'rafter' : 'frame',
     brace_type: form.brace_type === 'angle' ? 'angle' : 'rod', ridge_tie: form.ridge_tie === 'strap' ? 'strap' : 'rod', bolt: form.bolt === 'M16' ? 'M16' : 'M12',
-    fixed_lap: num(form, 'lap', 'Lap', { blank: true }), braced_bays: parseBays(form.braced_bays), openings: parseOpenings(form.openings),
+    fixed_lap: num(form, 'lap', 'Lap', { blank: true }), braced_bays: parseBays(form.braced_bays), end_braced_bays: parseBays(form.end_braced_bays), openings: parseOpenings(form.openings),
   };
   const sizes = sizesOf(form);
   if (sizes) body.sizes = sizes;

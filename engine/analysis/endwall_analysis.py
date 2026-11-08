@@ -9,8 +9,9 @@
    longitudinal bracing (step 6).
 2. End-RAFTER frame IN PLANE (end wall type "rafter" only): the constant end rafter on its centroid line, continuous over
    the wind columns, which are pinned at the base and at the top (two-force members, modelled up to the rafter centroid
-   line). PyNite directly, first order. ACCEPTED ASSUMPTIONS: the frame's in-plane sway is held by the end-wall bracing /
-   sheeting (not modelled) — one horizontal restraint at the eave, side A, whose force is reported; tributary = half the
+   line). PyNite directly, first order. The frame's in-plane sway is carried by the end-wall X-bracing
+   (user decision 2026-11-08: no reliance on sheeting; tension-only diagonals in the braced bays — refused without);
+   tributary = half the
    end bay (bimsteelauto tributary_width). Loads as the main frames (engine/analysis/frame_loads.py, the same cases and
    combinations, the roof and side-wall wind of the end frame line incl. its end zone).
    With an end wall of type "frame" the main frame carries the roof (step 4) and the wind columns take NO gravity —
@@ -34,6 +35,7 @@ from ..peb.endwall import WIND_COLUMN
 from .cc_wind import cc_wall_pressure, effective_area
 from .frame_loads import STEEL_KN_M3, frame_loads
 from .frame_model import _wi, frame_line_model
+from .secondary_weight import area_mm2
 
 FACTORS = {"case": 1.0, "LRFD": 1.0, "ASD": 0.6}
 
@@ -179,7 +181,6 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
         names[y] = n
         M.add_node(n, y, zc(y), 0.0)
         M.def_support(n, support_DZ=True, support_RX=True, support_RY=True)
-    M.def_support(names[0.0], support_DX=True, support_DZ=True, support_RX=True, support_RY=True)   # end-wall bracing (assumed)
     raf_m = []
     for k in range(len(ys) - 1):
         nm = f"RAF{k + 1}"
@@ -193,6 +194,25 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
         M.def_support(b, True, True, True, True, True, False)
         M.add_member(cid, b, names[min(ys, key=lambda v: abs(v - y))], "S", "col")
         M.def_releases(cid, Rzj=True)                       # pinned top
+    # the end-wall X-bracing (user decision 2026-11-08 — no reliance on sheeting): tension-only, pinned, from a column's
+    # base to the rafter node over the other column (the real brace stops 100 below the column top: modelled at the node)
+    braces = [m for m in out["members"] if m["role"] == "endwall_brace" and m.get("wall") == end]
+    if not braces:
+        raise ValueError(f"the {end} end wall is an end-rafter wall with no X-bracing: its frame has no in-plane stability "
+                         "(set end-wall braced bays; the default is bay 1)")
+    col_at = {round(y, 3): cid for y, cid in cols}
+    brace_cos = {}
+    for bm in braces:
+        y0, y1 = round(bm["start"][1], 3), round(bm["end"][1], 3)
+        a = area_mm2(bm["profile"])
+        sec = "brace_" + bm["profile"]
+        if sec not in M.sections:
+            M.add_section(sec, a, 1.0, 1.0, 1.0)
+        top = names[min(ys, key=lambda v: abs(v - y1))]
+        M.add_member(bm["id"], bases[col_at[y0]], top, "S", sec, tension_only=True)
+        M.def_releases(bm["id"], Ryi=True, Rzi=True, Ryj=True, Rzj=True)
+        dx, dy = M.nodes[top].X - y0, M.nodes[top].Y
+        brace_cos[bm["id"]] = abs(dx) / math.hypot(dx, dy)
     # loads (kN/m = N/mm), split into global components on each member
     roof_d = li.roof_sheeting + roof_secondary_kpa
     sw_r = rw.A * 1e-6 * STEEL_KN_M3
@@ -206,13 +226,15 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
         elif ld.direction.name == "GLOBAL_X":
             wind_c[(ld.case, ld.member_mark[1])] = ld.w / kcol[ld.member_mark]
     applied = {cs: [0.0, 0.0] for cs in fl.cases}           # Σ applied (Fx, Fy), kN, for the statics check
-    def put(member, case, fx, fy, length_m):
+    roof_H = {cs: 0.0 for cs in fl.cases}                   # horizontal load arriving at rafter level (the bracing's job)
+    def put(member, case, fx, fy, length_m, top_share=1.0):
         if fx:
             M.add_member_dist_load(member, "FX", fx, fx, case=case)
         if fy:
             M.add_member_dist_load(member, "FY", fy, fy, case=case)
         applied[case][0] += fx * length_m
         applied[case][1] += fy * length_m
+        roof_H[case] += fx * length_m * top_share
     for nm, ya, yb in raf_m:
         L = math.hypot(yb - ya, zc(yb) - zc(ya)) / 1000
         cos = abs(yb - ya) / 1000 / L
@@ -234,7 +256,7 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
             side = "A" if y < span / 2 else "B"
             for cs in fl.cases:
                 if (cs, side) in wind_c:
-                    put(cid, cs, wind_c[(cs, side)], 0.0, L)
+                    put(cid, cs, wind_c[(cs, side)], 0.0, L, top_share=0.5)   # pinned-pinned: half to the top
     sets = {}
     for cs in fl.cases:
         M.add_load_combo(cs, {cs: 1.0})
@@ -242,14 +264,14 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     for name, factors, s in fl.combinations:
         M.add_load_combo(name, factors)
         sets[name] = s
-    M.analyze_linear(check_statics=False)
+    M.analyze(check_statics=False)                         # non-linear: tension-only diagonals
     res = {}
     apex = names[span / 2]
     for combo in sets:
         res[combo] = {
             "set": sets[combo],
             "reactions": {cid: [round(M.nodes[b].RxnFX[combo] / 1000, 3), round(M.nodes[b].RxnFY[combo] / 1000, 3)] for cid, b in bases.items()},
-            "restraint_H": round(M.nodes[names[0.0]].RxnFX[combo] / 1000, 3),
+            "braces": {bid: round(max(0.0, -M.members[bid].min_axial(combo)) / 1000, 3) for bid in brace_cos},   # tension, kN
             "apex": round(M.nodes[apex].DY[combo], 3),
             "rafter_M": round(max(max(abs(M.members[n].max_moment("Mz", combo)), abs(M.members[n].min_moment("Mz", combo))) for n, _, _ in raf_m) / 1e6, 3),
             "column_P": {cid: round(M.members[cid].max_axial(combo) / 1000, 3) for _, cid in cols},
@@ -259,11 +281,13 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     return {
         "end": end, "tributary_m": round(trib, 4), "cases": list(fl.cases), "results": res,
         "applied": {cs: [round(v, 4) for v in a] for cs, a in applied.items()},
+        "roof_H": {cs: round(v, 4) for cs, v in roof_H.items()}, "brace_cos": {k: round(v, 6) for k, v in brace_cos.items()},
         "summary": {"rafter_M_LRFD": max(((c, res[c]["rafter_M"]) for c in lrfd), key=lambda x: x[1]),
                     "column_P_LRFD": max(((c, cid, p) for c in lrfd for cid, p in res[c]["column_P"].items()), key=lambda x: abs(x[2])),
-                    "apex_ASD": min(((c, res[c]["apex"]) for c in asd), key=lambda x: x[1])},
-        "assumptions": ["in-plane sway held by the end-wall bracing / sheeting: one horizontal restraint at the eave, side A (force reported)",
+                    "apex_ASD": min(((c, res[c]["apex"]) for c in asd), key=lambda x: x[1]),
+                    "brace_T_LRFD": max(((c, b, v) for c in lrfd for b, v in res[c]["braces"].items()), key=lambda x: x[2])},
+        "assumptions": ["in-plane sway held by the end-wall X-bracing (tension-only diagonals, modelled from a column base to the rafter node over the next column); no reliance on sheeting",
                         "wind columns pinned top and bottom, modelled up to the rafter centroid line",
-                        "first order (the frame is held laterally)"],
+                        "first order (the frame is braced in its plane)"],
         "designed": False,
     }

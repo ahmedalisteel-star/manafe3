@@ -46,7 +46,7 @@ class BracingInput:
     brace_angle: str = "L75x6"
     sag_rod: str = "RD12"
     ridge_tie: str = "rod"                # across the apex between the two ridge purlins: "rod" (the sag rod) or "strap"
-    ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (Claude, TO CONFIRM)
+    ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (CONFIRMED by the user)
     flange_brace: str = "L50x5"
 
 

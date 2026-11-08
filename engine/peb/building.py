@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 from .bracing import BracingInput, flange_braces, sag_rods, x_bracing
 from .builtup_frame import BuiltUpSizes, builtup_frame_members, default_sizes
-from .endwall import end_wall
+from .endwall import end_wall, endwall_braces
 from .openings import apply_openings
 from .secondary import HOLE, RoofSide, SecondaryInput, Sections, Wall, cf_dims, gauge, secondary_lines, secondary_members
 
@@ -38,6 +38,7 @@ class BuildingInput:
     end_first: str = "frame"            # "frame" or "rafter"
     end_last: str = "frame"
     braced_bays: tuple[int, ...] | None = None   # 1-based; None = the first and the last bay
+    end_braced_bays: tuple[int, ...] | None = None   # end-wall bays (1-based from line A); None = (1,) on an end-rafter wall, none on a main-frame wall
     brace_type: str = "rod"
     ridge_tie: str = "rod"              # "rod" or "strap" across the apex
     bolt: str = "M12"
@@ -97,6 +98,11 @@ def peb_building(b: BuildingInput) -> dict:
         members += [{**m, "type": ROLE_TYPE[m["role"]]} for m in w["members"]]
         girts += w["girts"]
         gable_sets.append((end, w["supports"]))
+        eb = b.end_braced_bays if b.end_braced_bays is not None else ((1,) if kind == "rafter" else ())
+        tops = {round(m["start"][1], 3): m["end"][2] for m in w["members"] if m["role"] == "wind_column"}
+        prof = "RD20" if b.brace_type == "rod" else "L75x6"
+        for m in endwall_braces(end, w["x_face"], b.span, b.eave_height, w["supports"], tops, tuple(eb), prof):
+            members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
         end_walls.append({"end": end, "kind": kind, "x_frame": _r(x), "x_face": w["x_face"], "supports": w["supports"]})
 
     op = apply_openings(girts, list(b.openings), b.eave_height, jamb=b.sections.eave_strut, bolt=b.bolt)

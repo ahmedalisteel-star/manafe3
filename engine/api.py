@@ -166,6 +166,7 @@ class BuildingRequest(BaseModel):
     end_first: Literal["frame", "rafter"] = "frame"
     end_last: Literal["frame", "rafter"] = "frame"
     braced_bays: list[int] | None = Field(None, description="1-based; default the first and the last bay")
+    end_braced_bays: list[int] | None = Field(None, description="end-wall bays, 1-based from line A; default 1 on an end-rafter wall, none on a main-frame wall")
     brace_type: Literal["rod", "angle"] = "rod"
     ridge_tie: Literal["rod", "strap"] = "rod"
     bolt: Literal["M12", "M16"] = "M12"
@@ -191,6 +192,7 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         wall_a=Wall(**req.wall_a.model_dump()), wall_b=Wall(**req.wall_b.model_dump()), gable=Wall(**req.gable.model_dump()),
         sections=Sections(**req.sections.model_dump()), end_first=req.end_first, end_last=req.end_last,
         braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
+        end_braced_bays=tuple(req.end_braced_bays) if req.end_braced_bays is not None else None,
         bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings))
 
 

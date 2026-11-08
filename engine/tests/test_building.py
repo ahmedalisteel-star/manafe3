@@ -71,7 +71,7 @@ def test_end_rafter_variant_openings_and_options():
     assert any(h["d"] == 18 for m in out["members"] for h in m.get("holes", []))
     assert out["braced_bays"] == [2]
     base = peb_building(BuildingInput(**B1, end_first="rafter"))
-    assert len(base["members"]) == 362
+    assert len(base["members"]) == 364                                                  # 362 + the default end-wall X (2 diagonals, bay 1)
     strap = peb_building(BuildingInput(**B1, ridge_tie="strap"))
     ties = [m for m in strap["members"] if m["role"] == "ridge_tie"]
     assert len(ties) == 4 and {m["profile"] for m in ties} == {"PL3x50"}
