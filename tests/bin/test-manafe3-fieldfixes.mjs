@@ -103,5 +103,39 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(/model\.on\(onModelEvent\)/.test(src) && /if \(why === 'load'\) \{[^}]*forceName = true; m3ModelLoaded\(\)/.test(src) && /focused !== ui\.name \|\| forceName/.test(src), 'detailcraft.js wires the load event');
 }
 
+// ---- 4. move / rotate / mirror keep every part's roll, holes and plates --------------------------------------------------
+{
+  const { build } = await mod('build.js');
+  const X = await mod('transform.js');
+  const { getProfile } = await mod('profiles.js');
+  const make = () => { const m = new Model(emptyState('xf')); m.change('b', (tx) => B.applyBuilding(tx, RES, spec)); return m; };
+  const all = (m) => m.state.members.map((x) => ({ kind: 'member', id: x.id }));
+  const cen = (p) => [0, 1, 2].map((i) => p.frame.o[i] + p.frame.x[i] * p.length / 2 + p.frame.v[i] * p.voff);
+  const near = (a, b, tol) => a.every((v, i) => Math.abs(v - b[i]) <= tol);
+  for (const [label, xf] of [['rotate 90 about Z', X.rotateXf([0, 0], 90)], ['rotate 37 about (1234, -567)', X.rotateXf([1234, -567], 37)], ['move', X.moveXf(1000, -2000, 300)]]) {
+    const m = make(), b0 = build(m.state);
+    m.change(label, (tx) => X.transformRefs(tx, m.state, all(m), xf));
+    const b1 = build(m.state);
+    let bad = 0, cols = 0;
+    for (const p of b0.parts) {
+      const q = b1.byId.get(p.id);
+      // a rigid motion: u, v (the roll: which way a web faces), the part's centre and every hole go with it
+      const same = q && near(X.applyDir(xf, p.frame.u), q.frame.u, 1e-6) && near(X.applyDir(xf, p.frame.v), q.frame.v, 1e-6) && near(X.applyPt(xf, cen(p)), cen(q), 1e-3)
+        && p.holes.length === q.holes.length && p.holes.every((h, i) => Math.abs(h.x - q.holes[i].x) < 1e-6 && Math.abs(h.y - q.holes[i].y) < 1e-6 && h.face === q.holes[i].face);
+      if (!same) bad++;
+      if (p.type === 'column') cols++;
+    }
+    ok(bad === 0 && b1.parts.length === 648 && cols === 10 + 6 + 2, `${label}: all 648 parts (10 frame-column webs, 6 wind-column webs, 2 jambs) keep roll, centre and holes`, { bad, cols });
+  }
+  // a mirror: the image of a lipped C (CFC) is the channel turned over about u — v flips, as a hot-rolled C (was: kept, wrong)
+  const m = make(), b0 = build(m.state);
+  const kind = new Map(m.state.members.map((x) => [x.id, getProfile(x.profile, [])?.kind]));
+  const xf = X.mirrorXf([0, 1000], [5000, 4000]);
+  m.change('mirror', (tx) => X.transformRefs(tx, m.state, all(m), xf));
+  const b1 = build(m.state);
+  const cfc = b0.parts.filter((p) => kind.get(p.member) === 'CFC');
+  ok(cfc.length === 11 && cfc.every((p) => { const q = b1.byId.get(p.id); return near(X.applyDir(xf, p.frame.v).map((n) => -n), q.frame.v, 1e-6) && near(X.applyPt(xf, cen(p)), cen(q), 1e-3); }), 'mirror: lipped C eave struts / jambs turned over like a channel, in the image place', cfc.length);
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

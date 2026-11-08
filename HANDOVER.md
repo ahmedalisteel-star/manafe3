@@ -25,6 +25,31 @@ the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Met
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
 next: the field fixes list (below), then step 5.**
 
+## Field fixes from the first real project (R1) — in progress (2026-11-08)
+
+The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 agent API → P3 crane → P4 concrete → P7 drawings
+→ regression project R1), worked in that order; Phase 4 resumes at step 5 afterwards. Tests: `tests/bin/test-manafe3-fieldfixes.mjs`.
+
+### Field fixes — decisions taken (Claude; ordinary detailing / UI choices, editable)
+- **1 Grids:** "Building grids" in the Building form: **merge** (default) / none / replace (asks first; never remembered).
+  Merge: every existing line stays; an incoming line within 1 mm of an existing one IS that line; a new position keeps
+  its label, or label′ (3′, 3″ …) when the label is taken. Levels are always merged (same z ±1 mm or same name = kept).
+  Footings and your own members were never removed (only `gen: 'peb'` members are regenerated) — now tested.
+- **2 / 15 Concrete:** a member's material is concrete when it reads C20…C100, C30/37, "… fcu / fck", "concrete", "RC"
+  or B25 (`app/manafe3/materials.js`); everything else is steel. Such a part weighs 0 kg as steel, carries
+  `concreteM3` (= profile area × length) and a warning; status bar and model summary show steel kg · rebar kg ·
+  concrete m³ (members + footings). Left out of the steel clash check. BOM rows still list the part (0 kg).
+- **3 Load:** on the model's 'load' event (and a new Model) the selection resets, the Name field is rewritten even when
+  focused, and every Manafe3 panel resets (`app/manafe3/panels.js`: Analysis results cleared, Building / Loads forms
+  closed — they refill from the open model).
+- **4 Move / rotate / mirror:** the app's own transform (transform.js) was ALREADY right for rotations and moves —
+  rotate 90° about Z, 37° about an off-grid point and a move keep all 648 parts of building 1 (roll u / v, centre,
+  every hole; frame columns, wind columns and jambs included). The field report most likely came from editing
+  coordinates without the transform (an agent has no transform tool yet: item 26 adds one that calls transformRefs).
+  Real defect found and fixed: a MIRROR treated a lipped C (CFC) as an I (kept v) instead of turning it over like a
+  channel. A Z's mirror image is a Z of the other hand, which no profile here describes: a mirrored Z stays a Z of the
+  same hand at the image place (stated, not changed).
+
 ### Phase 4 plan (approved 2026-11-08)
 
 **Decisions (user, 2026-11-08):**

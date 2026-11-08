@@ -79,7 +79,7 @@ export function transformMember(m, xf, kind) {
   let wantV = V, position = m.position, holes = m.holes.map((h) => ({ ...h })), cuts = m.cuts.map((c) => ({ ...c }));
   let note = null;
   if (xf.det < 0) {
-    if (kind === 'C') {
+    if (kind === 'C' || kind === 'CFC') {   // Manafe3 (changed file, field fix 4): a lipped C is a channel too
       // channel: the image is the channel turned over about u — v' = −V, top and bottom swap
       wantV = neg(V);
       position = m.position === 'top' ? 'bottom' : m.position === 'bottom' ? 'top' : m.position;
