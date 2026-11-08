@@ -74,9 +74,27 @@ with DG 25 and E7 / F5 / G2).**
   (purlins over the haunch + the next), the inward brace only; end columns already had theirs. An end-RAFTER wall has no
   main frame, so none there. Building 1: 376 members (was 364). The app fixture `fixtures/manafe3/building1.json` is a
   frozen engine snapshot from Phase 2 (its counts are checked by hand in `test-manafe3-building.mjs`) — not regenerated.
-- **St 37 Fu: STILL OPEN** — the user's reply held the placeholder "<3.6 or 3.7>", not a value. The table keeps 3.7
-  (skill transcription) marked TO CONFIRM; the skill engine is not changed until the value is given.
-- All plate strengths VERIFIED False with their sources until the user confirms them.
+- **ECP 205 grades CONFIRMED by the user** (printed code, Sect. 1.3.3 / Table 1.1; Sect. 1.3.2 constants E 2100, G 810
+  t/cm², density 7.85 t/m³, ν 0.3, α 1.2e-5 /°C) → VERIFIED True in `engine/design/inputs.py`; St 37 Fu = 3.70 (the skill
+  engine was right). The ecp205-lrfd repo already holds the same values (materials.STEEL_GRADES, core.E / G / NU /
+  DENSITY / ALPHA_T) — no change there. EN 10025-2 / ASTM A572 / EN 10346 values stay VERIFIED False until confirmed.
+- **bimsteelauto 0.14.2** (user decision): `ModelSettings.stiffness_factor` (default 1.0) and `ModelSettings.min_segments`
+  (default 1) — branch `feature/stiffness-factor` (08d3bd2) merged to `main` (8c8d3cb); `tests/test_model_settings.py`
+  (bimsteelauto suite 990 passed). Manafe3 re-pinned; its stiffness subclass is GONE: the strength solve uses
+  `stiffness_factor = 0.8`, `min_segments = 4` (`solve.strength_layout`).
+- **P-δ (AISC C2.1)**: every member of the strength solve is split into ≥ 4 elements (constant rafter segments, rigid
+  arms; the end frame's rafter spans and wind columns too). Test: a braced pin-ended column at P/Pe1 = 0.30 under a
+  small lateral load matches B1·wL²/8 within 2 % (measured: 1 element 1.225, 2 → 1.355, 4 → 1.433, 8 → 1.441, exact 1.441).
+- **End-rafter frame on the DAM too**: strength = 0.8 stiffness, 4 elements per member, notional loads, P-Delta; cases
+  and ASD first order on the nominal stiffness (a braced frame; exact statics kept).
+- **PyNite never re-activates a tension-only member** it has switched off (`Analysis._check_TC_convergence` checks
+  active members only): under a gravity-heavy combination the posts' shortening switches BOTH rods of an X off and the
+  bay is silently a mechanism (test `test_pynite_never_reactivates_a_tension_only_member` pins it). So the end frame's
+  strength set models, per sway direction, only the diagonal that lengthens, as an ordinary axial member; each
+  combination takes the model of the sign of its factored rafter-level H; rod tension = max(model, H / cos θ), a model
+  compression is flagged "slack". (The service set keeps the tension-only switch: wind dominates there.)
+- **Tests split**: `@pytest.mark.slow` on the frame-solve tests (22); `start-work.ps1` runs `-m "not slow"` (105 tests,
+  ~10 s), `end-work.ps1` runs everything (127, ~10 min) before pushing.
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),

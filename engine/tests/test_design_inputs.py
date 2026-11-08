@@ -36,7 +36,12 @@ def test_plate_strengths():
     seg = {"grade": "S355", "tw": 8, "tf_top": 20, "tf_bot": 12}
     s = section_strength(seg)
     assert s["Fy"] == 345 and s["governed_by"] == "top flange t = 20"                              # the thick flange governs
-    assert not any(VERIFIED.values())
+    assert VERIFIED["GRADES_ECP"] and VERIFIED["ECP_CONSTANTS"] and not VERIFIED["GRADES_EN_ASTM"]   # ECP confirmed by the user
+    # the user's confirmed ECP Table 1.1 (t/cm²), every grade and band, × 98.0665 → MPa
+    for g, rows in {"St 37": ((2.40, 3.70), (2.15, 3.40)), "St 44": ((2.80, 4.40), (2.55, 4.10)), "St 52": ((3.60, 5.20), (3.35, 4.90))}.items():
+        for t_mm, (fy, fu) in zip((40, 41), rows):
+            s = plate_strength(g, t_mm)
+            assert (s["Fy"], s["Fu"]) == (round(fy * 98.0665, 2), round(fu * 98.0665, 2)), (g, t_mm)
 
 
 def test_pynite_itself_reports_sagging_negative():
@@ -50,6 +55,7 @@ def test_pynite_itself_reports_sagging_negative():
     assert m.members["M"].moment("Mz", 5000, "D") / 1e6 == pytest.approx(-125.0)            # 10 N/mm × 10² m² / 8
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("constant_columns", [False, True])
 def test_results_carry_the_design_sign(constant_columns):
     """Gravity on a pinned portal: the knee puts the column's OUTER flange (its section 'top') in tension, so the design

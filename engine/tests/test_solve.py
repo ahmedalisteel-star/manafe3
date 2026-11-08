@@ -18,6 +18,8 @@ from engine.analysis.solve import analyse_frame_line
 from engine.peb.builtup_frame import builtup_frame_members, default_sizes
 from engine.peb.loads_input import LoadsInput
 
+pytestmark = pytest.mark.slow          # whole frame solves (see pyproject [tool.pytest.ini_options])
+
 
 def setup(i=2, p_delta=True):
     ms = builtup_frame_members(24000, 6000, 0.1, 6000.0 * i, str(i + 1), default_sizes(24000))

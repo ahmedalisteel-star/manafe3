@@ -34,6 +34,8 @@ from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.endwall import WIND_COLUMN
 from .cc_wind import cc_wall_pressure, effective_area
 from .frame_loads import STEEL_KN_M3, frame_loads
+from .solve import ALPHA_LRFD, DAM_MIN_SEGMENTS, DAM_STIFFNESS, GRAVITY_CASES, NOTIONAL, NOTIONAL_TAU
+from ..design.inputs import section_strength
 from .frame_model import _wi, frame_line_model
 from .secondary_weight import area_mm2
 
@@ -171,49 +173,10 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     cols = sorted((m["start"][1], m["id"]) for m in out["members"] if m["role"] == "wind_column" and m["id"].startswith("W" + tag)
                   and not m["id"].endswith("CAP"))
     ys = sorted({0.0, span / 2, span, *[y for y, _ in cols]})
-    M = FEModel3D()
-    M.add_material("S", 200000.0, 77000.0, 0.3, 7.85e-8)
-    M.add_section("raf", rw.A, rw.Iy, rw.Ix, rw.J)
-    M.add_section("col", cw.A, cw.Iy, cw.Ix, cw.J)
-    names = {}
-    for k, y in enumerate(ys):
-        n = f"R{k}"
-        names[y] = n
-        M.add_node(n, y, zc(y), 0.0)
-        M.def_support(n, support_DZ=True, support_RX=True, support_RY=True)
-    raf_m = []
-    for k in range(len(ys) - 1):
-        nm = f"RAF{k + 1}"
-        M.add_member(nm, names[ys[k]], names[ys[k + 1]], "S", "raf")
-        raf_m.append((nm, ys[k], ys[k + 1]))
-    bases = {}
-    for y, cid in cols:
-        b = f"B_{cid}"
-        bases[cid] = b
-        M.add_node(b, y, 0.0, 0.0)
-        M.def_support(b, True, True, True, True, True, False)
-        M.add_member(cid, b, names[min(ys, key=lambda v: abs(v - y))], "S", "col")
-        M.def_releases(cid, Rzj=True)                       # pinned top
-    # the end-wall X-bracing (user decision 2026-11-08 — no reliance on sheeting): tension-only, pinned, from a column's
-    # base to the rafter node over the other column (the real brace stops 100 below the column top: modelled at the node)
     braces = [m for m in out["members"] if m["role"] == "endwall_brace" and m.get("wall") == end]
     if not braces:
         raise ValueError(f"the {end} end wall is an end-rafter wall with no X-bracing: its frame has no in-plane stability "
                          "(set end-wall braced bays; the default is bay 1)")
-    col_at = {round(y, 3): cid for y, cid in cols}
-    brace_cos = {}
-    for bm in braces:
-        y0, y1 = round(bm["start"][1], 3), round(bm["end"][1], 3)
-        a = area_mm2(bm["profile"])
-        sec = "brace_" + bm["profile"]
-        if sec not in M.sections:
-            M.add_section(sec, a, 1.0, 1.0, 1.0)
-        top = names[min(ys, key=lambda v: abs(v - y1))]
-        M.add_member(bm["id"], bases[col_at[y0]], top, "S", sec, tension_only=True)
-        M.def_releases(bm["id"], Ryi=True, Rzi=True, Ryj=True, Rzj=True)
-        dx, dy = M.nodes[top].X - y0, M.nodes[top].Y
-        brace_cos[bm["id"]] = abs(dx) / math.hypot(dx, dy)
-    # loads (kN/m = N/mm), split into global components on each member
     roof_d = li.roof_sheeting + roof_secondary_kpa
     sw_r = rw.A * 1e-6 * STEEL_KN_M3
     sw_c = cw.A * 1e-6 * STEEL_KN_M3
@@ -225,69 +188,202 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
             wind_r[(ld.case, ld.member_mark[1])] = ld.w
         elif ld.direction.name == "GLOBAL_X":
             wind_c[(ld.case, ld.member_mark[1])] = ld.w / kcol[ld.member_mark]
-    applied = {cs: [0.0, 0.0] for cs in fl.cases}           # Σ applied (Fx, Fy), kN, for the statics check
-    roof_H = {cs: 0.0 for cs in fl.cases}                   # horizontal load arriving at rafter level (the bracing's job)
-    def put(member, case, fx, fy, length_m, top_share=1.0):
-        if fx:
-            M.add_member_dist_load(member, "FX", fx, fx, case=case)
-        if fy:
-            M.add_member_dist_load(member, "FY", fy, fy, case=case)
-        applied[case][0] += fx * length_m
-        applied[case][1] += fy * length_m
-        roof_H[case] += fx * length_m * top_share
-    for nm, ya, yb in raf_m:
-        L = math.hypot(yb - ya, zc(yb) - zc(ya)) / 1000
-        cos = abs(yb - ya) / 1000 / L
-        side = "A" if (ya + yb) / 2 < span / 2 else "B"
-        put(nm, "D", 0.0, -(sw_r + roof_d * trib), L)
-        put(nm, "C", 0.0, -li.collateral * trib * cos, L)
-        put(nm, "Lr", 0.0, -fl.Lr.Lr * trib * cos, L)
-        nx, ny = (-slope, 1.0) if side == "A" else (slope, 1.0)
-        h = math.hypot(nx, ny)
-        for cs in fl.cases:
-            if (cs, side) in wind_r:
-                w = wind_r[(cs, side)]
-                put(nm, cs, -w * nx / h, -w * ny / h, L)
-    for y, cid in cols:
-        top = M.nodes[M.members[cid].j_node.name]
-        L = top.Y / 1000
-        put(cid, "D", 0.0, -sw_c, L)
-        if cid in (cols[0][1], cols[-1][1]):                # the corner columns take the side-wall wind on half the bay
-            side = "A" if y < span / 2 else "B"
+    fy_col = section_strength(dict(tw=WIND_COLUMN["tw"], tf_top=WIND_COLUMN["tf"], tf_bot=WIND_COLUMN["tf"], grade=WIND_COLUMN["grade"]))["Fy"]
+
+    def build(k: float, nseg: int, notional: float, combos: list[tuple[str, dict]], second_order: bool, diagonals=None):
+        """The end frame in PyNite: stiffness × k, every rafter span and column in nseg elements, notional twins
+        (cases "ND" / "NC" / "NLr", + toward +X) of the gravity loads at `notional` × their vertical intensity."""
+        M = FEModel3D()
+        M.add_material("S", k * 200000.0, k * 77000.0, 0.3, 7.85e-8)
+        M.add_section("raf", rw.A, rw.Iy, rw.Ix, rw.J)
+        M.add_section("col", cw.A, cw.Iy, cw.Ix, cw.J)
+        names = {}
+        for i, y in enumerate(ys):
+            names[y] = f"R{i}"
+            M.add_node(names[y], y, zc(y), 0.0)
+            M.def_support(names[y], support_DZ=True, support_RX=True, support_RY=True)
+        elems: dict[str, list[str]] = {}
+
+        def chain(key, n0, n1, p0, p1, sec):
+            out_ = []
+            prev = n0
+            for s in range(nseg):
+                nxt = n1 if s == nseg - 1 else f"{key}_n{s + 1}"
+                if s < nseg - 1:
+                    f = (s + 1) / nseg
+                    M.add_node(nxt, p0[0] + (p1[0] - p0[0]) * f, p0[1] + (p1[1] - p0[1]) * f, 0.0)
+                    M.def_support(nxt, support_DZ=True, support_RX=True, support_RY=True)
+                nm = f"{key}_e{s + 1}"
+                M.add_member(nm, prev, nxt, "S", sec)
+                out_.append(nm)
+                prev = nxt
+            elems[key] = out_
+        raf_m = []
+        for i in range(len(ys) - 1):
+            key = f"RAF{i + 1}"
+            chain(key, names[ys[i]], names[ys[i + 1]], (ys[i], zc(ys[i])), (ys[i + 1], zc(ys[i + 1])), "raf")
+            raf_m.append((key, ys[i], ys[i + 1]))
+        bases = {}
+        for y, cid in cols:
+            b = f"B_{cid}"
+            bases[cid] = b
+            M.add_node(b, y, 0.0, 0.0)
+            M.def_support(b, True, True, True, True, True, False)
+            top = names[min(ys, key=lambda v: abs(v - y))]
+            chain(cid, b, top, (y, 0.0), (y, M.nodes[top].Y), "col")
+            M.def_releases(elems[cid][-1], Rzj=True)                 # pinned top
+        # the end-wall X-bracing (user decision 2026-11-08 — no reliance on sheeting): tension-only, pinned, from a
+        # column's base to the rafter node over the other column (the real brace stops 100 below the column top)
+        col_at = {round(y, 3): cid for y, cid in cols}
+        brace_cos = {}
+        for bm in braces:
+            if diagonals is not None and bm["id"] not in diagonals:
+                continue
+            y0, y1 = round(bm["start"][1], 3), round(bm["end"][1], 3)
+            sec = "brace_" + bm["profile"]
+            if sec not in M.sections:
+                M.add_section(sec, area_mm2(bm["profile"]), 1.0, 1.0, 1.0)
+            top = names[min(ys, key=lambda v: abs(v - y1))]
+            # diagonals=None: PyNite's tension-only switch (the service set); a chosen set: ordinary axial members
+            M.add_member(bm["id"], bases[col_at[y0]], top, "S", sec, tension_only=diagonals is None)
+            M.def_releases(bm["id"], Ryi=True, Rzi=True, Ryj=True, Rzj=True)
+            dx, dy = M.nodes[top].X - y0, M.nodes[top].Y
+            brace_cos[bm["id"]] = abs(dx) / math.hypot(dx, dy)
+        applied = {}                                                 # case → [Σ Fx, Σ Fy], kN
+        roof_H = {}                                                  # case → horizontal load arriving at rafter level
+
+        def put(key, case, fx, fy, length_m, top_share=1.0):
+            for nm in elems[key]:
+                if fx:
+                    M.add_member_dist_load(nm, "FX", fx, fx, case=case)
+                if fy:
+                    M.add_member_dist_load(nm, "FY", fy, fy, case=case)
+            a_ = applied.setdefault(case, [0.0, 0.0])
+            a_[0] += fx * length_m
+            a_[1] += fy * length_m
+            roof_H[case] = roof_H.get(case, 0.0) + fx * length_m * top_share
+            if notional and case in GRAVITY_CASES and fy:
+                put(key, "N" + case, -notional * fy, 0.0, length_m, top_share)   # the horizontal twin, + toward +X
+        for key, ya, yb in raf_m:
+            L = math.hypot(yb - ya, zc(yb) - zc(ya)) / 1000
+            cos = abs(yb - ya) / 1000 / L
+            side = "A" if (ya + yb) / 2 < span / 2 else "B"
+            put(key, "D", 0.0, -(sw_r + roof_d * trib), L)
+            put(key, "C", 0.0, -li.collateral * trib * cos, L)
+            put(key, "Lr", 0.0, -fl.Lr.Lr * trib * cos, L)
+            nx, ny = (-slope, 1.0) if side == "A" else (slope, 1.0)
+            h = math.hypot(nx, ny)
             for cs in fl.cases:
-                if (cs, side) in wind_c:
-                    put(cid, cs, wind_c[(cs, side)], 0.0, L, top_share=0.5)   # pinned-pinned: half to the top
-    sets = {}
-    for cs in fl.cases:
-        M.add_load_combo(cs, {cs: 1.0})
-        sets[cs] = "case"
-    for name, factors, s in fl.combinations:
-        M.add_load_combo(name, factors)
-        sets[name] = s
-    M.analyze(check_statics=False)                         # non-linear: tension-only diagonals
+                if (cs, side) in wind_r:
+                    w = wind_r[(cs, side)]
+                    put(key, cs, -w * nx / h, -w * ny / h, L)
+        for y, cid in cols:
+            L = M.nodes[M.members[elems[cid][-1]].j_node.name].Y / 1000
+            put(cid, "D", 0.0, -sw_c, L, top_share=0.5)
+            if cid in (cols[0][1], cols[-1][1]):                    # the corner columns take the side-wall wind on half the bay
+                side = "A" if y < span / 2 else "B"
+                for cs in fl.cases:
+                    if (cs, side) in wind_c:
+                        put(cid, cs, wind_c[(cs, side)], 0.0, L, top_share=0.5)   # pinned-pinned: half to the top
+        for name, factors in combos:
+            M.add_load_combo(name, {c: f for c, f in factors.items() if c in applied})
+        if second_order:
+            M.analyze_PDelta(log=False)                              # iterates the tension-only diagonals too
+        else:
+            M.analyze(check_statics=False)                           # non-linear only for the tension-only diagonals
+        return M, names, raf_m, bases, elems, brace_cos, applied, roof_H
+
+    # the service set (cases, ASD): nominal stiffness, one element per span, no notional loads, FIRST order (a braced
+    # frame: its drift is not judged; the statics of each case stay exact)
+    sets: dict[str, str] = {c: "case" for c in fl.cases}
+    service = [(c, {c: 1.0}) for c in fl.cases] + [(n, f) for n, f, s in fl.combinations if s != "LRFD"]
+    for n, f, s in fl.combinations:
+        if s != "LRFD":
+            sets[n] = s
+    Ms, names, raf_s, bases, el_s, brace_cos, applied, roof_H = build(1.0, 1, 0.0, service, False)
+    # the strength set (LRFD): Direct Analysis Method — 0.8 stiffness, 4 elements per member (P-δ), notional loads in
+    # every LRFD combination along its net lateral load (gravity-only: both ways); τb checked on the wind columns
+    lrfd = []
+    for n, f, s in fl.combinations:
+        if s != "LRFD":
+            continue
+        grav = {c: v for c, v in f.items() if c in GRAVITY_CASES}
+        h = sum(v * applied.get(c, [0.0, 0.0])[0] for c, v in f.items())
+        signs = [1.0, -1.0] if (grav and abs(h) < 1e-6) else [math.copysign(1.0, h) if grav else 1.0]
+        for sg in signs:
+            ff = dict(f)
+            ff.update({"N" + c: v * ALPHA_LRFD * sg for c, v in grav.items()})
+            lrfd.append((f"{n} [{'+' if sg > 0 else '-'}N]" if len(signs) == 2 else n, ff))
+    # PyNite never re-activates a tension-only member it has switched off (Analysis._check_TC_convergence): under a
+    # gravity-heavy combination the columns' shortening puts BOTH diagonals in compression first, both are switched off
+    # for good and the frame is left a mechanism, silently. So for strength: one model per sway direction with only the
+    # diagonal that LENGTHENS under it (+X: the one whose top is further +X), as an ordinary axial member; each
+    # combination takes the model of the sign of its factored horizontal load at rafter level (notional twins included).
+    # The rod's design tension = max(the model's tension, H / cos θ) — H / cos θ is statics (the pinned columns take no
+    # shear); a model compression (column shortening exceeding a tiny lateral) is flagged "slack".
+    plus = [b["id"] for b in braces if b["end"][1] > b["start"][1]]
+    minus = [b["id"] for b in braces if b["end"][1] < b["start"][1]]
+
+    def strength(ratio):
+        mp = build(DAM_STIFFNESS, DAM_MIN_SEGMENTS, ratio, lrfd, True, plus)
+        mm = build(DAM_STIFFNESS, DAM_MIN_SEGMENTS, ratio, lrfd, True, minus)
+        rh = mp[7]
+        pick = {}
+        for n, f in lrfd:
+            h = sum(v * rh.get(c, 0.0) for c, v in f.items())
+            pick[n] = (mp if h >= 0 else mm, h)
+        return pick
+    ratio = NOTIONAL
+    pick = strength(ratio)
+    tau = max(((max(0.0, pick[c][0][0].members[pick[c][0][4][cid][0]].max_axial(c)) / (fy_col * cw.A), cid, c) for _, cid in cols for c, _ in lrfd),
+              key=lambda x: x[0])
+    if tau[0] > 0.5:                                                 # C2.3(c)
+        ratio = NOTIONAL + NOTIONAL_TAU
+        pick = strength(ratio)
+    for n, _ in lrfd:
+        sets[n] = "LRFD"
     res = {}
-    apex = names[span / 2]
-    for combo in sets:
+    for combo, kind in sets.items():
+        if kind == "LRFD":
+            (M_, nm_, raf_, bas_, el_, bcos, _, _), h = pick[combo]
+            braces_out, slack = {}, []
+            for bid in brace_cos:
+                if bid not in bcos:
+                    braces_out[bid] = 0.0
+                    continue
+                ax = -M_.members[bid].min_axial(combo) / 1000              # tension +
+                statics = abs(h) / bcos[bid]
+                if ax < 0:
+                    slack.append(bid)
+                braces_out[bid] = round(max(ax, statics), 3)
+        else:
+            M_, nm_, raf_, bas_, el_ = Ms, names, raf_s, bases, el_s
+            braces_out = {bid: round(max(0.0, -M_.members[bid].min_axial(combo)) / 1000, 3) for bid in brace_cos}
+            slack, h = [], None
         res[combo] = {
-            "set": sets[combo],
-            "reactions": {cid: [round(M.nodes[b].RxnFX[combo] / 1000, 3), round(M.nodes[b].RxnFY[combo] / 1000, 3)] for cid, b in bases.items()},
-            "braces": {bid: round(max(0.0, -M.members[bid].min_axial(combo)) / 1000, 3) for bid in brace_cos},   # tension, kN
-            "apex": round(M.nodes[apex].DY[combo], 3),
-            "rafter_M": round(max(max(abs(M.members[n].max_moment("Mz", combo)), abs(M.members[n].min_moment("Mz", combo))) for n, _, _ in raf_m) / 1e6, 3),
-            "column_P": {cid: round(M.members[cid].max_axial(combo) / 1000, 3) for _, cid in cols},
+            "set": kind,
+            "reactions": {cid: [round(M_.nodes[b].RxnFX[combo] / 1000, 3), round(M_.nodes[b].RxnFY[combo] / 1000, 3)] for cid, b in bas_.items()},
+            "braces": braces_out,                                             # tension, kN
+            "slack": slack, "roof_H": None if h is None else round(h, 4),
+            "apex": round(M_.nodes[nm_[span / 2]].DY[combo], 3),
+            "rafter_M": round(max(max(abs(M_.members[e_].max_moment("Mz", combo)), abs(M_.members[e_].min_moment("Mz", combo)))
+                                  for key, _, _ in raf_ for e_ in el_[key]) / 1e6, 3),
+            "column_P": {cid: round(max(M_.members[e_].max_axial(combo) for e_ in el_[cid]) / 1000, 3) for _, cid in cols},
         }
-    lrfd = [c for c in sets if sets[c] == "LRFD"]
+    lrfd_n = [c for c in sets if sets[c] == "LRFD"]
     asd = [c for c in sets if sets[c] == "ASD"]
     return {
         "end": end, "tributary_m": round(trib, 4), "cases": list(fl.cases), "results": res,
-        "applied": {cs: [round(v, 4) for v in a] for cs, a in applied.items()},
-        "roof_H": {cs: round(v, 4) for cs, v in roof_H.items()}, "brace_cos": {k: round(v, 6) for k, v in brace_cos.items()},
-        "summary": {"rafter_M_LRFD": max(((c, res[c]["rafter_M"]) for c in lrfd), key=lambda x: x[1]),
-                    "column_P_LRFD": max(((c, cid, p) for c in lrfd for cid, p in res[c]["column_P"].items()), key=lambda x: abs(x[2])),
+        "applied": {cs: [round(v, 4) for v in a_] for cs, a_ in applied.items() if not cs.startswith("N")},
+        "roof_H": {cs: round(v, 4) for cs, v in roof_H.items() if not cs.startswith("N")}, "brace_cos": {k_: round(v, 6) for k_, v in brace_cos.items()},
+        "dam": {"stiffness": DAM_STIFFNESS, "min_segments": DAM_MIN_SEGMENTS, "notional": ratio,
+                "tau": {"alpha_Pr_Pns": round(float(tau[0]), 5), "member": tau[1], "combo": tau[2], "ok": bool(tau[0] <= 0.5)}},
+        "summary": {"rafter_M_LRFD": max(((c, res[c]["rafter_M"]) for c in lrfd_n), key=lambda x: x[1]),
+                    "column_P_LRFD": max(((c, cid, p_) for c in lrfd_n for cid, p_ in res[c]["column_P"].items()), key=lambda x: abs(x[2])),
                     "apex_ASD": min(((c, res[c]["apex"]) for c in asd), key=lambda x: x[1]),
-                    "brace_T_LRFD": max(((c, b, v) for c in lrfd for b, v in res[c]["braces"].items()), key=lambda x: x[2])},
+                    "brace_T_LRFD": max(((c, b, v) for c in lrfd_n for b, v in res[c]["braces"].items()), key=lambda x: x[2])},
         "assumptions": ["in-plane sway held by the end-wall X-bracing (tension-only diagonals, modelled from a column base to the rafter node over the next column); no reliance on sheeting",
                         "wind columns pinned top and bottom, modelled up to the rafter centroid line",
-                        "first order (the frame is braced in its plane)"],
+                        "strength (LRFD): Direct Analysis Method — second order, 0.8 stiffness, notional loads, 4 elements per member (P-delta); cases and ASD first order on the nominal stiffness"],
         "designed": False,
     }

@@ -2,12 +2,13 @@
 """Phase 4 step 1: design inputs taken from the MODEL — plate strengths, design members, restraint points, and the one
 moment-sign boundary into bimsteelauto's checks.
 
-Plate strengths (VERIFIED False — each value carries its source; the user confirms against the printed standards):
+Plate strengths (each value carries its source; ECP values confirmed by the user, the others VERIFIED False until confirmed):
     S275, S355        EN 10025-2 Table 7: ReH by thickness (≤ 16, ≤ 40 mm), Rm minimum (3 ≤ t ≤ 100 mm)
     A572 Gr 50        ASTM A572/A572M Table 2: Fy 345, Fu 450 MPa
-    St 37, St 44, St 52  ECP 205-LRFD Table 1.1 (t ≤ 40, ≤ 100 mm), t/cm² × 98.0665 → MPa; values as transcribed in the
-                      user's ecp-steel-code skill engine — to be replaced by the ecp205-lrfd library (Phase 4 step 7);
-                      St 37 Fu 3.7 t/cm² there, Claude remembered 3.6: TO CONFIRM against the printed table
+    St 37, St 44, St 52  ECP 205-LRFD Sect. 1.3.3 / Table 1.1 (t ≤ 40, 40 < t ≤ 100 mm), t/cm² × 98.0665 → MPa —
+                      CONFIRMED by the user against the printed code (2026-11-08): VERIFIED True. The same values are
+                      in the user's ecp205-lrfd library (materials.STEEL_GRADES), checked equal.
+    ECP Sect. 1.3.2 constants (ECP_CONSTANTS): E 2100, G 810 t/cm², density 7.85 t/m³, ν 0.3, α 1.2e-5 /°C — confirmed.
     S350GD            EN 10346: ReH 350, Rm 420 MPa (cold-formed)
     A built-up section's Fy = the LOWEST of its plates' (a thick flange may fall in a lower band) — stated, conservative.
 
@@ -37,12 +38,14 @@ GRADES: dict[str, list[tuple[float, float, float, str]]] = {
     "S275": [(16, 275, 410, "EN 10025-2 Tab. 7"), (40, 265, 410, "EN 10025-2 Tab. 7")],
     "S355": [(16, 355, 470, "EN 10025-2 Tab. 7"), (40, 345, 470, "EN 10025-2 Tab. 7")],
     "A572 Gr 50": [(100, 345, 450, "ASTM A572 Tab. 2")],
-    "St 37": [(40, 2.40 * KGF, 3.70 * KGF, "ECP 205 Tab. 1.1 (skill transcription; Fu TO CONFIRM)"), (100, 2.15 * KGF, 3.40 * KGF, "ECP 205 Tab. 1.1")],
+    "St 37": [(40, 2.40 * KGF, 3.70 * KGF, "ECP 205 Tab. 1.1"), (100, 2.15 * KGF, 3.40 * KGF, "ECP 205 Tab. 1.1")],
     "St 44": [(40, 2.80 * KGF, 4.40 * KGF, "ECP 205 Tab. 1.1"), (100, 2.55 * KGF, 4.10 * KGF, "ECP 205 Tab. 1.1")],
     "St 52": [(40, 3.60 * KGF, 5.20 * KGF, "ECP 205 Tab. 1.1"), (100, 3.35 * KGF, 4.90 * KGF, "ECP 205 Tab. 1.1")],
     "S350GD": [(4, 350, 420, "EN 10346")],
 }
-VERIFIED = {"GRADES": False, "restraints": False}
+#: ECP 205-LRFD Sect. 1.3.2, in the code's units (confirmed by the user, 2026-11-08)
+ECP_CONSTANTS = {"E_t_cm2": 2100.0, "G_t_cm2": 810.0, "density_t_m3": 7.85, "poisson": 0.3, "alpha_per_C": 1.2e-5}
+VERIFIED = {"GRADES_ECP": True, "ECP_CONSTANTS": True, "GRADES_EN_ASTM": False, "restraints": False}
 
 
 def plate_strength(grade: str, t: float) -> dict:

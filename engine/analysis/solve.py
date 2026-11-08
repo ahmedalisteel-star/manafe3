@@ -6,8 +6,8 @@ next to every LRFD and ASD combination. Each result carries its set: "case" | "L
 forces, governing moments) are reported from LRFD; deflection and drift from ASD (user decision).
 
 Direct Analysis Method (AISC 360-16 Chapter C, user decision 2026-11-08) — for the STRENGTH (LRFD) combinations only:
-    stiffness   0.8 × every stiffness (C2.3(a): applying it to all members is permitted) — E and G of the one steel
-                material × 0.8, i.e. EI and EA × 0.8; τb = 1, CHECKED: αPr/Pns ≤ 0.5 at every station (α = 1.0 LRFD;
+    stiffness   0.8 × every stiffness (C2.3(a): applying it to all members is permitted) — bimsteelauto 0.14.2
+                ModelSettings.stiffness_factor = 0.8 (E and G, so EI and EA); τb = 1, CHECKED: αPr/Pns ≤ 0.5 at every station (α = 1.0 LRFD;
                 Pns = Fy·A — the gross cross-section strength; for a slender section Pns is lower, refined with E7 in step 3)
     τb > ...    if αPr/Pns > 0.5 anywhere: C2.3(c) — keep τb = 1 and add 0.001·α·Yi to the notional loads (0.003 in all)
     notional    C2.2b: Ni = 0.002·α·Yi, applied where the gravity load is: each D / C / Lr line load gets a horizontal twin
@@ -15,6 +15,9 @@ Direct Analysis Method (AISC 360-16 Chapter C, user decision 2026-11-08) — for
                 (conservative: the C2.2b(4) exemption for lateral combinations is not used), in the direction of that
                 combination's net lateral load (it adds to it); a gravity-only combination is solved in BOTH directions
                 ("… [+N]", "… [-N]")
+    P-δ         C2.1 needs P-Δ AND P-δ: every member — constant rafter segments and rigid arms too — is split into at
+                least DAM_MIN_SEGMENTS = 4 elements (ModelSettings.min_segments); PyNite's P-Delta solution then carries
+                the members' own curvature (4 elements: within 1 % of the exact braced beam-column — test_dam.py)
 The service set (unfactored cases and ASD) uses the nominal stiffness and no notional loads (deflections and drift are
 judged on the real frame). Both sets run P-Delta.
 Units: kN, kN·m, mm. Reactions (H, V, M) are the forces the support gives the frame; P is positive in compression;
@@ -26,6 +29,7 @@ nodes named "E…" (its own layouts) and would return 0 here — not used.
 
 from __future__ import annotations
 
+import dataclasses
 import math
 
 from bimsteelauto.analysis import FrameAnalysis, LoadDirection
@@ -36,22 +40,14 @@ DAM_STIFFNESS = 0.8
 NOTIONAL = 0.002            # × α (1.0 for LRFD) × Yi
 NOTIONAL_TAU = 0.001        # the C2.3(c) addition when αPr/Pns > 0.5
 ALPHA_LRFD = 1.0
+DAM_MIN_SEGMENTS = 4
 GRAVITY_CASES = ("D", "C", "Lr")
 
 
-class ReducedStiffnessAnalysis(FrameAnalysis):
-    """bimsteelauto's FrameAnalysis with every stiffness × factor (the one steel material's E and G)."""
-
-    def __init__(self, layout, factor: float):
-        super().__init__(layout)
-        self.stiffness_factor = factor
-
-    def build(self):
-        model = super().build()                 # a fresh model every call (no caching in bimsteelauto)
-        mat = model.materials["steel"]
-        mat.E *= self.stiffness_factor
-        mat.G *= self.stiffness_factor
-        return model
+def strength_layout(layout):
+    """The same frame for the strength (DAM) solve: stiffness × 0.8, at least 4 elements per member (P-δ)."""
+    return dataclasses.replace(layout, settings=dataclasses.replace(layout.settings, stiffness_factor=DAM_STIFFNESS,
+                                                                    min_segments=DAM_MIN_SEGMENTS))
 
 
 def _geom(info):
@@ -125,8 +121,8 @@ def strength_combinations(info, fl) -> list[tuple[str, dict, str]]:
     return out
 
 
-def _solve(fa_cls, info, loads, combos, p_delta, **kw):
-    fa = fa_cls(info.layout, **kw) if kw else fa_cls(info.layout)
+def _solve(layout, loads, combos, p_delta):
+    fa = FrameAnalysis(layout)
     for ld in loads:
         fa.add_line_load(ld.case, ld.member_mark, ld.w, ld.direction, w_end=ld.w_end)
     for name, factors in combos:
@@ -166,7 +162,7 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
     for n, f, s in fl.combinations:
         if not (dam and s == "LRFD"):
             sets[n] = s
-    env_s = _solve(FrameAnalysis, info, fl.loads, service, p_delta)
+    env_s = _solve(lay, fl.loads, service, p_delta)
     for c, _ in service:
         envs[c] = env_s
     strength = strength_combinations(info, fl) if dam else []
@@ -174,18 +170,18 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
         dam_info.update({"note": "no LRFD combinations: nothing to solve with the DAM"})
     if strength:
         ratio = NOTIONAL
-        env_r = _solve(ReducedStiffnessAnalysis, info, list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
-                       [(n, f) for n, f, _ in strength], p_delta, factor=DAM_STIFFNESS)
+        env_r = _solve(strength_layout(lay), list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
+                       [(n, f) for n, f, _ in strength], p_delta)
         tau = _tau_check(info, env_r, [n for n, _, _ in strength], fy)
         if tau.get("checked") and not tau["ok"]:
             ratio = NOTIONAL + NOTIONAL_TAU                                   # C2.3(c)
-            env_r = _solve(ReducedStiffnessAnalysis, info, list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
-                           [(n, f) for n, f, _ in strength], p_delta, factor=DAM_STIFFNESS)
+            env_r = _solve(strength_layout(lay), list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
+                           [(n, f) for n, f, _ in strength], p_delta)
             tau["route"] = "C2.3(c): τb = 1 with an additional notional load 0.001·α·Yi"
         for n, _, s in strength:
             sets[n] = s
             envs[n] = env_r
-        dam_info.update({"stiffness": DAM_STIFFNESS, "notional": ratio, "alpha": ALPHA_LRFD, "tau": tau,
+        dam_info.update({"stiffness": DAM_STIFFNESS, "min_segments": DAM_MIN_SEGMENTS, "notional": ratio, "alpha": ALPHA_LRFD, "tau": tau,
                          "notional_in": "every LRFD combination, along its net lateral load; gravity-only: both directions"})
     order = [c for c, _ in service if sets[c] == "case"] + [n for n in sets if sets[n] not in ("case", "ASD")] + [n for n in sets if sets[n] == "ASD"]
     eaves, ridge = lay.eave_nodes, lay.ridge_nodes[0]

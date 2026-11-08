@@ -69,6 +69,7 @@ def test_longitudinal_feed_actual_top_reactions(out):
     assert 0.51 < share < 0.56 and abs(share - 0.5) > 0.01                               # the real split, not 0.5
 
 
+@pytest.mark.slow
 def test_end_frame_statics_longhand(out, frame):
     raf = next(m for m in out["members"] if m["id"] == "EFRA")["section"]["segments"][0]
     A_r = (raf["hw_start"] * raf["tw"] + raf["bf_top"] * raf["tf_top"] + raf["bf_bot"] * raf["tf_bot"]) * 1e-6
@@ -98,6 +99,7 @@ def test_end_frame_statics_longhand(out, frame):
     assert s["rafter_M_LRFD"][0].startswith("LRFD: ") and s["apex_ASD"][0].startswith("ASD: ")
 
 
+@pytest.mark.slow
 def test_end_frame_vs_anastruct_under_Lr(out, frame):
     raf = next(m for m in out["members"] if m["id"] == "EFRA")["section"]["segments"][0]
     d = raf["hw_start"] + raf["tf_top"] + raf["tf_bot"]
@@ -127,6 +129,7 @@ def test_end_frame_vs_anastruct_under_Lr(out, frame):
         assert -rf[n].Fy == pytest.approx(res[cid][1], rel=0.01), cid
 
 
+@pytest.mark.slow
 def test_end_wall_bracing_geometry_and_load_path(out, frame):
     """Default: one braced bay (bay 1, between the corner column at y 125 and WF2 at 6 000) on the end-rafter wall, none on
     the main-frame wall. Geometry by hand: the wind columns' centre plane x = −125 + (300 + 2·8)/2 = 33; XF1a from WF1's base
@@ -153,3 +156,63 @@ def test_end_rafter_wall_without_bracing_is_refused():
         end_rafter_frame(o, "first", LI)
     with pytest.raises(ValueError, match="does not exist"):
         peb_building(BuildingInput(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter", end_braced_bays=(5,)))
+
+
+@pytest.mark.slow
+def test_end_frame_strength_by_the_direct_analysis_method(frame):
+    """LRFD on the end frame: 0.8 stiffness, 4 elements per member, notional 0.002·Yi. Statics: under 1.4D [±N] the
+    horizontal base reactions (the braced column bases included) balance 0.002 × the factored gravity, in the right
+    direction, and one diagonal carries it while the other is slack; the vertical reactions are the gravity."""
+    d = frame["dam"]
+    assert d["stiffness"] == 0.8 and d["min_segments"] == 4 and d["notional"] == 0.002 and d["tau"]["ok"]
+    G = 1.4 * (-(frame["applied"]["D"][1] + frame["applied"]["C"][1]))                   # kN down, from the load tally
+    for name, sg in (("LRFD: 1.4D (+C) [+N]", 1.0), ("LRFD: 1.4D (+C) [-N]", -1.0)):
+        r = frame["results"][name]
+        assert r["set"] == "LRFD"
+        assert sum(v[1] for v in r["reactions"].values()) == pytest.approx(G, abs=5e-3)
+        assert sum(v[0] for v in r["reactions"].values()) == pytest.approx(-sg * 0.002 * G, abs=5e-3)
+        assert sum(1 for v in r["braces"].values() if v > 0) == 1                       # one diagonal works
+    assert "LRFD: 1.4D (+C)" not in frame["results"] and frame["results"]["D"]["set"] == "case"
+
+
+@pytest.mark.slow
+def test_rod_tension_never_below_statics(frame):
+    """Every LRFD combination: the working diagonal carries at least H / cos θ (statics: the pinned columns take no
+    shear), and the other diagonal nothing."""
+    for c, r in frame["results"].items():
+        if r["set"] != "LRFD":
+            continue
+        work = "XF1a" if r["roof_H"] >= 0 else "XF1b"
+        idle = "XF1b" if work == "XF1a" else "XF1a"
+        assert r["braces"][work] >= abs(r["roof_H"]) / frame["brace_cos"][work] - 2e-3, c
+        assert r["braces"][idle] == 0.0, c
+
+
+def test_pynite_never_reactivates_a_tension_only_member():
+    """Why the strength set does not use PyNite's tension-only switch: a braced bay (pinned posts, X of rods) under a
+    heavy gravity load on the beam and a small lateral load. The posts shorten, both rods see compression in the first
+    pass, PyNite switches both off — and never back on (Analysis._check_TC_convergence only checks ACTIVE members), so
+    the bay is left a mechanism. If a PyNite release ever fixes this, this test fails: re-think the workaround."""
+    from Pynite import FEModel3D
+    m = FEModel3D()
+    m.add_material("S", 200000.0, 77000.0, 0.3, 7.85e-8)
+    m.add_section("post", 4000.0, 1e7, 5e7, 1e5)
+    m.add_section("rod", 314.0, 1.0, 1.0, 1.0)
+    for n, (x, y) in {"A": (0, 0), "B": (6000, 0), "C": (0, 6000), "D": (6000, 6000)}.items():
+        m.add_node(n, x, y, 0.0)
+        m.def_support(n, support_DZ=True, support_RX=True, support_RY=True)
+    for n in ("A", "B"):
+        m.def_support(n, True, True, True, True, True, False)
+    m.add_member("P1", "A", "C", "S", "post"); m.add_member("P2", "B", "D", "S", "post"); m.add_member("BM", "C", "D", "S", "post")
+    m.def_releases("P1", Rzj=True); m.def_releases("P2", Rzj=True)
+    m.add_member("X1", "A", "D", "S", "rod", tension_only=True); m.add_member("X2", "B", "C", "S", "rod", tension_only=True)
+    for x in ("X1", "X2"):
+        m.def_releases(x, Ryi=True, Rzi=True, Ryj=True, Rzj=True)
+    m.add_member_dist_load("BM", "FY", -50.0, -50.0, case="G")            # 50 kN/m: 150 kN per post
+    m.add_node_load("C", "FX", 100.0, case="W")                           # 0.1 kN sideways
+    m.add_load_combo("c", {"G": 1.0, "W": 1.0})
+    try:
+        m.analyze(check_statics=False)
+    except Exception:
+        return                                                            # it may also refuse to solve: the same trap
+    assert m.members["X1"].active["c"] is False and m.members["X2"].active["c"] is False

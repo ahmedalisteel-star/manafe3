@@ -30,8 +30,9 @@ dev = [
 package = false
 
 [tool.uv.sources]
-bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "c8caa70efe5828528951c3a40660e51376ed6750" }  # main: 0.14.1 fix/moment-sign (2026-11-08)
+bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "8c8d3cbabca9f6360ef52d4da9cbc5c16b1819cd" }  # main: 0.14.2 stiffness_factor + min_segments (2026-11-08)
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]
+markers = ["slow: solves whole frame lines (minutes); start-work.ps1 skips them, end-work.ps1 runs everything"]
 pythonpath = ["."]

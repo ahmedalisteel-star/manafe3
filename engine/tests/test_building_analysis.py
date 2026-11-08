@@ -24,6 +24,7 @@ def _two_cases(fl):
                     tributary_m=fl.tributary_m, Lr=fl.Lr, wind=fl.wind)
 
 
+@pytest.mark.slow
 def test_taper_step_converged():
     """The analysis step (0.10) against a fine one (0.025): apex, sway, base thrust, max moments within 1 %."""
     b = BuildingInput(**B1)
@@ -65,6 +66,7 @@ def whole():
     return analyse_building(BuildingInput(**B1, end_first="rafter"), LI, p_delta=False, workers=2)
 
 
+@pytest.mark.slow
 def test_building_dedup_and_labels(whole):
     r = whole
     assert r["banner"].startswith("NOT FOR ISSUE") and r["designed"] is False
@@ -87,6 +89,7 @@ def test_building_dedup_and_labels(whole):
     assert 0.45 < v5 / v2 < 0.75
 
 
+@pytest.mark.slow
 def test_api_analysis():
     c = TestClient(app)
     r = c.post("/peb/analysis", json={"building": {**B1, "n_bays": 2}, "loads": {"V": 45, "exposure": "C"}, "p_delta": False})

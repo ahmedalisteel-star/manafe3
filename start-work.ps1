@@ -22,8 +22,8 @@ if ($LASTEXITCODE -ne 0) { Write-Host 'uv sync failed.' -ForegroundColor Red; ex
 
 $failed = $false
 if (-not $SkipTests) {
-  Step 'engine tests (pytest)'
-  uv run pytest -q
+  Step 'engine tests (pytest, fast set: -m "not slow" - end-work.ps1 runs everything)'
+  uv run pytest -q -m "not slow"
   if ($LASTEXITCODE -ne 0) { $failed = $true }
   Step 'app tests (npm test)'
   npm test --silent

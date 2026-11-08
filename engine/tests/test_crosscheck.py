@@ -16,6 +16,8 @@ from engine.analysis.staad import staad_frame
 from engine.peb.builtup_frame import builtup_frame_members, default_sizes
 from engine.peb.loads_input import LoadsInput
 
+pytestmark = pytest.mark.slow          # whole frame solves (see pyproject [tool.pytest.ini_options])
+
 
 def test_anastruct_conventions():
     ss = SystemElements()                                   # cantilever along x, q = −1 in "y": a DOWNWARD load
