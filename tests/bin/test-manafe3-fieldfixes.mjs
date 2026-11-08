@@ -298,5 +298,27 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(!G.clashKind({ members: [{ id: 'a', gen: 'peb:B1', m3role: 'girt' }, { id: 'b', gen: 'peb:B1', m3role: 'rafter' }] }, { a: { kind: 'member', id: 'a' }, b: { kind: 'member', id: 'b' } }).generatedJoint, 'girt × rafter is not a generated joint: shown');
 }
 
+// ---- 17. elevations on lettered AND numbered grids, both axes ----------------------------------------------------------------
+{
+  const V = await mod('manafe3/views.js');
+  const { build } = await mod('build.js');
+  const { markParts } = await mod('marks.js');
+  const { drawingSet } = await mod('drawings.js');
+  // R1's site: lettered grids A–L along x, numbered rows along y
+  const site = { grids: { x: 'A B C D E F G H J K L'.split(' ').map((label, i) => ({ label, at: [0, 6600, 12600, 18600, 25100, 31100, 36600, 42600, 48600, 54600, 60000][i] })),
+    y: ['14', '13', '7', '6', '1'].map((label, i) => ({ label, at: [0, 6100, 37400, 38100, 65700][i] })) } };
+  const ch = V.elevationChoices(site);
+  ok(ch.length === 16 && ch.filter((c) => c.grid.axis === 'x').map((c) => c.grid.label).join('') === 'ABCDEFGHJKL', 'the Elevation picker offers A–L (x lines) and the rows (y lines)', ch.map((c) => c.value));
+  ok(JSON.stringify(V.gridForChoice(site, 'x:F')) === JSON.stringify({ label: 'F', at: 31100, axis: 'x' }) && V.gridForChoice(site, '7').axis === 'y' && V.gridForChoice(site, 'nope').label === '14', 'choice → grid (axis, position)');
+  // a building whose frames stand on lettered x lines: the drawing set has an elevation on each of them
+  const m = new Model(emptyState('elev'));
+  m.change('b', (tx) => B.applyBuilding(tx, RES, spec, { grids: 'none' }));
+  m.change('g', (tx) => tx.setGrids({ x: ['A', 'B', 'C', 'D', 'E'].map((label, i) => ({ label, at: i * 6000 })), y: [{ label: '1', at: 0 }, { label: '2', at: 24000 }] }));
+  const b = build(m.state);
+  const set = drawingSet(m.state, b, markParts(b), {});
+  const elev = set.sheets.filter((s) => s.kind === 'elevation').map((s) => s.id);
+  ok(['A', 'B', 'C', 'D', 'E'].every((l) => elev.includes('elevation:x:' + l)) && elev.includes('elevation:y:1') && elev.includes('elevation:y:2'), 'GA elevations on the lettered frame lines A–E and the numbered lines 1, 2', elev);
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

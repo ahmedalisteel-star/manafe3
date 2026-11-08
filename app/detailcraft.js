@@ -59,7 +59,8 @@ import { phaseReport, reportTables, reportCsv, reportSheets } from './report.js'
 import { clashCheck } from './clash.js';
 import { modelLoaded as m3ModelLoaded } from './manafe3/panels.js';   // Manafe3 (changed file, field fix 3): panels hear a load
 import { concreteTotals } from './manafe3/materials.js';
-import { groupClashes } from './manafe3/clash-groups.js';   // Manafe3 (changed file, field fix 16)   // Manafe3 (changed file): concrete volume total
+import { groupClashes } from './manafe3/clash-groups.js';
+import { elevationChoices, gridForChoice } from './manafe3/views.js';   // Manafe3 (changed file, field fix 17)   // Manafe3 (changed file, field fix 16)   // Manafe3 (changed file): concrete volume total
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
 import { getHost } from "./host.js";
@@ -533,9 +534,9 @@ async function start(root) {
     const s = model.state;
     const lv = ui.vlevel.value, gv = ui.vgrid.value;
     ui.vlevel.replaceChildren(...s.levels.map((l) => el('option', { value: l.name }, l.name)));
-    ui.vgrid.replaceChildren(...s.grids.y.map((g) => el('option', { value: g.label }, tr('app.view.grid', { label: g.label }))));
+    ui.vgrid.replaceChildren(...elevationChoices(s).map((c) => el('option', { value: c.value }, tr('app.view.grid', { label: c.grid.label }))));   // Manafe3 (field fix 17): both grid axes
     if (s.levels.some((l) => l.name === lv)) ui.vlevel.value = lv;
-    if (s.grids.y.some((g) => g.label === gv)) ui.vgrid.value = gv;
+    if (elevationChoices(s).some((c) => c.value === gv)) ui.vgrid.value = gv;
   }
   function setView(mode) {
     viewMode = mode;
@@ -543,9 +544,9 @@ async function start(root) {
     ui.vlevel.hidden = mode !== 'plan';
     ui.vgrid.hidden = mode !== 'elevation';
     const level = model.state.levels.find((l) => l.name === ui.vlevel.value) || model.state.levels[model.state.levels.length - 1];
-    const grid = model.state.grids.y.find((g) => g.label === ui.vgrid.value) || model.state.grids.y[0];
+    const grid = gridForChoice(model.state, ui.vgrid.value);   // Manafe3 (field fix 17): { label, at, axis }
     if (mode === 'plan' && level) ui.vlevel.value = level.name;
-    if (mode === 'elevation' && grid) ui.vgrid.value = grid.label;
+    if (mode === 'elevation' && grid) ui.vgrid.value = grid.axis === 'x' ? 'x:' + grid.label : grid.label;
     view?.setMode(mode, { level, grid });
     workspace?.refresh();
   }

@@ -22,6 +22,7 @@ import { mountWorkspaces } from 'cc-workspace';
 import { fromInput } from '/assets/js/app-workspace-input.js';
 import { panelLayout } from '/assets/js/app-input.js';
 import { t as tr } from './i18n.js';
+import { elevationChoices } from './manafe3/views.js';   // Manafe3 (changed file, field fix 17)
 
 const MAP = { open: 'file.open', save: 'file.save', undo: 'edit.undo', redo: 'edit.redo', select: 'place.select', clear: 'edit.select-none', fit: 'view.fit' };
 const TOOLBOX = [
@@ -90,7 +91,7 @@ export async function mountDetailcraftWorkspace({ root, dc }) {
     const s = S();
     return [{ id: '3d', kind: '3d', name: tr('page.view.3d'), icon: VIEW_ICON['3d'] },
       ...s.levels.map((l) => ({ id: 'plan:' + l.name, kind: 'plan', key: l.name, name: tr('ws.view.plan', { name: l.name }), icon: VIEW_ICON.plan })),
-      ...s.grids.y.map((g) => ({ id: 'elev:' + g.label, kind: 'elevation', key: g.label, name: tr('ws.view.elev', { name: gridName(g) }), icon: VIEW_ICON.elevation }))];
+      ...elevationChoices(s).map((c) => ({ id: 'elev:' + c.value, kind: 'elevation', key: c.value, name: tr('ws.view.elev', { name: gridName(c.grid) }), icon: VIEW_ICON.elevation }))];   // Manafe3 (changed file, field fix 17): both axes
   }
   const vlevel = $('[data-vlevel]'), vgrid = $('[data-vgrid]');
   function currentView() {
@@ -111,7 +112,7 @@ export async function mountDetailcraftWorkspace({ root, dc }) {
     const s = S();
     if (kind === '3d') return '3d';
     if (kind === 'plan') { const l = s.levels.find((x) => x.name === vlevel.value) || s.levels[s.levels.length - 1]; return l ? 'plan:' + l.name : null; }
-    const g = s.grids.y.find((x) => x.label === vgrid.value) || s.grids.y[0]; return g ? 'elev:' + g.label : null;
+    const c = elevationChoices(s).find((x) => x.value === vgrid.value) || elevationChoices(s)[0]; return c ? 'elev:' + c.value : null;   // Manafe3: both axes
   }
 
   // ---- the browser: members, connections, drawings ----

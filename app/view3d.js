@@ -122,9 +122,11 @@ export class View3D {
   /** The view's cut as winsel.js planes (mm): kept where n·p + d ≥ 0. */
   cutPlanes() {
     if (this.mode === 'plan' && this.modeOpts.level) return [{ n: [0, 0, -1], d: this.modeOpts.level.z + 1500 }];
-    if (this.mode === 'elevation' && this.modeOpts.grid) { const y = this.modeOpts.grid.at; return [{ n: [0, -1, 0], d: y + 1000 }, { n: [0, 1, 0], d: -(y - 1000) }]; }
+    if (this.mode === 'elevation' && this.modeOpts.grid) { const y = this.modeOpts.grid.at, k = this.elevAxis(); return [{ n: k === 0 ? [-1, 0, 0] : [0, -1, 0], d: y + 1000 }, { n: k === 0 ? [1, 0, 0] : [0, 1, 0], d: -(y - 1000) }]; }   // Manafe3: x grids too (field fix 17)
     return [];
   }
+  /** Manafe3 (changed file, field fix 17): the elevation's grid axis — 1 for a y line (y = at, the upstream view), 0 for an x line. */
+  elevAxis() { return this.modeOpts.grid?.axis === 'x' ? 0 : 1; }
 
   makeControls() {
     this.controls?.dispose();
@@ -426,8 +428,8 @@ export class View3D {
     const planes = [];
     if (this.mode === 'plan' && this.modeOpts.level) planes.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), (this.modeOpts.level.z + 1500) * MM));
     if (this.mode === 'elevation' && this.modeOpts.grid) {
-      const y = this.modeOpts.grid.at;
-      planes.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), (y + 1000) * MM), new THREE.Plane(new THREE.Vector3(0, 1, 0), -(y - 1000) * MM));
+      const y = this.modeOpts.grid.at, k = this.elevAxis();   // Manafe3: x grids too
+      planes.push(new THREE.Plane(k === 0 ? new THREE.Vector3(-1, 0, 0) : new THREE.Vector3(0, -1, 0), (y + 1000) * MM), new THREE.Plane(k === 0 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0), -(y - 1000) * MM));
     }
     this.clipPlanes = planes;
     for (const [k, m] of Object.entries(this.mats || {})) if (!['hover', 'rubber', 'node'].includes(k)) { m.clippingPlanes = planes; m.needsUpdate = true; }
@@ -439,7 +441,7 @@ export class View3D {
   activeNodes() {
     const list = this.nodeList || [];
     if (this.mode === 'plan' && this.modeOpts.level) return list.filter((n) => Math.abs(n.p[2] - this.modeOpts.level.z) < 0.5);
-    if (this.mode === 'elevation' && this.modeOpts.grid) return list.filter((n) => Math.abs(n.p[1] - this.modeOpts.grid.at) < 0.5);
+    if (this.mode === 'elevation' && this.modeOpts.grid) return list.filter((n) => Math.abs(n.p[this.elevAxis()] - this.modeOpts.grid.at) < 0.5);   // Manafe3: x grids too
     return list;
   }
 
@@ -462,11 +464,11 @@ export class View3D {
         this.ortho.position.set(c.x, c.y, z + 100);
         this.controls.target.set(c.x, c.y, z);
       } else {
-        const y = (this.modeOpts.grid?.at ?? c.y / MM) * MM;
-        this.ortho.position.set(c.x, y - 100, c.z);
-        this.controls.target.set(c.x, y, c.z);
+        const y = (this.modeOpts.grid?.at ?? (this.elevAxis() === 0 ? c.x : c.y) / MM) * MM;
+        if (this.elevAxis() === 0) { this.ortho.position.set(y + 100, c.y, c.z); this.controls.target.set(y, c.y, c.z); }   // Manafe3: an x line seen from +x (as drawings.js elevX)
+        else { this.ortho.position.set(c.x, y - 100, c.z); this.controls.target.set(c.x, y, c.z); }
       }
-      this.orthoSpan = plan ? [size.x, size.y] : [size.x, Math.max(size.z, 1)];
+      this.orthoSpan = plan ? [size.x, size.y] : [this.elevAxis() === 0 ? size.y : size.x, Math.max(size.z, 1)];   // Manafe3: x grids too
       this.fitOrtho(true);
     }
     this.controls.update();
@@ -668,8 +670,8 @@ export class View3D {
           const got = this.dragParts.start(hit.ref);
           if (got) {
             const vertical = this.mode === '3d' && (e.ctrlKey || e.metaKey);
-            const mask = this.mode === 'elevation' ? [1, 0, 1] : vertical ? [0, 0, 1] : [1, 1, 0];
-            let n = this.mode === 'elevation' ? [0, 1, 0] : [0, 0, 1];
+            const mask = this.mode === 'elevation' ? (this.elevAxis() === 0 ? [0, 1, 1] : [1, 0, 1]) : vertical ? [0, 0, 1] : [1, 1, 0];
+            let n = this.mode === 'elevation' ? (this.elevAxis() === 0 ? [1, 0, 0] : [0, 1, 0]) : [0, 0, 1];   // Manafe3: x grids too
             if (vertical) { const d = new THREE.Vector3(); this.camera.getWorldDirection(d); n = [d.x, d.y, 0]; if (Math.hypot(n[0], n[1]) < 1e-6) n = [0, 1, 0]; }
             drag = { id: e.pointerId, start: { x: l.x, y: l.y }, grab: hit.point, n, mask, points: got.points, ref: hit.ref, moved: false };
             this.partDrag = { ghost: got.ghost, offset: [0, 0, 0], node: null, moved: false };

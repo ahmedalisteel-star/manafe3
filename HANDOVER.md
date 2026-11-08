@@ -81,6 +81,10 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   under the rafter, eave strut on the column). Anything else, or any member you placed, always shows. Found and fixed:
   20 false clashes in building 1 - a tapered segment's web was checked as its bounding box against its own sloping
   flange; plates of ONE built-up segment are no longer checked against each other (a splice between segments still is).
+- **17 Elevations:** the drawing set already made GA elevations on both grid axes; the gap was the app's Elevation VIEW,
+  which listed only the y lines (upstream assumed letters on y). It now lists every grid line of both axes
+  (`app/manafe3/views.js`; x lines are seen from +x like the elevX sheets), so R1's A-L (x lines) appear. The view tabs
+  of a workspace layout list them too.
 
 ### Phase 4 plan (approved 2026-11-08)
 
