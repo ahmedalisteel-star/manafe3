@@ -320,5 +320,68 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(['A', 'B', 'C', 'D', 'E'].every((l) => elev.includes('elevation:x:' + l)) && elev.includes('elevation:y:1') && elev.includes('elevation:y:2'), 'GA elevations on the lettered frame lines A–E and the numbered lines 1, 2', elev);
 }
 
+// ---- 26 / 27. assistant tools on detailcraftControl; model.replace as one undoable step -----------------------------------
+{
+  const { createDispatcher, getHost } = await mod('host.js');
+  const T = await mod('manafe3/agent-tools.js');
+  const { build } = await mod('build.js');
+  const { markParts } = await mod('marks.js');
+  // why list() was []: the host's assistant switch is off until the person turns it on (Settings › Assistants)
+  const C = getHost({ app: 'm3test' }).control;
+  C.tool({ name: 'x_read', group: 'read', title: 'x', description: 'x', run: () => 1 });
+  ok(C.enabled === false && C.list().length === 0, 'assistants are off by default (Settings › Assistants): list() is empty');
+  C.configure({ enabled: true, groups: ['read'] });
+  ok(C.list().map((x) => x.name).join() === 'x_read', 'turned on with read: the read tool is listed');
+  C.configure({ enabled: false });
+  let model = new Model(emptyState('agent')), exported = null;
+  const cache = { v: -1 };
+  const cur = () => { if (cache.v !== model.version || cache.m !== model) { cache.b = build(model.state); cache.k = markParts(cache.b); cache.v = model.version; cache.m = model; } return cache; };
+  const app = { model: () => model, built: () => cur().b, marks: () => cur().k, busy: () => null, requestBuilding: async () => RES, exportSheets: async (o) => { exported = o; return { file: 'x.pdf', sheets: o.numbers || [] }; } };
+  let allowed = ['read'];
+  const d = createDispatcher({ server: { name: 'manafe3', title: 'Manafe3', version: 'test' }, allowed: () => allowed });
+  for (const def of T.m3Tools(app)) d.tool(def);
+  const call = async (name, a = {}) => { const r = await d.call(name, a); return { r, v: r.structuredContent, text: r.content?.[0]?.text || '' }; };
+  ok(d.list().map((t) => t.name).sort().join() === 'clash_groups,peb_buildings', 'read only: the two read tools');
+  allowed = ['read', 'edit', 'export'];
+  ok(d.list().length === 8, 'with edit and export: 8 Manafe3 tools', d.list().map((t) => t.name));
+  let x = await call('peb_building_set', { name: 'STORE', origin_x: 1000, footings: true, base_plates: true });
+  ok(!x.r.isError && x.v.id === 'B1' && x.v.members === 370 && x.v.footings.added === 16 && x.v.basePlates.added === 16 && model.undoStack.length === 1 && model.undoStack[0].label === 'Assistant: add PEB building', 'peb_building_set: one undo step with footings and base plates', x.text.slice(0, 300));
+  x = await call('peb_buildings');
+  ok(x.v.buildings.length === 1 && x.v.buildings[0].name === 'STORE' && x.v.buildings[0].spec.origin_x === '1000', 'peb_buildings lists it with its placement', x.v);
+  x = await call('members_add', { members: [{ type: 'beam', profile: 'IPE300', start: [0, -5000, 3000], end: [6000, -5000, 3000] }, { type: 'column', profile: 'HEB200', start: [0, -5000, 0], end: [0, -5000, 3000] }] });
+  ok(x.v.ids.length === 2 && model.undoStack.length === 2, 'members_add: two members, one undo step');
+  const col = model.state.members.find((m) => m.name === 'F2-CA');
+  const before = col.start.slice();
+  x = await call('members_transform', { building: 'B1', op: 'rotate', degrees: 90, center: [0, 0] });
+  const col2 = model.state.members.find((m) => m.id === col.id);
+  ok(x.v.members === 566 && x.v.footings === 16 && Math.abs(col2.start[0] + before[1]) < 1e-6 && Math.abs(col2.start[1] - before[0]) < 1e-6 && model.undoStack.length === 3, 'members_transform: the building rotated 90° — 370 members + 196 cleats and its 16 pads — one step', x.v);
+  x = await call('members_delete', { expect: 0 });
+  ok(x.r.isError || /at least one filter/.test(x.text), 'members_delete refuses without a filter');
+  x = await call('members_delete', { profile: 'IPE300', expect: -1 });
+  ok(x.v.matched === 1 && x.v.deleted === 0, 'members_delete: count first (expect -1)', x.v);
+  x = await call('members_delete', { profile: 'IPE300', expect: 1 });
+  ok(x.v.deleted === 1 && model.undoStack.length === 4 && !model.state.members.some((m) => m.profile === 'IPE300'), 'members_delete with the matching count: deleted, one step');
+  x = await call('clash_groups', { hide_generated: true });
+  ok(!x.r.isError && x.v.hidden > 300 && x.v.groups.every((g) => !g.generatedJoint), 'clash_groups: generated points hidden', [x.v.total, x.v.hidden, x.v.shown]);
+  x = await call('sheets_export', { numbers: ['GA-01', 'GA-02'], format: 'pdf' });
+  ok(!x.r.isError && exported.format === 'pdf' && exported.numbers.join() === 'GA-01,GA-02', 'sheets_export passes the chosen sheets');
+  x = await call('undo', {}).catch(() => null);   // DetailCraft's own undo tool is not in this dispatcher; the model's undo is
+  model.undo();
+  ok(model.state.members.some((m) => m.profile === 'IPE300'), 'the model\'s undo takes the assistant\'s last step back');
+  // 27: model.replace keeps the history; load() clears it
+  const other = new Model(emptyState('R1 site'));
+  other.change('m', (tx) => tx.addMember({ type: 'beam', profile: 'IPE200', material: 'S355', start: [0, 0, 0], end: [5000, 0, 0] }));
+  const steps = model.undoStack.length, n0 = model.state.members.length;
+  const whys = []; model.on((w) => whys.push(w));
+  x = await call('model_replace', { label: 'load R1', model: other.toJSON() });
+  ok(!x.r.isError && model.state.name === 'R1 site' && model.state.members.length === 1 && model.undoStack.length === steps + 1 && whys.includes('load'), 'model_replace: the new model as ONE undo step, panels told ("load")', x.v);
+  model.undo();
+  ok(model.state.members.length === n0 && model.state.name === 'agent', 'one undo brings the previous model back');
+  let bad = ''; try { model.replace('x', '{not json'); } catch (e) { bad = e.message; }
+  ok(bad && model.state.name === 'agent', 'a bad file is refused and nothing changes');
+  model.load(other.toJSON());
+  ok(model.undoStack.length === 0, 'load() still clears the history (unchanged)');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

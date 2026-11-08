@@ -85,6 +85,16 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   which listed only the y lines (upstream assumed letters on y). It now lists every grid line of both axes
   (`app/manafe3/views.js`; x lines are seen from +x like the elevX sheets), so R1's A-L (x lines) appear. The view tabs
   of a workspace layout list them too.
+- **26 Agent tools:** why `window.detailcraftControl.list()` returned []: the host's assistant switch is OFF by default
+  (Settings > Assistants; `list()` filters every tool out until the person turns it on and picks groups). Not changed in
+  code: turning assistants on stays the person's. Added Manafe3 tools on the same control (`app/manafe3/agent-tools.js`):
+  peb_buildings, peb_building_set (new or regenerate by id; placement, bays, span reference, footings, base plates),
+  members_add (several, one step), members_transform (move / rotate / mirror through transform.js; a building takes the
+  footings under its columns along), members_delete (a filter is required and `expect` must equal the match count - call
+  with -1 to count), clash_groups, sheets_export (chosen sheets as one PDF or a DXF zip), model_replace. Each edit = one
+  undo step "Assistant: ...".
+- **27 model.replace(label, text):** a new model as ONE undoable step (history kept; load() still clears it); emits 'load'
+  so the panels refresh; a bad file changes nothing.
 
 ### Phase 4 plan (approved 2026-11-08)
 

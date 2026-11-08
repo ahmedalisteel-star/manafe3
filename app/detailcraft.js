@@ -1868,6 +1868,18 @@ async function start(root) {
     download: (name, data, type) => download(name, data, type),
     exports: { ifc: () => exportIfc(), nc: () => exportNc(), bom: () => exportBom(), bending: () => exportBending(), kiss: () => exportKiss(), cutlist: () => exportNest() },
   });
+  // Manafe3 (changed file, field fix 26): Manafe3's assistant tools on the same control (PEB buildings, several members,
+  // transform, delete by filter, clash groups, sheet export) — each edit is one undo step
+  import('./manafe3/agent-tools.js')
+    .then(({ m3Tools }) => {
+      for (const d of m3Tools({
+        model: () => model, built: () => built, marks: () => marks,
+        busy: () => (pending ? 'placing a member' : moveRefs ? 'moving parts' : tool === 'paste' ? 'pasting' : null),   // i18n-ignore: read by the assistant
+        requestBuilding: (body) => import('./manafe3/peb-building.js').then((x) => x.requestBuilding(body)),
+        exportSheets,
+      })) window.detailcraftControl.tool(d);
+    })
+    .catch((err) => console.warn('Manafe3: no assistant tools —', err?.message || err));   // i18n-ignore: a console line
   // ---- Manafe3 (changed file, see MANAFE3-CHANGES.md): the "PEB frame…" button, app/manafe3/peb-frame-ui.js ----
   import('./manafe3/peb-building-ui.js')   // Phase 2: "PEB building…" (frames + secondary steel) replaces "PEB frame…"
     .then(({ mountPebBuilding }) => mountPebBuilding({ model: () => model, edit, print, selected: () => selected(), fit: () => { if (view) { view.fitted = false; view.fit(); } } }))
@@ -2272,6 +2284,24 @@ async function start(root) {
     download(safeName() + ' ' + tr('app.dwg.file') + '.pdf', new Blob([bytes], { type: 'application/pdf' }));
     print(tr('app.dwg.saved.pdf', { n: dwgSet.sheets.length, ref: dwgSet.ref }) + (missing ? ' ' + tr('app.pdf.missing', { n: missing }) : ''));
   });
+  /** Manafe3 (changed file, field fixes 23 / 26): the chosen sheets (by number; none = all) as ONE merged PDF or a DXF zip, downloaded. */
+  async function exportSheets({ numbers = null, format = 'pdf' } = {}) {
+    if (!built.parts.length) throw new Error('Nothing to draw: the model has no parts.');
+    const set = makeDrawings();
+    const want = numbers && numbers.length ? new Set(numbers.map((n) => String(n).toUpperCase())) : null;
+    const sheets = want ? set.sheets.filter((sh) => want.has(sh.number.toUpperCase())) : set.sheets;
+    if (!sheets.length) throw new Error('No such sheet. The set has: ' + set.sheets.map((sh) => sh.number).join(', '));
+    if (format === 'dxf') {
+      const files = sheets.map((sh) => ({ name: safeName() + ' ' + sh.number + '.dxf', data: latin1(sheetDxf(sh, { title: sh.title }).text) }));
+      const name = safeName() + ' sheets DXF.zip';
+      download(name, new Blob([zip(files)], { type: 'application/zip' }));
+      return { file: name, sheets: sheets.map((sh) => sh.number), format: 'dxf' };
+    }
+    const { bytes, missing } = await toPdf(sheets, { title: tr('app.dwg.pdf-title', { name: model.state.name }) });
+    const name = safeName() + ' sheets.pdf';
+    download(name, new Blob([bytes], { type: 'application/pdf' }));
+    return { file: name, sheets: sheets.map((sh) => sh.number), format: 'pdf', missingFonts: missing || 0 };
+  }
   ui.dwgOne.addEventListener('click', async () => {
     if (!dwgSet) return;
     const sh = dwgSet.sheets[Number(ui.dwgSheet.value)];

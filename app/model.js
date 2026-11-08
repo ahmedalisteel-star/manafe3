@@ -235,6 +235,24 @@ export class Model {
     this.emit('load');
     return { warnings };
   }
+  /**
+   * Manafe3 (changed file, field fix 27): replaces the model with a file's contents (untrusted, checked as load() does) as
+   * ONE undoable step — the undo history is KEPT (load() clears it). Emits 'load' (a different model: panels refresh).
+   * Returns { warnings }. Throws a plain message, and then nothing changes.
+   */
+  replace(label, text) {
+    const { state, warnings, idsText, pictureSrcs } = readModel(typeof text === 'string' ? text : JSON.stringify(text));
+    const before = JSON.stringify(this.state);
+    if (idsText) this.idsTexts.put(idsText);
+    for (const src of pictureSrcs || []) this.pictureSrcs.put(src);
+    this.state = state;
+    this.undoStack.push({ label: String(label || 'Replace model'), before });
+    if (this.undoStack.length > UNDO_DEPTH) this.undoStack.shift();
+    this.redoStack = [];
+    this.version++;
+    this.emit('load');
+    return { warnings };
+  }
   reset(state) {
     this.state = state;
     this.undoStack = []; this.redoStack = [];
