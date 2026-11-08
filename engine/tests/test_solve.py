@@ -73,7 +73,8 @@ def test_statics_for_every_case():
 def test_labels_drift_and_p_delta():
     info, fl, r = setup()
     sets = {c: s for c, s in r["combos"]}
-    assert sum(1 for s in sets.values() if s == "LRFD") == 20 and sum(1 for s in sets.values() if s == "ASD") == 20 and sum(1 for s in sets.values() if s == "case") == 9
+    # LRFD 22 = 20 + the two gravity-only combinations solved with the notional load both ways (Direct Analysis Method)
+    assert sum(1 for s in sets.values() if s == "LRFD") == 22 and sum(1 for s in sets.values() if s == "ASD") == 20 and sum(1 for s in sets.values() if s == "case") == 9
     assert all(v["set"] == "LRFD" for v in r["summary"]["max_M_LRFD"].values())
     assert r["summary"]["drift_ASD"][0].startswith("ASD: ") and r["summary"]["drift_ASD"][1] > 0
     assert r["summary"]["apex_ASD"][0].startswith("ASD: ") and r["summary"]["apex_ASD"][1] < 0          # the apex goes down

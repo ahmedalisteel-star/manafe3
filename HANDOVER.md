@@ -21,7 +21,8 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
-the bimsteelauto sign fix and end-frame braces done; next step 2 (Direct Analysis Method).**
+the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; next step 3 (main-frame checks
+with DG 25 and E7 / F5 / G2).**
 
 ### Phase 4 plan (approved 2026-11-08)
 
@@ -46,7 +47,7 @@ the bimsteelauto sign fix and end-frame braces done; next step 2 (Direct Analysi
 | # | Step | Tests (independent) |
 |---|---|---|
 | 1 | Design inputs from the MODEL: plate strengths by grade and thickness, design members (rafter halves across splices), restraint points (outer flange: purlins / girts; inner: flange braces), the moment-sign boundary into bimsteelauto (`engine/design/inputs.py`) | **done** — `test_design_inputs.py` |
-| 2 | Direct Analysis Method in the analysis: 0.8 τb EI, notional loads 0.002 Yi in the gravity combinations | notional-load statics; a portal by hand |
+| 2 | Direct Analysis Method for the LRFD set (`engine/analysis/solve.py`): every stiffness × 0.8 (a `FrameAnalysis` subclass scales E and G — bimsteelauto has no stiffness setting), τb = 1 checked by αPr/Pns ≤ 0.5 (else C2.3(c): + 0.001·Yi), notional 0.002·Yi as horizontal twins of every D / C / Lr load in EVERY LRFD combination along its net lateral load (gravity-only: both ways); ASD and cases on the nominal stiffness | **done** — `test_dam.py`: movement × 1.25 with forces unchanged, notional statics longhand, direction, τb by hand, C2.3(c) forced, service set unchanged |
 | 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | longhand per limit state; a section that must fail |
 | 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | ratios by hand |
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | longhand per type |

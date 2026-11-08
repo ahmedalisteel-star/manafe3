@@ -20,6 +20,7 @@ from concurrent.futures import ProcessPoolExecutor
 from ..peb.building import BuildingInput, peb_building
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
+from ..design.inputs import section_strength
 from .bracing_system import longitudinal_bracing
 from .endwall_analysis import _geom, end_rafter_frame, longitudinal_feed, wind_columns
 from .frame_loads import frame_loads
@@ -32,18 +33,31 @@ TAPER_STEP = 0.10
 BANNER = "NOT FOR ISSUE — analysis only, members not designed (Phase 4)"
 
 
-def _line_setup(b: BuildingInput, li: LoadsInput, i: int, sec: dict, step: float):
+def _line_setup(b: BuildingInput, li: LoadsInput, i: int, sec: dict, step: float, with_fy: bool = False):
     sizes = b.sizes or default_sizes(b.span)
     ms = builtup_frame_members(b.span, b.eave_height, b.roof_slope, i * b.bay_spacing, str(i + 1), sizes)
     info = frame_line_model(ms, b.span, b.eave_height, b.roof_slope, (b.bay_spacing,) * b.n_bays, base=li.base, max_taper_step=step)
     fl = frame_loads(info, i, li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"])
-    return info, fl
+    return (info, fl, fy_by_mark(ms)) if with_fy else (info, fl)
+
+
+def fy_by_mark(ms: list[dict]) -> dict:
+    """{analysis member mark: Fy MPa, the lowest of its plates} — column CA / CB, rafter segments RA1, RA2, … """
+    out = {}
+    for m in ms:
+        segs = m["section"]["segments"]
+        if m["role"] == "column":
+            out["C" + m["side"]] = section_strength(segs[0])["Fy"]
+        else:
+            for k, s in enumerate(segs):
+                out[f"R{m['side']}{k + 1}"] = section_strength(s)["Fy"]
+    return out
 
 
 def _solve_line(args):
     b, li, i, sec, step, p_delta = args
-    info, fl = _line_setup(b, li, i, sec, step)
-    r = analyse_frame_line(info, fl, p_delta=p_delta, label=f"Frame line {i + 1}")
+    info, fl, fy = _line_setup(b, li, i, sec, step, with_fy=True)
+    r = analyse_frame_line(info, fl, p_delta=p_delta, label=f"Frame line {i + 1}", fy=fy)
     r["staad"] = staad_frame(info, fl, title=f"Manafe3 frame line {i + 1} (NOT FOR ISSUE)", base=li.base)   # for STAAD.Pro
     return r
 

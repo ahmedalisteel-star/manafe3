@@ -117,6 +117,7 @@ export function mountFrameAnalysis({ model, print, download }) {
       h('div', { text: `Longitudinal bracing (LRFD): roof diagonal ${fmt(b.roof_diagonal, 2)} kN, wall diagonal ${fmt(b.wall_diagonal, 2)} kN, strut up to ${fmt(b.max_strut, 2)} kN (end-wall pressure ${fmt(res.bracing.pressure_kpa, 3)} kN/m²).` }),
       h('div', { text: `Wind columns (C&C, ASCE 7-16 Ch. 30, LRFD, simple beams): max M ${fmt(wmax, 2)} kN·m. ${w.notes[1]}` }),
       ...(res.end_frames || []).map((e) => h('div', { text: `End-rafter frame (${e.end} end): rafter M ${fmt(e.summary.rafter_M_LRFD[1], 2)} kN·m (LRFD), wind column P ${fmt(e.summary.column_P_LRFD[2], 2)} kN; end-wall X-brace up to ${fmt(e.summary.brace_T_LRFD[2], 2)} kN in ${e.summary.brace_T_LRFD[1]} (LRFD).` })),
+      ...(() => { const d = frameResult(res, res.frames[0].line).dam || {}; return d.stiffness ? [h('div', { 'data-m3-a-dam': true, text: `Strength (LRFD) by the Direct Analysis Method (AISC 360-16 C2): stiffness × ${d.stiffness}, notional loads ${d.notional} × Yi in every LRFD combination${d.tau && d.tau.checked ? `; αPr/Pns ≤ ${d.tau.alpha_Pr_Pns.toFixed(3)} → τb = 1` : ''}. Deflections and drift from ASD on the nominal stiffness.` })] : []; })(),
       h('div', { text: `Secondary steel in D: roof ${fmt(res.secondary.roof_kpa, 3)} kN/m², walls ${fmt(res.secondary.wall_kpa, 3)} kN/m² (weighed from the model).` }));
   }
   lineSel.addEventListener('change', () => { fillCombos(); draw(); });
