@@ -22,7 +22,8 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
-in the engine — DG 25 NOT VERIFIED until the user has the printed guide; next step 4 (serviceability).**
+in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
+next: the field fixes list (below), then step 5.**
 
 ### Phase 4 plan (approved 2026-11-08)
 
@@ -49,7 +50,7 @@ in the engine — DG 25 NOT VERIFIED until the user has the printed guide; next 
 | 1 | Design inputs from the MODEL: plate strengths by grade and thickness, design members (rafter halves across splices), restraint points (outer flange: purlins / girts; inner: flange braces), the moment-sign boundary into bimsteelauto (`engine/design/inputs.py`) | **done** — `test_design_inputs.py` |
 | 2 | Direct Analysis Method for the LRFD set (`engine/analysis/solve.py`): every stiffness × 0.8 (a `FrameAnalysis` subclass scales E and G — bimsteelauto has no stiffness setting), τb = 1 checked by αPr/Pns ≤ 0.5 (else C2.3(c): + 0.001·Yi), notional 0.002·Yi as horizontal twins of every D / C / Lr load in EVERY LRFD combination along its net lateral load (gravity-only: both ways); ASD and cases on the nominal stiffness | **done** — `test_dam.py`: movement × 1.25 with forces unchanged, notional statics longhand, direction, τb by hand, C2.3(c) forced, service set unchanged |
 | 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | **done** (engine) — `engine/design/frame_checks.py`, `test_frame_checks.py`; limit states longhand in bimsteelauto 0.14.3 – 0.15.1 |
-| 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | ratios by hand |
+| 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | **done** (engine) — `engine/design/serviceability.py`, `test_serviceability.py` |
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | longhand per type |
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | one line by hand |
 | 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | one member longhand ECP, equations confirmed with the user |
@@ -153,6 +154,22 @@ in the engine — DG 25 NOT VERIFIED until the user has the printed guide; next 
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Step 4 — what was built (2026-11-08):** `engine/design/serviceability.py`, on the SERVICE results (nominal stiffness,
+no notional loads). `ServiceLimits` (editable: sway H/100, rafter L/180, purlins L/150 for step 6, `crane_sway` hook;
+`from_dict` refuses unknown keys and non-positive values).
+- Sway: every ASD combination containing a wind case, |dx| of each knee node ≤ H/100, H = that knee's height above its
+  base node (centroid line, e.g. 5668 mm on building 1). The TOTAL eave movement is judged, so an ASD combination with
+  wind and Lr includes the knees' gravity spread (conservative; a pure-gravity ASD combination is not a sway check).
+- Rafter: the Lr case alone, unfactored; the drop of every rafter node (knee ends, splices, ridge) below the chord
+  between the two knee-end rafter nodes ≤ L/180, L = span. Model nodes only (a peak between nodes is not seen; for a
+  gable under uniform Lr the ridge governs).
+- Crane hook: `has_crane=True` adds a crane line with ratio inf, never a pass. No wind combination / no Lr → inf.
+- The analysis result now carries `factors` per combination; `analyse_building(limits=…)` attaches `serviceability` to
+  each solved frame line. (JSON: an inf ratio would break FastAPI's encoder — only reachable with cranes; handle in step 9.)
+- Tests: synthetic ratios by hand (gravity spread ignored, chord at the ridge), H/200 negative control, unevaluated
+  never passes, frame line 3 recomputed from the solve's own displacements. Building 1 line 3: sway 0.124, rafter
+  0.223 (29.8 mm).
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),
@@ -636,8 +653,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-08 08:44 on ENG04-PC
-- Did: Phase 3 answers: C&C wind columns, end-wall X-bracing, longitudinal feed from actual top reactions; ECP 201 refusal names the source; Phase 4 plan drafted
-- Tests: engine 111 passed, 1 warning in 300.10s (0:05:00) | app 13 of 13 test files passed
-- Next: User: review the Phase 4 plan DRAFT in HANDOVER and answer its 6 questions; no Phase 4 code before approval
+- When: 2026-11-08 16:45 on ENG04-PC
+- Did: Phase 4 step 4: serviceability of the main frames (sway H/100 under ASD wind, rafter L/180 under Lr, editable limits, crane hook)
+- Tests: engine 136 passed, 2 warnings in 654.89s (0:10:54) | app 13 of 13 test files passed
+- Next: Field fixes list (P1 bugs first), then Phase 4 step 5
 <!-- LAST-SESSION:END -->

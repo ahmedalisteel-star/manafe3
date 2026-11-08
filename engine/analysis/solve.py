@@ -219,6 +219,8 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
     }
     return {
         "label": label, "p_delta": p_delta, "dam": dam_info, "cases": list(fl.cases), "combos": [[c, sets[c]] for c in order],
+        "factors": {**{c: {c: 1.0} for c in fl.cases}, **{n: dict(f) for n, f, _ in fl.combinations},
+                    **{n: dict(f) for n, f, _ in strength}},
         "nodes": {n: list(p) for n, p in lay.nodes.items()}, "base_nodes": list(lay.base_nodes),
         "members": [{"mark": m.mark, "role": info.roles[m.mark], "id": info.marks[m.mark], "i": list(m.i_point), "j": list(m.j_point),
                      "length": round(m.length, 1)} for m in lay.members],

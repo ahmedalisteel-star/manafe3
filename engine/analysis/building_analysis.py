@@ -21,6 +21,7 @@ from ..peb.building import BuildingInput, peb_building
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from ..design.inputs import section_strength
+from ..design.serviceability import ServiceLimits, frame_serviceability
 from .bracing_system import longitudinal_bracing
 from .endwall_analysis import _geom, end_rafter_frame, longitudinal_feed, wind_columns
 from .frame_loads import frame_loads
@@ -66,8 +67,10 @@ def _signature(fl) -> tuple:
     return tuple((ld.case, ld.member_mark, round(ld.w, 9), ld.direction.name, None if ld.w_end is None else round(ld.w_end, 9)) for ld in fl.loads)
 
 
-def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None) -> dict:
+def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None,
+                     limits: ServiceLimits | None = None) -> dict:
     li.check()
+    limits = (limits or ServiceLimits()).check()
     out = peb_building(b)
     sec = secondary_kpa(out)
     kinds = {0: b.end_first, b.n_bays: b.end_last}
@@ -90,6 +93,7 @@ def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, 
         f = {"line": str(i + 1), "x": i * b.bay_spacing, "kind": "frame", "same_as": str(same_as[i] + 1)}
         if same_as[i] == i:
             f["result"] = solved[i]
+            f["serviceability"] = frame_serviceability(solved[i], b.span, limits)   # Phase 4 step 4
         frames.append(f)
     end_frames = [end_rafter_frame(out, end, li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"])
                   for end, kind in (("first", b.end_first), ("last", b.end_last)) if kind == "rafter"]
