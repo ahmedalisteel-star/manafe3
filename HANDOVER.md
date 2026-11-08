@@ -710,8 +710,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-08 18:08 on ENG04-PC
-- Did: Field fixes 5-8: placement, uneven bays, span reference, several PEB buildings
-- Tests: engine 141 passed, 2 warnings in 372.38s (0:06:12) | app 14 of 14 test files passed
-- Next: Field fixes item 9 (footings under PEB columns)
+- When: 2026-11-08 18:22 on ENG04-PC
+- Did: Field fixes 9, 10, 16: footings under PEB columns, base plates + anchor sheet, clash groups and generated-joint filter
+- Tests: engine 141 passed, 2 warnings in 387.88s (0:06:27) | app 14 of 14 test files passed
+- Next: Field fixes item 17 (elevations on lettered grids)
 <!-- LAST-SESSION:END -->
