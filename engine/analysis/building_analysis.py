@@ -21,7 +21,7 @@ from ..peb.building import BuildingInput, peb_building
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from .bracing_system import longitudinal_bracing
-from .endwall_analysis import _geom, end_rafter_frame, wind_columns
+from .endwall_analysis import _geom, end_rafter_frame, longitudinal_feed, wind_columns
 from .frame_loads import frame_loads
 from .frame_model import frame_line_model
 from .secondary_weight import secondary_kpa
@@ -85,7 +85,7 @@ def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, 
         "loads": li.summary(), "secondary": sec,
         "frames": frames, "end_frames": end_frames,
         "wind_columns": wind_columns(out, li),
-        "bracing": longitudinal_bracing(_geom(out["input"]), li, braces, [j - 1 for j in out["braced_bays"]]),
+        "bracing": longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li)),
         "sets": {"strength": "LRFD", "serviceability": "ASD", "foundation": "case (unfactored)"},
         "input": {**out["input"], "end_first": b.end_first, "end_last": b.end_last, "base": li.base},
     }

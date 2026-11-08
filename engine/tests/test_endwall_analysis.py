@@ -2,7 +2,7 @@
 """Phase 3 step 7: end walls of building 1 (24 × 24 m, eave 6 m, slope 0.1, bays 4 × 6 m; first end wall = end rafter
 on wind columns, last = main frame; V 45 m/s, exposure C).
 
-Checked: wind columns against the closed-form simple beam (pressure from qh and the Fig. 28.3-1 coefficients by hand);
+Checked: the wind-column strips and the longitudinal feed (areas longhand, total = bimsteelauto's p × area);
 the end-rafter frame by statics computed LONGHAND from the geometry (not from the module's own tally) and by an
 independent anastruct model of the same frame under Lr (hinged column tops, pinned bases, one lateral restraint).
 """
@@ -14,7 +14,7 @@ from anastruct import SystemElements
 
 from bimsteelauto.sections import WeldedI
 
-from engine.analysis.endwall_analysis import end_rafter_frame, wind_columns
+from engine.analysis.endwall_analysis import end_rafter_frame, longitudinal_feed, wind_columns
 from engine.analysis.frame_loads import STEEL_KN_M3
 from engine.peb.building import BuildingInput, peb_building
 from engine.peb.endwall import WIND_COLUMN
@@ -33,24 +33,39 @@ def frame(out):
     return end_rafter_frame(out, "first", LI)
 
 
-def test_wind_columns_simple_beam(out):
-    r = wind_columns(out, LI)
-    qh = r["qh"]
-    assert r["pressure_kpa"]["inward"] == pytest.approx(qh * (0.61 + 0.18), abs=1e-4)    # zone 5E, GCpi −0.18
-    assert r["pressure_kpa"]["outward"] == pytest.approx(qh * (-0.43 - 0.18), abs=1e-4)  # zone 6E, GCpi +0.18
-    cols = {c["id"]: c for c in r["columns"]}
+def test_wind_column_strips(out):
+    """The strips (C&C values themselves: test_cc_wind.py)."""
+    cols = {c["id"]: c for c in wind_columns(out, LI)["columns"]}
     assert set(cols) == {"WF1", "WF2", "WF3", "WF4", "WF5", "WL1", "WL2", "WL3"}            # the frame end: interior only
     # strips: supports 125 / 6000 / 12000 / 18000 / 23875 at both ends; corner strips to the building edge
     assert cols["WF1"]["strip_m"] == pytest.approx(3.0625) and cols["WF2"]["strip_m"] == pytest.approx(5.9375)
     assert cols["WL2"]["strip_m"] == pytest.approx(6.0)
     assert sum(cols[k]["strip_m"] for k in ("WF1", "WF2", "WF3", "WF4", "WF5")) == pytest.approx(24.0)
-    c = cols["WF3"]
-    L = c["L_m"]
-    w = r["pressure_kpa"]["inward"] * 6.0
-    u = c["sets"]["case"]["inward"]
-    assert u["M"] == pytest.approx(w * L * L / 8, abs=2e-3) and u["R_top"] == pytest.approx(w * L / 2, abs=2e-3)
-    assert c["sets"]["ASD"]["inward"]["M"] == pytest.approx(0.6 * u["M"], abs=2e-3)
-    assert any("OPEN" in n for n in r["notes"])
+
+
+def test_longitudinal_feed_actual_top_reactions(out):
+    """Longhand: one end wall is 24 × 6 + 24 × 1.2 / 2 = 158.4 m². Each support's strip, a simple beam of its own height,
+    gives half its strip × height to the top, half to the base, and the wall above its top straight to the roof. So per
+    wall top + base = 158.4 m², and the total force = bimsteelauto's net longitudinal pressure × 158.4 (its §28.3.4
+    minimum included). The eave share is no longer a blanket 0.5 (negative control: it must differ)."""
+    f = longitudinal_feed(out, LI)
+    for end in ("first", "last"):
+        w = f["walls"][end]
+        assert w["top_m2"] + w["base_m2"] == pytest.approx(158.4, abs=1e-6)
+    # the last wall (main frame): corner columns held at the eave (6.0 m), wind columns to under the rafter
+    assert [r["height_m"] for r in f["walls"]["last"]["supports"]] == [6.0, 6.1638, 6.7638, 6.1638, 6.0]
+    # WL2 by hand: strip 9 → 15 m, height 6.7638; wall area under the roof = 2 × 3 × (6.9 + 7.2) / 2 = 42.3 m²
+    s = f["walls"]["last"]["supports"][2]
+    area = 3.0 * (6.0 + 0.1 * 9.0 + 6.0 + 0.1 * 12.0) / 2 * 2                         # 9→12 and 12→15, symmetric
+    assert s["area_m2"] == pytest.approx(area, abs=1e-6) and s["base_m2"] == pytest.approx(6.0 * 6.7638 / 2, abs=5e-4)   # height typed to 0.1 mm
+    assert s["top_m2"] == pytest.approx(area - 6.0 * 6.7638 / 2, abs=5e-4)
+    gc_net = 0.40 - (-0.29)                                                              # Load Case B, zones 5 − 6
+    assert f["p_net_kpa"] == pytest.approx(f["minimum_scale"] * 0.94843 * gc_net, abs=1e-4)
+    assert f["minimum_scale"] > 1.0                                                      # §28.3.4 governs on this building
+    tot = f["F_eave"] + f["F_base"]
+    assert tot == pytest.approx(f["p_net_kpa"] * 158.4, rel=1e-4)                        # same total as bimsteelauto's p × area
+    share = f["F_eave"] / tot
+    assert 0.51 < share < 0.56 and abs(share - 0.5) > 0.01                               # the real split, not 0.5
 
 
 def test_end_frame_statics_longhand(out, frame):

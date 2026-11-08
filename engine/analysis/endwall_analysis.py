@@ -1,12 +1,12 @@
 # Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
 """Phase 3 step 7: the end walls.
 
-1. Wind columns OUT OF PLANE: each a simple beam, pinned at the base and at the top, under the end-wall wind on its
-   tributary strip (half-way to the neighbouring supports; the outer strips to the building corners 0 / span).
-   Pressure: bimsteelauto's Load Case B, net with ±GCpi — inward = windward wall (zones 5 / 5E), outward = leeward
-   (6 / 6E). The E-zone value is used for EVERY column (conservative envelope: the corner-strip layout of Fig. 28.3-1
-   is not encoded here). MWFRS pressures (as for the frames): components-and-cladding pressures (Ch. 30), usually
-   higher for a wind column, are an OPEN QUESTION for the user. w = p × strip, M = wL²/8, R = wL/2.
+1. Wind columns OUT OF PLANE (wind_columns): each a simple beam, pinned at the base and at the top, under the end-wall
+   wind on its tributary strip (half-way to the neighbouring supports; the outer strips to the building corners).
+   DESIGN pressure: components and cladding, ASCE 7-16 Ch. 30 (cc_wind.py, user decision 2026-11-08; VERIFIED False),
+   zone 5 where the strip comes within a of a corner, else zone 4. w = p × strip, M = wL²/8, R = wL/2.
+   longitudinal_feed: the same simple beams under MWFRS end-wall pressure give the ACTUAL top reactions that drive the
+   longitudinal bracing (step 6).
 2. End-RAFTER frame IN PLANE (end wall type "rafter" only): the constant end rafter on its centroid line, continuous over
    the wind columns, which are pinned at the base and at the top (two-force members, modelled up to the rafter centroid
    line). PyNite directly, first order. ACCEPTED ASSUMPTIONS: the frame's in-plane sway is held by the end-wall bracing /
@@ -25,12 +25,13 @@ import math
 from Pynite import FEModel3D
 
 from bimsteelauto.loads.frame import tributary_width
-from bimsteelauto.loads.wind import envelope_pressures
+from bimsteelauto.loads.wind import envelope_pressures, longitudinal_endwall_pressure
 from bimsteelauto.sections import WeldedI
 from bimsteelauto.spec import PEBGeometry
 
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.endwall import WIND_COLUMN
+from .cc_wind import cc_wall_pressure, effective_area
 from .frame_loads import STEEL_KN_M3, frame_loads
 from .frame_model import _wi, frame_line_model
 
@@ -42,42 +43,105 @@ def _geom(inp: dict) -> PEBGeometry:
                        eave_height=float(inp["eave_height"]), roof_slope=float(inp["roof_slope"]), purlin_spacing=1250.0, girt_spacing=1250.0)
 
 
-def endwall_pressures(geom, li) -> dict:
-    wind = envelope_pressures(geom, li.site())
-    cases = [c for c in wind.pressures if c.startswith("W_B")]
-    p_in = max(max(wind.pressures[c]["5"], wind.pressures[c]["5E"]) for c in cases)
-    p_out = min(min(wind.pressures[c]["6"], wind.pressures[c]["6E"]) for c in cases)
-    return {"inward": p_in, "outward": p_out, "qh": wind.qh, "GCpi": wind.GCpi, "gcpf": wind.gcpf["W_B_pi_pos"]}
+def _strips(sup: list[float], span: float) -> list[tuple[float, float, float]]:
+    """(y, left, right) of every support's tributary strip: half-way to its neighbours, the outer ones to the corners."""
+    out = []
+    for k, y in enumerate(sup):
+        left = (sup[k - 1] + y) / 2 if k > 0 else 0.0
+        right = (y + sup[k + 1]) / 2 if k < len(sup) - 1 else span
+        out.append((y, left, right))
+    return out
+
+
+def _wall_area(left: float, right: float, span: float, eave: float, slope: float) -> float:
+    """mm² of end wall between y = left and right, from the floor to the roof line (exact: the roof is linear each side of
+    the apex)."""
+    a = 0.0
+    for lo, hi in ((left, min(right, span / 2)), (max(left, span / 2), right)):
+        if hi > lo:
+            z0, z1 = eave + slope * min(lo, span - lo), eave + slope * min(hi, span - hi)
+            a += (z0 + z1) / 2 * (hi - lo)
+    return a
 
 
 def wind_columns(out: dict, li) -> dict:
-    span = float(out["input"]["span"])
-    pr = endwall_pressures(_geom(out["input"]), li)
+    """The wind columns' DESIGN loads: C&C (ASCE 7-16 Ch. 30, cc_wind.py — VERIFIED False), simple beams."""
+    inp = out["input"]
+    span = float(inp["span"])
+    geom = _geom(inp)
+    wind = envelope_pressures(geom, li.site())
+    a = wind.end_zone_a
+    theta = math.degrees(math.atan(float(inp["roof_slope"])))
     cols = []
     for ew in out["end_walls"]:
-        sup = sorted(ew["supports"])
+        strips = {round(y, 3): (lft, rgt) for y, lft, rgt in _strips(sorted(ew["supports"]), span)}
         prefix = "WF" if ew["end"] == "first" else "WL"
         for m in out["members"]:
             if m["role"] != "wind_column" or not m["id"].startswith(prefix):
                 continue
             y, L = m["start"][1], (m["end"][2] - m["start"][2]) / 1000
-            k = min(range(len(sup)), key=lambda i: abs(sup[i] - y))
-            left = (sup[k - 1] + y) / 2 if k > 0 else 0.0
-            right = (y + sup[k + 1]) / 2 if k < len(sup) - 1 else span
-            strip = (right - left) / 1000
-            row = {"id": m["id"], "end": ew["end"], "kind": ew["kind"], "y": y, "L_m": round(L, 4), "strip_m": round(strip, 4), "sets": {}}
+            lft, rgt = strips[min(strips, key=lambda v: abs(v - y))]
+            strip = (rgt - lft) / 1000
+            zone = "5" if lft < a or rgt > span - a else "4"          # any part of its strip within a of a corner
+            cc = cc_wall_pressure(wind.qh, zone, effective_area(L, strip), theta, wind.GCpi)
+            row = {"id": m["id"], "end": ew["end"], "kind": ew["kind"], "y": y, "L_m": round(L, 4), "strip_m": round(strip, 4),
+                   "cc": {k: (round(v, 5) if isinstance(v, float) else v) for k, v in cc.items()}, "sets": {}}
             for s, f in FACTORS.items():
                 d = {}
                 for side in ("inward", "outward"):
-                    w = f * pr[side] * strip
+                    w = f * cc[side] * strip
                     d[side] = {"w": round(w, 4), "M": round(w * L * L / 8, 3), "R_top": round(w * L / 2, 3), "R_base": round(w * L / 2, 3)}
                 row["sets"][s] = d
             cols.append(row)
-    return {"pressure_kpa": {"inward": round(pr["inward"], 5), "outward": round(pr["outward"], 5)}, "qh": round(pr["qh"], 5),
-            "columns": cols, "designed": False,
-            "notes": ["MWFRS Load Case B pressures, E-zone value for every column (conservative).",
-                      "OPEN: components-and-cladding (Ch. 30) pressures for wind columns — user decision.",
+    return {"qh": round(wind.qh, 5), "a_mm": round(a, 1), "theta_deg": round(theta, 3), "columns": cols, "designed": False, "VERIFIED": False,
+            "notes": ["Components and cladding, ASCE 7-16 Ch. 30 Part 1, walls zones 4 / 5; effective area = span x max(spacing, span/3).",
+                      "VERIFIED False: new code, the GCp values transcribed from Fig. 30.3-1 (hand-checked arithmetic, not the figure).",
                       "Simple beam, pinned base and top; the strip above a column's top goes to the rafter."]}
+
+
+def longitudinal_feed(out: dict, li) -> dict:
+    """What the end walls deliver to the longitudinal bracing — the ACTUAL top reactions (user decision 2026-11-08):
+    every support of each end wall (wind columns; corner main-frame columns, held at the eave) is a simple beam under
+    MWFRS end-wall pressure on its strip; its top reaction plus the wall above its top (up to the roof line, carried by
+    the rafter) arrive at roof level, the rest at the base. Summed per end wall (side).
+    Pressure: bimsteelauto's Load Case B interior zones, windward 5 and leeward 6, GCpi of the + case (it cancels in the
+    sum), scaled by the §28.3.4 minimum exactly as bimsteelauto longitudinal_endwall_pressure does — so the TOTAL equals
+    bimsteelauto's net pressure × end-wall area; only its eave / base split is now the real one, not a blanket half.
+    MWFRS, not C&C: the bracing is part of the main wind-force resisting system."""
+    inp = out["input"]
+    span, eave, slope = float(inp["span"]), float(inp["eave_height"]), float(inp["roof_slope"])
+    geom = _geom(inp)
+    wind = envelope_pressures(geom, li.site())
+    p_net, minimum = longitudinal_endwall_pressure(geom, wind)
+    g = wind.gcpf["W_B_pi_pos"]
+    k = p_net / (wind.qh * (g["5"] - g["6"]))
+    gi = wind.GCpi[0]
+    side_p = {"windward": k * wind.qh * (g["5"] - gi), "leeward": k * wind.qh * (g["6"] - gi)}     # + toward the wall
+    tops = {}
+    for m in out["members"]:
+        if m["role"] == "wind_column":
+            tops[(m["id"][1], round(m["start"][1], 3))] = m["end"][2] - m["start"][2]
+    walls = {}
+    for ew in out["end_walls"]:
+        tag = "F" if ew["end"] == "first" else "L"
+        rows = []
+        for y, lft, rgt in _strips(sorted(ew["supports"]), span):
+            h = tops.get((tag, round(y, 3)), eave)                    # a main-frame corner column: held at the eave
+            area = _wall_area(lft, rgt, span, eave, slope) * 1e-6      # m²
+            strip = (rgt - lft) / 1000
+            rows.append({"y": y, "height_m": round(h / 1000, 4), "strip_m": round(strip, 4), "area_m2": round(area, 5),
+                         "top_m2": strip * h / 2000 + (area - strip * h / 1000), "base_m2": strip * h / 2000})
+        walls[ew["end"]] = {"kind": ew["kind"], "supports": rows,
+                            "top_m2": sum(r["top_m2"] for r in rows), "base_m2": sum(r["base_m2"] for r in rows)}
+    directions = {}
+    for ww, lw in (("first", "last"), ("last", "first")):
+        wt, lt = abs(side_p["windward"]) * walls[ww]["top_m2"], abs(side_p["leeward"]) * walls[lw]["top_m2"]
+        directions[f"from {ww}"] = {"F_eave": wt + lt, "windward_top": wt, "leeward_top": lt,
+                                    "F_base": abs(side_p["windward"]) * walls[ww]["base_m2"] + abs(side_p["leeward"]) * walls[lw]["base_m2"]}
+    gov = max(directions, key=lambda d: directions[d]["F_eave"])
+    return {"p_side_kpa": {s: round(v, 5) for s, v in side_p.items()}, "p_net_kpa": round(p_net, 5), "minimum_scale": round(k, 5),
+            "minimum": None if minimum is None else {"governs": bool(minimum.governs)},
+            "walls": walls, "directions": directions, "governing": gov, "F_eave": directions[gov]["F_eave"], "F_base": directions[gov]["F_base"]}
 
 
 def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, wall_secondary_kpa: float = 0.0) -> dict:

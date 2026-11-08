@@ -2,8 +2,8 @@
 """Phase 3 step 6: the longitudinal bracing system of building 1 (24 × 24 m, eave 6 m, slope 0.1, bays 4 × 6 m, braced
 bays 1 and 4, V 45 m/s, exposure C).
 
-The chain is re-derived LONGHAND here from the pressure (bimsteelauto's, VERIFIED there): endwall areas, eave share, the
-share per bay, V / cos θ on Manafe3's own panel depths. The wall diagonal is then checked a second, independent way: a
+The chain is re-derived LONGHAND here from F_eave (the actual end-wall top reactions, checked in
+test_endwall_analysis.py): the share per bay, V / cos θ on Manafe3's own panel depths. The wall diagonal is then checked a second, independent way: a
 PyNite tension-only truss of the wall panel; the compression diagonal must carry ~nothing (the negative control).
 """
 
@@ -14,6 +14,7 @@ from Pynite import FEModel3D
 
 from bimsteelauto.spec import PEBGeometry
 from engine.analysis.bracing_system import longitudinal_bracing
+from engine.analysis.endwall_analysis import longitudinal_feed
 from engine.peb.building import BuildingInput, peb_building
 from engine.peb.loads_input import LoadsInput
 
@@ -24,20 +25,18 @@ GEOM = PEBGeometry(span_widths=(24000.0,), bay_spacings=(6000.0,) * 4, eave_heig
 
 @pytest.fixture(scope="module")
 def result():
-    braces = [m for m in peb_building(BuildingInput(**B1))["members"] if m["role"] in ("roof_brace", "wall_brace")]
-    return braces, longitudinal_bracing(GEOM, LoadsInput(V=45, exposure="C"), braces, [0, 3])
+    out = peb_building(BuildingInput(**B1))
+    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+    feed = longitudinal_feed(out, LoadsInput(V=45, exposure="C"))
+    return braces, feed, longitudinal_bracing(GEOM, braces, [0, 3], feed)
 
 
 def test_chain_longhand(result):
-    braces, r = result
-    p = r["pressure_kpa"]
-    assert p > 0
-    B, H, rise = 24.0, 6.0, 1.2                                    # m; rise = 0.1 × 12
-    F_eave = p * (B * H / 2 + B * rise / 2)                        # half the rectangle + the whole gable
-    F_base = p * B * H / 2
+    braces, feed, r = result
     u = r["sets"]["case"]
-    assert u["F_eave"] == pytest.approx(F_eave, abs=2e-3) and u["F_base"] == pytest.approx(F_base, abs=2e-3)
-    per_bay = F_eave / 2                                           # 2 braced bays
+    F_eave = feed["F_eave"]                                        # the actual top reactions (test_endwall_analysis.py)
+    assert u["F_eave"] == pytest.approx(F_eave, abs=2e-3) and r["eave_share"] != 0.5
+    per_bay = F_eave / 2                                           # 2 braced bays, equal shares
     assert u["per_braced_bay"] == pytest.approx(per_bay, abs=2e-3)
     # wall: one X (eave 6000 ≤ 1.5 × 6000), base to 100 below the eave → depth 5 900; 2 sidewalls
     assert r["wall_panel"]["depth"] == pytest.approx(5900.0, abs=0.1)
@@ -46,15 +45,30 @@ def test_chain_longhand(result):
     d = r["roof_panel"]["depth"] / 1000
     assert 4.0 < d < 8.0                                           # panels near 45° on a 12.06 m slope (2 panels)
     assert u["roof_diagonal"] == pytest.approx(per_bay / 2 * math.hypot(6.0, d) / 6.0, abs=2e-3)
+    # struts: the end bays are braced → no drag anywhere (bimsteelauto's rule)
+    assert u["max_strut"] == 0.0
     # sets: LRFD 1.0 W, ASD 0.6 W
     assert r["sets"]["LRFD"]["wall_diagonal"] == u["wall_diagonal"]
     assert r["sets"]["ASD"]["wall_diagonal"] == pytest.approx(0.6 * u["wall_diagonal"], abs=2e-3)
-    assert r["designed"] is False and any("eave_share" in a for a in r["assumptions"])
+    assert r["designed"] is False and any("actual end-wall top reactions" in a for a in r["assumptions"])
+
+
+def test_strut_drag_uses_the_larger_side():
+    """Braced bay 2 only (index 1): bay 1 carries the drag from its end wall. bimsteelauto halves F_eave per end; Manafe3
+    gives it the larger side's actual top force (the windward wall's here)."""
+    out = peb_building(BuildingInput(**B1, braced_bays=(2,)))
+    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+    feed = longitudinal_feed(out, LoadsInput(V=45, exposure="C"))
+    r = longitudinal_bracing(GEOM, braces, [1], feed)
+    d = feed["directions"][feed["governing"]]
+    big = max(d["windward_top"], d["leeward_top"])
+    strut = dict((j, v) for j, v in r["sets"]["case"]["strut"])
+    assert strut[1] == pytest.approx(big, abs=2e-3) and big > feed["F_eave"] / 2
 
 
 def test_wall_panel_tension_only_truss(result):
     """PyNite, tension-only diagonals, all members pinned: the panel shear at the top goes into ONE diagonal."""
-    _, r = result
+    _, _, r = result
     V = r["sets"]["case"]["wall_base_shear"]                       # kN, one sidewall
     b, h = 6000.0, r["wall_panel"]["depth"]                        # mm
     m = FEModel3D()
