@@ -10,7 +10,8 @@ User decisions (2026-11-05):
                   strut and the ridge purlin always nodes); walls: one X if eave ≤ 1.5 × bay, else two panels with a node
                   at the girt nearest mid-height
     flange braces L50x5, a PAIR (one each side of the frame web) at 45°: roof — every purlin over the haunch plus the next
-                  one, at every interior frame; columns — the top two girts of every column
+                  one, at every frame (end frames: the inward brace only — user, 2026-11-08); columns — the top two girts
+                  of every column (end columns: the inward brace only)
 Claude's detailing defaults (flagged to the user, editable): a sag-rod piece ends in its own hole, adjacent pieces 80 mm
 apart along the purlin (two rods cannot share one hole), 50 mm of thread each end; roof brace rods pass through the rafter
 web 75 mm below the top flange; wall braces lie in the column web plane at mid-height, from the base to 100 mm below the
@@ -197,13 +198,15 @@ def flange_braces(lines: dict, inp: BracingInput) -> list[dict]:
         purl = sorted([m for m in lines["roof"] if m["side"] == side and m["role"] != "eave_strut"], key=lambda m: m["s"])
         zone = [m for m in purl if s0 < m["s"] <= s0 + z.haunch_length]
         nxt = [m for m in purl if m["s"] > s0 + z.haunch_length][:1]
-        for xf in inp.frames[1:-1]:
+        for xf in inp.frames:                                # every frame line (end frames: user, 2026-11-08)
             for m in zone + nxt:
                 d = rafter_depth(m["s"], inp)
                 low = _pt(side, m["s"], -(d - z.tf / 2), slope, span, eave)
                 high = _pt(side, m["s"], INTO_SECONDARY, slope, span, eave)
                 run = d - z.tf / 2 + INTO_SECONDARY          # 45°: the same distance along X
                 for sx in (-1, 1):
+                    if not (inp.frames[0] <= xf + sx * run <= inp.frames[-1]):
+                        continue   # an end frame: only the brace that stays inside the building
                     out.append({"role": "flange_brace", "host": "rafter " + side, "line": m["id"], "profile": inp.flange_brace,
                                 "start": [_r(xf), _r(low[0]), _r(low[1])], "end": [_r(xf + sx * run), _r(high[0]), _r(high[1])],
                                 "length": _r(run * math.sqrt(2)), "designed": False})

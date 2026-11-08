@@ -5,12 +5,15 @@ the component cases checked by hand in test_secondary_*, test_bracing, test_endw
 Main frames at both ends (default), braced bays 1 and 4 (default):
     main frame members 5 lines × 4 = 20
     roof: 10 Z lines a side × 4 pieces = 80; eave struts 2 lines × 4 = 8; side girts 8 lines × 4 = 32
-    sag rods 80 + ridge ties 4 (one per sag row, across the apex); X-bracing 16 roof + 8 wall = 24; flange braces 36 + 32 = 68
-    wind columns 3 per end = 6 + their cap plates 6; gable girts 18 per end = 36      → 364 members
+    sag rods 80 + ridge ties 4 (one per sag row, across the apex); X-bracing 16 roof + 8 wall = 24; flange braces: rafters 3 interior frames × 2 sides × 3 × 2 = 36 + the end frames'
+    INWARD braces 2 × 2 × 3 = 12 (user, 2026-11-08), columns 32 → 80
+    wind columns 3 per end = 6 + their cap plates 6; gable girts 18 per end = 36      → 376 members
     cleats: 30 lines × 5 frames = 150 + gable girts on the wind/corner columns per end: 4 full rows × 5 supports + the
     6 250 row × 3 = 23 → 46 → 196
 End rafter at the first end instead: −4 main frame members, +5 wind columns + 2 end rafters − 3 = +4, and the 4 column
 flange braces at x = 0 go (2 girts × 2 walls, the end columns' inward braces) → 354; + 5 + 3 cap plates → 362.
+Since 2026-11-08: + the default end-wall X in that end-rafter wall (2 diagonals) + the LAST end frame's 6 inward rafter
+flange braces (the first end has no main frame, so none there) → 370.
 COUNT IS NOT CORRECTNESS: the positions behind these numbers are checked in the component tests; here a few are spot-checked
 again through the whole-building call.
 """
@@ -36,11 +39,11 @@ def test_building_1_composition():
     r = roles(out)
     assert r["column"] + r["rafter"] == 20
     assert r["purlin"] + r["ridge_purlin"] == 80 and r["eave_strut"] == 8 and r["girt"] == 32
-    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 68
+    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 80
     assert r["wind_column"] == 6 and r["gable_girt"] == 36
-    assert len(out["members"]) == 364 and len(out["cleats"]) == 196
+    assert len(out["members"]) == 376 and len(out["cleats"]) == 196
     assert out["braced_bays"] == [1, 4] and out["designed"] is False
-    assert len({m["id"] for m in out["members"]}) == 364 and all(m["gen"] == "peb" for m in out["members"])
+    assert len({m["id"] for m in out["members"]}) == 376 and all(m["gen"] == "peb" for m in out["members"])
     for m in out["members"]:
         if "section" in m:
             BuiltUpMember.from_dicts(m["section"]["segments"])
@@ -71,7 +74,7 @@ def test_end_rafter_variant_openings_and_options():
     assert any(h["d"] == 18 for m in out["members"] for h in m.get("holes", []))
     assert out["braced_bays"] == [2]
     base = peb_building(BuildingInput(**B1, end_first="rafter"))
-    assert len(base["members"]) == 364                                                  # 362 + the default end-wall X (2 diagonals, bay 1)
+    assert len(base["members"]) == 370      # 362 + the default end-wall X (2 diagonals) + the last end frame's 6 inward rafter flange braces
     strap = peb_building(BuildingInput(**B1, ridge_tie="strap"))
     ties = [m for m in strap["members"] if m["role"] == "ridge_tie"]
     assert len(ties) == 4 and {m["profile"] for m in ties} == {"PL3x50"}

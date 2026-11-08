@@ -21,7 +21,7 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
-next step 2 (Direct Analysis Method).**
+the bimsteelauto sign fix and end-frame braces done; next step 2 (Direct Analysis Method).**
 
 ### Phase 4 plan (approved 2026-11-08)
 
@@ -56,18 +56,26 @@ next step 2 (Direct Analysis Method).**
 | 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
 | 10 | HANDOVER, `end-work.ps1` | |
 
-**Findings (2026-11-08):**
-- **bimsteelauto moment sign (reported to the user; bimsteelauto NOT modified):** PyNite gives Mz + for tension on the
-  local +y face (sagging NEGATIVE on a simply supported beam — tested). `bimsteelauto.design.members` takes Mz ≥ 0 as
-  "top flange in compression" and `pipeline.run_frame` passes PyNite's value unchanged — so on its own pipeline the
-  compression flange (and with it Lb, Sxc and the flange slenderness) is chosen BACKWARDS: unconservative at the haunch
-  under gravity (it uses the purlin-braced top flange's short Lb where the bottom flange is compressed). Manafe3 converts
-  in ONE function (`engine/design/inputs.py bsa_moment`, with PyNite's vertical-member rule). The user decides whether
-  to fix bimsteelauto.
-- End frame lines have NO rafter flange braces in the model (Phase 2 generates them at interior frames only): their
-  rafters' bottom flange is unbraced over the whole half — step 3 will show what that does under uplift.
-- St 37 Fu: 3.7 t/cm² (skill transcription) vs 3.6 (Claude's memory) — to be confirmed against the printed Table 1.1;
-  all plate strengths are VERIFIED False with their sources until the user confirms them.
+**Findings and fixes (2026-11-08):**
+- **bimsteelauto moment sign — FIXED in bimsteelauto (user decision) and re-pinned.** PyNite gives Mz + for tension on
+  the local +y face (sagging NEGATIVE on a simply supported beam); `design.members.check_member` reads Mz ≥ 0 as "top
+  flange in compression", and the extraction passed PyNite's value through — the compression flange (Lb, Sxc, flange
+  slenderness) was chosen backwards, unconservative at the haunch under gravity. bimsteelauto `fix/moment-sign`
+  (c7faf80) merged to `main` (c8caa70) as 0.14.1: ONE conversion, `analysis.frame.design_moment_factor` (PyNite's
+  `Member3D.T` rule incl. the vertical right-hand column), in the 2D and 3D extraction; `tests/test_moment_sign.py`
+  (simple beam → top flange, haunch under gravity → bottom flange; both fail on the old code); CHANGELOG 0.14.1 says to
+  re-check member results of earlier runs (Jobs 16 and 17). bimsteelauto suite: 985 passed (the 1 failure,
+  `test_fc_adapter`, needs a `design_result.json` from `run_frame_example.py` — the same before the fix).
+  Manafe3 pins c8caa70; since then **M + = the member's TOP flange in compression** (rafter top, column outer) in every
+  Manafe3 result; Manafe3 no longer converts (its interim `bsa_moment` removed); the browser draws M on the tension side
+  from the member's role (`frame-analysis.js sideOf`).
+- **End frames now get inward flange braces** (user decision): rafters at the same positions as the interior frames
+  (purlins over the haunch + the next), the inward brace only; end columns already had theirs. An end-RAFTER wall has no
+  main frame, so none there. Building 1: 376 members (was 364). The app fixture `fixtures/manafe3/building1.json` is a
+  frozen engine snapshot from Phase 2 (its counts are checked by hand in `test-manafe3-building.mjs`) — not regenerated.
+- **St 37 Fu: STILL OPEN** — the user's reply held the placeholder "<3.6 or 3.7>", not a value. The table keeps 3.7
+  (skill transcription) marked TO CONFIRM; the skill engine is not changed until the value is given.
+- All plate strengths VERIFIED False with their sources until the user confirms them.
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),

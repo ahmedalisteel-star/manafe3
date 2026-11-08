@@ -12,9 +12,9 @@
  *                                        case and combination, labelled by its set — for the foundation designer
  * Sign conventions (printed on the CSV): reactions are the forces the support gives the structure, H + toward column
  * line B (across the span), V + up, M + anticlockwise in the frame elevation drawn with column line A on the left. Diagrams: a
- * value is drawn on the member's LOCAL +y side as PyNite sets it (localY below), so M is drawn on the TENSION side:
- * bimsteelauto passes PyNite's M through, + = tension on the local +y face (hogging over a haunch +, sagging −; checked
- * on building 1). P + = compression.
+ * a + value is drawn on the side OPPOSITE the member's top face (sideOf below), so M is drawn on the TENSION side:
+ * bimsteelauto 0.14.1 gives M + = the member's TOP flange in compression (rafter top flange, column outer flange; the
+ * one conversion from PyNite is bimsteelauto's design_moment_factor). P + = compression.
  */
 import { ENGINE_URL } from './peb-frame.js';
 import { buildingRequest } from './peb-building.js';
@@ -23,15 +23,15 @@ import { loadsRequest, LOADS_DEFAULTS } from './loads.js';
 export const BANNER = 'NOT FOR ISSUE — analysis only, members not designed (Phase 4)';
 const KIND_INDEX = { N: 1, V: 2, M: 3 };
 
-/** PyNite's local +y of a member in the frame plane (Member3D.T): an exactly vertical member going up has y = −X, going
- *  down y = +X; any other member has y perpendicular to it with a POSITIVE global-Y component. The vertical case is why
- *  "left of i → j" is not enough: a constant-depth column B is vertical, a tapered one leans, and the two differ. */
-export function localY([xi, yi], [xj, yj]) {
-  const dx = xj - xi, dy = yj - yi, L = Math.hypot(dx, dy);
-  if (Math.abs(dx) <= 1e-9 * L) return dy > 0 ? [-1, 0] : [1, 0];
-  let nx = -dy / L, ny = dx / L;
-  if (ny < 0) { nx = -nx; ny = -ny; }
-  return [nx, ny];
+/** The direction a + ordinate is drawn for a member, from its role: opposite its TOP face — a rafter's top flange faces
+ *  up, a column's top (outer) flange faces out of the building (column A −X, column B +X). With M + = top flange in
+ *  compression this puts every moment on its tension side, whatever way the member was drawn. */
+export function sideOf(role) {
+  const r = String(role || '');
+  if (r.startsWith('rafter')) return [0, -1];
+  if (r === 'column A') return [1, 0];
+  if (r === 'column B') return [-1, 0];
+  throw new Error(`no drawing side for member role ${role}`);
 }
 
 export function analysisRequest(state, { pDelta = true } = {}) {
@@ -85,7 +85,7 @@ export function diagram(fr, combo, kind, scale) {
     const st = r.members[m.mark];
     if (!st) continue;                                  // rigid links carry no diagram
     const [xi, yi] = m.i, [xj, yj] = m.j;
-    const L = Math.hypot(xj - xi, yj - yi), ux = (xj - xi) / L, uy = (yj - yi) / L, [nx, ny] = localY(m.i, m.j);
+    const L = Math.hypot(xj - xi, yj - yi), ux = (xj - xi) / L, uy = (yj - yi) / L, [nx, ny] = sideOf(m.role);
     const curve = st.map((s) => [xi + ux * s[0] + nx * s[k] * scale, yi + uy * s[0] + ny * s[k] * scale]);
     let pk = st[0];
     for (const s of st) if (Math.abs(s[k]) > Math.abs(pk[k])) pk = s;

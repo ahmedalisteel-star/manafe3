@@ -4,7 +4,9 @@
 Every load case is ALSO solved on its own, unfactored (user decision: the foundation designer applies his own factors),
 next to every LRFD and ASD combination. Each result carries its set: "case" | "LRFD" | "ASD". Strength values (member
 forces, governing moments) are reported from LRFD; deflection and drift from ASD (user decision).
-Units: kN, kN·m, mm. Reactions (H, V, M) are the forces the support gives the frame; P is positive in compression.
+Units: kN, kN·m, mm. Reactions (H, V, M) are the forces the support gives the frame; P is positive in compression;
+M is positive when the member's TOP flange is in compression (rafter: top flange; column: outer flange) — bimsteelauto
+0.14.1's design sign.
 Drift is the largest |horizontal movement| of the eave (knee) nodes. Note: bimsteelauto's Envelope.eave_drift looks for
 nodes named "E…" (its own layouts) and would return 0 here — not used.
 """

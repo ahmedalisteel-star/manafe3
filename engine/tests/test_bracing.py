@@ -96,7 +96,10 @@ def test_flange_braces():
     out = flange_braces(LINES, INP)
     roof = [m for m in out if m["host"].startswith("rafter")]
     col = [m for m in out if m["host"].startswith("column")]
-    assert len(roof) == 36 and len(col) == 32
+    # rafters: 3 interior frames × 2 sides × 3 positions × a pair = 36, + the 2 end frames' inward braces 2 × 2 × 3 = 12
+    assert len(roof) == 48 and len(col) == 32
+    ends = [m for m in roof if m["start"][0] in (FR[0], FR[-1])]
+    assert len(ends) == 12 and all(FR[0] <= m["end"][0] <= FR[-1] for m in ends)              # every end brace points inside
     assert {m["line"] for m in roof if m["host"] == "rafter A"} == {"RA1", "RA2", "RA3"}
     b = [m for m in roof if m["line"] == "RA1" and m["start"][0] == 6000]
     assert len(b) == 2 and sorted(m["end"][0] for m in b) == [pytest.approx(6000 - 808.354, abs=1e-3), pytest.approx(6808.354, abs=1e-3)]

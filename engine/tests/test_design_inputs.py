@@ -1,6 +1,6 @@
 # Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
-"""Phase 4 step 1: design inputs from the model — plate strengths, design members, restraint points, the moment sign
-into bimsteelauto. Building 1: 24 m span, eave 6 m, slope 0.1, 4 × 6 m bays (frame line 3 interior, line 1 an end frame)."""
+"""Phase 4 step 1: design inputs from the model — plate strengths, design members, restraint points, the sign the
+analysis delivers (bimsteelauto 0.14.1). Building 1: 24 m span, eave 6 m, slope 0.1, 4 × 6 m bays (frame line 3 interior, line 1 an end frame)."""
 
 import dataclasses
 import math
@@ -11,7 +11,7 @@ from Pynite import FEModel3D
 from engine.analysis.frame_loads import frame_loads
 from engine.analysis.frame_model import frame_line_model
 from engine.analysis.solve import analyse_frame_line
-from engine.design.inputs import VERIFIED, bsa_moment, design_members, plate_strength, restraints, section_strength
+from engine.design.inputs import VERIFIED, design_members, plate_strength, restraints, section_strength
 from engine.peb.building import BuildingInput, peb_building
 from engine.peb.builtup_frame import builtup_frame_members, default_sizes
 from engine.peb.loads_input import LoadsInput
@@ -39,26 +39,23 @@ def test_plate_strengths():
     assert not any(VERIFIED.values())
 
 
-def test_pynite_sign_and_the_boundary():
-    """PyNite: sagging is NEGATIVE (simply supported, −wL²/8), hogging positive. bimsteelauto wants + = top in compression."""
+def test_pynite_itself_reports_sagging_negative():
+    """The premise of the bimsteelauto 0.14.1 fix, straight from PyNite: sagging is NEGATIVE (simply supported, −wL²/8)."""
     m = FEModel3D()
     m.add_node("A", 0, 0, 0); m.add_node("B", 10000, 0, 0)
     m.add_material("S", 200000, 77000, 0.3, 7.85e-8); m.add_section("s", 5000, 1e7, 1e8, 1e6)
     m.add_member("M", "A", "B", "S", "s")
     m.def_support("A", True, True, True, True, False, False); m.def_support("B", False, True, True, False, False, False)
     m.add_member_dist_load("M", "FY", -10, -10, case="D"); m.add_load_combo("D", {"D": 1.0}); m.analyze_linear()
-    M = m.members["M"].moment("Mz", 5000, "D") / 1e6
-    assert M == pytest.approx(-125.0)                                       # 10 N/mm × 10² m² / 8
-    assert bsa_moment((0, 0), (10000, 0), (0.0, 1.0), M) == pytest.approx(125.0)        # sagging → top in compression
-    assert bsa_moment((10000, 0), (0, 0), (0.0, 1.0), M) == pytest.approx(125.0)        # the same beam drawn backwards
-    assert bsa_moment((0, 0), (10000, 0), (0.0, -1.0), M) == pytest.approx(-125.0)      # section upside down
+    assert m.members["M"].moment("Mz", 5000, "D") / 1e6 == pytest.approx(-125.0)            # 10 N/mm × 10² m² / 8
 
 
 @pytest.mark.parametrize("constant_columns", [False, True])
-def test_knee_compresses_the_inner_flange_on_both_columns(constant_columns):
-    """Gravity on a pinned portal: the knee puts the column's OUTER flange (its section 'top') in tension, so bimsteelauto
-    must see Mz < 0 (inner flange in compression) on BOTH columns — also when the columns are constant depth and exactly
-    vertical, where PyNite's local y of column B points INTO the building (the trap)."""
+def test_results_carry_the_design_sign(constant_columns):
+    """Gravity on a pinned portal: the knee puts the column's OUTER flange (its section 'top') in tension, so the design
+    sign (+ = top flange in compression) must be NEGATIVE at the top of BOTH columns — also when the columns are constant
+    depth and exactly vertical, where PyNite's local y of column B points INTO the building (the trap) — negative over
+    the haunch, and positive (sagging) toward the ridge."""
     z = default_sizes(24000)
     if constant_columns:
         z = dataclasses.replace(z, hw_base=z.hw_knee)
@@ -66,15 +63,13 @@ def test_knee_compresses_the_inner_flange_on_both_columns(constant_columns):
     fl = frame_loads(info, 2, LoadsInput(V=45, exposure="C"))
     fl = type(fl)(loads=tuple(l for l in fl.loads if l.case == "D"), cases=("D",), combinations=(), tributary_m=fl.tributary_m, Lr=fl.Lr, wind=fl.wind)
     r = analyse_frame_line(info, fl, p_delta=False)
-    cols = {m.mark: m for m in info.layout.members if m.mark in ("CA", "CB")}
     if constant_columns:
-        assert all(abs(c.i_point[0] - c.j_point[0]) < 1e-6 for c in cols.values())     # exactly vertical
-    for mk, normal in (("CA", (-1.0, 0.0)), ("CB", (1.0, 0.0))):
-        c = cols[mk]
-        knee = r["results"]["D"]["members"][mk][-1][3]
-        assert bsa_moment(c.i_point, c.j_point, normal, knee) < 0, (mk, constant_columns)
-    ra = next(m for m in info.layout.members if m.mark == "RA1")
-    assert bsa_moment(ra.i_point, ra.j_point, (0.0, 1.0), r["results"]["D"]["members"]["RA1"][0][3]) < 0   # haunch: hogging
+        cols = [m for m in info.layout.members if m.mark in ("CA", "CB")]
+        assert all(abs(c.i_point[0] - c.j_point[0]) < 1e-6 for c in cols)               # exactly vertical
+    d = r["results"]["D"]["members"]
+    assert d["CA"][-1][3] < 0 and d["CB"][-1][3] < 0, constant_columns
+    assert d["CB"][-1][3] == pytest.approx(d["CA"][-1][3], rel=1e-6)
+    assert d["RA1"][0][3] < 0 and max(s[3] for s in d["RA2"]) > 0
 
 
 def test_design_members_chain_the_rafter_halves():
@@ -104,6 +99,9 @@ def test_restraints_from_the_model():
     assert len(r["rafter A"]["top"]) == len(lines_a) == 10
     assert len(r["rafter A"]["bottom"]) == 3 and r["rafter A"]["bottom"] == r["rafter B"]["bottom"]
     assert all(0 < s < r["rafter A"]["length"] for s in r["rafter A"]["top"])
-    # negative control: an END frame line has no rafter flange braces in the model (Phase 2: interior frames only)
+    # END frame lines: inward flange braces at the SAME positions as the interior frames (user, 2026-11-08)
     r1 = restraints(out, line(0), 0.0)
-    assert r1["rafter A"]["bottom"] == [] and len(r1["rafter A"]["top"]) == 10
+    assert r1["rafter A"]["bottom"] == r["rafter A"]["bottom"] and len(r1["rafter A"]["top"]) == 10
+    # negative control: a building with an end-RAFTER wall at line 1 has no main frame there, so no frame braces either
+    o2 = peb_building(BuildingInput(**B1, end_first="rafter"))
+    assert not any(m["role"] == "flange_brace" and abs(m["start"][0]) < 1 for m in o2["members"])

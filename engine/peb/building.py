@@ -88,7 +88,7 @@ def peb_building(b: BuildingInput) -> dict:
     girts = [m for m in sec["members"] if m["role"] == "girt"]
     others = [m for m in sec["members"] if m["role"] != "girt"]
     rafter_ends = {x for i, x in ((0, frames[0]), (b.n_bays, L)) if (b.end_first if i == 0 else b.end_last) == "rafter"}
-    fb = [m for m in flange_braces(lines, bi) if not (m["host"].startswith("column") and m["start"][0] in rafter_ends)]
+    fb = [m for m in flange_braces(lines, bi) if m["start"][0] not in rafter_ends]   # an end-rafter wall has no main frame
 
     # end walls
     gable_sets = []

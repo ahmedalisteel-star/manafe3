@@ -96,7 +96,7 @@ export function mountFrameAnalysis({ model, print, download }) {
     for (const b of f.base_nodes) { const [px, py] = P(f.nodes[b]); svg.append(s('path', { d: `M${px},${py} l-7,12 h14 z`, fill: 'none', stroke: '#333' })); }
     const r = f.results[comboSel.value];
     const unit = kind === 'shape' ? 'mm' : kind === 'M' ? 'kN·m' : 'kN';
-    info.textContent = `${comboSel.value} [${r.set}] — ${kind === 'shape' ? `largest movement ${fmt(d.peak?.v)} mm at ${d.peak?.node} (drawn × ${fmt(scale, 0)})` : `peak ${fmt(d.peak?.v)} ${unit} in ${d.peak?.mark}; drawn on each member's local +y side${kind === 'M' ? ' = the tension side' : ''}`}`
+    info.textContent = `${comboSel.value} [${r.set}] — ${kind === 'shape' ? `largest movement ${fmt(d.peak?.v)} mm at ${d.peak?.node} (drawn × ${fmt(scale, 0)})` : `peak ${fmt(d.peak?.v)} ${unit} in ${d.peak?.mark}; ${kind === 'M' ? 'drawn on the tension side' : '+ drawn on the inner side of each member'}`}`
       + ` · largest eave movement ${fmt(r.drift)} mm, sway ${fmt(r.sway)} mm, apex ${fmt(r.apex)} mm.`;
     const rows = combos(f, setSel.value).map((c) => {
       const x = f.results[c.name].reactions;

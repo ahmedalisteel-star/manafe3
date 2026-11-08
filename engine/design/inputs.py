@@ -20,12 +20,10 @@ splices are NOT brace points). Restraint points are distances along the design m
                                                                                     this frame line
     the member's ends are always brace points (bimsteelauto BracingSpec adds them).
 
-Moment sign — THE boundary (CLAUDE.md: convert in exactly one function): PyNite's Mz is + for tension on the member's
-LOCAL +y face (hogging + on a rafter; checked on a simply supported beam in tests). bimsteelauto design/members.py
-takes Mz ≥ 0 as "top flange in compression" (sagging +) and passes PyNite's value through unchanged — on its own
-pipeline that inverts the flange choice (finding 2026-11-08, reported to the user; bimsteelauto not modified).
-bsa_moment() gives bimsteelauto the sign it expects, with PyNite's own local-y rule (an exactly vertical member's local
-y is −X going up — a constant-depth column B would otherwise flip).
+Moment sign: since bimsteelauto 0.14.1 (fix/moment-sign, 2026-11-08 — requested by the user after Manafe3 found the
+defect) the analysis delivers M with + = the member's TOP flange in compression (rafter: top flange; column: outer
+flange) — the sign bimsteelauto's check_member reads. The conversion lives in ONE place, bimsteelauto
+analysis.frame.design_moment_factor; Manafe3 does not convert again.
 """
 
 from __future__ import annotations
@@ -44,7 +42,7 @@ GRADES: dict[str, list[tuple[float, float, float, str]]] = {
     "St 52": [(40, 3.60 * KGF, 5.20 * KGF, "ECP 205 Tab. 1.1"), (100, 3.35 * KGF, 4.90 * KGF, "ECP 205 Tab. 1.1")],
     "S350GD": [(4, 350, 420, "EN 10346")],
 }
-VERIFIED = {"GRADES": False, "restraints": False, "bsa_moment": False}
+VERIFIED = {"GRADES": False, "restraints": False}
 
 
 def plate_strength(grade: str, t: float) -> dict:
@@ -65,24 +63,6 @@ def section_strength(seg: dict) -> dict:
 
 
 # --------------------------------------------------------------------------------------------- design members and braces
-
-def local_y(i, j) -> tuple[float, float]:
-    """PyNite's local +y in the frame plane (Member3D.T) — the same rule as app/manafe3/frame-analysis.js localY."""
-    dx, dy = j[0] - i[0], j[1] - i[1]
-    L = math.hypot(dx, dy)
-    if abs(dx) <= 1e-9 * L:
-        return (-1.0, 0.0) if dy > 0 else (1.0, 0.0)
-    nx, ny = -dy / L, dx / L
-    return (-nx, -ny) if ny < 0 else (nx, ny)
-
-
-def bsa_moment(i, j, top_normal, M: float) -> float:
-    """PyNite Mz (+ = tension on local +y) → bimsteelauto Mz (+ = the section's TOP flange in compression).
-    top_normal: the outward normal of the section's top face (rafter: up; column: out of the building)."""
-    ly = local_y(i, j)
-    s = 1.0 if ly[0] * top_normal[0] + ly[1] * top_normal[1] > 0 else -1.0
-    return -s * M
-
 
 def design_members(info) -> list[dict]:
     """The design members of a frame line (frame_model.FrameModelInfo), each a chain of analysis members."""
