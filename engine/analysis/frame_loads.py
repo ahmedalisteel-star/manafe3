@@ -73,9 +73,8 @@ def _from_bsa(fn):
 
 
 def _ecp201_not_entered(wind_cases):
-    raise NotImplementedError("ECP 201 load combinations: the factors are not entered yet. They are the user's to supply "
-                              "(code edition and clause); Manafe3 never invents them. Register them with "
-                              "register_combination_set(CombinationSet(...)).")
+    raise NotImplementedError("ECP 201 load combinations: not entered yet. They will come from the user's ecp205-lrfd "
+                              "library, with clause references (user decision 2026-11-08); Manafe3 never invents them.")
 
 
 #: The registry. LRFD / ASD: bimsteelauto's ASCE 7-16 §2.3 / §2.4 sets (VERIFIED there). ECP201: the slot for the Egyptian
@@ -83,7 +82,7 @@ def _ecp201_not_entered(wind_cases):
 COMBINATION_SETS: dict[str, CombinationSet] = {
     "LRFD": CombinationSet("LRFD", "ASCE 7-16 §2.3.1 (bimsteelauto lrfd_combinations)", _from_bsa(lrfd_combinations), 0.9, "strength"),
     "ASD": CombinationSet("ASD", "ASCE 7-16 §2.4.1 (bimsteelauto asd_combinations)", _from_bsa(asd_combinations), 0.6, "serviceability"),
-    "ECP201": CombinationSet("ECP201", "ECP 201 (factors to be supplied by the user)", _ecp201_not_entered, 0.0, "strength"),
+    "ECP201": CombinationSet("ECP201", "ECP 201 (later: from the user's ecp205-lrfd library, with clauses)", _ecp201_not_entered, 0.0, "strength"),
 }
 
 

@@ -20,21 +20,56 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 ## Next task
 
-**Answer the Phase 3 open questions below, then plan Phase 4 (member design) and show the plan before coding.** Do not
-start Phase 4 code before the user has seen the plan.
+**Phase 4 — member design: the plan below is a DRAFT shown to the user (2026-11-08). Do not code until the user has
+approved it and answered its questions.**
 
-**Open questions for the user (Phase 3) — each is printed in the results where it applies:**
-1. **Wind columns: MWFRS or components-and-cladding pressures?** They now use MWFRS Load Case B (5E / 6E with ±GCpi, the
-   E-zone value for every column — conservative). C&C (ASCE 7-16 Ch. 30) usually gives more for a wind column.
-2. **End-rafter frame lateral stability:** assumed held in its plane by the end-wall bracing / sheeting (one horizontal
-   restraint at eave A, its force reported). Is there end-wall bracing on these jobs, or should the end frame be a moment
-   frame?
-3. **eave_share 0.5** in the longitudinal system (wind columns span base to rafter: half the end wall to the eave). OK?
-4. **ECP 201:** the combination slot exists (`engine/analysis/frame_loads.py`, `COMBINATION_SETS["ECP201"]`) and refuses
-   until the factors are entered — which edition and which combinations?
-5. Still to confirm from Phase 2: the ridge-tie strap **PL3x50** and the wind-column cap plate **PL10**.
-6. Run one `.std` (Analysis… › "STAAD .std (this line)") in STAAD.Pro V8i and compare with Manafe3's FIRST-ORDER numbers
-   (the file is first order; P-Delta instructions are in it). MySteelApp's own STAAD export comparison is a laptop task.
+### Phase 4 plan (DRAFT, awaiting the user)
+
+**Findings.** bimsteelauto already has: `design/members.py` — AISC 360-16 E / D / F (with LTB, Cb from the real moment
+diagram) / G / H1 at every station, station-wise prismatic for tapers, via `pyaisc360`, VERIFIED flags True; its own
+COVERAGE_GAPS: no AISC DG 25 web-taper stability (conservative), **no Direct Analysis Method stiffness reduction or
+notional loads (so K = 1 in plane is not yet justified)**, no serviceability limits, no web crippling at load points.
+`design/purlins.py` — AISI S100 C/Z lines (continuous beams, laps, sag-rod bracing) from CATALOGUE properties only.
+`design/bracing.py` — rods / angles in tension, struts. The ECP 205-LRFD engine found on this PC with clause references:
+`~/.claude/skills/ecp-steel-code/scripts/ecp_lrfd.py` (ton / cm). The private copy of `design/members.py` differs from
+the public one (opt-in override, decided 2026-11-05).
+
+| # | Step | Tests (independent) |
+|---|---|---|
+| 1 | Design inputs from the MODEL: restraint points — rafter top flange at every purlin, bottom flange at flange braces; column outer flange at girts, inner at flange braces → `BracingSpec`; grades Fy / Fu per plate | brace points by hand on building 1 |
+| 2 | Direct Analysis Method in the Phase 3 analysis: 0.8 EI (τb = 1 while αPr/Py ≤ 0.5, else iterate), notional loads 0.002 Yi per level in every gravity combination | notional-load statics; a portal by hand; K = 1 then justified (closes a bimsteelauto gap) |
+| 3 | Main frames: `check_member` at every station, every LRFD combination; utilisation per limit state with clause; the governing one named | one rafter and one column station by longhand AISC (a negative control: a section that must fail) |
+| 4 | Serviceability from ASD: sway and apex against limits **the user sets** | ratios by hand |
+| 5 | Wind columns (C&C) and the end rafter: `check_member`; end-wall and side-wall bracing, eave struts: `design/bracing.py` | longhand per member type |
+| 6 | Purlins / girts: AISI S100 via `design/purlins.py`, C&C roof zones 1 / 2 / 3 (and walls 4 / 5) with the user's effective area rule, laps continuous, sag rods as bracing — **needs the supplier's catalogue properties** | one purlin line by hand |
+| 7 | ECP 205-LRFD as a second design basis (the user's library at a units boundary: ton / cm inside), the same members, side by side with AISC | one member by longhand ECP |
+| 8 | Optional sizing loop: change plates / thicknesses toward a target utilisation, re-analyse (stiffness changes), stop when stable | converges on building 1; never below the minimums |
+| 9 | Browser "Design…": utilisation colours in 3D, a table per member, HTML calc sheet per member (NOT FOR ISSUE until every flag is verified); `designed: true` only when every check passes | mapping + browser check |
+| 10 | HANDOVER, `end-work.ps1` | |
+
+**Questions for the user (Phase 4):**
+1. Design basis: AISC 360-16 LRFD only, ECP 205-LRFD only, or both side by side? Which governs on Egyptian jobs?
+2. Is "my ecp205-lrfd library" the skill's `ecp_lrfd.py`, or another package (path / git URL)? It must become a
+   dependency like bimsteelauto, not copied.
+3. Check only, or also the sizing loop (step 8)? If sizing: target utilisation (e.g. ≤ 0.95?) and the plate-thickness
+   list to choose from.
+4. Serviceability limits: wind sway (H / ?), roof live deflection (L / ?), with or without cranes — never assumed.
+5. Direct Analysis Method (step 2) vs the effective length method: DAM recommended.
+6. Cold-formed catalogue: which manufacturer's table for purlins / girts (A, Ix, Sx, Se top / bottom, …)?
+
+**Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
+1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),
+   wall zones 4 / 5 — `engine/analysis/cc_wind.py`, VERIFIED flags False (new code), hand-check of WF3 in `test_cc_wind.py`.
+2. End-rafter frame: **no reliance on sheeting** — X-bracing in the end walls (default one braced bay, bay 1 from line A,
+   on an end-rafter wall; none on a main-frame wall — the portal is stable), tension-only diagonals carry the sway
+   (`endwall.py endwall_braces`, `end_rafter_frame`; refused without bracing).
+3. Longitudinal bracing: **the actual wind-column top reactions**, summed per end wall (`longitudinal_feed`), not a blanket
+   half. Claude's reading, to confirm: the feed uses **MWFRS** end-wall pressure (the bracing is part of the MWFRS); C&C is
+   for designing the columns. Total = bimsteelauto's net pressure × end-wall area; building 1 eave share 0.53. Strut
+   drag gets the larger side's top force (bimsteelauto halves F_eave per end).
+4. ECP 201: **keep refusing**; later the combinations come from the user's ecp205-lrfd library with clause references.
+5. Ridge-tie strap **PL3x50** and wind-column cap plate **PL10: CONFIRMED** (by the user on 2026-11-05).
+Still open: run one `.std` in STAAD.Pro V8i and compare with Manafe3's first-order numbers.
 
 ### Phase 3 — what was built (steps and commits)
 
@@ -137,10 +172,10 @@ ridge-tie strap PL3x50 and the wind-column cap plate PL10). Same rules: hand-che
 **Phase 2 defaults CONFIRMED by the user (2026-11-05)** — every item marked "TO CONFIRM" below stands, with these changes
 (done, commit after 7045a4b):
 - **Ridge tie**: the two ridge purlins tied across the apex at every sag-rod row so sag forces balance — role `ridge_tie`,
-  rod (default, the sag rod) or **strap** (PL3x50, one M12 each end — strap size by Claude, **to confirm**).
+  rod (default, the sag rod) or **strap** (PL3x50, one M12 each end — **CONFIRMED** by the user).
 - **Wind column placeholder**: built-up web 300 constant, flanges 150×8, S355 (`endwall.py WIND_COLUMN`). Its top follows
   the rafter slope (cut across the flanges: `cuts.endU`, flanges become trapezoid shaped plates) under a **cap plate** PL10,
-  20 mm past the column all round (size by Claude, **to confirm**).
+  20 mm past the column all round (**CONFIRMED** by the user).
 - **Gable-girt cleats** on the wind / corner columns, generated after openings (`building.py gable_cleats`).
 - **PHASE 5 MUST: vertical slotted holes at the wind-column top (cap plate / rafter connection) for the rafter's deflection.**
 
@@ -453,6 +488,13 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
 
+## Tests (after the Phase 3 answers, 2026-11-08)
+
+- Engine **111 passed**: + C&C (`test_cc_wind.py`: WF3 longhand, bounds, θ reduction, minimum, zone 5 vs 4), the
+  longitudinal feed (areas longhand, total = bimsteelauto p × area, eave share ≠ 0.5), strut drag from the larger side,
+  end-wall bracing (geometry by hand, T·cos θ = load at rafter level, slack diagonal, refusal).
+- App **13 of 13**. Browser: an end-rafter building → Analysis… 48 s, end-wall X-brace 10.22 kN (LRFD), no console errors.
+
 ## Tests (baseline after Phase 3, 2026-11-07)
 
 - Engine `uv run pytest -q`: **104 passed** (~5 min; the frame solves dominate) — Phase 2 (71) + loads input; the frame
@@ -494,8 +536,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-07 12:32 on ENG04-PC
-- Did: Phase 3 step 9: ECP 201 hook (pluggable combination sets), STAAD .std download, HANDOVER - Phase 3 done
-- Tests: engine 104 passed, 1 warning in 344.75s (0:05:44) | app 13 of 13 test files passed
-- Next: User: answer the Phase 3 open questions in HANDOVER (C&C for wind columns, end-frame lateral restraint, eave_share, ECP 201 factors, PL3x50 / PL10, STAAD comparison); then plan Phase 4 member design and show the plan
+- When: 2026-11-08 08:44 on ENG04-PC
+- Did: Phase 3 answers: C&C wind columns, end-wall X-bracing, longitudinal feed from actual top reactions; ECP 201 refusal names the source; Phase 4 plan drafted
+- Tests: engine 111 passed, 1 warning in 300.10s (0:05:00) | app 13 of 13 test files passed
+- Next: User: review the Phase 4 plan DRAFT in HANDOVER and answer its 6 questions; no Phase 4 code before approval
 <!-- LAST-SESSION:END -->
