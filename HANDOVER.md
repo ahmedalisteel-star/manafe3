@@ -21,8 +21,8 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
-the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; next step 3 (main-frame checks
-with DG 25 and E7 / F5 / G2).**
+the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 in progress (E7 fixed
+in bimsteelauto 0.14.3; next F5 / G2 routing tests, then DG 25 in bimsteelauto, then Manafe3's frame checks).**
 
 ### Phase 4 plan (approved 2026-11-08)
 
@@ -95,6 +95,22 @@ with DG 25 and E7 / F5 / G2).**
   compression is flagged "slack". (The service set keeps the tension-only switch: wind dominates there.)
 - **Tests split**: `@pytest.mark.slow` on the frame-solve tests (22); `start-work.ps1` runs `-m "not slow"` (105 tests,
   ~10 s), `end-work.ps1` runs everything (127, ~10 min) before pushing.
+
+**Step 3 decisions (user, 2026-11-08):**
+1. **E7 fixed in bimsteelauto** — bimsteelauto's compression check built pyaisc360's `CompressionMember` with no plate
+   elements, so E7 never applied (every element taken nonslender). Branch `fix/e7-slender` (ca09aa5) merged to `main`
+   (548bef4) as **0.14.3**: `_e7_effective_area` deducts the web (h, tw, case 5) and each flange (bf/2, tf, case 2 with kc)
+   through pyaisc360's E7 functions at the governing Fcr (pyaisc360's own `effective_area()` cannot take a built-up flange:
+   it does not pass h/tw for kc). `tests/test_e7_slender.py` longhand E3/E4/E7: the 800×8 / 250×12 section (h/tw 97, S355)
+   gives Ae/Ag 0.719, φPn 2557 kN vs 3555 kN before (negative control); stocky unchanged; E7-2 threshold; singly-symmetric
+   flanges separately. CHANGELOG re-check note for Jobs 16 and 17 extended (compression overstated for slender webs).
+   bimsteelauto suite 996 passed (+ the known `test_fc_adapter` file failure). New bimsteelauto coverage gap recorded:
+   singly-symmetric compression uses the doubly symmetric E4 branch. Manafe3 re-pinned to 548bef4.
+2. **DG 25 goes in bimsteelauto** (a module for nonprismatic members). The user has no DG 25 copy yet: elastic buckling
+   loads by TWO independent numerical methods, VERIFIED False, NOT FOR ISSUE; confirm the equations against the printed
+   guide when the user has it.
+3. The PyNite tension-only workaround (lengthening diagonal per sway direction, rod = max(model, H / cos θ)) is
+   **APPROVED**.
 
 **Phase 3 open questions — ANSWERED by the user (2026-11-08) and built:**
 1. Wind columns (and later girts / purlins): **ASCE 7-16 Ch. 30 C&C**, effective wind area = span × max(spacing, span/3),
@@ -526,6 +542,9 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - **Phase 6** drawings: anchor bolt plan, frame elevations, built-up member shop drawings, erection drawings; NC/DSTV,
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
 - **Phase 7** packaging: Windows installer, then optional online hosting
+- **Later (user, 2026-11-08 — roadmap only, do not build now):**
+  - a **concrete / reference member type**: drawn and clash-checked, never counted in steel weight (MTO, BOM);
+  - **crane support**: runway girders, brackets, crane loads in the analysis (the Phase 4 serviceability "crane hook").
 
 ## Tests (after the Phase 3 answers, 2026-11-08)
 

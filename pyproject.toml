@@ -30,7 +30,7 @@ dev = [
 package = false
 
 [tool.uv.sources]
-bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "8c8d3cbabca9f6360ef52d4da9cbc5c16b1819cd" }  # main: 0.14.2 stiffness_factor + min_segments (2026-11-08)
+bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "548bef40906206fd0acdefdfdb64defec74f34a9" }  # main: 0.14.3 E7 slender elements in compression (2026-11-08)
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]
