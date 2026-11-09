@@ -58,10 +58,12 @@ import { sheetModel, sheetDxf } from './dwgout.js';
 import { phaseReport, reportTables, reportCsv, reportSheets } from './report.js';
 import { clashCheck } from './clash.js';
 import { modelLoaded as m3ModelLoaded } from './manafe3/panels.js';   // Manafe3 (changed file, field fix 3): panels hear a load
-import { concreteTotals } from './manafe3/materials.js';
-import { groupClashes } from './manafe3/clash-groups.js';
+import { concreteTotals } from './manafe3/materials.js';   // Manafe3 (changed file): concrete volume total
+import { groupClashes } from './manafe3/clash-groups.js';   // Manafe3 (changed file, field fix 16)
 import { barNaming } from './manafe3/units.js';   // Manafe3 (changed file, field fix 14)
-import { elevationChoices, gridForChoice } from './manafe3/views.js';   // Manafe3 (changed file, field fix 17)   // Manafe3 (changed file, field fix 16)   // Manafe3 (changed file): concrete volume total
+import { mountDrawingsUi } from './manafe3/drawings-ui.js';   // Manafe3 (changed file, field fixes 18, 19, 23, 24)
+import { cleanDrawingSettings, STATUSES } from './drawings.js';   // Manafe3 (changed file, field fix 24)
+import { elevationChoices, gridForChoice } from './manafe3/views.js';   // Manafe3 (changed file, field fix 17)
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
 import { getHost } from "./host.js";
@@ -2194,7 +2196,7 @@ async function start(root) {
   // ---- drawings dialog: GA plans and elevations + assembly drawings, made from the model on every open ----
   let dwgSet = null;
   function makeDrawings() {
-    const set = drawingSet(model.state, built, marks, { date: new Date().toISOString().slice(0, 10), paper: settings.paper });
+    const set = drawingSet(model.state, built, marks, { date: new Date().toISOString().slice(0, 10), paper: settings.paper, m3: model.state.m3drawings || {} });   // Manafe3: the set's drawing settings (field fixes 18, 19, 24)
     if (set.builtUpLeftOut?.length) print('Assembly drawings of built-up members come in Phase 6; left out: ' + set.builtUpLeftOut.join(', ') + '.');   // Manafe3; i18n-ignore (English for now)
     return set;
   }
@@ -2217,13 +2219,16 @@ async function start(root) {
     syncIssue();
     fillPaper(ui.dwgPaper);
     ui.dwgNote.textContent = tr('dwg.note', { n: dwgSet.sheets.length, paper: paperLabel(dwgSet.paper), ref: dwgSet.ref });
+    const st0 = cleanDrawingSettings(model.state.m3drawings || {}).title.status;   // Manafe3 (field fix 24): the issue note follows the title block's status
+    if (!ui.issueNote.value || ui.issueNote.value === tr('issue.note.default') || STATUSES.includes(ui.issueNote.value)) ui.issueNote.value = st0;
+    m3dwg.refresh();
     return true;
   }
   ui.dwgPaper.addEventListener('change', () => {
     setSetting('paper', PAPER_KEYS.includes(ui.dwgPaper.value) ? ui.dwgPaper.value : DEFAULT_PAPER, tr('dwg.paper.set', { paper: paperLabel(ui.dwgPaper.value) }));
     if (dwgSet && fillDrawings(Number(ui.dwgSheet.value) || 0)) drawList(ui.dwgCanvas, dwgSet.sheets[Number(ui.dwgSheet.value)]);
   });
-  ui.dwgSheet.addEventListener('change', () => { if (dwgSet) { drawList(ui.dwgCanvas, dwgSet.sheets[Number(ui.dwgSheet.value)]); syncIssue(); } });
+  ui.dwgSheet.addEventListener('change', () => { if (dwgSet) { drawList(ui.dwgCanvas, dwgSet.sheets[Number(ui.dwgSheet.value)]); syncIssue(); m3dwg.refresh(); } });
   // ---- issue log (D17) ----
   function syncIssue() {
     if (!dwgSet) return;
@@ -2250,6 +2255,9 @@ async function start(root) {
   ui.issueAll.addEventListener('click', () => { if (dwgSet) { const st = sheetStatus(dwgSet.sheets, model.state.issues); issueSheets(dwgSet.sheets.filter((s2) => st.get(s2.id).changed).map((s2) => s2.id)); } });
   ui.dwgClose.addEventListener('click', () => ui.dwg.close());
   ui.dwg.addEventListener('close', () => { dwgSet = null; restoreFocus(); });
+  // Manafe3 (changed file, field fixes 18, 19, 23, 24): drawing settings and the tick-box export, added to the dialog
+  const m3dwg = mountDrawingsUi({ dialog: ui.dwg, model: () => model, edit, print, sheets: () => dwgSet?.sheets, current: () => dwgSet?.sheets[Number(ui.dwgSheet.value) || 0], exportSheets: (o) => exportSheets(o),
+    remake: () => { if (dwgSet && fillDrawings(Number(ui.dwgSheet.value) || 0)) drawList(ui.dwgCanvas, dwgSet.sheets[Number(ui.dwgSheet.value)]); } });
   // PDF, DWG (cc-dwg's writer, loaded on first use) or DXF R12 (dwgout.js); several DWG / DXF sheets go in one zip
   const fmtName = () => ui.dwgFormat.selectedOptions[0]?.textContent || 'PDF';
   function syncFormat() {

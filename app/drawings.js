@@ -53,10 +53,39 @@ const ratio = (n) => '1:' + n;
 const fmt = (v) => String(Math.round(v));
 const PLAN_BAND = 1000, ELEV_BAND = 1000;
 let AREA = { x0: 15, x1: 405, y0: 58, y1: 270 };        // drawing area above the title block band
+/**
+ * Manafe3 (changed file, field fixes 18, 19, 24): the drawing set's settings, kept in the model (state.m3drawings) and
+ * passed as drawingSet(…, { m3 }); without them every sheet is as upstream draws it.
+ *   text / line   scale every text height / line weight;  dimText  dimension figures' height (mm on paper)
+ *   hideMarks     no member / part marks on GA plans;  gaPaper  the GA sheets' paper (default A1; assembly sheets keep the
+ *                 set's); sheets { [sheet id]: { paper, scale, number } } per-sheet paper, scale (1:n; else the largest that fits)
+ *                 and drawing number;  title { client, project, job, revision, status } the title block's own fields
+ */
+export const STATUSES = ['For approval', 'For construction', 'For fabrication', 'As built'];
+export const DRAWING_DEFAULTS = Object.freeze({ text: 1, dimText: 2.2, line: 1, hideMarks: false, gaPaper: 'A1', sheets: {}, title: { client: '', project: '', job: '', revision: '', status: 'For approval' } });
+const UPSTREAM = { text: 1, dimText: 2.2, line: 1, hideMarks: false, gaPaper: null, sheets: {}, title: null };
+let OPT = UPSTREAM, CUR = null;                          // the settings in force, the sheet being drawn
+/** A checked copy of drawing settings (untrusted: from the model). */
+export function cleanDrawingSettings(o = {}) {
+  const n = (v, lo, hi, d) => { const x = Number(v); return Number.isFinite(x) && x >= lo && x <= hi ? x : d; };
+  const str = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
+  const ti = o.title || {};
+  const sheets = {};
+  for (const [id, s] of Object.entries(o.sheets || {}).slice(0, 2000)) {
+    const e = {};
+    if (s?.paper && paperOf(s.paper).key === s.paper) e.paper = s.paper;
+    if (SCALES.includes(Number(s?.scale))) e.scale = Number(s.scale);
+    if (s?.number) e.number = str(s.number, 30);
+    if (Object.keys(e).length) sheets[str(id, 120)] = e;
+  }
+  return { text: n(o.text, 0.5, 3, 1), dimText: n(o.dimText, 1, 10, 2.2), line: n(o.line, 0.5, 3, 1), hideMarks: !!o.hideMarks,
+    gaPaper: o.gaPaper && paperOf(o.gaPaper).key === o.gaPaper ? o.gaPaper : DRAWING_DEFAULTS.gaPaper, sheets,
+    title: { client: str(ti.client, 60), project: str(ti.project, 60), job: str(ti.job, 30), revision: str(ti.revision, 10), status: STATUSES.includes(ti.status) ? ti.status : 'For approval' } };
+}
 function usePaper(key) {
   const p = paperOf(key);
   Object.assign(SHEET, { w: p.w, h: p.h, key: p.key, k: p.k });
-  AREA = { x0: 15, x1: p.w - 15, y0: 58, y1: p.h - 27 };
+  AREA = { x0: 15, x1: p.w - 15, y0: OPT.title ? 75 : 58, y1: p.h - 27 };   // Manafe3: a taller title block with the job's fields
 }
 
 const STYLE = {
@@ -76,9 +105,9 @@ function sheetBuilder() {
       const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
       regions.push({ key, x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) });
     },
-    P(pts, o = {}) { if (pts.length >= 2) items.push({ k: 'path', pts, w: o.w ?? 0.35, dash: o.dash || null, closed: !!o.closed, fill: !!o.fill }); },
-    T(s, x, y, h = 2.5, o = {}) { items.push({ k: 'text', s: String(s), x, y, h, align: o.align || 'left', rot: o.rot || 0, bold: !!o.bold }); },
-    C(c, r, o = {}) { items.push({ k: 'circle', c, r, w: o.w ?? 0.3, dash: o.dash || null, fill: !!o.fill }); },
+    P(pts, o = {}) { if (pts.length >= 2) items.push({ k: 'path', pts, w: (o.w ?? 0.35) * OPT.line, dash: o.dash || null, closed: !!o.closed, fill: !!o.fill }); },   // Manafe3: × line weight
+    T(s, x, y, h = 2.5, o = {}) { items.push({ k: 'text', s: String(s), x, y, h: o.dim ? OPT.dimText : h * OPT.text, align: o.align || 'left', rot: o.rot || 0, bold: !!o.bold }); },   // Manafe3: text / dimension height
+    C(c, r, o = {}) { items.push({ k: 'circle', c, r, w: (o.w ?? 0.3) * OPT.line, dash: o.dash || null, fill: !!o.fill }); },
     rect(x0, y0, x1, y1, o = {}) { S.P([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], { ...o, closed: true }); },
     /** Horizontal dimension from paper x1 to x2, dimension line at paper y, extension lines from `from`. */
     dimH(x1, x2, y, from, value, view, out = 0, avoid = null) {
@@ -86,13 +115,13 @@ function sheetBuilder() {
       S.P([[x1, from], [x1, y + sg * 1.5]], STYLE.thin); S.P([[x2, from], [x2, y + sg * 1.5]], STYLE.thin);
       S.P([[x1, y], [x2, y]], STYLE.thin);
       for (const x of [x1, x2]) S.P([[x - 0.9, y - 0.9], [x + 0.9, y + 0.9]], { w: 0.35 });
-      const label = fmt(value), tw = textWidth(label, 2.2), fits = Math.abs(x2 - x1) >= tw + 1;
+      const label = fmt(value), tw = textWidth(label, OPT.dimText), fits = Math.abs(x2 - x1) >= tw + 1;
       // too short for its figure: the figure goes outside the end nearer the chain's end
       const tx = fits || !out ? (x1 + x2) / 2 : out < 0 ? Math.min(x1, x2) - tw / 2 - 1.2 : Math.max(x1, x2) + tw / 2 + 1.2;
       let ty = y + (fits || out ? 0.8 : -3.2);
       // in a chain, a figure that would sit on the one before steps away from the drawing (small sheets, close holes)
-      if (avoid) { for (let i = 0; i < 3 && avoid.some((b) => overlap(b, textBox(label, tx, ty, 2.2, { align: 'center' }))); i++) ty += sg * 2.8; avoid.push(textBox(label, tx, ty, 2.2, { align: 'center' })); }
-      S.T(label, tx, ty, 2.2, { align: 'center' });
+      if (avoid) { for (let i = 0; i < 3 && avoid.some((b) => overlap(b, textBox(label, tx, ty, OPT.dimText, { align: 'center' }))); i++) ty += sg * (OPT.dimText + 0.6); avoid.push(textBox(label, tx, ty, OPT.dimText, { align: 'center' })); }
+      S.T(label, tx, ty, 2.2, { align: 'center', dim: true });
       dims.push({ dir: 'h', value: Math.round(value), view });
     },
     dimV(y1, y2, x, from, value, view, out = 0, avoid = null) {
@@ -100,12 +129,12 @@ function sheetBuilder() {
       S.P([[from, y1], [x + sg * 1.5, y1]], STYLE.thin); S.P([[from, y2], [x + sg * 1.5, y2]], STYLE.thin);
       S.P([[x, y1], [x, y2]], STYLE.thin);
       for (const y of [y1, y2]) S.P([[x - 0.9, y - 0.9], [x + 0.9, y + 0.9]], { w: 0.35 });
-      const label = fmt(value), tw = textWidth(label, 2.2), fits = Math.abs(y2 - y1) >= tw + 1;
+      const label = fmt(value), tw = textWidth(label, OPT.dimText), fits = Math.abs(y2 - y1) >= tw + 1;
       const ty = fits || !out ? (y1 + y2) / 2 : out < 0 ? Math.min(y1, y2) - tw / 2 - 1.2 : Math.max(y1, y2) + tw / 2 + 1.2;
       let tx = x - 0.8;
       const o = { align: 'center', rot: Math.PI / 2 };
-      if (avoid) { for (let i = 0; i < 3 && avoid.some((b) => overlap(b, textBox(label, tx, ty, 2.2, o))); i++) tx += sg * 2.8; avoid.push(textBox(label, tx, ty, 2.2, o)); }
-      S.T(label, tx, ty, 2.2, o);
+      if (avoid) { for (let i = 0; i < 3 && avoid.some((b) => overlap(b, textBox(label, tx, ty, OPT.dimText, o))); i++) tx += sg * (OPT.dimText + 0.6); avoid.push(textBox(label, tx, ty, OPT.dimText, o)); }
+      S.T(label, tx, ty, 2.2, { ...o, dim: true });
       dims.push({ dir: 'v', value: Math.round(value), view });
     },
     /** A chain of horizontal dimensions through model positions `vals` (sorted), mapped by `X`, plus the overall. */
@@ -264,11 +293,12 @@ export function holeGeom(part, h) {
 function frameOfSheet(S) { S.rect(10, 10, SHEET.w - 10, SHEET.h - 10, STYLE.thick); }
 
 function titleBlock(S, tb) {
-  const x0 = SHEET.w - 170, y0 = 10, x1 = SHEET.w - 10, y1 = 52, mid = SHEET.w - 90;
+  const x0 = SHEET.w - 170, y0 = 10, x1 = SHEET.w - 10, y1 = OPT.title ? 69 : 52, mid = SHEET.w - 90;   // Manafe3: + client / project / job / status
   S.rect(x0, y0, x1, y1, STYLE.thick);
   S.T(tb.title, x0 + 2, y1 - 6, 3.6, { bold: true });
   if (tb.subtitle) S.T(tb.subtitle, x0 + 2, y1 - 10.5, 2.2);
   const rows = [[t('sheet.tb.drawing'), tb.number, t('sheet.tb.scale'), tb.scale], [t('sheet.tb.model'), tb.model, t('sheet.tb.model-ref'), tb.ref], [t('sheet.tb.date'), tb.date, t('sheet.tb.sheet'), tb.sheet]];
+  if (OPT.title) rows.unshift(['Client', OPT.title.client, 'Project', OPT.title.project], ['Job no.', OPT.title.job, 'Status', OPT.title.status]);   // Manafe3 (field fix 24); i18n-ignore
   S.P([[x0, y1 - 12.5], [x1, y1 - 12.5]], STYLE.thin);
   rows.forEach((r, i) => {
     const y = y1 - 12.5 - (i + 1) * 8.5;
@@ -310,7 +340,7 @@ function gaContent(state, built, marks, view) {
   for (const part of built.parts) {
     const x = part.frame.x, par = Math.abs(dot(x, view.N));
     const isMain = marks.asmOf.get(part.id) === part.id;
-    const tag = isMain ? (marks.asmMark.get(part.id) || '') : '';
+    const tag = isMain && !(OPT.hideMarks && view.kind === 'plan') ? (marks.asmMark.get(part.id) || '') : '';   // Manafe3: marks can be hidden on GA plans
     if (view.kind === 'plan' && par > 0.02 && par < 0.98) {
       // sloped member in plan: dashed, full length, on the level its upper end reaches
       const top = part.start[2] >= part.end[2] ? part.start : part.end;
@@ -422,7 +452,7 @@ function gridBubble(S, c, label) {
 function fit(bbox, m) {
   const W = bbox.x1 - bbox.x0, H = bbox.y1 - bbox.y0;
   const roomW = AREA.x1 - AREA.x0 - m.l - m.r, roomH = AREA.y1 - AREA.y0 - m.b - m.t;
-  const s = SCALES.find((n) => W / n <= roomW && H / n <= roomH) || SCALES[SCALES.length - 1];
+  const s = OPT.sheets[CUR]?.scale || SCALES.find((n) => W / n <= roomW && H / n <= roomH) || SCALES[SCALES.length - 1];   // Manafe3: a scale chosen for the sheet wins
   const ox = AREA.x0 + m.l + (roomW - W / s) / 2 - bbox.x0 / s, oy = AREA.y0 + m.b + (roomH - H / s) / 2 - bbox.y0 / s;
   return { s, M: ([x, y]) => [ox + x / s, oy + y / s] };
 }
@@ -867,10 +897,11 @@ export function modelRef(state) {
 }
 
 /** Every GA plan and elevation, then every assembly drawing, with title blocks. */
-export function drawingSet(state, built, marks, { date = '', paper = DEFAULT_PAPER, hiddenLines = true } = {}) {
+export function drawingSet(state, built, marks, { date = '', paper = DEFAULT_PAPER, hiddenLines = true, m3 = null } = {}) {
+  OPT = m3 ? cleanDrawingSettings(m3) : UPSTREAM;   // Manafe3 (field fixes 18, 19, 24)
   usePaper(paper);
   HIDDEN = hiddenLines;
-  try { return makeSet(state, built, marks, date); } finally { usePaper(DEFAULT_PAPER); HIDDEN = true; }
+  try { return makeSet(state, built, marks, date, paper); } finally { OPT = UPSTREAM; CUR = null; usePaper(DEFAULT_PAPER); HIDDEN = true; }
 }
 /** The sheet's content hash (issues.js): CRC-32 of what is drawn, before the title block and revision table. */
 function contentHash(items) {
@@ -961,23 +992,25 @@ function revisionTable(S, log) {
   });
 }
 
-function makeSet(state, built, marks, date) {
+function makeSet(state, built, marks, date, setPaper = DEFAULT_PAPER) {
   const ref = modelRef(state);
   const raw = [];
-  [...state.levels].sort((a, b) => a.z - b.z).forEach((lv, i) => { const s = planSheet(state, built, marks, lv, i); if (s) raw.push(s); });
-  for (const g of state.grids.y) { const s = elevationSheet(state, built, marks, g, 'y'); if (s) raw.push(s); }
-  for (const g of state.grids.x) { const s = elevationSheet(state, built, marks, g, 'x'); if (s) raw.push(s); }
-  const anchor = anchorSheet(state, built, marks, raw.length);
-  if (anchor) raw.push(anchor);
+  // Manafe3 (field fix 19): each sheet on its own paper — chosen for it, else GA sheets on the GA paper (A1), else the set's
+  const on = (id, ga, make) => { CUR = id; usePaper(OPT.sheets[id]?.paper || (ga && OPT.gaPaper) || setPaper); const s = make(); if (s) { s.paper = SHEET.key; raw.push(s); } };
+  [...state.levels].sort((a, b) => a.z - b.z).forEach((lv, i) => on('plan:' + lv.name, true, () => planSheet(state, built, marks, lv, i)));
+  for (const g of state.grids.y) on('elevation:y:' + g.label, true, () => elevationSheet(state, built, marks, g, 'y'));
+  for (const g of state.grids.x) on('elevation:x:' + g.label, true, () => elevationSheet(state, built, marks, g, 'x'));
+  on('anchor', true, () => anchorSheet(state, built, marks, raw.length));
   const nGa = raw.length;
   const builtUpLeftOut = [];   // Manafe3 (changed file): assembly drawings of built-up members come in Phase 6
-  for (const a of marks.assemblies) { if (built.byId.get(a.ids[0])?.builtUp) { builtUpLeftOut.push(a.mark); continue; } raw.push(assemblySheet(built, marks, a)); }
+  for (const a of marks.assemblies) { if (built.byId.get(a.ids[0])?.builtUp) { builtUpLeftOut.push(a.mark); continue; } on('assembly:' + a.mark, false, () => assemblySheet(built, marks, a)); }
   const printSets = partPrints(built, marks);
   const sheets = raw.map((r, k) => {
-    const number = r.kind === 'assembly' ? 'A-' + r.id.slice('assembly:'.length) : 'GA-' + String(k + 1).padStart(2, '0');
+    usePaper(r.paper); CUR = r.id;   // Manafe3: the title block on the sheet's own paper
+    const number = OPT.sheets[r.id]?.number || (r.kind === 'assembly' ? 'A-' + r.id.slice('assembly:'.length) : 'GA-' + String(k + 1).padStart(2, '0'));
     const hash = contentHash(r.S.items);
     const log = (state.issues || []).filter((x) => x.sheet === r.id);
-    const rev = log.length ? log[log.length - 1].rev : '';
+    const rev = log.length ? log[log.length - 1].rev : (OPT.title?.revision || '');   // Manafe3: the title block's revision when none is issued
     const allPrints = r.kind === 'plan' || r.kind === 'elevation' ? printSets.ga : printSets.detail;
     const prints = {};
     for (const g of r.S.regions) if (allPrints.has(g.key)) prints[g.key] = allPrints.get(g.key);

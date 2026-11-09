@@ -450,5 +450,44 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok((await mod('model.js')).readModel(m.toJSON()).state.m3units.concrete === 'C35/45', 'the job\'s units are saved with the model');
 }
 
+// ---- 18 / 19 / 24. drawing settings: readability, paper and scale per sheet, title block -----------------------------------
+{
+  const D = await mod('drawings.js');
+  const F = await mod('manafe3/peb-footings.js');
+  const { build } = await mod('build.js');
+  const { markParts } = await mod('marks.js');
+  const m = new Model(emptyState('dwg'));
+  m.change('b', (tx) => { B.applyBuilding(tx, RES, spec); F.addBasePlates(tx, tx.s); tx.addMember({ type: 'beam', profile: 'IPE300', material: 'S355', start: [0, -3000, 3000], end: [6000, -3000, 3000] }); });
+  const b = build(m.state), mk = markParts(b);
+  const set = (m3) => D.drawingSet(m.state, b, mk, { date: '2026-11-09', paper: 'A3', m3 });
+  const up = set(null), d0 = set({});
+  const ga = (s) => s.sheets.filter((x) => x.kind !== 'assembly');
+  ok(ga(up).every((x) => x.paper === 'A3') && !up.sheets[0].items.some((i) => i.k === 'text' && i.s === 'Client'), 'without Manafe3 settings: as upstream (A3, the upstream title block)');
+  ok(ga(d0).every((x) => x.paper === 'A1' && x.w === 841 && x.h === 594) && d0.sheets.filter((x) => x.kind === 'assembly').every((x) => x.paper === 'A3'), 'GA sheets on A1 by default (841 × 594); assembly sheets keep the set\'s A3');
+  const texts = (sh) => sh.items.filter((i) => i.k === 'text').map((i) => i.s);
+  ok(['Client', 'Project', 'Job no.', 'Status', 'For approval'].every((s) => texts(d0.sheets[0]).includes(s)), 'title block: client, project, job no., status (default For approval)');
+  // the largest scale that fits on A1 is no smaller than on A3 for the same plan
+  const sc = (s, id) => Number(s.sheets.find((x) => x.id === id).scale.split(':')[1]);
+  const planId = ga(d0).find((x) => x.kind === 'plan').id;
+  ok(sc(d0, planId) <= sc(up, planId), 'A1 picks a larger scale than A3 (1:' + sc(d0, planId) + ' vs 1:' + sc(up, planId) + ')');
+  const big = set({ text: 2, dimText: 3.5, line: 1.5 });
+  const sheet0 = (s) => s.sheets.find((x) => x.id === planId);
+  const h0 = sheet0(d0).items.find((i) => i.k === 'text' && i.s === 'Client').h, h1 = sheet0(big).items.find((i) => i.k === 'text' && i.s === 'Client').h;
+  ok(Math.abs(h1 - 2 * h0) < 1e-9, 'text × 2', [h0, h1]);
+  const dimTexts = (s) => { const ds = new Set(s.dims.map((d) => String(d.value))); return s.items.filter((i) => i.k === 'text' && ds.has(i.s)).map((i) => i.h); };
+  ok(dimTexts(sheet0(big)).length > 0 && dimTexts(sheet0(big)).every((v) => v === 3.5 || v === 3.6 * 2 || v > 3.5), 'dimension figures at 3.5 mm', dimTexts(sheet0(big)).slice(0, 4));
+  const w0 = sheet0(d0).items.find((i) => i.k === 'path').w, w1 = sheet0(big).items.find((i) => i.k === 'path').w;
+  ok(Math.abs(w1 - 1.5 * w0) < 1e-9, 'line weights × 1.5', [w0, w1]);
+  const marksOn = (s) => s.items.filter((i) => i.k === 'text' && / IPE300$| BU /.test(i.s)).length;
+  ok(marksOn(sheet0(d0)) >= 0 && marksOn(sheet0(set({ hideMarks: true }))) === 0, 'marks hidden on the GA plan');
+  const chosen = set({ sheets: { [planId]: { scale: 500, paper: 'A3', number: 'S-101' } }, title: { revision: 'B', status: 'For construction', client: 'X', project: 'R1', job: '' } });
+  const sp = sheet0(chosen);
+  ok(sp.scale === '1:500' && sp.paper === 'A3' && sp.number === 'S-101', 'per sheet: scale 1:500, paper A3, drawing no. S-101', [sp.scale, sp.paper, sp.number]);
+  ok(texts(sp).includes('For construction') && sp.rev === 'B', 'status in the title block; revision B (no issue yet) on the drawing number', [sp.rev]);
+  ok(D.cleanDrawingSettings({ text: 99, status: 'x', title: { status: 'Nope' } }).text === 1 && D.cleanDrawingSettings({ title: { status: 'Nope' } }).title.status === 'For approval', 'bad settings fall back to the defaults');
+  m.change('s', (tx) => { tx.s.m3drawings = { gaPaper: 'A2', title: { client: 'C' } }; });
+  ok((await mod('model.js')).readModel(m.toJSON()).state.m3drawings.gaPaper === 'A2', 'the drawing settings are saved with the model');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

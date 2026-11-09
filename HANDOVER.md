@@ -114,6 +114,17 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   the bending schedule use the job's bar mark. Footings already placed keep their bars. The app's own footing tool keeps
   its Settings > steel (US / EU) defaults.
 - **15 RC members:** stay on the roadmap; the concrete-material warning, weight and clash exclusion are item 2's.
+- **18 / 19 / 24 / 23 Drawings:** the Drawings dialog has two panels added from JS (`app/manafe3/drawings-ui.js`):
+  "Drawing settings" (kept in the model as `m3drawings`, cleaned by `drawings.js cleanDrawingSettings`): text x
+  (0.5-3), dimension text height (mm), line weights x, hide marks on GA plans, GA sheets' paper (default **A1**; assembly
+  sheets keep the set's paper), and for the sheet shown its own paper, scale (else the largest standard scale that fits)
+  and drawing number; the title block gains Client, Project, Job no. and Status (For approval (default) / For
+  construction / For fabrication / As built) and a Revision used until a sheet is issued. The issue note now defaults
+  to the status (was "Issued for fabrication"). "Export sheets": tick several -> one merged PDF or a DXF zip (also the
+  agent's sheets_export). Without Manafe3 settings drawings.js draws exactly as upstream (its tests unchanged).
+- **22:** GA elevations on all grid lines in both directions - already so in the drawing set (tested with item 17).
+- **20, 21, 25 -> Phase 6** (the brief's fallback): GA-00 3D view sheet with area labels and steel summary, the typical
+  frame section sheet per building, and the "Approval set" / "Shop drawings" presets.
 
 ### Phase 4 plan (approved 2026-11-08)
 
