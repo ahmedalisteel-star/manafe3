@@ -19,6 +19,7 @@ import { getProfile } from '../profiles.js';
 import { FOOTING_DEFAULTS } from '../rebar.js';
 import { builtUpEndSection } from './builtup-parts.js';
 import { membersOfBuilding } from './peb-building.js';
+import { footingDefaults } from './units.js';
 
 export const PEB_COLUMN = /^(F\d+-C[AB]|W[FL]\d+)$/;
 const Z_TOL = 1000;
@@ -48,7 +49,7 @@ export function addPadFootings(tx, state, { building = null, size = {} } = {}) {
   let added = 0, skipped = 0;
   for (const b of columnBases(state, { building })) {
     if (tx.s.footings.some((f) => footingHolds(f, b.point))) { skipped++; continue; }
-    tx.addFooting({ ...FOOTING_DEFAULTS, ...size, x: b.point[0], y: b.point[1], top: b.point[2] });
+    tx.addFooting({ ...FOOTING_DEFAULTS, ...footingDefaults(tx.s), ...size, x: b.point[0], y: b.point[1], top: b.point[2] });   // the job's units (field fix 14)
     added++;
   }
   return { added, skipped };

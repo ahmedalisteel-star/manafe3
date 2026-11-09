@@ -428,5 +428,27 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(!K.hasCrane(m.state) && !build(m.state).problems.some((p) => p.text === K.CRANE_WARNING), 'crane removed: the warning goes');
 }
 
+// ---- 14. metric rebar and concrete grades for footings, by the job's units -----------------------------------------------
+{
+  const U = await mod('manafe3/units.js');
+  const F = await mod('manafe3/peb-footings.js');
+  const M = await mod('manafe3/materials.js');
+  const { BARS, barLabel, bendingSchedule, scheduleTable } = await mod('rebar.js');
+  ok(U.unitsOf({}).system === 'imperial' && U.barNaming({}, 'imperial') === 'imperial', 'default: imperial, the app\'s own bar names (nothing changes for older models)');
+  // BS 4449 bars 8–32: mass = π d² / 4 × 7850 kg/m³ — H16 by hand 201.06 mm² × 0.00785 = 1.5783 kg/m; H32 6.3134 kg/m
+  ok(U.METRIC_BARS.every((b) => BARS.has(b)) && Math.abs(BARS.get('H16').mass - 1.5783) < 1e-4 && Math.abs(BARS.get('H32').mass - 6.3134) < 1e-4, 'metric bars 8–32 mm with their masses by hand');
+  ok(barLabel('H16', 'T') === 'T16' && barLabel('H16', 'Y') === 'Y16' && barLabel('H16', 'Ø') === 'Ø16' && barLabel('H16', 'H') === 'H16' && barLabel('#5', 'T') === '#5', 'T16 / Y16 / Ø16 / H16 name the same bar; an ASTM bar keeps its name');
+  ok(U.concreteLabel('C25/30') === 'C25/30 fck25 fcu30' && U.concreteLabel('C35/45') === 'C35/45 fck35 fcu45' && M.isConcrete(U.concreteLabel('C30/37')), 'grades C25/30, C30/37, C35/45 with fck / fcu (EN 206 Table 12)');
+  const m = new Model(emptyState('metric'));
+  m.change('b', (tx) => { B.applyBuilding(tx, RES, spec); U.setUnits(tx, { system: 'metric', bar: 'T', concrete: 'C35/45' }); });
+  m.change('pads', (tx) => F.addPadFootings(tx, tx.s, { building: 'B1' }));
+  const f = m.state.footings[0];
+  ok(f.mat.barX === 'H16' && f.mat.barY === 'H16' && f.starters.bar === 'H20' && f.concrete === 'C35/45 fck35 fcu45', 'metric job: pads with H16 mats, H20 starters, C35/45', f);
+  const rows = scheduleTable(bendingSchedule(m.state.footings).rows, { codes: 'bs8666', naming: U.barNaming(m.state, 'imperial') });
+  const bars = new Set(rows.slice(1).map((r) => r[1]).filter(Boolean));
+  ok([...bars].some((s) => /^T16/.test(String(s))) && [...bars].some((s) => /^T20/.test(String(s))) && ![...bars].some((s) => /#/.test(String(s))), 'the bending schedule in metric bars (T16, T20), BS 8666 shapes', [...bars].slice(0, 5));
+  ok((await mod('model.js')).readModel(m.toJSON()).state.m3units.concrete === 'C35/45', 'the job\'s units are saved with the model');
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -60,6 +60,7 @@ import { clashCheck } from './clash.js';
 import { modelLoaded as m3ModelLoaded } from './manafe3/panels.js';   // Manafe3 (changed file, field fix 3): panels hear a load
 import { concreteTotals } from './manafe3/materials.js';
 import { groupClashes } from './manafe3/clash-groups.js';
+import { barNaming } from './manafe3/units.js';   // Manafe3 (changed file, field fix 14)
 import { elevationChoices, gridForChoice } from './manafe3/views.js';   // Manafe3 (changed file, field fix 17)   // Manafe3 (changed file, field fix 16)   // Manafe3 (changed file): concrete volume total
 import { kissFile, kissMetric } from './kiss.js';
 import { sheetStatus, planIssue, revsByNumber } from './issues.js';
@@ -1634,7 +1635,7 @@ async function start(root) {
     const ft = built.footings.find((x) => x.f.id === f.id);
     const list = schedule.byFooting.get(f.id) || [];
     const t = el('table', { className: 'dc-table' }, el('thead', {}, el('tr', {}, el('th', {}, tr('app.bars.mark')), el('th', {}, tr('app.bars.bars')), el('th', { className: 'n' }, tr('app.bars.no')), el('th', { className: 'n' }, tr('app.bars.length')))),
-      el('tbody', {}, ...list.map(({ group, mark }) => el('tr', {}, el('td', {}, mark), el('td', {}, barLabel(group.bar, settings.barNames) + ' ' + group.role.toLowerCase()), el('td', { className: 'n' }, String(group.count)), el('td', { className: 'n' }, mm(group.length))))));
+      el('tbody', {}, ...list.map(({ group, mark }) => el('tr', {}, el('td', {}, mark), el('td', {}, barLabel(group.bar, bn()) + ' ' + group.role.toLowerCase()), el('td', { className: 'n' }, String(group.count)), el('td', { className: 'n' }, mm(group.length))))));
     out.push(el('div', { className: 'dc-block' }, el('p', { className: 'dc-sub' }, tr('app.bars.title')), t,
       el('p', { className: 'dc-note' }, tr(BARS.get(f.mat.barX)?.set === 'bs' ? 'app.bars.note.bs' : 'app.bars.note', { m3: footingVolume(f).toFixed(2), source: BARS.get(f.mat.barX)?.set === 'bs' ? BAR_SOURCE_BS : BAR_SOURCE }))));
     if (ft?.problems.length) out.push(el('ul', { className: 'dc-msgs' }, ...ft.problems.map((x) => el('li', {}, x.text))));
@@ -1671,11 +1672,11 @@ async function start(root) {
     return host;
   }
   function footingForm(f, set, placing) {
-    const opt = (b) => [b, barLabel(b, settings.barNames) + ' (' + r1(BARS.get(b).db) + ' mm)'];
+    const opt = (b) => [b, barLabel(b, bn()) + ' (' + r1(BARS.get(b).db) + ' mm)'];
     const barO = [{ group: BAR_SOURCE, items: BAR_SETS.astm.map(opt) }, { group: BAR_SOURCE_BS, items: BAR_SETS.bs.map(opt) }];
     if (window.ccPropGrid) {   // 0.8: the shared grid where the shell has it (a build or edition without it keeps the form below)
       const g = [footingGrid(f, set, placing, barO)];
-      if (placing) { g.push(el('p', { className: 'dc-note' }, tr('app.foot.hook-leg', { bar: barLabel(f.mat.barX, settings.barNames), leg: mm(hookLeg(BARS.get(f.mat.barX))) }))); g.push(addByGridForm()); }
+      if (placing) { g.push(el('p', { className: 'dc-note' }, tr('app.foot.hook-leg', { bar: barLabel(f.mat.barX, bn()), leg: mm(hookLeg(BARS.get(f.mat.barX))) }))); g.push(addByGridForm()); }
       return g;
     }
     const p = el('div', { className: 'dc-props' });
@@ -1696,7 +1697,7 @@ async function start(root) {
       ...field(tr('app.foot.projection'), numIn(s.projection, (v) => set({ starters: { projection: v } }), { min: 0 })),
       ...field(tr('app.foot.hook'), check(s.hook, (v) => set({ starters: { hook: v } }))));
     const out = [p, m, st];
-    if (placing) { out.push(el('p', { className: 'dc-note' }, tr('app.foot.hook-leg', { bar: barLabel(f.mat.barX, settings.barNames), leg: mm(hookLeg(BARS.get(f.mat.barX))) }))); out.push(addByGridForm()); }
+    if (placing) { out.push(el('p', { className: 'dc-note' }, tr('app.foot.hook-leg', { bar: barLabel(f.mat.barX, bn()), leg: mm(hookLeg(BARS.get(f.mat.barX))) }))); out.push(addByGridForm()); }
     return out;
   }
   /** A stair's settings (D23): in the Stair tool's options (placing) or for a selected stair. */
@@ -1743,6 +1744,8 @@ async function start(root) {
 
   /** Manafe3 (field fix 2): the concrete total, m³ (concrete members + footings); steel and rebar stay kg. */
   function concreteText() { const c = concreteTotals(built.parts, model.state.footings); return c.m3 > 0 ? ' · concrete ' + c.m3.toFixed(2) + ' m³' : ''; }
+  /** Manafe3 (changed file, field fix 14): bar names — the job's metric style (T16 / Y16 / Ø16 / H16) when its units are metric, else the app setting. */
+  function bn() { return barNaming(model.state, settings.barNames); }
   function modelSummary() {
     const s = model.state;
     const steel = built.parts.reduce((t, p) => t + p.weight, 0), bars = schedule.rows.reduce((t, r) => t + r.totalWeight, 0);
@@ -1824,7 +1827,7 @@ async function start(root) {
       }
       out.push(el('p', { className: 'dc-note' }, tr('rep.note')));
     } else {
-      const rows = scheduleTable(schedule.rows, { codes: settings.shapeCodes, naming: settings.barNames });
+      const rows = scheduleTable(schedule.rows, { codes: settings.shapeCodes, naming: bn() });
       out.push(el('div', { className: 'dc-rep-head' }, el('h3', {}, tr('app.rep.bending2', { codes: tr('app.codes.' + settings.shapeCodes) })), el('button', { type: 'button', className: 'dc-linkbtn', onclick: exportBending }, tr('app.rep.csv'))));
       if (schedule.rows.length) out.push(table(rows, [3, 4, 5, 6, 7, 8, 9, 10, 11]));
       else out.push(el('p', { className: 'dc-note' }, tr('app.rep.bending.none')));
@@ -1889,6 +1892,8 @@ async function start(root) {
     .then(({ mountFrameAnalysis }) => mountFrameAnalysis({ model: () => model, print, download }))
     .then(() => import('./manafe3/crane-ui.js'))   // field fixes 11-13: "Crane runway…" (geometry only)
     .then(({ mountCrane }) => mountCrane({ model: () => model, edit, print }))
+    .then(() => import('./manafe3/units-ui.js'))   // field fix 14: "Job units…" (metric bars, C-grades)
+    .then(({ mountUnits }) => mountUnits({ model: () => model, edit, print }))
     .catch((err) => console.warn('Manafe3: no PEB building / loads / analysis button —', err?.message || err));   // i18n-ignore: a console line
   import('./manafe3/output-ui.js')   // Manafe3: the "Plate list" output (plate cut list CSV)
     .then(({ mountOutputs }) => mountOutputs({ built: () => built, marks: () => marks, name: () => safeName(), download, print }))
@@ -2139,7 +2144,7 @@ async function start(root) {
   }
   function exportBending() {
     if (!schedule.rows.length) { print(tr('app.export.bending.none')); return; }
-    download(safeName() + ' ' + tr('app.export.bending.file') + '.csv', '﻿' + toCsv(scheduleTable(schedule.rows, { codes: settings.shapeCodes, naming: settings.barNames })), 'text/csv');
+    download(safeName() + ' ' + tr('app.export.bending.file') + '.csv', '﻿' + toCsv(scheduleTable(schedule.rows, { codes: settings.shapeCodes, naming: bn() })), 'text/csv');
     print(tr('app.export.bending', { n: schedule.rows.length }));
   }
 

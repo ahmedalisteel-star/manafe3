@@ -56,7 +56,11 @@ for (const [d, r, P] of BS8666) {
 }
 export const BAR_SETS = { astm: [...BARS.values()].filter((b) => b.set === 'astm').map((b) => b.name), bs: [...BARS.values()].filter((b) => b.set === 'bs').map((b) => b.name) };
 /** A bar's name as shown: ASTM bars as #5 or (soft metric) #16; BS bars as H16. */
-export const barLabel = (name, naming = 'imperial') => { const b = BARS.get(name); return b && naming === 'metric' ? b.metric : name; };
+export const barLabel = (name, naming = 'imperial') => {
+  const b = BARS.get(name);
+  if (b && b.set === 'bs' && ['T', 'Y', 'Ø', 'H'].includes(naming)) return naming + b.num;   // Manafe3 (changed file, field fix 14): T16 / Y16 / Ø16 = the BS 4449 H16
+  return b && naming === 'metric' ? b.metric : name;
+};
 /** A shape's code in a schedule: 'dc' (S / L / U), 'aci' (ACI 315-99 Fig. 10), 'bs8666'. */
 export function shapeCode(shape, standard = 'dc') {
   if (standard === 'bs8666') return { S: '00', L: '11', U: '21' }[shape] || shape;

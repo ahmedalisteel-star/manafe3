@@ -107,6 +107,13 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   or designed." (build problems, Analysis note). Crane loads stay on the roadmap.
   Found and fixed on the way: the clash check tested a tapered web (shaped plate) as its bounding box; it now uses the
   web's true strip at each station - building 1's clashes 327 -> 260, every one removed was a box artefact.
+- **14 Metric footings:** PEB > "Job units..." (kept in the model as `m3units`): footings imperial (default, as before)
+  or metric - BS 4449 B500 bars 8-32 mm (upstream's bar table, BS 8666:2020 bends), named T16 / Y16 / O16 / H16 (the same
+  bar; default T), concrete C25/30, C30/37 (default), C35/45 with fck / fcu (EN 206 Table 12), written on the footing as
+  'C30/37 fck30 fcu37'. Metric: new PEB pads get H16 @ 250 mats and H20 starters (upstream's EU defaults); labels and
+  the bending schedule use the job's bar mark. Footings already placed keep their bars. The app's own footing tool keeps
+  its Settings > steel (US / EU) defaults.
+- **15 RC members:** stay on the roadmap; the concrete-material warning, weight and clash exclusion are item 2's.
 
 ### Phase 4 plan (approved 2026-11-08)
 

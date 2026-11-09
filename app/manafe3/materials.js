@@ -16,6 +16,7 @@ const CONCRETE = [
   /^C\s?\d{2,3}(\s?\/\s?\d{2,3})?(\s?(fcu|fck))?$/i,
   /\b(concrete|rc|fcu|fck)\b/i,
   /^B\s?\d{2}$/i,
+  /^C\s?\d{2,3}\s?\/\s?\d{2,3}\b/i,   // 'C30/37 fck30 fcu37' (the job units' label, field fix 14)
 ];
 
 export function materialClass(name) {
