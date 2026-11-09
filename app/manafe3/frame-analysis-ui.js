@@ -9,6 +9,7 @@
 import { BANNER, analysisRequest, requestAnalysis, frameResult, combos, diagram, maxValue, reactionsCsv, summaryRows } from './frame-analysis.js';
 import { pebMenuItem } from './peb-menu.js';
 import { buildingsOf } from './peb-building.js';
+import { hasCrane, CRANE_WARNING } from './crane.js';
 import { onModelLoaded } from './panels.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -141,6 +142,7 @@ export function mountFrameAnalysis({ model, print, download }) {
       fillCombos(); fillSummary(); draw();
       csv.disabled = false; std.disabled = false;
       note.textContent = `Solved ${res.frames.filter((f) => f.result).length} distinct frame line(s) of ${res.frames.length}. ${BANNER}`;
+      if (hasCrane(model().state)) note.textContent += ' ' + CRANE_WARNING;   // field fix 13
       print?.(`Analysis done: ${res.frames.length} frame lines, ${res.frames[0] ? frameResult(res, res.frames[0].line).combos.length : 0} cases and combinations. ${BANNER}`);
     } catch (err) { note.textContent = err.message; }
     finally { run.disabled = false; }

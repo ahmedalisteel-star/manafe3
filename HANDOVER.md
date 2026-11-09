@@ -95,6 +95,18 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
   undo step "Assistant: ...".
 - **27 model.replace(label, text):** a new model as ONE undoable step (history kept; load() still clears it); emits 'load'
   so the panels refresh; a bad file changes nothing.
+- **11-13 Crane runway (geometry only):** PEB > "Crane runway..." per building (`app/manafe3/crane.js`, inputs kept on
+  the building as `crane`). Per side and bay range: bracket (catalog, default HEA300) square off the column's INNER face at
+  the frame line, top at the girder underside, length = rail offset + wider flange / 2 + 50; girder = the existing
+  BUILT-UP member type, constant depth, unequal flanges (default web 700 x 8, top 250 x 12, bottom 200 x 10), straight top
+  on top of steel = rail top - rail height, frame to frame; rail PL50x50 on the girder; end stops PL20x200 x 250 high
+  150 inside each end. The rail line is measured from the inner face AT BRACKET LEVEL on the real tapered column; the
+  flange-to-face clearance at the girder TOP is checked (< 25 mm reported). R1 block 2 (fixture `r1-block2.json`,
+  span 28 900 c/c read as COLUMN CENTRELINES - to confirm): rail line y 977.96, clearance 148 mm by hand, 48 members, no
+  clash with the tapered columns. Every model with crane members shows "Crane members are geometry only - not analysed
+  or designed." (build problems, Analysis note). Crane loads stay on the roadmap.
+  Found and fixed on the way: the clash check tested a tapered web (shaped plate) as its bounding box; it now uses the
+  web's true strip at each station - building 1's clashes 327 -> 260, every one removed was a box artefact.
 
 ### Phase 4 plan (approved 2026-11-08)
 

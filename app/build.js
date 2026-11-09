@@ -27,7 +27,8 @@ import { footingBars, footingProblems } from './rebar.js';
 import { stairGeometry } from './stair.js';
 import { t } from './i18n.js';
 import { builtUpParts, builtUpEndSection } from './manafe3/builtup-parts.js';   // Manafe3 (changed file, MANAFE3-CHANGES.md): built-up members → plates
-import { isConcrete, CONCRETE_NOTE } from './manafe3/materials.js';   // Manafe3: concrete members weigh nothing as steel
+import { isConcrete, CONCRETE_NOTE } from './manafe3/materials.js';
+import { CRANE_WARNING } from './manafe3/crane-note.js';   // Manafe3 (field fix 13): crane members are geometry only   // Manafe3: concrete members weigh nothing as steel
 
 export const IFC_CLASS = { beam: 'IfcBeam', column: 'IfcColumn', brace: 'IfcMember', plate: 'IfcPlate', stringer: 'IfcMember' };
 const ROLE = { beam: 'build.role.beam', column: 'build.role.column', brace: 'build.role.brace', plate: 'build.role.plate' };
@@ -160,6 +161,7 @@ export function build(state) {
     }
     for (const h of p.holes) if (h.x < -0.5 || h.x > p.length + 0.5) problems.push({ ref: p.member || p.conn || p.stair, text: t('build.err.hole-off', { part: p.role + ' ' + (p.name || '') }) });
   }
+  { const cm = state.members.find((m) => m.gen && m.gen.startsWith('crane')); if (cm) problems.push({ ref: cm.id, text: CRANE_WARNING }); }   // Manafe3 (field fix 13)
   const footings = state.footings.map((f) => ({ f, bars: footingBars(f), problems: footingProblems(f) }));
   for (const ft of footings) for (const pr of ft.problems) problems.push({ ref: ft.f.id, text: pr.text });
   return { parts, byId, bolts, welds, footings, problems, infos };

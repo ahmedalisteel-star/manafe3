@@ -280,20 +280,22 @@ const spec = { ...B.BUILDING_DEFAULTS };
   const m = new Model(emptyState('cl'));
   m.change('b', (tx) => B.applyBuilding(tx, RES, spec));
   const r0 = clashCheck(m.state, build(m.state), { tol: 1 });
-  // building 1 had 327; 20 were a tapered segment's web box against its own sloping flange (10 columns, 10 rafter haunches)
-  ok(r0.clashes.length === 307 && !r0.clashes.some((c) => c.a.id === c.b.id), 'no clash between plates of one built-up segment: 327 − 20 = 307 (splices between segments still listed)', r0.clashes.length);
+  // building 1 had 327, all false or generated: 20 were a tapered web's bounding box against its own sloping flange; 47 more
+  // were that box reaching past the web's real edge (knee 20, ridge 5, wind-column tops 4 and cap plates 8, eave struts 4,
+  // flange braces at haunches 6) — a shaped plate is now checked on its true strip at each station (field fix 11)
+  ok(r0.clashes.length === 260 && !r0.clashes.some((c) => c.a.id === c.b.id), 'no clash between plates of one built-up segment: 327 − 20 − 47 = 260 (splices between segments still listed)', r0.clashes.length);
   const all = G.groupClashes(m.state, r0.clashes);
   const fb = all.groups.find((g) => g.key === 'flange_brace×rafter');
-  ok(fb && fb.clashes.length === 72 && fb.generatedJoint && fb.label === 'flange brace × rafter', 'grouped by type: flange brace × rafter, 72, a generated joint', fb && [fb.label, fb.clashes.length]);
+  ok(fb && fb.clashes.length === 66 && fb.generatedJoint && fb.label === 'flange brace × rafter', 'grouped by type: flange brace × rafter, 66, a generated joint', fb && [fb.label, fb.clashes.length]);
   const hid = G.groupClashes(m.state, r0.clashes, { hideGenerated: true });
-  ok(hid.hidden === 307 && hid.shown === 0 && hid.groups.length === 0, 'filter on: every generated connection point hidden', hid);
+  ok(hid.hidden === 260 && hid.shown === 0 && hid.groups.length === 0, 'filter on: every generated connection point hidden', hid);
   // a real clash: my own beam through column F2-CA at 3 m, and a beam the PEB generator did not join (purlin role) through a wind column
   const ca = m.state.members.find((x) => x.name === 'F2-CA');
   m.change('mine', (tx) => tx.addMember({ type: 'beam', profile: 'IPE300', material: 'S355', start: [6000, -2000, 3000], end: [6000, 3000, 3000] }));
   const r1 = clashCheck(m.state, build(m.state), { tol: 1 });
   const g1 = G.groupClashes(m.state, r1.clashes, { hideGenerated: true });
   ok(g1.shown >= 1 && g1.groups.every((g) => !g.generatedJoint) && g1.groups.some((g) => g.clashes.some((c) => c.a.id === ca.id || c.b.id === ca.id)), 'filter on: my beam into the column is still shown', g1.groups.map((g) => [g.label, g.clashes.length]));
-  ok(g1.hidden === 307, 'the generated ones stay hidden', g1.hidden);
+  ok(g1.hidden === 260, 'the generated ones stay hidden', g1.hidden);
   // a generated pair that is NOT a known joint shows (e.g. a girt into a rafter would be a real fault)
   ok(!G.clashKind({ members: [{ id: 'a', gen: 'peb:B1', m3role: 'girt' }, { id: 'b', gen: 'peb:B1', m3role: 'rafter' }] }, { a: { kind: 'member', id: 'a' }, b: { kind: 'member', id: 'b' } }).generatedJoint, 'girt × rafter is not a generated joint: shown');
 }
@@ -362,7 +364,7 @@ const spec = { ...B.BUILDING_DEFAULTS };
   x = await call('members_delete', { profile: 'IPE300', expect: 1 });
   ok(x.v.deleted === 1 && model.undoStack.length === 4 && !model.state.members.some((m) => m.profile === 'IPE300'), 'members_delete with the matching count: deleted, one step');
   x = await call('clash_groups', { hide_generated: true });
-  ok(!x.r.isError && x.v.hidden > 300 && x.v.groups.every((g) => !g.generatedJoint), 'clash_groups: generated points hidden', [x.v.total, x.v.hidden, x.v.shown]);
+  ok(!x.r.isError && x.v.hidden > 200 && x.v.groups.every((g) => !g.generatedJoint), 'clash_groups: generated points hidden', [x.v.total, x.v.hidden, x.v.shown]);
   x = await call('sheets_export', { numbers: ['GA-01', 'GA-02'], format: 'pdf' });
   ok(!x.r.isError && exported.format === 'pdf' && exported.numbers.join() === 'GA-01,GA-02', 'sheets_export passes the chosen sheets');
   x = await call('undo', {}).catch(() => null);   // DetailCraft's own undo tool is not in this dispatcher; the model's undo is
@@ -381,6 +383,49 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(bad && model.state.name === 'agent', 'a bad file is refused and nothing changes');
   model.load(other.toJSON());
   ok(model.undoStack.length === 0, 'load() still clears the history (unchanged)');
+}
+
+// ---- 11 / 12 / 13. crane runway on R1 block 2: geometry, built-up girders, no clash with the tapered column, warning ----
+{
+  const K = await mod('manafe3/crane.js');
+  const { build } = await mod('build.js');
+  const { clashCheck } = await mod('clash.js');
+  // R1 block 2 (engine: fixtures/manafe3/r1-block2.json): bays 6100 5000 × 5 6300, span 28 900 c/c of the columns (centreline:
+  // steel span 28 900 + 324, y_shift −162), eave 10 000, slope 0.0714; columns web 300 → 1000 over 10 m, flanges 250 × 12
+  const R1B2 = JSON.parse(fs.readFileSync(path.join(REPO, 'fixtures/manafe3/r1-block2.json'), 'utf8'));
+  const m = new Model(emptyState('R1 block 2'));
+  m.change('b', (tx) => B.applyBuilding(tx, R1B2, { ...spec, name: 'F&S-2', span: 28900, span_ref: 'centreline', eave_height: 10000, roof_slope: 0.0714 }, { id: null }));
+  const r = m.change('crane', (tx) => K.applyCrane(tx, 'B1', {}));
+  // 8 frame lines × 2 sides brackets 16, 7 bays × 2 girders 14, rails 14, end stops 4 = 48
+  ok(r.members === 48 && r.problems.length === 0, '48 crane members (16 brackets, 14 girders, 14 rails, 4 stops), no problems', r);
+  const g = m.state.members.find((x) => x.name === 'CGA1-2'), br = m.state.members.find((x) => x.name === 'CBA1');
+  // by hand: girder top 7800 − 50 = 7750; depth 700 + 12 + 10 = 722 → bracket top 7028; F1-CA at 7028: web 300 + 700 × 0.7028 = 791.96,
+  // depth 815.96; its line y = 0 − 162 → inner face y = 653.96 → rail line y = 653.96 + 324 = 977.96
+  ok(Math.abs(g.start[1] - 977.96) < 1e-3 && g.start[2] === 7750 && g.start[0] === 0 && g.end[0] === 6100, 'girder A1-2 on the rail line y 977.96 at top of steel 7750, frame 1 → 2', g.start);
+  ok(Math.abs(br.start[1] - 653.96) < 1e-3 && br.start[2] === 7028 && br.position === 'top', 'bracket A1 from the inner face y 653.96, its top at 7028', br.start);
+  ok(g.bu.segments[0].top.b === 250 && g.bu.segments[0].bot.b === 200 && g.bu.segments[0].top.t === 12 && g.bu.segments[0].bot.t === 10 && g.bu.segments[0].hwStart === 700 && g.bu.segments[0].hwEnd === 700, 'the girder is a built-up member with unequal flanges (web 700 × 8, top 250 × 12, bottom 200 × 10), constant depth');
+  // clearance at the girder top 7750: web 300 + 700 × 0.775 = 842.5 → face y −162 + 866.5 = 704.5; flange edge 977.96 − 125 = 852.96 → 148.46 mm
+  ok(r.rail[0].clearMin === 148, 'flange clears the tapered face by 148 mm at the girder top (by hand 148.46)', r.rail);
+  const B2 = m.state.members.find((x) => x.name === 'CGB1-2');
+  ok(Math.abs(B2.start[1] - (28900 - 977.96)) < 1e-3, 'side B mirrored: rail line 28 900 − 977.96', B2.start);
+  const b = build(m.state);
+  ok(!b.problems.some((p) => p.hard) && b.problems.filter((p) => p.text === K.CRANE_WARNING).length === 1, 'builds; the model shows "Crane members are geometry only — not analysed or designed." once');
+  const cl = clashCheck(m.state, b, { tol: 1 });
+  const crane = new Set(m.state.members.filter((x) => x.gen === 'crane:B1').map((x) => x.id));
+  const cols = new Set(m.state.members.filter((x) => /^F\d+-C[AB]$/.test(x.name)).map((x) => x.id));
+  const hit = cl.clashes.filter((c) => (crane.has(c.a.id) && cols.has(c.b.id)) || (crane.has(c.b.id) && cols.has(c.a.id)));
+  ok(hit.length === 0, 'no clash between the runway and the tapered columns', hit.slice(0, 3));
+  const inner = cl.clashes.filter((c) => crane.has(c.a.id) && crane.has(c.b.id));
+  ok(inner.length === 0, 'no clash among the runway\'s own parts (rail on girder, girder on bracket, stops on the flange)', inner.slice(0, 3));
+  // negative control: the rail 100 mm from the face puts the flange INTO the column face → reported, and it clashes
+  const n = m.change('bad', (tx) => K.applyCrane(tx, 'B1', { rail_offset: 100 }));
+  ok(n.replaced === 48 && n.problems.some((p) => /clears the column face by -\d+ mm/.test(p)), 'rail offset 100: the flange is reported inside the column face', n.problems.slice(0, 2));
+  const cl2 = clashCheck(m.state, build(m.state), { tol: 1 });
+  ok(cl2.clashes.some((c) => (crane.size && [...m.state.members].some((x) => x.gen === 'crane:B1' && (x.id === c.a.id || x.id === c.b.id))) && (cols.has(c.a.id) || cols.has(c.b.id))), 'and the clash check finds it');
+  const back = (await mod('model.js')).readModel(m.toJSON());
+  ok(back.state.m3buildings[0].crane.rail_offset === 100, 'the crane inputs are kept on the building');
+  m.change('rm', (tx) => K.removeCrane(tx, 'B1'));
+  ok(!K.hasCrane(m.state) && !build(m.state).problems.some((p) => p.text === K.CRANE_WARNING), 'crane removed: the warning goes');
 }
 
 console.log(`${pass} passed, ${fail} failed`);

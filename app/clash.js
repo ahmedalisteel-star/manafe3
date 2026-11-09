@@ -41,7 +41,7 @@ export function solids(state, built, phases) {
     const w = p.profile.width, d = p.profile.depth;
     const c = add(p.frame.o, add(mul(p.frame.x, p.length / 2), mul(p.frame.v, p.voff)));
     out.push({ ref: p.member ? { kind: 'member', id: p.member } : p.stair ? { kind: 'stair', id: p.stair } : { kind: 'conn', id: p.conn }, id: p.id, kind: 'steel', phase: p.phase || 1, conn: p.conn, member: p.member, stair: p.stair || null,
-      frame: p.frame, L: p.length, loops: p.profile.loops, voff: p.voff, cuts: p.cuts.filter((k) => k.kind === 'cope'), depth: d, lug: !!p.conn && p.id === p.conn + '.lug', segment: p.segment ?? null,
+      frame: p.frame, L: p.length, loops: p.profile.loops, voff: p.voff, cuts: p.cuts.filter((k) => k.kind === 'cope'), depth: d, lug: !!p.conn && p.id === p.conn + '.lug', segment: p.segment ?? null, outline: p.profile.kind === 'SPL' ? p.profile.outline : null, thick: p.profile.t,
       box: { c, ax: [p.frame.x, p.frame.u, p.frame.v], h: [p.length / 2, w / 2, d / 2] } });
   }
   for (const f of state.footings) {
@@ -88,8 +88,23 @@ function edgeDist(p, loop) {
   }
   return best;
 }
+/** Manafe3 (changed file, field fix 11): a shaped plate (a tapered web, a cut flange) at station x is the strip between its
+ *  outline's edges there — not its bounding box (which reaches the deepest end's depth all along). Centred like loops. */
+function stripAt(S, x) {
+  const vs = [], o = S.outline;
+  for (let i = 0, j = o.length - 1; i < o.length; j = i++) {
+    const [xa, va] = o[j], [xb, vb] = o[i];
+    if ((x < Math.min(xa, xb)) || (x > Math.max(xa, xb))) continue;
+    vs.push(Math.abs(xb - xa) < 1e-9 ? va : va + (vb - va) * (x - xa) / (xb - xa));
+    if (Math.abs(xb - xa) < 1e-9) vs.push(vb);
+  }
+  if (vs.length < 2) return [];
+  const lo = Math.min(...vs) - S.voff, hi = Math.max(...vs) - S.voff, h = S.thick / 2;
+  return hi - lo > 1e-9 ? [[[-h, lo], [h, lo], [h, hi], [-h, hi]]] : [];
+}
 /** The section of a solid at station x (copes cut away), as loops. */
 function loopsAt(S, x) {
+  if (S.outline) return stripAt(S, x);   // Manafe3
   let loops = S.loops;
   for (const c of S.cuts) {
     const inCope = c.end === 'start' ? x < c.length : x > S.L - c.length;
@@ -152,6 +167,15 @@ function samples(A, t0, t1, tol) {
   const n = Math.max(2, Math.min(40, Math.ceil((t1 - t0) / 10)));
   for (let k = 0; k <= n; k++) {
     const x = t0 + (t1 - t0) * k / n;
+    if (A.outline) {   // Manafe3: a shaped plate is sampled on its own strip at each station (corners, edges, a 3 x 9 grid)
+      const [r] = stripAt(A, x); if (!r) continue;
+      const [u0, v0] = r[0], [u1, v1] = r[2], s2 = Math.min(step, (u1 - u0) / 2, (v1 - v0) / 2);
+      for (let i = 0; i <= 2; i++) for (let j = 0; j <= 8; j++) {
+        const u = i === 0 ? u0 + s2 : i === 2 ? u1 - s2 : (u0 + u1) / 2, v = j === 0 ? v0 + s2 : j === 8 ? v1 - s2 : v0 + (v1 - v0) * j / 8;
+        pts.push(toWorld(A.frame, x, u, v, A.voff));
+      }
+      continue;
+    }
     for (const [u, v] of sec) pts.push(toWorld(A.frame, x, u, v, A.voff));
   }
   return pts;

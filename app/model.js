@@ -692,7 +692,7 @@ export function readModel(text) {
   // Manafe3 (field fix 8): several PEB buildings, each { id, name, spec } — plain data, re-checked by the form when edited
   if (Array.isArray(j.m3buildings) && j.m3buildings.length <= 50) {
     const list = j.m3buildings.filter((b) => b && typeof b === 'object' && /^B\d{1,3}$/.test(String(b.id)) && b.spec && typeof b.spec === 'object' && !Array.isArray(b.spec))
-      .map((b) => ({ id: String(b.id), name: cleanText(b.name, 40), spec: b.spec }));
+      .map((b) => ({ id: String(b.id), name: cleanText(b.name, 40), spec: b.spec, ...(b.crane && typeof b.crane === 'object' && !Array.isArray(b.crane) ? { crane: b.crane } : {}) }));   // + its crane runway inputs (field fix 11)
     const txt = JSON.stringify(list);
     if (list.length && txt.length < 2000000) s.m3buildings = JSON.parse(txt);
   }
