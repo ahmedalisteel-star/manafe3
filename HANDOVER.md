@@ -321,14 +321,17 @@ inside `secondary_checks` (its `cold_formed` entry; `eave_struts` there are now 
   force (bimsteelauto's drag model: 0 when the braced bays are the end bays, as in building 1 and R1's default).
 - **Loads**: D (sheeting × tributary + self weight) and C (collateral, plan) and Lr (§4.8 reduced on the member's own
   tributary plan area) as normal components; **C&C wind from bimsteelauto's VERIFIED Figs. 30.3-1 / 30.3-2A** (against
-  Struware), **each span in its own zone** at its own effective area. **Roof zone layout — Claude's reading, TO CONFIRM:**
-  edge strips of width a (bimsteelauto end_zone_width, 2400 on building 1) along the eaves, the gable ends and the ridge
-  → zone 2; eave or ridge strip × gable strip → zone 3; elsewhere zone 1 (**1' not used** — conservative). Walls: within
-  a of a corner → 5, else 4. Roof above 7° → roof wind NOT evaluated (ratio inf; Figs. 30.3-2B/C not implemented).
+  Struware), **each span in its own zone** at its own effective area. **Roof zones (user decision 2026-11-09):** the
+  figure from the building's own slope — θ ≤ 7° Fig. 30.3-2A: edge strips of width a (bimsteelauto end_zone_width, 2400
+  on building 1) along the eaves and gable ends only, NO ridge strip → zone 2; where they meet → zone 3; elsewhere zone 1
+  (1' not used — accepted). Ridge strips belong to 7° < θ ≤ 20° (Fig. 30.3-2B) and steeper: their coefficients are not
+  in bimsteelauto and are not transcribed from memory → roof wind NOT evaluated (ratio inf) until typed in from the
+  printed ASCE 7-16. Walls: within a of a corner → 5, else 4.
   Combinations ASCE 7-16 LRFD 1.4D; 1.2D+1.6Lr+0.5W; 1.2D+1.0W+0.5Lr; 0.9D+1.0W (collateral not with uplift); ASD D+Lr,
   D+0.6W, 0.6D+0.6W for L/150 (`ServiceLimits.purlin`); girts 1.0W / 0.6W in and out.
 - **Strength:** M + compresses the sheeted flange → braced, Mne = My. M − compresses the free flange → braced at frames,
-  **sag-rod rows (Claude's assumption: a sag-rod row is a brace point of the section)** and line ends; Mcre × Cb, Cb =
+  **sag-rod rows — only where tied off at the ridge (a ridge tie at the row) and at the eave (the chain on both slopes
+  reaches the eave strut), checked per row on the model (user decision 2026-11-09; `tied_rows`)** — and line ends; Mcre × Cb, Cb =
   12.5 Mmax / (2.5 Mmax + 3 MA + 4 MB + 3 MC) over the brace segment (F2.1; 1 on a cantilever). Mn = min(Mnl, Mnd), φ 0.90
   (vendored direct_strength curves). Shear: vendored aisi_s100 (φ 0.90 throughout — VERIFIED False against S100-16 G2.1);
   H2 (M/φMnlo)² + (V/φVn)²; eave strut H1.2 P/φcPn + B1 M/φbMn, Pn by DSM with Pcre at the bay (sag rods not counted),
@@ -339,18 +342,29 @@ inside `secondary_checks` (its `cold_formed` entry; `eave_struts` there are now 
   flange, Cb 1.91), gable girts 0.86, eave struts 0.56; deflection ≤ 0.58. **R1 geometry** (same placeholder wind): purlins
   1.13 (eave strip, 6.6 m bay), girts 1.43 (6.6 m end bay, zone 5) — the default Z200x2.0 is too light there under the
   strict brace-point rule; step 8 (sizing) will choose.
-- **Open for the user (engineering decision):** girts and purlins under suction are checked by the strict rule above
-  (free flange unbraced between brace points). AISI S100-16 I6.2.1 (R-factor, through-fastened panels: Mn = R Se Fy)
-  is the usual alternative and is much less severe for girts; it is NOT implemented (its R table must be transcribed
-  from the printed standard). Also open: whether the inflection point may count as a brace point in the gravity
-  hogging zone (not used now).
+- **R-factor (user decision 2026-11-09, built):** `cfs_checks(..., uplift_method="r_factor")` (default stays "strict"):
+  AISI S100-16 I6.2.1 for purlins and girts under uplift / suction (combinations with Wout), free flange between supports,
+  φMn = 0.90 R Se Fy with Se Fy taken as the DSM Mnlo (Claude's reading, TO CONFIRM); the LARGER of this and the
+  brace-point value is used (both permitted — Claude's reading, TO CONFIRM; a simple-span C200 at R 0.65 is below its
+  sag-rod value). **R table and limits TRANSCRIBED FROM MEMORY — `R_VERIFIED = False`; the user confirms them from the
+  printed Table I6.2.1-1** (`R_TABLE`, `R_LIMITS` in `cfs_checks.py`): simple span C/Z 0.70 (d ≤ 6.5 in), 0.65 (≤ 8.5 in),
+  C 0.40 / Z 0.50 (≤ 11.5 in); continuous C 0.60, Z 0.70; limits d ≤ 11.5 in, 60 ≤ d/t ≤ 170, 2.8 ≤ d/b ≤ 5.5,
+  16 ≤ flange flat w/t ≤ 43, span ≤ 33 ft, lap ≥ 1.5 d each side of every interior support, Fy ≤ 60 ksi. Every line
+  reports R and each limit (value, ok) in both modes, plus anti-roll (sag rods tied off) for roof lines; what the model
+  cannot know is listed "to confirm" (flanges held at the supports, panel steel / thickness / ribs, fasteners,
+  insulation). A line failing a checkable limit falls back to the strict rule. Building 1: strict max 0.94 → R-factor
+  0.73 (purlins 0.78 → 0.67, girts 0.94 → 0.66). Also open: whether the inflection point may count as a brace point in
+  the gravity hogging zone (not used now).
 - Not checked yet (gaps, stated): minor-axis bending (the slope component to the sag rods, girt self weight), web
   crippling at the cleats, purlins acting as roof-bracing struts (axial), sheeting / fastener checks.
 - Tests (`test_cfs.py`, 12): the closed forms above, properties vs sectionproperties, beam closed forms (wL²/8, 0.100 /
   0.080 wL², cantilever) and against bimsteelauto `continuous_beam_forces`, **the bay-2 eave strut of building 1 longhand**
   (loads from the inputs, the zone-2 pressure at 12 m², M = wL²/8, Cb = 12.5 / 9.625 = 1.2987, the DSM curves written out
   in the test: ratio 0.5005, gravity governs; deflection 5wL⁴/384EI), the supplier override, a roof above 7° that must
-  not pass, the whole building (slow).
+  not pass, the whole building (slow); after the decisions (+3): sag-rod rows tied off (negative controls: no ridge tie,
+  a slope's chain not reaching the eave strut), the R-factor limits by hand (d/t 100, d/b 3.077, flange w/t 28.5, lap
+  600 ≥ 300; a short lap and untied rods make it inapplicable), the R-factor capacity 0.9 × 0.70 × Mnlo longhand and the
+  exact strict fallback.
 
 **Step 5 — what was built (2026-11-09):** `engine/design/secondary_checks.py` (`secondary_checks(b, li)`), AISC 360-16 LRFD,
 NOT FOR ISSUE.

@@ -15,12 +15,13 @@ Loads (normal to the roof / wall; + toward the building: gravity, inward pressur
     C   collateral (kN/m² of plan) × tributary width × cos² θ; in the gravity combinations, NOT with uplift (user 2026-11-05)
     Lr  Lo reduced by ASCE 7-16 §4.8 from the member's own tributary plan area (bimsteelauto roof_live_load), × cos² θ
     W   ASCE 7-16 Ch. 30 C&C (bimsteelauto loads.cladding: Figs. 30.3-1 and 30.3-2A, VERIFIED against Struware); each
-        SPAN in its own zone at its own effective wind area (span × max(tributary, span / 3), §26.2). Zone layout —
-        Claude's reading of Fig. 30.3-2A, VERIFIED False, TO CONFIRM: roof edge strips of width a along the eaves, the
-        gable ends AND the ridge (bimsteelauto's reading) → zone 2, where an eave / ridge strip meets a gable strip →
-        zone 3, everything else zone 1 (zone 1' — the smaller field suction — is NOT used: conservative); walls: within
-        a of a building corner → zone 5, else 4. A span takes the worst zone any part of it (and of its tributary strip)
-        touches. Roof slope above 7°: Fig. 30.3-2A does not apply → roof wind NOT evaluated (ratio inf).
+        SPAN in its own zone at its own effective wind area (span × max(tributary, span / 3), §26.2). The figure is chosen
+        from the building's own slope (user decision 2026-11-09): θ ≤ 7° Fig. 30.3-2A — edge strips of width a along the
+        eaves and the gable ends only (NO ridge strip) → zone 2, where they meet → zone 3, elsewhere zone 1 (zone 1' not
+        used: conservative, accepted by the user); 7° < θ ≤ 20° Fig. 30.3-2B (ridge strips too) and steeper figures: their
+        coefficients are not in bimsteelauto and are NOT transcribed from memory — roof wind NOT evaluated (ratio inf)
+        until they are typed in from the printed standard. Walls: within a of a building corner → zone 5, else 4. A span
+        takes the worst zone any part of it (and of its tributary strip) touches.
     the component of gravity along the slope (to the sag rods) and the girts' self weight (in the wall plane) are not
     checked here (minor-axis bending: a stated gap)
 Combinations (ASCE 7-16 §2.3.1 / §2.4.1): LRFD 1.4D; 1.2D + 1.6Lr + 0.5W; 1.2D + 1.0W + 0.5Lr; 0.9D + 1.0W (W inward in
@@ -30,8 +31,9 @@ Analysis: my own continuous-beam solver (Euler–Bernoulli, exact for uniform lo
     forms and bimsteelauto continuous_beam_forces in the tests); simple supports at every frame / support.
 Strength (AISI S100-16, DSM, Appendix 1 curves from the vendored direct_strength — bimsteelauto's cfs library):
     M + compresses the SHEETED flange (purlin top, girt outer): continuously braced → Mne = My;
-    M − compresses the free flange: braced only at frames, sag-rod rows (roof members; the rods are taken as brace
-        points of the section — Claude's assumption, listed) and the line's ends → Mne from Cb · Mcre(Lb), Cb =
+    M − compresses the free flange: braced only at frames, sag-rod rows (roof members) and the line's ends. A sag-rod
+        row counts as a brace point only when it is tied off at the ridge (a ridge tie at that row) AND at the eave (the
+        chain on both slopes reaches the eave strut) — user decision 2026-11-09, checked on the model per row → Mne from Cb · Mcre(Lb), Cb =
         12.5 Mmax / (2.5 Mmax + 3 MA + 4 MB + 3 MC) over the brace segment (F2.1; 1.0 on a cantilever);
     Mn = min(Mnl(Mne), Mnd), φb 0.90; Mcrl, Mcrd, Mcre from cfs_section (geometry, finite strip) or the supplier table.
     Shear: the vendored aisi_s100.shear_strength (kv 5.34, φ 0.90 throughout — its own conservative single pair;
@@ -41,6 +43,16 @@ Strength (AISI S100-16, DSM, Appendix 1 curves from the vendored direct_strength
         (K = 1 about every axis; sag rods not counted for compression — conservative), B1 = 1 / (1 − P / Pex), Cm = 1.
 Deflection: ASD, span / limit (ServiceLimits.purlin, default 150), gross Ix (the effective Ix at service stress is not
     computed: slightly unconservative for slender webs — stated); a cantilever against 2 × its length / limit.
+Uplift by the R-factor (user decision 2026-11-09; option uplift_method="r_factor", the default stays "strict"):
+    AISI S100-16 I6.2.1, through-fastened panels: for purlins and girts under uplift / suction (combinations with Wout),
+    the free flange in compression between supports: φMn = 0.90 R Se Fy, Se Fy taken as the DSM local strength with
+    Mne = My (Mnlo) — Claude's reading, TO CONFIRM; the larger of this and the brace-point value is used (both are
+    permitted ways — Claude's reading, TO CONFIRM; e.g. a simple-span C200 with R 0.65 is below its sag-rod value). R from R_TABLE — TRANSCRIBED FROM MEMORY, VERIFIED False: the user
+    confirms the values from the printed Table I6.2.1-1 before use. Its applicability limits (R_LIMITS, same status) are
+    checked per line from the model where the model knows them (depth, d/t, d/b, flange w/t, lips, span, lap ≥ 1.5 d,
+    Fy, anti-roll: the sag rods tied off) and listed "to confirm" where it does not (panels, fasteners, insulation,
+    flanges held at the supports); a line that fails a checkable limit falls back to the strict rule. Every line
+    reports its R and limits in both modes.
 Supplier table (overrides, per profile name): A, Ix, Sx, J, Cw, r_inside, Mcrl, Mcrd, Pcrl, Pcrd, Fy, Fu — each overridden
     value is marked "supplier" on the result; everything else stays "geometry".
 Units: kN, kN·m, mm.
@@ -75,14 +87,32 @@ COMBOS_ROOF = {"LRFD": {"1.4D": {"D": 1.4, "C": 1.4}, "1.2D+1.6Lr+0.5W": {"D": 1
                "ASD": {"D+Lr": {"D": 1.0, "C": 1.0, "Lr": 1.0}, "D+0.6W": {"D": 1.0, "C": 1.0, "Win": 0.6}, "0.6D+0.6W": {"D": 0.6, "Wout": 0.6}}}
 COMBOS_WALL = {"LRFD": {"1.0W inward": {"Win": 1.0}, "1.0W outward": {"Wout": 1.0}},
                "ASD": {"0.6W inward": {"Win": 0.6}, "0.6W outward": {"Wout": 0.6}}}
+#: AISI S100-16 Table I6.2.1-1 — TRANSCRIBED FROM MEMORY, VERIFIED False until the user confirms it from the printed
+#: standard. Simple span by depth (mm, upper bounds: 6.5 / 8.5 / 11.5 in) and shape; continuous span by shape.
+R_TABLE = {"simple": [(165.1, {"C": 0.70, "Z": 0.70}), (215.9, {"C": 0.65, "Z": 0.65}), (292.1, {"C": 0.40, "Z": 0.50})],
+           "continuous": {"C": 0.60, "Z": 0.70}}
+#: I6.2.1 conditions — same status (from memory, TO CONFIRM).
+R_LIMITS = {"depth_max": 292.1, "d_t": (60.0, 170.0), "d_b": (2.8, 5.5), "flange_w_t": (16.0, 43.0), "span_max": 10058.0,
+            "lap_min_d": 1.5, "Fy_max": 413.7}
+R_VERIFIED = False
+R_UNKNOWN = (
+    "both flanges prevented from moving laterally at the supports (the model has web cleats; flange braces only at some)",
+    "panels: steel, Fy ≥ 50 ksi, base metal ≥ 0.018 in (0.46 mm), rib depth ≥ 1-1/8 in (29 mm), ribs ≤ 12 in (305 mm) apart",
+    "fasteners: ≥ No. 12 self-drilling / self-tapping screws or 3/16 in rivets with 1/2 in washers, not standoff, ≤ 12 in "
+    "(305 mm) apart near the flange centre, by the panel high rib",
+    "insulation, if any: glass-fibre blanket ≤ 6 in (152 mm), compressed between member and panel",
+)
+UPLIFT_METHODS = ("strict", "r_factor")
+
 ASSUMPTIONS = (
-    "sag-rod rows are brace points of the purlin section for its free (unsheeted) flange; girts have none",
+    "sag-rod rows are brace points of the purlin section for its free (unsheeted) flange where tied off at the ridge "
+    "and the eave (checked per row on the model); girts have none",
     "the sheeted flange is continuously braced (Mne = My); distortional buckling without the sheeting's rotational "
     "restraint (k_phi = 0) at its own critical half-wavelength — conservative",
     "lapped Z lines: continuous beams with the lap (two nested sections) at 2 x EI, 2 x the strength in flexure and "
     "shear; the critical points are then the lap ends",
-    "roof C&C zone layout: Claude's reading of ASCE 7-16 Fig. 30.3-2A (edge strips a along eaves, gable ends and ridge; "
-    "corners zone 3; zone 1 elsewhere, 1' not used) — TO CONFIRM",
+    "roof C&C zones (user 2026-11-09): theta <= 7 deg Fig. 30.3-2A, edge strips a along eaves and gable ends (no ridge "
+    "strip), corners zone 3, zone 1 elsewhere (1' not used); steeper roofs not evaluated until Fig. 30.3-2B/C are typed in",
     "eave strut: the bracing force at its bay in every combination with wind (the LRFD 1.0W value, 0.5 of it with "
     "0.5W), together with the C&C bending — an envelope",
 )
@@ -200,6 +230,48 @@ def axial_capacity(sd: dict, L: float) -> dict:
     return {"phiPn": PHI_C * min(Pnl, Pnd), "Pcre": pcre, "Pne": Pne, "Pnl": Pnl, "Pnd": Pnd, "note": ""}
 
 
+def r_factor(line: dict, sd: dict, tied_ok: bool | None = None) -> dict:
+    """AISI S100-16 I6.2.1 for one line: R and its applicability limits (VERIFIED False — see R_TABLE)."""
+    from .cfs_section import parse_name
+    g = parse_name(sd["profile"])
+    d, t, b = g["H"], g["t"], g["B"]
+    sups = line["supports"]
+    spans = [y - x for x, y in zip(sups, sups[1:])]
+    cont = len(spans) > 1 and bool(line.get("laps"))
+    if cont:
+        R = R_TABLE["continuous"][g["kind"]]
+    else:
+        R = next((v[g["kind"]] for dmax, v in R_TABLE["simple"] if d <= dmax + 1e-9), None)
+    w_flat = b - 2 * (sd["r_inside"] + t)
+    L = R_LIMITS
+    cond = [
+        {"name": "depth ≤ 11.5 in (292 mm)", "value": d, "ok": d <= L["depth_max"]},
+        {"name": "flanges edge-stiffened (lips)", "value": g["D"], "ok": g["D"] > 0},
+        {"name": f"{L['d_t'][0]:g} ≤ d / t ≤ {L['d_t'][1]:g}", "value": round(d / t, 2), "ok": L["d_t"][0] <= d / t <= L["d_t"][1]},
+        {"name": f"{L['d_b'][0]:g} ≤ d / b ≤ {L['d_b'][1]:g}", "value": round(d / b, 3), "ok": L["d_b"][0] <= d / b <= L["d_b"][1]},
+        {"name": f"{L['flange_w_t'][0]:g} ≤ flange flat w / t ≤ {L['flange_w_t'][1]:g}", "value": round(w_flat / t, 2),
+         "ok": L["flange_w_t"][0] <= w_flat / t <= L["flange_w_t"][1]},
+        {"name": "span ≤ 33 ft (10 058 mm)", "value": max(spans), "ok": max(spans) <= L["span_max"]},
+        {"name": "Fy ≤ 60 ksi (414 MPa)", "value": sd["Fy"], "ok": sd["Fy"] <= L["Fy_max"]},
+    ]
+    if cont:
+        short = []
+        for s in sups[1:-1]:
+            for l0, l1 in line["laps"]:
+                if l0 - 1e-6 <= s <= l1 + 1e-6:
+                    short.append(min(s - l0, l1 - s))
+        laps_ok = len(short) == len(sups) - 2 and all(v >= L["lap_min_d"] * d - 1e-6 for v in short)
+        cond.append({"name": f"lap each side of every interior support ≥ {L['lap_min_d']:g} d ({L['lap_min_d'] * d:g} mm)",
+                     "value": round(min(short), 1) if short else None, "ok": laps_ok})
+    if line["kind"] in ("purlin", "ridge_purlin", "eave_strut"):
+        cond.append({"name": "anti-roll / anchorage: sag-rod rows tied off at the ridge and the eave", "value": tied_ok, "ok": bool(tied_ok)})
+    applicable = R is not None and all(c["ok"] for c in cond)
+    return {"R": R, "system": "continuous" if cont else "simple", "VERIFIED": R_VERIFIED, "conditions": cond,
+            "to_confirm": list(R_UNKNOWN), "applicable_from_model": applicable,
+            "note": "R values and limits transcribed from memory — the user confirms them from the printed AISI S100-16 "
+                    "Table I6.2.1-1 before use"}
+
+
 # ----------------------------------------------------------------------------------------------- one line
 
 def _row(name, ref, demand, capacity, unit, note=""):
@@ -208,7 +280,7 @@ def _row(name, ref, demand, capacity, unit, note=""):
             "ratio": round(r, 4) if math.isfinite(r) else math.inf, "unit": unit, "note": note}
 
 
-def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> dict:
+def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, uplift_method: str = "strict") -> dict:
     """line: {id, kind, nodes, supports, braces, cases: {D, C, Lr, Win, Wout: [q per element, kN/m]}, P (eave strut, kN)}."""
     nodes, sup, br = line["nodes"], line["supports"], sorted(line["braces"])
     laps = line.get("laps", [])
@@ -216,6 +288,10 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> d
     EI = [203395.3 * sd["Ix"] * k for k in nsec]
     phiV = _shear_capacity(sd)
     Mnlo = Mnl_local(sd["My"], sd["Mcrl"]) if sd["Mcrl"] else None
+    if uplift_method not in UPLIFT_METHODS:
+        raise ValueError(f"uplift_method must be one of {UPLIFT_METHODS}")
+    rf = line.get("rfactor")
+    use_r = uplift_method == "r_factor" and rf is not None and rf["applicable_from_model"] and Mnlo is not None
     worst = None
     defl = None
     ax = axial_capacity(sd, max(b - a for a, b in zip(sup, sup[1:]))) if line.get("P") else None
@@ -224,7 +300,7 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> d
         for cname, fac in cs.items():
             q = [sum(f * line["cases"].get(c, [0.0] * (len(nodes) - 1))[i] for c, f in fac.items()) for i in range(len(nodes) - 1)]
             if any(not math.isfinite(v) for v in q):
-                return {**_meta(line, sd), "ratio": math.inf, "passed": False, "combo": cname, "governing": "wind not evaluated",
+                return {**_meta(line, sd), "uplift_method": uplift_method, "ratio": math.inf, "passed": False, "combo": cname, "governing": "wind not evaluated",
                         "checks": [_row("C&C wind — NOT EVALUATED", "ASCE 7-16 Fig. 30.3-2A", 1.0, 0.0, "-", line.get("wind_note", ""))]}
             st = beam_line(nodes, sup, q, EI)
             if setname == "ASD":
@@ -256,6 +332,12 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> d
                     cant = a_ < sup[0] - 1e-6 or b_ > sup[-1] + 1e-6
                     cbs[k] = 1.0 if cant or Mmax <= 0 else 12.5 * Mmax / (2.5 * Mmax + 3 * MA + 4 * MB + 3 * MC)
                 fc = flexure_capacity(sd, M, Lb, cbs.get(k, 1.0), ne)
+                rnote = ""
+                if use_r and M < 0 and "Wout" in fac and sup[0] - 1e-6 <= x <= sup[-1] + 1e-6:
+                    phiR = ne * PHI_B * rf["R"] * Mnlo
+                    if phiR > fc["phiMn"]:                 # either way is permitted: the larger (Claude's reading, TO CONFIRM)
+                        fc = {**fc, "phiMn": phiR, "note": ""}
+                        rnote = f"R-factor I6.2.1: R {rf['R']:g} × Se Fy (= Mnlo), R VERIFIED False; above the brace-point value"
                 rows = []
                 B1 = 1.0
                 if Pk > 0 and ax:
@@ -264,7 +346,7 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> d
                     rows.append({**_row("Axial + bending (H1.2, B1 · M)", "AISI S100-16 H1.2, App. 1 (DSM)", r_int, 1.0, "-",
                                         f"P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN (Pcre at the bay), B1 {B1:.3f}")})
                 rows.append(_row("Flexure (DSM)", "AISI S100-16 App. 1 1.2.2 (F)", abs(M) / 1e6, fc["phiMn"] / 1e6, "kN·m",
-                                 ("sheeted flange in compression, Mne = My" if M >= 0 else f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}")
+                                 ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}")
                                  + (", lap: 2 sections" if ne == 2 else "") + (" — " + fc["note"] if fc["note"] else "")))
                 rows.append(_row("Shear", "AISI S100-16 G2 (vendored, φ 0.90)", abs(V) / 1e3, ne * phiV / 1e3, "kN"))
                 if Mnlo:
@@ -275,7 +357,8 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float) -> d
                     worst = {"ratio": r, "combo": cname, "x": x, "M": M / 1e6, "V": V / 1e3, "P": Pk, "Lb": Lb, "checks": rows}
     checks = list(worst["checks"]) + ([defl] if defl else [])
     gov = max(checks, key=lambda c: c["ratio"])
-    return {**_meta(line, sd), "ratio": gov["ratio"], "passed": all(c["ratio"] <= 1.0 for c in checks), "governing": gov["name"],
+    return {**_meta(line, sd), "uplift_method": "r_factor" if use_r else "strict", "ratio": gov["ratio"],
+            "passed": all(c["ratio"] <= 1.0 for c in checks), "governing": gov["name"],
             "combo": worst["combo"] if gov is not defl else defl["combo"], "x": round(worst["x"], 1),
             "forces": {"M": round(worst["M"], 3), "V": round(worst["V"], 3), "P": round(worst["P"], 3), "Lb": worst["Lb"]},
             "checks": checks}
@@ -296,7 +379,7 @@ def _span_zones(line):
 
 def _meta(line, sd):
     return {"id": line["id"], "kind": line["kind"], "profile": sd["profile"], "grade": sd["grade"], "spans": [round(b - a, 1) for a, b in zip(line["supports"], line["supports"][1:])],
-            "tributary": round(line["trib"], 1), "zones": _span_zones(line), "loads_kN_m": line.get("loads"),
+            "tributary": round(line["trib"], 1), "zones": _span_zones(line), "loads_kN_m": line.get("loads"), "r_factor": line.get("rfactor"),
             "section": {k: (round(sd[k], 1) if isinstance(sd[k], float) else sd[k]) for k in ("A", "Ix", "Sx", "J", "Fy")} |
                        {"My_kNm": round(sd["My"] / 1e6, 3), "Mcrl_kNm": round(sd["Mcrl"] / 1e6, 3) if sd["Mcrl"] else None,
                         "Mcrd_kNm": round(sd["Mcrd"] / 1e6, 3) if sd["Mcrd"] else None, "source": sd["source"]}}
@@ -314,9 +397,11 @@ def _cluster(xs, tol=150.0):
     return [sum(c) / len(c) for c in out]
 
 
-def _roof_zone(x0, x1, y0, y1, Lb, span, a):
+def _roof_zone(x0, x1, y0, y1, Lb, span, a, ridge=False):
+    """Fig. 30.3-2A (θ ≤ 7°): edge strips along the eaves and gable ends; ridge=True adds the ridge strip (the steeper
+    figures' layout — their coefficients are not implemented, so it is never reached with a number)."""
     end = x0 < a or x1 > Lb - a
-    edge = y0 < a or y1 > span - a or (y0 < span / 2 + a and y1 > span / 2 - a)
+    edge = y0 < a or y1 > span - a or (ridge and y0 < span / 2 + a and y1 > span / 2 - a)
     return "3" if end and edge else "2" if end or edge else "1"
 
 
@@ -326,6 +411,25 @@ def _wind(wind, zone, span_mm, trib_mm, theta):
         return cp.inward, cp.outward, None
     except Exception as e:            # bimsteelauto refuses a roof above 7° (Fig. 30.3-2A)
         return math.nan, math.nan, str(e)
+
+
+def tied_rows(out: dict, tol: float = 150.0) -> tuple[list[float], list[float]]:
+    """Sag-rod rows (x) that count as brace points — tied off at the ridge (a ridge tie at the row) and at the eave (on
+    both slopes a rod ends at the eave strut) — and the rows that do not."""
+    ms = out["members"]
+    rods = [m for m in ms if m["role"] == "sag_rod"]
+    ties = [m for m in ms if m["role"] == "ridge_tie"]
+    eave = {}
+    for m in ms:
+        if m["role"] == "eave_strut":
+            eave[m["side"]] = (m["start"][1], m["start"][2])
+    ok, bad = [], []
+    for x in _cluster([m["start"][0] for m in rods], tol):
+        mine = [m for m in rods if abs(m["start"][0] - x) <= tol]
+        ridge = any(abs(m["start"][0] - x) <= tol for m in ties)
+        ends = all(any(min(math.dist(p[1:], eave[s]) for p in (m["start"], m["end"])) < 300.0 for m in mine if m["side"] == s) for s in eave)
+        (ok if ridge and ends and eave else bad).append(x)
+    return ok, bad
 
 
 def building_lines(out: dict, li) -> list[dict]:
@@ -338,7 +442,7 @@ def building_lines(out: dict, li) -> list[dict]:
     Lb_ = frames[-1] - frames[0]
     wind = envelope_pressures(_geom(inp), li.site())
     a = wind.end_zone_a
-    rows = _cluster([m["start"][0] for m in out["members"] if m["role"] == "sag_rod"])
+    rows, untied = tied_rows(out)
     ms = out["members"]
     lines = []
 
@@ -444,7 +548,7 @@ def _roof_line(lid, role, profile, grade, nodes, sups, braces, trib, ys, c, thet
     for i in range(len(nodes) - 1):
         s0, s1 = _span_of(nodes, sups, i)
         x0, x1 = min(nodes[i], s0), max(nodes[i + 1], s1)
-        z = _roof_zone(x0, x1, ys[0], ys[1], Lb_, span, a)
+        z = _roof_zone(x0, x1, ys[0], ys[1], Lb_, span, a, ridge=theta > 7.0)
         pi_, po, note = _wind(wind, z, s1 - s0, trib, theta)
         if note:
             notes.add(note)
@@ -473,13 +577,18 @@ def _wall_line(lid, role, profile, grade, nodes, sups, braces, trib, corner, the
             "loads": {"W_in": [round(v, 4) for v in win], "W_out": [round(v, 4) for v in wout]}, "combos": COMBOS_WALL}
 
 
-def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: ServiceLimits | None = None, out: dict | None = None) -> dict:
-    """Step 6 for a building: every purlin, girt, gable-girt and eave-strut line."""
+def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: ServiceLimits | None = None, out: dict | None = None,
+               uplift_method: str = "strict") -> dict:
+    """Step 6 for a building: every purlin, girt, gable-girt and eave-strut line. uplift_method "strict" (default) or
+    "r_factor" (AISI S100-16 I6.2.1 — R VERIFIED False until the user confirms the table)."""
+    if uplift_method not in UPLIFT_METHODS:
+        raise ValueError(f"uplift_method must be one of {UPLIFT_METHODS}")
     limits = limits or ServiceLimits()
     if out is None:
         b, _ = resolve(b)
         out = peb_building(b)
     lines = building_lines(out, li)
+    tied, untied = tied_rows(out)
     braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
     struts = {}
     if braces and out.get("braced_bays"):
@@ -494,7 +603,8 @@ def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: Se
         if ln["kind"] == "eave_strut":
             bay = int(ln["id"].rsplit("-", 1)[1])
             ln["P"] = struts.get(bay, 0.0)
-        r = check_line(ln, cache[key], ln["combos"], limits.purlin)
+        ln["rfactor"] = r_factor(ln, cache[key], tied_ok=bool(tied) and not untied)
+        r = check_line(ln, cache[key], ln["combos"], limits.purlin, uplift_method)
         if ln["kind"] == "eave_strut":
             r["P_strut_kN"] = ln.get("P", 0.0)
         res[{"purlin": "purlins", "ridge_purlin": "purlins", "eave_strut": "eave_struts", "girt": "girts", "gable_girt": "gable_girts"}[ln["kind"]]].append(r)
@@ -502,4 +612,5 @@ def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: Se
     sections = {f"{k[0]} {k[1]}": {kk: vv for kk, vv in v.items() if not kk.startswith("_")} for k, v in cache.items()}
     return {"banner": BANNER, "code": "AISI S100-16 (DSM), LRFD; deflection ASD", **res, "sections": sections,
             "max_ratio": max(allr) if allr else None, "assumptions": list(ASSUMPTIONS), "deflection_limit": limits.purlin,
+            "uplift_method": uplift_method, "R_VERIFIED": R_VERIFIED, "sag_rows": {"tied": [round(v, 1) for v in tied], "untied": [round(v, 1) for v in untied]},
             "designed": False, "VERIFIED": False}

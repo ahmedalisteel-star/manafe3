@@ -191,7 +191,7 @@ def _design_row(meta: dict, inp: MemberDesignInput) -> dict:
             "checks": [{**r, **{k: float(r[k]) for k in ("demand", "capacity", "ratio")}} for r in (_check_row(c) for c in d.checks)]}
 
 
-def secondary_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits=None) -> dict:
+def secondary_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits=None, uplift_method: str = "strict") -> dict:
     """Steps 5 and 6 for a building: every wind column, end rafter and brace type, and (step 6) every purlin, girt and
     eave-strut line. Runs the analyses it needs."""
     b, _ = resolve(b)
@@ -217,7 +217,7 @@ def secondary_checks(b: BuildingInput, li, *, supplier: dict | None = None, limi
             L = math.dist(m["start"], m["end"])
             rows.append({"what": f"end-wall brace ({end} end)", "members": sum(1 for x in out["members"] if x["role"] == "endwall_brace" and x.get("wall") == end),
                          **tension_check(m["profile"], m.get("material", "S355"), T, L, b.bolt)})
-    cf = cfs_checks(b, li, supplier=supplier, limits=limits, out=out)
+    cf = cfs_checks(b, li, supplier=supplier, limits=limits, out=out, uplift_method=uplift_method)
     allr = [r["ratio"] for r in wcs + ers + rows] + ([cf["max_ratio"]] if cf["max_ratio"] is not None else [])
     return {"banner": BANNER, "code": "AISC 360-16 LRFD; cold-formed AISI S100-16 (DSM)", "wind_columns": wcs, "end_rafters": ers,
             "bracing": rows, "eave_struts": cf["eave_struts"], "cold_formed": cf, "max_ratio": max(allr) if allr else None,

@@ -234,7 +234,72 @@ def test_whole_building_step6():
     p3 = next(x for x in r["purlins"] if x["id"] == "RA3")
     assert p3["zones"] == ["2", "1", "1", "2"]                         # s 3558: outside the eave strip
     p10 = next(x for x in r["purlins"] if x["id"] == "RA10")
-    assert p10["zones"] == ["3", "2", "2", "3"]                        # the ridge strip
+    assert p10["zones"] == ["2", "1", "1", "2"]                        # θ 5.7° ≤ 7°: no ridge strip (user 2026-11-09)
     g1 = next(x for x in r["girts"] if x["id"] == "GA1")
     assert g1["zones"] == ["5", "4", "4", "5"]
     assert "NOT FOR ISSUE" in r["banner"]
+
+
+# ---------------------------------------------------------------------------------------------- step 6 decisions (user, 2026-11-09)
+
+def test_sag_rows_tied_off(b1_lines):
+    from engine.design.cfs_checks import tied_rows
+    out, lines = b1_lines
+    ok, bad = tied_rows(out)
+    assert ok == pytest.approx([3000.0, 9000.0, 15000.0, 21000.0]) and bad == []
+    ln = next(x for x in lines if x["id"] == "RA3")
+    assert {3000.0, 9000.0, 15000.0, 21000.0} <= set(round(v, 1) for v in ln["braces"])
+    # negative control: without the ridge ties no row counts, and the purlins lose those brace points
+    cut = {**out, "members": [m for m in out["members"] if m["role"] != "ridge_tie"]}
+    ok, bad = tied_rows(cut)
+    assert ok == [] and len(bad) == 4
+    ln = next(x for x in building_lines(cut, LI) if x["id"] == "RA3")
+    assert not ({3000.0, 9000.0} & set(round(v, 1) for v in ln["braces"]))
+    # nor without the chain reaching the eave strut on one slope
+    eave_y = {m["side"]: m["start"][1] for m in out["members"] if m["role"] == "eave_strut"}
+    cut = {**out, "members": [m for m in out["members"] if not (m["role"] == "sag_rod" and m["side"] == "A"
+                                                                and min(abs(m["start"][1] - eave_y["A"]), abs(m["end"][1] - eave_y["A"])) < 300)]}
+    assert tied_rows(cut)[0] == []
+
+
+def test_r_factor_limits_by_hand(b1_lines):
+    from engine.design.cfs_checks import R_VERIFIED, r_factor
+    out, lines = b1_lines
+    ln = next(x for x in lines if x["id"] == "RA1")
+    sd = section_data(ln["profile"], ln["grade"])
+    rf = r_factor(ln, sd, tied_ok=True)
+    assert R_VERIFIED is False and rf["VERIFIED"] is False
+    assert rf["system"] == "continuous" and rf["R"] == 0.70 and rf["applicable_from_model"]
+    vals = [c["value"] for c in rf["conditions"]]
+    assert vals[:8] == [200.0, 20.0, 100.0, round(200 / 65, 3), (65 - 2 * (2 + 2)) / 2, 6000.0, 350.0, 600.0]   # lap 10 % of 6 m
+    assert len(rf["to_confirm"]) == 4
+    # a lap shorter than 1.5 d fails the limit → not applicable from the model
+    short = {**ln, "laps": [(s - 250.0, s + 250.0) for s in ln["supports"][1:-1]]}
+    assert not r_factor(short, sd, tied_ok=True)["applicable_from_model"]
+    assert not r_factor(ln, sd, tied_ok=False)["applicable_from_model"]
+    es = next(x for x in lines if x["id"] == "RA0-2")
+    rf = r_factor(es, section_data(es["profile"], es["grade"]), tied_ok=True)
+    assert rf["system"] == "simple" and rf["R"] == 0.65                 # C, 6.5 in < 200 mm ≤ 8.5 in
+
+
+def test_r_factor_capacity_by_hand(b1_lines):
+    from engine.design.cfs_checks import r_factor
+    out, lines = b1_lines
+    ln = dict(next(x for x in lines if x["id"] == "RA1"))
+    sd = section_data(ln["profile"], ln["grade"])
+    ln["rfactor"] = r_factor(ln, sd, tied_ok=True)
+    strict = check_line(ln, sd, COMBOS_ROOF, 150)
+    rfac = check_line(ln, sd, COMBOS_ROOF, 150, "r_factor")
+    assert strict["uplift_method"] == "strict" and rfac["uplift_method"] == "r_factor"
+    assert rfac["ratio"] < strict["ratio"]
+    # Mnlo longhand: Mne = My, local curve
+    My, Mcrl = sd["My"], sd["Mcrl"]
+    Mnlo = (1 - 0.15 * (Mcrl / My) ** 0.4) * (Mcrl / My) ** 0.4 * My if math.sqrt(My / Mcrl) > 0.776 else My
+    f = next(c for c in rfac["checks"] if c["name"].startswith("Flexure"))
+    assert "R-factor" in f["note"]                                   # uplift governs, by the R-factor
+    assert f["capacity"] == pytest.approx(0.9 * 0.70 * Mnlo / 1e6, abs=1e-3)
+    # not applicable → the strict result exactly
+    ln["rfactor"] = r_factor(ln, sd, tied_ok=False)
+    assert check_line(ln, sd, COMBOS_ROOF, 150, "r_factor")["ratio"] == strict["ratio"]
+    with pytest.raises(ValueError):
+        check_line(ln, sd, COMBOS_ROOF, 150, "rfactor")
