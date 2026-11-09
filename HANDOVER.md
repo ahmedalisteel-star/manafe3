@@ -743,8 +743,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-08 18:34 on ENG04-PC
-- Did: Field fixes 17, 26, 27: elevation view on both grid axes, assistant tools, model.replace
-- Tests: engine 141 passed, 2 warnings in 387.02s (0:06:27) | app 14 of 14 test files passed
-- Next: Field fixes P3: crane runway (items 11-13)
+- When: 2026-11-09 08:54 on ENG04-PC
+- Did: Field fixes 11-14: crane runway geometry, crane warning, true web strips in clash check, metric footings
+- Tests: engine 141 passed, 2 warnings in 402.54s (0:06:42) | app 14 of 14 test files passed
+- Next: Field fixes P7 drawings (18, 19, 24, 23), then R1 fixture
 <!-- LAST-SESSION:END -->
