@@ -23,8 +23,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
-the R1 field fixes list done (2026-11-09, below); step 5 done in the engine (eave struts with step 6); next: step 6
-(purlins / girts / eave struts, AISI S100).**
+the R1 field fixes list done (2026-11-09, below); step 5 done in the engine; step 6 (purlins / girts / eave struts,
+AISI S100-16 DSM, properties and buckling from the geometry) done in the engine; next: step 7 (ECP 205-LRFD side by
+side, from the ecp205-lrfd dependency).**
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -194,7 +195,7 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
 | 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | **done** (engine) — `engine/design/frame_checks.py`, `test_frame_checks.py`; limit states longhand in bimsteelauto 0.14.3 – 0.15.1 |
 | 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | **done** (engine) — `engine/design/serviceability.py`, `test_serviceability.py` |
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | **done** (engine) except eave struts (moved to step 6) — `engine/design/secondary_checks.py`, `test_secondary_checks.py` |
-| 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | one line by hand |
+| 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | **done** (engine) incl. eave struts — `engine/design/cfs_section.py`, `cfs_checks.py`, `test_cfs.py` (one line by hand: the bay-2 eave strut) |
 | 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | one member longhand ECP, equations confirmed with the user |
 | 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | converges on building 1, minimums kept |
 | 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
@@ -296,6 +297,60 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Step 6 — what was built (2026-11-09):** purlins, ridge purlins, side-wall girts, gable girts and eave struts, AISI S100-16
+by the Direct Strength Method, LRFD strength + ASD deflection, NOT FOR ISSUE. `cfs_checks(b, li, supplier=, limits=)`; also
+inside `secondary_checks` (its `cold_formed` entry; `eave_struts` there are now these lines).
+- **Sections from their geometry** (`engine/design/cfs_section.py`): the name gives H, B, D, t; centreline with rounded
+  corners. Gross properties by thin-walled line integrals (A, Ix, Iz, Ixz, J, shear centre, Cw) — **against
+  sectionproperties within 0.25 %** (C200, Z200, C250; a test). Elastic buckling by **my own finite strip** (Cheung's
+  method written from the theory: linear membrane, Hermite bending, the three geometric slopes; simply supported ends,
+  one half-wave): local = the first minimum of the signature curve, distortional = the second; global = the curve at the
+  unbraced length, and below the curve's peak after the distortional minimum the value AT the peak (a rigorous lower
+  bound: the curve there is a local / distortional mode, the global one is above it). Checks: a plate with both edges
+  supported gives k = 4.000, one edge free k = 0.428 (0.425 + (b/a)²); a long C200 column / beam matches the closed-form
+  flexural / flexural-torsional load and Mcr = ro A √(σey σt) within 0.1 % at 6 and 9 m (2.6 % low at 3 m, where a
+  distortional mode mixes in — conservative). Z200x65x20x2.0 at Fy 350: Mcrl 1.61 My (a = 110 mm), Mcrd 1.41 My (565 mm).
+  E = 29 500 ksi (AISI, not AISC's 29 000). ~4 s per profile, cached.
+- **Claude's assumptions (listed on every result):** inside bend radius = t (the names carry none); lips at 90°; equal
+  flanges; bending about the geometric axis (restrained — the sheeting holds the section); distortional without the
+  sheeting's rotational restraint (k_phi = 0, conservative); DSM pre-qualification limits not checked.
+- **Lines** from the generated building: purlins and girts continuous over every frame, the **laps modelled** (where two
+  pieces overlap: 2 EI, 2 × flexure and shear strength — the lap ends govern), the overhangs as cantilevers; gable girts
+  continuous over the end-wall supports; eave struts (butt joints) one simple span per bay + the bracing's eave-strut
+  force (bimsteelauto's drag model: 0 when the braced bays are the end bays, as in building 1 and R1's default).
+- **Loads**: D (sheeting × tributary + self weight) and C (collateral, plan) and Lr (§4.8 reduced on the member's own
+  tributary plan area) as normal components; **C&C wind from bimsteelauto's VERIFIED Figs. 30.3-1 / 30.3-2A** (against
+  Struware), **each span in its own zone** at its own effective area. **Roof zone layout — Claude's reading, TO CONFIRM:**
+  edge strips of width a (bimsteelauto end_zone_width, 2400 on building 1) along the eaves, the gable ends and the ridge
+  → zone 2; eave or ridge strip × gable strip → zone 3; elsewhere zone 1 (**1' not used** — conservative). Walls: within
+  a of a corner → 5, else 4. Roof above 7° → roof wind NOT evaluated (ratio inf; Figs. 30.3-2B/C not implemented).
+  Combinations ASCE 7-16 LRFD 1.4D; 1.2D+1.6Lr+0.5W; 1.2D+1.0W+0.5Lr; 0.9D+1.0W (collateral not with uplift); ASD D+Lr,
+  D+0.6W, 0.6D+0.6W for L/150 (`ServiceLimits.purlin`); girts 1.0W / 0.6W in and out.
+- **Strength:** M + compresses the sheeted flange → braced, Mne = My. M − compresses the free flange → braced at frames,
+  **sag-rod rows (Claude's assumption: a sag-rod row is a brace point of the section)** and line ends; Mcre × Cb, Cb =
+  12.5 Mmax / (2.5 Mmax + 3 MA + 4 MB + 3 MC) over the brace segment (F2.1; 1 on a cantilever). Mn = min(Mnl, Mnd), φ 0.90
+  (vendored direct_strength curves). Shear: vendored aisi_s100 (φ 0.90 throughout — VERIFIED False against S100-16 G2.1);
+  H2 (M/φMnlo)² + (V/φVn)²; eave strut H1.2 P/φcPn + B1 M/φbMn, Pn by DSM with Pcre at the bay (sag rods not counted),
+  B1 = 1/(1 − P/Pex). Deflection with the gross Ix (stated: slightly unconservative for slender webs).
+- **Supplier table** (`supplier={profile: {...}}`): A, Ix, Sx, J, Cw, r_inside, Mcrl, Mcrd, Pcrl, Pcrd, Fy, Fu override the
+  geometry; each value is marked `supplier` / `geometry` on the result; unknown keys are refused.
+- **Building 1** (V 45, C): purlins 0.78 (uplift, sag-rod segment 3 m, Cb 1.18), girts 0.94 (suction, 6 m unbraced inner
+  flange, Cb 1.91), gable girts 0.86, eave struts 0.56; deflection ≤ 0.58. **R1 geometry** (same placeholder wind): purlins
+  1.13 (eave strip, 6.6 m bay), girts 1.43 (6.6 m end bay, zone 5) — the default Z200x2.0 is too light there under the
+  strict brace-point rule; step 8 (sizing) will choose.
+- **Open for the user (engineering decision):** girts and purlins under suction are checked by the strict rule above
+  (free flange unbraced between brace points). AISI S100-16 I6.2.1 (R-factor, through-fastened panels: Mn = R Se Fy)
+  is the usual alternative and is much less severe for girts; it is NOT implemented (its R table must be transcribed
+  from the printed standard). Also open: whether the inflection point may count as a brace point in the gravity
+  hogging zone (not used now).
+- Not checked yet (gaps, stated): minor-axis bending (the slope component to the sag rods, girt self weight), web
+  crippling at the cleats, purlins acting as roof-bracing struts (axial), sheeting / fastener checks.
+- Tests (`test_cfs.py`, 12): the closed forms above, properties vs sectionproperties, beam closed forms (wL²/8, 0.100 /
+  0.080 wL², cantilever) and against bimsteelauto `continuous_beam_forces`, **the bay-2 eave strut of building 1 longhand**
+  (loads from the inputs, the zone-2 pressure at 12 m², M = wL²/8, Cb = 12.5 / 9.625 = 1.2987, the DSM curves written out
+  in the test: ratio 0.5005, gravity governs; deflection 5wL⁴/384EI), the supplier override, a roof above 7° that must
+  not pass, the whole building (slow).
 
 **Step 5 — what was built (2026-11-09):** `engine/design/secondary_checks.py` (`secondary_checks(b, li)`), AISC 360-16 LRFD,
 NOT FOR ISSUE.
@@ -822,8 +877,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-09 09:59 on ENG04-PC
-- Did: Wind-column flange braces (every second girt, per wall) and their restraints in the wind-column check
-- Tests: engine 147 passed, 2 warnings in 354.44s (0:05:54) | app 15 of 15 test files passed
-- Next: Phase 4 step 6 (purlins, girts, eave struts: AISI S100 from geometry)
+- When: 2026-11-09 14:05 on ENG04-PC
+- Did: Phase 4 step 6: purlins, girts, gable girts and eave struts to AISI S100-16 (DSM) with properties and finite-strip buckling from the geometry
+- Tests: engine 159 passed, 2 warnings in 438.10s (0:07:18) | app 15 of 15 test files passed
 <!-- LAST-SESSION:END -->

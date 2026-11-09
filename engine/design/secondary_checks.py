@@ -19,8 +19,8 @@
                      angle L<b>x<t>  D2-1 yield φ 0.90 Fy Ag; D2-2 rupture φ 0.75 Fu Ae, Ae = U An, An = Ag − (d_hole) t
                                  (one standard hole, Table J3.3: d + 2 mm for M12–M24), U = 0.6 (Table D3.1 case 8, three bolts
                                  in line — the placeholder until Phase 5 details the joint); L / r_min ≤ 300 reported (D1 note)
-    eave struts    compression of a cold-formed C: AISI S100 — checked in step 6 with the purlins (cold-formed properties
-                   from their geometry come there)
+    eave struts    with the purlins and girts in step 6 (engine/design/cfs_checks.py, AISI S100-16 DSM): the result's
+                   "cold_formed" entry; "eave_struts" repeats that step's eave-strut lines
 Grades: the member's material in the model (rods and angles: the generator gives the frame grade), EN 10025-2 bands by
 thickness (a rod: its diameter). Every result carries the NOT FOR ISSUE banner.
 """
@@ -38,10 +38,11 @@ from ..analysis.endwall_analysis import WIND_COLUMN, end_rafter_frame, longitudi
 from ..analysis.bracing_system import longitudinal_bracing
 from ..analysis.secondary_weight import secondary_kpa
 from ..peb.building import BuildingInput, peb_building, resolve
+from .cfs_checks import cfs_checks
 from .frame_checks import _materials, _check_row
 from .inputs import plate_strength, section_strength
 
-BANNER = "NOT FOR ISSUE — wind columns, end rafters and bracing checked with open verification flags"
+BANNER = "NOT FOR ISSUE — wind columns, end rafters, bracing, purlins, girts and eave struts checked with open verification flags"
 STEEL_KN_M3 = 77.0
 PHI_T_YIELD, PHI_T_RUPT, PHI_ROD = 0.90, 0.75, 0.75
 U_ANGLE = 0.6
@@ -190,8 +191,9 @@ def _design_row(meta: dict, inp: MemberDesignInput) -> dict:
             "checks": [{**r, **{k: float(r[k]) for k in ("demand", "capacity", "ratio")}} for r in (_check_row(c) for c in d.checks)]}
 
 
-def secondary_checks(b: BuildingInput, li) -> dict:
-    """Step 5 for a building: every wind column, end rafter and brace type. Runs the analyses it needs."""
+def secondary_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits=None) -> dict:
+    """Steps 5 and 6 for a building: every wind column, end rafter and brace type, and (step 6) every purlin, girt and
+    eave-strut line. Runs the analyses it needs."""
     b, _ = resolve(b)
     out = peb_building(b)
     sec = secondary_kpa(out)
@@ -215,7 +217,8 @@ def secondary_checks(b: BuildingInput, li) -> dict:
             L = math.dist(m["start"], m["end"])
             rows.append({"what": f"end-wall brace ({end} end)", "members": sum(1 for x in out["members"] if x["role"] == "endwall_brace" and x.get("wall") == end),
                          **tension_check(m["profile"], m.get("material", "S355"), T, L, b.bolt)})
-    allr = [r["ratio"] for r in wcs + ers + rows]
-    return {"banner": BANNER, "code": "AISC 360-16 LRFD", "wind_columns": wcs, "end_rafters": ers, "bracing": rows,
-            "eave_struts": {"checked": False, "note": "cold-formed C in compression: AISI S100, checked in step 6 with the purlins"},
-            "max_ratio": max(allr) if allr else None, "designed": False}
+    cf = cfs_checks(b, li, supplier=supplier, limits=limits, out=out)
+    allr = [r["ratio"] for r in wcs + ers + rows] + ([cf["max_ratio"]] if cf["max_ratio"] is not None else [])
+    return {"banner": BANNER, "code": "AISC 360-16 LRFD; cold-formed AISI S100-16 (DSM)", "wind_columns": wcs, "end_rafters": ers,
+            "bracing": rows, "eave_struts": cf["eave_struts"], "cold_formed": cf, "max_ratio": max(allr) if allr else None,
+            "designed": False}
