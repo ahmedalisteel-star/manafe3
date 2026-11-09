@@ -178,6 +178,10 @@ const spec = { ...B.BUILDING_DEFAULTS };
   ok(B.parseBayList('F to L', R1).bays.length === 5 &&   // F G H J K L: 6 lines, 5 bays
      B.parseBayList('L-F', R1).bays[0] === 5400, '"F to L" and the reverse');
   ok(JSON.stringify(B.parseBayList('6600 6000, 6000', R1).bays) === '[6600,6000,6000]' && B.parseBayList('', R1) === null, 'typed spacings; empty = even bays');
+  // wind-column flange braces per end wall (2026-11-09): every n-th gable girt, 0 = none
+  const fw = Object.fromEntries(Object.entries(B.BUILDING_DEFAULTS).map(([k, v]) => [k, String(v)]));
+  const bw = B.buildingRequest({ ...fw, wc_braces_last: '0' });
+  ok(bw.wc_braces_first === 2 && bw.wc_braces_last === 0, 'the request carries the wind-column brace setting per wall (default every second girt; 0 = off)', [bw.wc_braces_first, bw.wc_braces_last]);
   const f = Object.fromEntries(Object.entries(B.BUILDING_DEFAULTS).map(([k, v]) => [k, String(v)]));
   const body = B.buildingRequest({ ...f, bays: 'A-L' }, { grids: R1 });
   ok(body.bays.length === 10 && body.n_bays === 10 && body.bay_spacing === 6600, 'the request carries the bays');

@@ -5,9 +5,10 @@
                    LRFD 1.0 W), inward and outward; stations M(x) = w x (L − x) / 2, V(x) = w (L/2 − x); axial = 1.2 × own
                    weight above the station, + on an end-rafter wall the frame's largest LRFD column load (an envelope:
                    conservative). Sections: the generated built-up WIND_COLUMN. check_member (prismatic: constant section).
-                   Flanges: the OUTER flange (girt side) is "top", braced at every gable girt; the INNER flange is braced
-                   only at the column's ends (no flange braces on wind columns). Inward pressure puts the outer flange in
-                   compression (M +), suction the inner one (M −).
+                   Flanges: the OUTER flange (girt side) is "top", braced at every gable girt; the INNER flange at the
+                   column's ends and at its flange braces from the gable girts (user 2026-11-09: default every second girt
+                   from the top, per wall, 0 = none). Inward pressure puts the outer flange in compression (M +), suction
+                   the inner one (M −).
     end rafters    each half (EFRA / EFRB) one design member over the wind-column tops, forces at every element end of the
                    end-rafter frame's LRFD solve (DAM: 0.8 stiffness, notional loads, P-δ); top flange braced at the purlins,
                    eave strut and ridge purlin; bottom flange at the supports (wind-column tops) only. check_member, prismatic.
@@ -72,6 +73,8 @@ def wind_column_inputs(out: dict, li, end_frames: dict) -> list[tuple[dict, Memb
         L = c["L_m"] * 1000
         tag = "G" + c["id"][1]                                       # WF… → GF, WL… → GL
         top = tuple(sorted(z for z in girts.get(tag, ()) if 1.0 < z < L - 1.0))
+        bottom = tuple(sorted({round(m["start"][2], 1) for m in out["members"] if m["role"] == "flange_brace" and m.get("host") == "wind column " + c["id"]
+                               and 1.0 < m["start"][2] < L - 1.0}))
         P_frame = 0.0
         ef = end_frames.get(c["end"])
         if ef:
@@ -89,9 +92,9 @@ def wind_column_inputs(out: dict, li, end_frames: dict) -> list[tuple[dict, Memb
                 sts.append(MemberForces(P=P, Vy=V, Mz=M, station=min(max(x, 0.01), L - 0.01)))
             forces[f"LRFD C&C {side} (+ frame P)"] = sts
         inp = MemberDesignInput(mark=c["id"], member_type=MemberType.COLUMN, taper=TaperedMember(wi, wi, L), forces=forces,
-                                bracing=BracingSpec(top_flange=top, bottom_flange=()), materials=_materials(st["Fy"], st["Fu"]),
+                                bracing=BracingSpec(top_flange=top, bottom_flange=bottom), materials=_materials(st["Fy"], st["Fu"]),
                                 method=DesignMethod.LRFD, K_in_plane=1.0, stability="prismatic")
-        res.append(({**c, "Fy": st["Fy"], "P_frame": round(P_frame, 3), "girts": top, "self_weight_kN_m": round(sw, 4)}, inp))
+        res.append(({**c, "Fy": st["Fy"], "P_frame": round(P_frame, 3), "girts": top, "flange_braces": bottom, "self_weight_kN_m": round(sw, 4)}, inp))
     return res
 
 

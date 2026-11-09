@@ -309,6 +309,15 @@ NOT FOR ISSUE.
 - Bracing (tension only, the largest LRFD force): rods RD<d> AISC J3.6 / Table J3.2 φ 0.75 × 0.75 Fu Ab and D2-1 on the body;
   angles L<b>x<t> D2-1 / D2-2 with U = 0.6 (Table D3.1 case 8 placeholder until Phase 5 details the joint, one standard hole),
   L/r ≤ 300 advisory. Roof / side-wall X from the bracing system, end-wall X from the end-rafter frame.
+- **Wind-column flange braces (user decision 2026-11-09):** L50x5 pairs from the gable girts to each wind column's INNER
+  flange, 45° horizontal in plan, as the main columns' (inner flange mid-thickness to 50 mm into the girt); default at
+  every SECOND girt row the column carries, counted from its top row (Claude's reading of "every second": the upper
+  part, where suction moments are largest, first); editable per end wall (Building form "Wind-column flange braces",
+  `BuildingInput.wc_braces_first / _last`, 0 = none); only where a girt piece runs past the brace end (wall ends,
+  openings: a corner column gets the inward brace only). They are the inner flange's restraint points in the
+  wind-column check: building 1 WF3 0.745 -> 0.226 (with the wall switched off: 0.745 again). Building 1 now 404
+  members (+28), the end-rafter variant 402 (+32); the clash filter treats brace-to-wind-column / gable-girt points as
+  generated joints. Not counted in the frames' secondary weight (they hang on the wind columns).
 - **Eave struts moved to step 6** (Claude's sequencing): their compression check is AISI S100 on a cold-formed C and needs
   the properties-from-geometry and distortional buckling step 6 builds for the purlins.
 - Building 1 (end-rafter first wall): max 0.745 (WF3), end rafters 0.04, rods 0.26. Tests: rod and angle capacities by hand

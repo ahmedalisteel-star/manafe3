@@ -31,6 +31,7 @@ export const BUILDING_DEFAULTS = {
   end_first: 'frame', end_last: 'frame', braced_bays: '', end_braced_bays: '', brace_type: 'rod', ridge_tie: 'rod', bolt: 'M12', lap: '',
   purlin: 'Z200x65x20x2.0', eave_strut: 'C200x65x20x2.0', girt: 'Z200x65x20x2.0', openings: '',
   grids_mode: 'merge', footings: 'none',
+  wc_braces_first: 2, wc_braces_last: 2,   // wind-column flange braces at every n-th gable girt, per end wall; 0 = none (2026-11-09)
 };
 export const SPAN_REFS = ['outside', 'centreline', 'grid'];
 export const MAX_BUILDINGS = 50;
@@ -110,6 +111,7 @@ export function buildingRequest(form, state = null) {
     brace_type: form.brace_type === 'angle' ? 'angle' : 'rod', ridge_tie: form.ridge_tie === 'strap' ? 'strap' : 'rod', bolt: form.bolt === 'M16' ? 'M16' : 'M12',
     fixed_lap: num(form, 'lap', 'Lap', { blank: true }), braced_bays: parseBays(form.braced_bays), end_braced_bays: parseBays(form.end_braced_bays), openings: parseOpenings(form.openings),
     span_ref: SPAN_REFS.includes(form.span_ref) ? form.span_ref : 'outside', grid_inset: num(form, 'grid_inset', 'Grid inset', { dflt: 0 }),
+    wc_braces_first: num(form, 'wc_braces_first', 'Wind-column braces (frame 1 wall)', { int: true, dflt: 2 }), wc_braces_last: num(form, 'wc_braces_last', 'Wind-column braces (last wall)', { int: true, dflt: 2 }),
   };
   if (bl) body.bays = bl.bays;
   const sizes = sizesOf(form);

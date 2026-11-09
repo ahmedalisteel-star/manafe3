@@ -39,11 +39,11 @@ def test_building_1_composition():
     r = roles(out)
     assert r["column"] + r["rafter"] == 20
     assert r["purlin"] + r["ridge_purlin"] == 80 and r["eave_strut"] == 8 and r["girt"] == 32
-    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 80
+    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 80 + 28   # + wind-column braces (2026-11-09)
     assert r["wind_column"] == 6 and r["gable_girt"] == 36
-    assert len(out["members"]) == 376 and len(out["cleats"]) == 196
+    assert len(out["members"]) == 376 + 28 and len(out["cleats"]) == 196
     assert out["braced_bays"] == [1, 4] and out["designed"] is False
-    assert len({m["id"] for m in out["members"]}) == 376 and all(m["gen"] == "peb" for m in out["members"])
+    assert len({m["id"] for m in out["members"]}) == 376 + 28 and all(m["gen"] == "peb" for m in out["members"])
     for m in out["members"]:
         if "section" in m:
             BuiltUpMember.from_dicts(m["section"]["segments"])
@@ -74,7 +74,9 @@ def test_end_rafter_variant_openings_and_options():
     assert any(h["d"] == 18 for m in out["members"] for h in m.get("holes", []))
     assert out["braced_bays"] == [2]
     base = peb_building(BuildingInput(**B1, end_first="rafter"))
-    assert len(base["members"]) == 370      # 362 + the default end-wall X (2 diagonals) + the last end frame's 6 inward rafter flange braces
+    assert len(base["members"]) == 370 + 32   # 362 + the end-wall X (2) + the last end frame's 6 inward rafter flange braces;
+    # + wind-column flange braces: the end-rafter wall 18 (corners 2 + 2, inward only — the girt stops at −200; WF2, WF4 4 each,
+    # WF3 6), the main-frame wall 14
     strap = peb_building(BuildingInput(**B1, ridge_tie="strap"))
     ties = [m for m in strap["members"] if m["role"] == "ridge_tie"]
     assert len(ties) == 4 and {m["profile"] for m in ties} == {"PL3x50"}
@@ -88,3 +90,24 @@ def test_api():
     assert r.status_code == 200 and len(r.json()["members"]) > 350
     bad = c.post("/peb/building", json={**B1, "braced_bays": [9]})
     assert bad.status_code == 422 and "bay 9" in bad.json()["detail"]
+
+
+def test_wind_column_flange_braces():
+    """User 2026-11-09: flange braces from the gable girts to the wind columns' inner flange, every second girt from the
+    top by default, per wall, 0 = none. Hand values on building 1 (both end walls main frames, columns at y 6 / 12 / 18 m)."""
+    out = peb_building(BuildingInput(**B1))
+    fb = [m for m in out["members"] if m["role"] == "flange_brace" and m["host"].startswith("wind column")]
+    at = lambda cid: sorted({m["start"][2] for m in fb if m["host"] == "wind column " + cid})
+    # WF1 (top 6 163.8) carries rows 1250 … 5000 → from the top every second: 5000, 2500; WF2 (top 6 764) also 6250 → 6250, 3750, 1250
+    assert at("WF1") == [2500, 5000] and at("WF2") == [1250, 3750, 6250] and len(fb) == 2 * (2 + 3 + 2) * 2
+    b = next(m for m in fb if m["host"] == "wind column WF1" and m["start"][2] == 2500 and m["end"][1] < 6000)
+    # inner flange mid-thickness x = −125 + 316 − 4 = 187; 50 into the girt x = −175; run 362 → y 5 638; length 362 √2
+    assert b["start"] == [187, 6000, 2500] and b["end"] == [-175, 5638, 2500] and b["length"] == pytest.approx(362 * 2 ** 0.5, abs=1e-3)
+    assert b["profile"] == "L50x5" and b["type"] == "brace"
+    off = peb_building(BuildingInput(**B1, wc_braces_first=0))
+    fb0 = [m for m in off["members"] if m["role"] == "flange_brace" and m["host"].startswith("wind column")]
+    assert len(fb0) == 14 and all(m["wall"] == "last" for m in fb0)                      # switched off on the first wall only
+    every3 = peb_building(BuildingInput(**B1, wc_braces_last=3))
+    assert sorted({m["start"][2] for m in every3["members"] if m.get("host") == "wind column WL2"}) == [2500, 6250]   # 6250, then every third
+    with pytest.raises(ValueError, match="whole number"):
+        peb_building(BuildingInput(**B1, wc_braces_first=-1))

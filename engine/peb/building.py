@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 from .bracing import BracingInput, flange_braces, sag_rods, x_bracing
 from .builtup_frame import BuiltUpSizes, builtup_frame_members, default_sizes
-from .endwall import end_wall, endwall_braces
+from .endwall import end_wall, endwall_braces, wind_column_braces
 from .openings import apply_openings
 from .secondary import HOLE, RoofSide, SecondaryInput, Sections, Wall, cf_dims, gauge, secondary_lines, secondary_members
 
@@ -50,6 +50,8 @@ class BuildingInput:
     span_ref: str = "outside"               # field fix 7: what `span` measures — outside (of steel: the columns' outer
                                             # faces), centreline (of the columns at the base) or grid (grid_inset outside steel)
     grid_inset: float = 0.0                 # span_ref "grid": from a grid line in to the columns' outer face, mm
+    wc_braces_first: int = 2                # wind-column flange braces at every n-th gable girt (from the top), end wall at
+    wc_braces_last: int = 2                 # the first / last frame line; 0 = none (user, 2026-11-09)
 
     def bay_list(self) -> tuple[float, ...]:
         return tuple(float(v) for v in self.bays) if self.bays else (float(self.bay_spacing),) * int(self.n_bays)
@@ -75,6 +77,9 @@ class BuildingInput:
                 raise ValueError(f"bay {k + 1}: spacing {v:g} mm - must be 3000 to 12000 mm")
         if self.span_ref not in SPAN_REFS:
             raise ValueError(f"span reference must be one of {', '.join(SPAN_REFS)}")
+        for k in ("wc_braces_first", "wc_braces_last"):
+            if not (isinstance(getattr(self, k), int) and 0 <= getattr(self, k) <= 10):
+                raise ValueError("wind-column flange braces: every n-th girt, n a whole number 0 (none) to 10")
 
 
 def resolve(b: BuildingInput) -> tuple[BuildingInput, float]:
@@ -155,6 +160,14 @@ def peb_building(b: BuildingInput) -> dict:
         end_walls.append({"end": end, "kind": kind, "x_frame": _r(x), "x_face": w["x_face"], "supports": w["supports"]})
 
     op = apply_openings(girts, list(b.openings), b.eave_height, jamb=b.sections.eave_strut, bolt=b.bolt)
+    # wind-column flange braces from the gable girts (after the openings: only where a girt piece runs)
+    for ew in end_walls:
+        tag = "W" + ew["end"][0].upper()
+        cols = [m for m in members if m["role"] == "wind_column" and m["id"].startswith(tag)]
+        gg = [g for g in op["girts"] if g.get("role") == "gable_girt" and g["id"].startswith("G" + ew["end"][0].upper())]
+        every = b.wc_braces_first if ew["end"] == "first" else b.wc_braces_last
+        for m in wind_column_braces(ew["end"], ew["x_face"], cols, gg, every):
+            members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
     cleats = sec["cleats"] + [c for end, sup in gable_sets for c in gable_cleats(op["girts"], end, sup, b.bolt)]
     for m in others + op["girts"] + op["members"]:
         members.append({**m, "type": ROLE_TYPE.get(m["role"], "beam")})
@@ -169,7 +182,8 @@ def peb_building(b: BuildingInput) -> dict:
     return {
         "units": {"length": "mm"}, "section": "builtup", "designed": False,
         "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays,
-                  "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset},
+                  "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset,
+                  "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last},
         # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
         # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)
         "y_shift": _r(y0),

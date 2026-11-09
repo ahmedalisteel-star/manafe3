@@ -175,6 +175,8 @@ class BuildingRequest(BaseModel):
     bays: list[float] | None = Field(None, description="uneven bays, mm frame line to frame line (field fix 6); overrides bay_spacing x n_bays")
     span_ref: Literal["outside", "centreline", "grid"] = Field("outside", description="what span measures (field fix 7)")
     grid_inset: float = Field(0.0, description="span_ref grid: grid line to the columns' outer face, mm")
+    wc_braces_first: int = Field(2, ge=0, le=10, description="wind-column flange braces at every n-th gable girt, first end wall; 0 = none")
+    wc_braces_last: int = Field(2, ge=0, le=10, description="the same, last end wall")
 
 
 @app.post("/peb/building")
@@ -197,7 +199,8 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         braced_bays=tuple(req.braced_bays) if req.braced_bays is not None else None, brace_type=req.brace_type, ridge_tie=req.ridge_tie,
         end_braced_bays=tuple(req.end_braced_bays) if req.end_braced_bays is not None else None,
         bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings),
-        bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset)
+        bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset,
+        wc_braces_first=req.wc_braces_first, wc_braces_last=req.wc_braces_last)
 
 
 class LoadsIn(BaseModel):

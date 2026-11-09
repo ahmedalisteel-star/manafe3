@@ -56,6 +56,8 @@ def secondary_kpa(out: dict) -> dict:
         elif r in WALL:
             k = "wall"
         elif r == "flange_brace":
+            if m.get("host", "").startswith("wind column"):
+                continue                                             # an end-wall brace: on the wind columns, not the frames
             k = "roof" if m.get("host", "").startswith("rafter") else "wall"
         else:
             continue

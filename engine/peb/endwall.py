@@ -129,6 +129,41 @@ def gable_girts(kind, span, eave, slope, x_face, out_dir, ys, z, wall, girt, bol
     return out
 
 
+WC_BRACE_EVERY = 2          # default: a flange-brace pair at every second gable girt (user, 2026-11-09); 0 = none
+WC_BRACE_PROFILE = "L50x5"
+
+
+def wind_column_braces(end: str, x_face: float, columns: list[dict], girts: list[dict], every: int = WC_BRACE_EVERY,
+                       profile: str = WC_BRACE_PROFILE) -> list[dict]:
+    """Flange braces from the gable girts to each wind column's INNER flange (user decision 2026-11-09), like the main
+    columns' (bracing.py): a pair at 45°, horizontal in plan, from the inner flange's mid-thickness to 50 mm into the girt
+    on the outer face. Rows: the girt rows a column carries (below its top), the TOP one and then every `every`-th row
+    downward (Claude's default count from the top: the upper part of the column, where suction moments are largest,
+    is braced first; editable per wall, 0 = none). A brace is made only where a girt piece actually runs past its end
+    (openings, wall ends)."""
+    if not every:
+        return []
+    from .bracing import INTO_SECONDARY
+    out_dir = -1.0 if end == "first" else 1.0
+    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]
+    x_in = x_face - out_dir * (wd - WIND_COLUMN["tf"] / 2)              # the inner flange's mid-thickness
+    x_out = x_face + out_dir * INTO_SECONDARY                           # 50 mm into the girt
+    run = wd - WIND_COLUMN["tf"] / 2 + INTO_SECONDARY                    # 45° in plan
+    out = []
+    for c in columns:
+        y, top = c["start"][1], c["end"][2]
+        rows = sorted({g["z"] for g in girts if g["z"] < top - 1.0}, reverse=True)[::every]
+        for zr in sorted(rows):
+            for sy in (-1.0, 1.0):
+                yb = y + sy * run
+                if not any(g["z"] == zr and min(g["start"][1], g["end"][1]) - 1e-6 <= yb <= max(g["start"][1], g["end"][1]) + 1e-6 for g in girts):
+                    continue                                             # no girt there (a wall end, an opening)
+                out.append({"role": "flange_brace", "host": "wind column " + c["id"], "line": next(g["id"] for g in girts if g["z"] == zr and min(g["start"][1], g["end"][1]) - 1e-6 <= yb <= max(g["start"][1], g["end"][1]) + 1e-6),
+                            "profile": profile, "start": [_r(x_in), _r(y), _r(zr)], "end": [_r(x_out), _r(yb), _r(zr)],
+                            "length": _r(run * math.sqrt(2)), "wall": end, "designed": False})
+    return out
+
+
 def endwall_braces(end: str, x_face: float, span: float, eave: float, supports: list[float], tops: dict[float, float],
                    bays: tuple[int, ...], profile: str) -> list[dict]:
     """X-bracing in the end-wall plane (user decision 2026-11-08: the end-rafter frame does NOT rely on sheeting; default

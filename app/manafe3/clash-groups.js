@@ -16,6 +16,7 @@
  */
 export const GENERATED_JOINTS = new Set([
   'flange_brace×rafter', 'column×flange_brace', 'flange_brace×purlin', 'flange_brace×girt', 'flange_brace×flange_brace',
+  'flange_brace×wind_column', 'flange_brace×gable_girt',   // wind-column flange braces (2026-11-09)
   'roof_brace×roof_brace', 'wall_brace×wall_brace', 'rafter×roof_brace', 'column×roof_brace', 'column×wall_brace',
   'column×rafter', 'rafter×rafter',
   'cap_plate×wind_column', 'cap_plate×rafter', 'rafter×wind_column',

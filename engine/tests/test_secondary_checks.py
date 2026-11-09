@@ -75,7 +75,9 @@ def test_wind_column_demand_and_bracing(bld):
     inw = inp.forces["LRFD C&C inward (+ frame P)"]
     assert outw[10].Mz == pytest.approx(-wo * L * L / 8, rel=1e-9) and inw[10].Mz == pytest.approx(wi_ * L * L / 8, rel=1e-9)
     assert outw[0].Vy == pytest.approx(wo * L / 2, rel=1e-9)
-    assert inp.bracing.bottom_flange == () and len(inp.bracing.top_flange) >= 3                       # inner: ends only; outer: girts
+    # inner flange: its flange braces from the gable girts (default every second girt from the top: WF3, top 6 764 → 6250, 3750,
+    # 1250); outer flange: every girt
+    assert inp.bracing.bottom_flange == tuple(meta["flange_braces"]) == (1250.0, 3750.0, 6250.0) and len(inp.bracing.top_flange) >= 3
     assert meta["P_frame"] > 0                                                                        # on an end-rafter wall: the frame's column load
     wl = next(x for x in wind_column_inputs(out, LI, {"first": ef}) if x[0]["id"].startswith("WL"))[0]
     assert wl["P_frame"] == 0.0                                                                       # a main-frame end wall: own weight only
@@ -88,6 +90,11 @@ def test_wind_column_demand_and_bracing(bld):
     cv1 = 1.0 if h / tw <= lim else lim / (h / tw)
     assert sh["capacity"] == pytest.approx(0.90 * 0.6 * Fy * dd * tw * cv1 / 1000, rel=2e-3)
     assert 0 < d["ratio"] < 2
+    # switched off on that wall: the inner flange is braced at the ends only, and the check is worse (negative control)
+    out0 = peb_building(BuildingInput(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter", wc_braces_first=0))
+    meta0, inp0 = next(x for x in wind_column_inputs(out0, LI, {"first": ef}) if x[0]["id"] == "WF3")
+    d0 = _design_row(meta0, inp0)
+    assert inp0.bracing.bottom_flange == () and d0["ratio"] > d["ratio"], (d0["ratio"], d["ratio"])
 
 
 @pytest.mark.slow
