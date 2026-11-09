@@ -813,8 +813,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-09 09:12 on ENG04-PC
-- Did: Field fixes done: drawings settings and export, R1 regression project; next Phase 4 step 5
-- Tests: engine 141 passed, 2 warnings in 390.00s (0:06:30) | app 15 of 15 test files passed
-- Next: Phase 4 step 5 (wind columns, end rafter, bracing, eave struts)
+- When: 2026-11-09 09:43 on ENG04-PC
+- Did: Browser check of the new dialogs; Phase 4 step 5 (wind columns, end rafters, bracing)
+- Tests: engine 146 passed, 2 warnings in 380.35s (0:06:20) | app 15 of 15 test files passed
+- Next: Phase 4 step 6 (purlins, girts, eave struts: AISI S100 from geometry)
 <!-- LAST-SESSION:END -->
