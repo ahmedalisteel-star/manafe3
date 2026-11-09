@@ -366,8 +366,22 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
             M_, nm_, raf_, bas_, el_ = Ms, names, raf_s, bases, el_s
             braces_out = {bid: round(max(0.0, -M_.members[bid].min_axial(combo)) / 1000, 3) for bid in brace_cos}
             slack, h = [], None
+        stations = None
+        if kind == "LRFD":
+            # Phase 4 step 5: the rafter's forces at every element end, for the member checks — [y, P, V, M], kN / kN·m.
+            # Every rafter element runs toward +y (ys ascending) with PyNite's local y up, so its Mz + is tension on the
+            # TOP face; M here is the design sign of bimsteelauto 0.14.1 (+ = top flange in compression) = −Mz. P + =
+            # compression (PyNite's axial sign).
+            stations = []
+            for key, _, _ in raf_:
+                for e_ in el_[key]:
+                    mem = M_.members[e_]
+                    Lm = mem.L()
+                    for xx, nd in ((0.0, mem.i_node), (Lm, mem.j_node)):
+                        stations.append([round(nd.X, 3), round(mem.axial(xx, combo) / 1000, 4), round(mem.shear("Fy", xx, combo) / 1000, 4),
+                                         round(-mem.moment("Mz", xx, combo) / 1e6, 4)])
         res[combo] = {
-            "set": kind,
+            "set": kind, "rafter_stations": stations,
             "reactions": {cid: [round(M_.nodes[b].RxnFX[combo] / 1000, 3), round(M_.nodes[b].RxnFY[combo] / 1000, 3)] for cid, b in bas_.items()},
             "braces": braces_out,                                             # tension, kN
             "slack": slack, "roof_H": None if h is None else round(h, 4),

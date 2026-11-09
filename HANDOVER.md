@@ -23,7 +23,8 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
-the R1 field fixes list done (2026-11-09, below); next: step 5 (wind columns, end rafter, bracing, eave struts).**
+the R1 field fixes list done (2026-11-09, below); step 5 done in the engine (eave struts with step 6); next: step 6
+(purlins / girts / eave struts, AISI S100).**
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -192,7 +193,7 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
 | 2 | Direct Analysis Method for the LRFD set (`engine/analysis/solve.py`): every stiffness × 0.8 (a `FrameAnalysis` subclass scales E and G — bimsteelauto has no stiffness setting), τb = 1 checked by αPr/Pns ≤ 0.5 (else C2.3(c): + 0.001·Yi), notional 0.002·Yi as horizontal twins of every D / C / Lr load in EVERY LRFD combination along its net lateral load (gravity-only: both ways); ASD and cases on the nominal stiffness | **done** — `test_dam.py`: movement × 1.25 with forces unchanged, notional statics longhand, direction, τb by hand, C2.3(c) forced, service set unchanged |
 | 3 | Main frames AISC 360-16: station checks incl. **DG 25** for tapered segments (A) and **E7 / F5 / G2 without TFA** (B), Lb from step 1 along the whole design member | **done** (engine) — `engine/design/frame_checks.py`, `test_frame_checks.py`; limit states longhand in bimsteelauto 0.14.3 – 0.15.1 |
 | 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | **done** (engine) — `engine/design/serviceability.py`, `test_serviceability.py` |
-| 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | longhand per type |
+| 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | **done** (engine) except eave struts (moved to step 6) — `engine/design/secondary_checks.py`, `test_secondary_checks.py` |
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | one line by hand |
 | 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | one member longhand ECP, equations confirmed with the user |
 | 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | converges on building 1, minimums kept |
@@ -295,6 +296,24 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Step 5 — what was built (2026-11-09):** `engine/design/secondary_checks.py` (`secondary_checks(b, li)`), AISC 360-16 LRFD,
+NOT FOR ISSUE.
+- Wind columns: simple beams under C&C wall pressure (LRFD 1.0 W, inward and outward), M(x) = w x (L − x)/2; axial 1.2 × own
+  weight + on an end-rafter wall the frame's largest LRFD column load (envelope, conservative). Outer flange (girt side)
+  braced at every gable girt; INNER flange at the ends only (no flange braces on wind columns) — suction governs (building 1
+  WF3: 0.745, the largest of step 5).
+- End rafters: each half one design member over the wind-column tops; the end-rafter frame now returns the rafter's
+  station forces (`rafter_stations`, design sign = −PyNite Mz, tested: sagging + mid-span, hogging − over a wind column);
+  top flange braced at purlins / eave strut / ridge purlin, bottom at the wind-column tops.
+- Bracing (tension only, the largest LRFD force): rods RD<d> AISC J3.6 / Table J3.2 φ 0.75 × 0.75 Fu Ab and D2-1 on the body;
+  angles L<b>x<t> D2-1 / D2-2 with U = 0.6 (Table D3.1 case 8 placeholder until Phase 5 details the joint, one standard hole),
+  L/r ≤ 300 advisory. Roof / side-wall X from the bracing system, end-wall X from the end-rafter frame.
+- **Eave struts moved to step 6** (Claude's sequencing): their compression check is AISI S100 on a cold-formed C and needs
+  the properties-from-geometry and distortional buckling step 6 builds for the purlins.
+- Building 1 (end-rafter first wall): max 0.745 (WF3), end rafters 0.04, rods 0.26. Tests: rod and angle capacities by hand
+  (r_min against an independent numerical integration), wind-column demand wL²/8 / wL/2 and bracing, shear longhand,
+  end-rafter moment signs and bracing, a rod that must fail, the whole building (slow).
 
 **Step 4 — what was built (2026-11-08):** `engine/design/serviceability.py`, on the SERVICE results (nominal stiffness,
 no notional loads). `ServiceLimits` (editable: sway H/100, rafter L/180, purlins L/150 for step 6, `crane_sway` hook;
