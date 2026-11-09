@@ -117,8 +117,10 @@ def test_whole_building_step5():
     import json
     from engine.design.secondary_checks import BANNER, secondary_checks
     r = secondary_checks(BuildingInput(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter"), LI)
-    assert r["banner"] == BANNER and not r["designed"] and len(r["eave_struts"]) == 8 and r["cold_formed"]["max_ratio"] < 1.0
+    assert r["banner"] == BANNER and not r["designed"] and len(r["eave_struts"]) == 8 and r["cold_formed"]["max_ratio"] > 0
     assert len(r["wind_columns"]) == 5 + 3 and len(r["end_rafters"]) == 2                            # WF1–5 (corners too), WL at 6/12/18 m
     assert {x["what"] for x in r["bracing"]} == {"roof brace", "wall brace", "end-wall brace (first end)"}
-    assert 0 < r["max_ratio"] < 1.0                                                                   # default sizes carry building 1
+    step5 = [x["ratio"] for x in r["wind_columns"] + r["end_rafters"] + r["bracing"]]
+    assert 0 < max(step5) < 1.0                                                                       # default sizes carry building 1
+    assert r["max_ratio"] == max(max(step5), r["cold_formed"]["max_ratio"])                          # cold-formed: strict uplift fails (step 6)
     json.dumps(r)                                                                                     # plain JSON for the API

@@ -183,16 +183,22 @@ def test_eave_strut_by_hand(b1_lines):
     # gravity: 1.2 (D + C) + 1.6 Lr + 0.5 Win, the sheeted (top) flange in compression → Mne = My
     Mg = (1.2 * (D + C) + 1.6 * Lr + 0.5 * Win) * L * L / 8
     phiMg = 0.9 * _dsm_longhand(sd["My"], math.inf, sd["Mcrl"], sd["Mcrd"]) / 1e6
-    # uplift: 0.9 D + 1.0 Wout, the free flange over the 3 m segment: M/Mmax at its quarter points 0.4375, 0.75, 0.9375
+    # uplift: 0.9 D + 1.0 Wout, the free (bottom) flange braced at the supports only — the sag rod at mid-bay does not
+    # hold it (user 2026-11-09): Lb = 6 m, M/Mmax at the quarter points 0.75, 1, 0.75 → Cb = 12.5 / 11
     Mu = abs(0.9 * D + Wout) * L * L / 8
-    Cb = 12.5 / (2.5 + 3 * 0.4375 + 4 * 0.75 + 3 * 0.9375)
-    assert Cb == pytest.approx(1.2987, abs=1e-4)
-    phiMu = 0.9 * _dsm_longhand(sd["My"], Cb * cs.Mcre("C200x65x20x2.0", 350.0, 3000.0), sd["Mcrl"], sd["Mcrd"]) / 1e6
+    Cb = 12.5 / (2.5 + 3 * 0.75 + 4 * 1.0 + 3 * 0.75)
+    assert Cb == pytest.approx(1.13636, abs=1e-4)
+    phiMu = 0.9 * _dsm_longhand(sd["My"], Cb * cs.Mcre("C200x65x20x2.0", 350.0, 6000.0), sd["Mcrl"], sd["Mcrd"]) / 1e6
     ratio = max(Mg / phiMg, Mu / phiMu)
-    assert Mg / phiMg > Mu / phiMu                                   # gravity governs this strut
-    assert r["forces"]["M"] == pytest.approx(Mg, abs=2e-3)
+    assert Mu / phiMu > Mg / phiMg                                   # uplift governs this strut now
+    assert r["forces"]["M"] == pytest.approx(-Mu, abs=2e-3)
     assert r["ratio"] == pytest.approx(ratio, abs=2e-4)
-    assert r["combo"] == "1.2D+1.6Lr+0.5W" and r["x"] == pytest.approx(9000.0)
+    assert r["combo"] == "0.9D+1.0W" and r["x"] == pytest.approx(9000.0)
+    f = next(c for c in r["checks"] if c["name"].startswith("Flexure"))
+    assert "Lb 6000 mm" in f["note"] and "uplift" in f["note"]
+    # the gravity check alone, longhand, against the gravity combination (sheeted flange, Mne = My)
+    rg = check_line(ln, sd, {"LRFD": {"1.2D+1.6Lr+0.5W": COMBOS_ROOF["LRFD"]["1.2D+1.6Lr+0.5W"]}}, 150)
+    assert rg["ratio"] == pytest.approx(Mg / phiMg, abs=2e-4)
     defl = next(x for x in r["checks"] if x["name"].startswith("Deflection"))
     d = 5 * (D + C + Lr) * 6000.0 ** 4 / (384 * 203395.3 * sd["Ix"])  # ASD D + Lr
     assert defl["demand"] == pytest.approx(d, abs=2e-3) and defl["capacity"] == pytest.approx(40.0)
@@ -201,10 +207,11 @@ def test_eave_strut_by_hand(b1_lines):
 def test_supplier_override_and_unknown_key(b1_lines):
     _, lines = b1_lines
     ln = next(x for x in lines if x["id"] == "RA0-2")
-    base = check_line(ln, section_data("C200x65x20x2.0", "S350GD"), COMBOS_ROOF, 150)
+    grav = {"LRFD": {"1.2D+1.6Lr+0.5W": COMBOS_ROOF["LRFD"]["1.2D+1.6Lr+0.5W"]}}       # distortional governs there
+    base = check_line(ln, section_data("C200x65x20x2.0", "S350GD"), grav, 150)
     sd = section_data("C200x65x20x2.0", "S350GD", {"C200x65x20x2.0": {"Mcrd": 10.0e6}})
     assert sd["source"]["Mcrd"] == "supplier" and sd["source"]["Mcrl"].startswith("geometry")
-    worse = check_line(ln, sd, COMBOS_ROOF, 150)
+    worse = check_line(ln, sd, grav, 150)
     assert worse["ratio"] > base["ratio"]
     with pytest.raises(ValueError, match="unknown key"):
         section_data("C200x65x20x2.0", "S350GD", {"C200x65x20x2.0": {"Se": 1.0}})
@@ -227,7 +234,13 @@ def test_whole_building_step6():
     assert len(r["purlins"]) == 20 and len(r["eave_struts"]) == 8 and len(r["girts"]) == 8 and len(r["gable_girts"]) == 10
     allr = [x["ratio"] for g in ("purlins", "eave_struts", "girts", "gable_girts") for x in r[g]]
     assert all(math.isfinite(v) for v in allr)
-    assert r["max_ratio"] == max(allr) and 0.5 < r["max_ratio"] < 1.0
+    # strict (default): under uplift the free flange is braced at the frames only (the sag rods do not hold it) — the
+    # default Z200 / C200 do not carry building 1's uplift that way; by the R-factor (opt-in, R unconfirmed) they do
+    assert r["max_ratio"] == max(allr) and r["max_ratio"] > 1.0
+    assert max(x["ratio"] for x in r["eave_struts"]) > 1.0 and max(x["ratio"] for x in r["purlins"]) > 1.0
+    assert max(x["ratio"] for x in r["girts"]) < 1.0                    # girts never had sag rods: unchanged (0.94)
+    rr = cfs_checks(BuildingInput(**B1), LI, uplift_method="r_factor")
+    assert rr["uplift_method"] == "r_factor" and 0.5 < rr["max_ratio"] < 1.0
     p1 = next(x for x in r["purlins"] if x["id"] == "RA1")
     # a = 2400 (bimsteelauto end_zone_width); per span: the end spans reach into the gable strips
     assert p1["zones"] == ["3", "2", "2", "3"]                         # s 1186: the eave strip — corners at the gable ends

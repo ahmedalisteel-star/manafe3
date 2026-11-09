@@ -31,9 +31,13 @@ Analysis: my own continuous-beam solver (Euler–Bernoulli, exact for uniform lo
     forms and bimsteelauto continuous_beam_forces in the tests); simple supports at every frame / support.
 Strength (AISI S100-16, DSM, Appendix 1 curves from the vendored direct_strength — bimsteelauto's cfs library):
     M + compresses the SHEETED flange (purlin top, girt outer): continuously braced → Mne = My;
-    M − compresses the free flange: braced only at frames, sag-rod rows (roof members) and the line's ends. A sag-rod
-        row counts as a brace point only when it is tied off at the ridge (a ridge tie at that row) AND at the eave (the
-        chain on both slopes reaches the eave strut) — user decision 2026-11-09, checked on the model per row → Mne from Cb · Mcre(Lb), Cb =
+    M − compresses the free flange: braced at frames and the line's ends, and
+        - in the gravity combinations also at the sag-rod rows (roof members), each only when tied off at the ridge (a
+          ridge tie at that row) AND at the eave (the chain on both slopes reaches the eave strut) — user 2026-11-09,
+          checked per row on the model;
+        - under UPLIFT / SUCTION (combinations with Wout) NOT at the sag rods: they sit a third of the depth below the
+          top flange and do not restrain the compression (bottom / inner) flange (user 2026-11-09); only an anti-roll /
+          flange brace on the free flange counts (line["free_flange_braces"] — none generated today) → Mne from Cb · Mcre(Lb), Cb =
         12.5 Mmax / (2.5 Mmax + 3 MA + 4 MB + 3 MC) over the brace segment (F2.1; 1.0 on a cantilever);
     Mn = min(Mnl(Mne), Mnd), φb 0.90; Mcrl, Mcrd, Mcre from cfs_section (geometry, finite strip) or the supplier table.
     Shear: the vendored aisi_s100.shear_strength (kv 5.34, φ 0.90 throughout — its own conservative single pair;
@@ -46,8 +50,8 @@ Deflection: ASD, span / limit (ServiceLimits.purlin, default 150), gross Ix (the
 Uplift by the R-factor (user decision 2026-11-09; option uplift_method="r_factor", the default stays "strict"):
     AISI S100-16 I6.2.1, through-fastened panels: for purlins and girts under uplift / suction (combinations with Wout),
     the free flange in compression between supports: φMn = 0.90 R Se Fy, Se Fy taken as the DSM local strength with
-    Mne = My (Mnlo) — Claude's reading, TO CONFIRM; the larger of this and the brace-point value is used (both are
-    permitted ways — Claude's reading, TO CONFIRM; e.g. a simple-span C200 with R 0.65 is below its sag-rod value). R from R_TABLE — TRANSCRIBED FROM MEMORY, VERIFIED False: the user
+    Mne = My (Mnlo) — Claude's reading, TO CONFIRM; the larger of this and the brace-point value WITHOUT the sag rods
+    (both valid methods — user 2026-11-09). R from R_TABLE — TRANSCRIBED FROM MEMORY, VERIFIED False: the user
     confirms the values from the printed Table I6.2.1-1 before use. Its applicability limits (R_LIMITS, same status) are
     checked per line from the model where the model knows them (depth, d/t, d/b, flange w/t, lips, span, lap ≥ 1.5 d,
     Fy, anti-roll: the sag rods tied off) and listed "to confirm" where it does not (panels, fasteners, insulation,
@@ -105,8 +109,9 @@ R_UNKNOWN = (
 UPLIFT_METHODS = ("strict", "r_factor")
 
 ASSUMPTIONS = (
-    "sag-rod rows are brace points of the purlin section for its free (unsheeted) flange where tied off at the ridge "
-    "and the eave (checked per row on the model); girts have none",
+    "sag-rod rows are brace points of the free flange in the gravity combinations only, where tied off at the ridge and "
+    "the eave (checked per row); under uplift / suction the free flange is braced at the supports and by flange braces "
+    "only (user 2026-11-09); girts have no sag rods",
     "the sheeted flange is continuously braced (Mne = My); distortional buckling without the sheeting's rotational "
     "restraint (k_phi = 0) at its own critical half-wavelength — conservative",
     "lapped Z lines: continuous beams with the lap (two nested sections) at 2 x EI, 2 x the strength in flexure and "
@@ -283,6 +288,9 @@ def _row(name, ref, demand, capacity, unit, note=""):
 def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, uplift_method: str = "strict") -> dict:
     """line: {id, kind, nodes, supports, braces, cases: {D, C, Lr, Win, Wout: [q per element, kN/m]}, P (eave strut, kN)}."""
     nodes, sup, br = line["nodes"], line["supports"], sorted(line["braces"])
+    # under uplift / suction the free flange is braced only where something restrains THAT flange (user 2026-11-09):
+    # the supports, the line's ends and any anti-roll / flange brace on it — never the sag rods near the other flange
+    br_up = sorted(set(sup + [nodes[0], nodes[-1]] + list(line.get("free_flange_braces", []))))
     laps = line.get("laps", [])
     nsec = [2 if any(l0 - 1e-6 <= (nodes[i] + nodes[i + 1]) / 2 <= l1 + 1e-6 for l0, l1 in laps) else 1 for i in range(len(nodes) - 1)]
     EI = [203395.3 * sd["Ix"] * k for k in nsec]
@@ -320,12 +328,14 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
             xs_ = np.array([s[0] for s in st])
             Ms_ = np.array([abs(s[1]) for s in st])
             cbs = {}
+            uplift = "Wout" in fac
+            bp = br_up if uplift else br
             for si, (x, M, V, _) in enumerate(st):
                 ne = nsec[si // NST]
-                k = next((j for j in range(len(br) - 1) if br[j] - 1e-6 <= x <= br[j + 1] + 1e-6), None)
-                Lb = br[k + 1] - br[k] if k is not None else None
+                k = next((j for j in range(len(bp) - 1) if bp[j] - 1e-6 <= x <= bp[j + 1] + 1e-6), None)
+                Lb = bp[k + 1] - bp[k] if k is not None else None
                 if k is not None and k not in cbs:
-                    a_, b_ = br[k], br[k + 1]
+                    a_, b_ = bp[k], bp[k + 1]
                     inside = (xs_ >= a_ - 1e-6) & (xs_ <= b_ + 1e-6)
                     Mmax = float(Ms_[inside].max()) if inside.any() else 0.0
                     MA, MB, MC = (float(np.interp(a_ + f * (b_ - a_), xs_, Ms_)) for f in (0.25, 0.5, 0.75))
@@ -333,9 +343,9 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
                     cbs[k] = 1.0 if cant or Mmax <= 0 else 12.5 * Mmax / (2.5 * Mmax + 3 * MA + 4 * MB + 3 * MC)
                 fc = flexure_capacity(sd, M, Lb, cbs.get(k, 1.0), ne)
                 rnote = ""
-                if use_r and M < 0 and "Wout" in fac and sup[0] - 1e-6 <= x <= sup[-1] + 1e-6:
+                if use_r and M < 0 and uplift and sup[0] - 1e-6 <= x <= sup[-1] + 1e-6:
                     phiR = ne * PHI_B * rf["R"] * Mnlo
-                    if phiR > fc["phiMn"]:                 # either way is permitted: the larger (Claude's reading, TO CONFIRM)
+                    if phiR > fc["phiMn"]:                 # two valid methods (the brace-point one without sag rods): the larger
                         fc = {**fc, "phiMn": phiR, "note": ""}
                         rnote = f"R-factor I6.2.1: R {rf['R']:g} × Se Fy (= Mnlo), R VERIFIED False; above the brace-point value"
                 rows = []
@@ -346,7 +356,8 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
                     rows.append({**_row("Axial + bending (H1.2, B1 · M)", "AISI S100-16 H1.2, App. 1 (DSM)", r_int, 1.0, "-",
                                         f"P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN (Pcre at the bay), B1 {B1:.3f}")})
                 rows.append(_row("Flexure (DSM)", "AISI S100-16 App. 1 1.2.2 (F)", abs(M) / 1e6, fc["phiMn"] / 1e6, "kN·m",
-                                 ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}")
+                                 ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}"
+                                  + (" (uplift: braced at supports / flange braces only)" if uplift else ""))
                                  + (", lap: 2 sections" if ne == 2 else "") + (" — " + fc["note"] if fc["note"] else "")))
                 rows.append(_row("Shear", "AISI S100-16 G2 (vendored, φ 0.90)", abs(V) / 1e3, ne * phiV / 1e3, "kN"))
                 if Mnlo:

@@ -375,15 +375,20 @@ inside `secondary_checks` (its `cold_formed` entry; `eave_struts` there are now 
 - **R-factor (user decision 2026-11-09, built):** `cfs_checks(..., uplift_method="r_factor")` (default stays "strict"):
   AISI S100-16 I6.2.1 for purlins and girts under uplift / suction (combinations with Wout), free flange between supports,
   φMn = 0.90 R Se Fy with Se Fy taken as the DSM Mnlo (Claude's reading, TO CONFIRM); the LARGER of this and the
-  brace-point value is used (both permitted — Claude's reading, TO CONFIRM; a simple-span C200 at R 0.65 is below its
-  sag-rod value). **R table and limits TRANSCRIBED FROM MEMORY — `R_VERIFIED = False`; the user confirms them from the
+  brace-point value WITHOUT the sag rods (user 2026-11-09: taking the larger is fine only between two valid methods). **R table and limits TRANSCRIBED FROM MEMORY — `R_VERIFIED = False`; the user confirms them from the
   printed Table I6.2.1-1** (`R_TABLE`, `R_LIMITS` in `cfs_checks.py`): simple span C/Z 0.70 (d ≤ 6.5 in), 0.65 (≤ 8.5 in),
   C 0.40 / Z 0.50 (≤ 11.5 in); continuous C 0.60, Z 0.70; limits d ≤ 11.5 in, 60 ≤ d/t ≤ 170, 2.8 ≤ d/b ≤ 5.5,
   16 ≤ flange flat w/t ≤ 43, span ≤ 33 ft, lap ≥ 1.5 d each side of every interior support, Fy ≤ 60 ksi. Every line
   reports R and each limit (value, ok) in both modes, plus anti-roll (sag rods tied off) for roof lines; what the model
   cannot know is listed "to confirm" (flanges held at the supports, panel steel / thickness / ribs, fasteners,
-  insulation). A line failing a checkable limit falls back to the strict rule. Building 1: strict max 0.94 → R-factor
-  0.73 (purlins 0.78 → 0.67, girts 0.94 → 0.66). Also open: whether the inflection point may count as a brace point in
+  insulation). A line failing a checkable limit falls back to the strict rule.
+- **Uplift brace points (user decision 2026-11-09):** under uplift / suction (combinations with Wout) the sag rods do NOT
+  brace the compression (bottom / inner) flange — they sit a third of the depth below the top flange. The free flange
+  is then braced at the supports, the line's ends and only by an anti-roll / flange brace on THAT flange
+  (`line["free_flange_braces"]`, none generated today). The tied-off sag rows still count in the gravity combinations.
+  **Building 1 now: strict max 2.13 (eave struts 2.13, purlins 1.78: free flange over the whole 6 m bay; girts 0.94
+  unchanged); R-factor 0.73 (purlins 0.67, eave struts 0.60, girts 0.66).** The bay-2 eave strut longhand test now has
+  uplift governing: Lb 6 m, Cb = 12.5 / 11, ratio 1.82. Also open: whether the inflection point may count as a brace point in
   the gravity hogging zone (not used now).
 - Not checked yet (gaps, stated): minor-axis bending (the slope component to the sag rods, girt self weight), web
   crippling at the cleats, purlins acting as roof-bracing struts (axial), sheeting / fastener checks.
