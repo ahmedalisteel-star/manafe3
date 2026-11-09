@@ -10,6 +10,7 @@ form, and every member carries `designed: False` until Phases 3-4:
     rafter           hw_rafter, constant to the ridge; split into equal segments when longer than 12 m (transport)
     flanges          span ≤ 20 m 200×10, ≤ 30 m 250×12, else 300×16 — the same plates on every member (splice rule)
     web thickness    6 mm if the segment's deepest web ≤ 600 mm, else 8 mm;  grade S355
+                     (Phase 4 step 8: tw_column / tw_haunch / tw_rafter override the rule per member kind — the sizing loop)
 Geometry (Manafe3 axes: X along the building, Y across the span, Z up; mm):
     column lines A (y = 0) and B (y = span) are the columns' OUTER flange faces; "straight top" with the column turned so
     the section hangs into the building (rotation 270 on A, 90 on B); the column top follows the roof line (end cut −slope)
@@ -37,6 +38,9 @@ class BuiltUpSizes:
     bf: float
     tf: float
     grade: str = "S355"
+    tw_column: float | None = None      # None → web_t(the segment's deepest web)
+    tw_haunch: float | None = None
+    tw_rafter: float | None = None
 
 
 def default_sizes(span: float) -> BuiltUpSizes:
@@ -53,20 +57,20 @@ def _r(v: float) -> float:
     return round(v + 0.0, 3)
 
 
-def _seg(length: float, hw0: float, hw1: float, z: BuiltUpSizes) -> dict:
-    return dict(length=_r(length), hw_start=_r(hw0), hw_end=_r(hw1), tw=web_t(max(hw0, hw1)),
+def _seg(length: float, hw0: float, hw1: float, z: BuiltUpSizes, tw: float | None = None) -> dict:
+    return dict(length=_r(length), hw_start=_r(hw0), hw_end=_r(hw1), tw=float(tw) if tw else web_t(max(hw0, hw1)),
                 bf_top=z.bf, tf_top=z.tf, bf_bot=z.bf, tf_bot=z.tf, grade=z.grade, straight="top")
 
 
-def _split(length: float, hw: float, z: BuiltUpSizes) -> list[dict]:
+def _split(length: float, hw: float, z: BuiltUpSizes, tw: float | None = None) -> list[dict]:
     n = max(1, math.ceil(length / MAX_SEGMENT - 1e-9))
-    return [_seg(length / n, hw, hw, z) for _ in range(n)]
+    return [_seg(length / n, hw, hw, z, tw) for _ in range(n)]
 
 
-def _taper_split(length: float, hw0: float, hw1: float, z: BuiltUpSizes) -> list[dict]:
+def _taper_split(length: float, hw0: float, hw1: float, z: BuiltUpSizes, tw: float | None = None) -> list[dict]:
     """A tapered run cut into equal segments no longer than 12 m (the web stays linear: equal webs at each splice)."""
     n = max(1, math.ceil(length / MAX_SEGMENT - 1e-9))
-    return [_seg(length / n, hw0 + (hw1 - hw0) * i / n, hw0 + (hw1 - hw0) * (i + 1) / n, z) for i in range(n)]
+    return [_seg(length / n, hw0 + (hw1 - hw0) * i / n, hw0 + (hw1 - hw0) * (i + 1) / n, z, tw) for i in range(n)]
 
 
 def builtup_frame_members(span: float, eave: float, slope: float, x: float, line: str, z: BuiltUpSizes) -> list[dict]:
@@ -78,8 +82,8 @@ def builtup_frame_members(span: float, eave: float, slope: float, x: float, line
     rafter_len = math.hypot(span / 2.0 - y0, apex[2] - z0)
     if z.haunch_length >= rafter_len:
         raise ValueError(f"the haunch ({z.haunch_length:g} mm) must be shorter than the rafter ({rafter_len:.0f} mm)")
-    col_segs = _taper_split(eave, z.hw_base, z.hw_knee, z)
-    raf_segs = [_seg(z.haunch_length, z.hw_knee, z.hw_rafter, z)] + _split(rafter_len - z.haunch_length, z.hw_rafter, z)
+    col_segs = _taper_split(eave, z.hw_base, z.hw_knee, z, z.tw_column)
+    raf_segs = [_seg(z.haunch_length, z.hw_knee, z.hw_rafter, z, z.tw_haunch)] + _split(rafter_len - z.haunch_length, z.hw_rafter, z, z.tw_rafter)
     out = []
     for side, y_col, rot, y_raf in (("A", 0.0, 270.0, y0), ("B", span, 90.0, span - y0)):
         out.append(dict(id=f"F{line}-C{side}", role="column", frame_line=line, side=side, rotation=rot,

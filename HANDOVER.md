@@ -26,7 +26,8 @@ in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 
 the R1 field fixes list done (2026-11-09, below); step 5 done in the engine; step 6 (purlins / girts / eave struts,
 AISI S100-16 DSM, properties and buckling from the geometry) done in the engine, with the user's decisions (R-factor,
 zones by slope, tied-off sag rods); step 7 (ECP 205-LRFD side by side, main frames) done in the engine — its K chart
-and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrfd; next: step 8 (sizing loop).**
+and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrfd; step 8 (sizing loop) done in the engine; next: step 9
+(browser "Design…" and the project design settings).**
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -198,7 +199,7 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | **done** (engine) except eave struts (moved to step 6) — `engine/design/secondary_checks.py`, `test_secondary_checks.py` |
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | **done** (engine) incl. eave struts — `engine/design/cfs_section.py`, `cfs_checks.py`, `test_cfs.py` (one line by hand: the bay-2 eave strut) |
 | 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | **done** (engine, main frames) — `engine/design/ecp_checks.py`, `test_ecp_checks.py` (column A of line 3 longhand); equations to confirm with the user listed below |
-| 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | converges on building 1, minimums kept |
+| 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | **done** (engine) — `engine/design/sizing.py`, `test_sizing.py`: building 1 converges, minimums kept |
 | 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
 | 10 | HANDOVER, `end-work.ps1` | |
 
@@ -298,6 +299,32 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Step 8 — what was built (2026-11-09):** `engine/design/sizing.py`. NOT FOR ISSUE.
+- **Main frames** (`size_frames(b, li, code="AISC"|"ECP", stability="dg25", target=0.90)`): the generator's own
+  parameters (BuiltUpSizes, the same on every frame line): bf, tf (one flange plate on every member — the splice rule),
+  hw_knee, hw_base, hw_rafter, and NEW web overrides `tw_column / tw_haunch / tw_rafter` (None keeps the 6 / 8 mm rule).
+  Lists: plates 6 … 25 (web ≥ 6, flange ≥ 8), widths 150 … 300, depths in 25 mm steps; hw_base, hw_rafter ≥ 300 and ≤
+  hw_knee; haunch length and grade as given. The loop: analyse every DISTINCT frame line (the governing code's own
+  solve) and check it fully with serviceability; on those forces held (stations scaled to the new member lengths) quick
+  checks on each member's governing combinations (top 3 |M|, top 2 P): raise the variable with the best ratio drop per
+  kg until ≤ target, then lower the biggest savings while ≤ target; serviceability above the target steered by the knee
+  + rafter I; re-analyse; stop when the sizes repeat (an oscillation ends with the lightest full-checked set ≤ 1.00); at
+  most 8 rounds. The reported result is always the FULL check.
+- **Building 1** (V 45, C; AISC, prismatic in the test): 6 rounds, ~4 min — knee 475, base 300, rafter 300, flanges
+  200×10, webs 6 / 6 / 6: full ratio 0.893, serviceability 0.80, **1669 kg per frame (defaults 2551 kg, ratio 0.39)**.
+- **Cold-formed roles** (`size_cold_formed`): purlin, eave strut, girt — one profile each, building-wide — the lightest of
+  Claude's ladder (the generated flange and lip kept; depths 150 … 300 × t 1.5 … 3.0, by area; no supplier catalogue
+  yet) ≤ 0.90. **Sized by the R-FACTOR mode (user decision 2026-11-09: industry practice), with the strict-rule ratio of
+  the chosen profile beside it; the R-factor results are NOT FOR ISSUE until the user confirms the R values from the
+  printed AISI S100-16 Table I6.2.1-1** (banner on the result). Building 1: purlin Z250x65x20x1.5 (0.89), eave strut
+  C200x65x20x1.8 (0.70), girt Z225x65x20x1.5 (0.85); by the strict rule it would take Z300x65x20x2.5 / C300x65x20x3 /
+  Z300x65x20x1.5. A profile outside the R-factor limits (e.g. Z175: d/b 2.69 < 2.8) falls back to the strict rule.
+- Not yet: the sizes are not written back into the model (step 9 wires "Design…"); wind columns / end rafters are not
+  sized (their sections are fixed constants today).
+- Tests (`test_sizing.py`, 7): the ladders and minimums, the web overrides, one frame's weight by hand, the force remap,
+  the cold-formed ladder order, building 1 converges with every plate on its list (slow), the cold-formed sizing by
+  R-factor with the strict ratio beside it and the banner (slow).
 
 **Step 7 — what was built (2026-11-09):** `engine/design/ecp_checks.py`, main-frame columns and rafters to ECP 205-LRFD (2008)
 through the user's **ecp205-lrfd** library (git dependency pinned at 7c459d7, `main`; MIT; ton / cm / t/cm² inside, ONE
@@ -862,6 +889,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`; own code All rights reserved.)
 
 ## Roadmap (do NOT build ahead of the current phase)
+- Sizing loop: different flange plates per segment (column / haunch / rafter) for lighter frames (user, 2026-11-09 —
+  roadmap, not now; the generator's splice rule keeps one flange plate today).
 
 - **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
 - **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames) — **DONE 2026-11-05**
@@ -926,7 +955,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-09 15:17 on ENG04-PC
-- Did: Phase 4 step 7: ECP 205-LRFD main-frame checks side by side (ecp205-lrfd pinned, own nominal P-Delta solve, sway K chart); step 6 decisions
-- Tests: engine 169 passed, 2 warnings in 477.54s (0:07:57) | app 15 of 15 test files passed
+- When: 2026-11-09 16:00 on ENG04-PC
+- Did: Phase 4 step 8: sizing loop (main frames to target 0.90 with re-analysis; cold-formed roles by R-factor with the strict ratio beside, NOT FOR ISSUE)
+- Tests: engine 176 passed, 2 warnings in 684.45s (0:11:24) | app 15 of 15 test files passed
 <!-- LAST-SESSION:END -->
