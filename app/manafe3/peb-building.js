@@ -75,7 +75,10 @@ export function parseBayList(text, grids) {
   const s = String(text || '').trim();
   if (!s) return null;
   const range = s.match(/^(\S+?)\s*(?:-|–|to)\s*(\S+)$/i);
-  if (range && !/^[\d.]+$/.test(range[1])) {
+  // a range of grid labels — numbered rows too ("14-7"): spacings never contain a dash, so it is a range whenever both
+  // labels are on one axis; otherwise a non-numeric range is refused
+  const onAxis = range && ['x', 'y'].some((ax) => (grids?.[ax] || []).some((g) => g.label === range[1]) && (grids?.[ax] || []).some((g) => g.label === range[2]));
+  if (range && (onAxis || !/^[\d.]+$/.test(range[1]))) {
     const [, a, b] = range;
     for (const axis of ['x', 'y']) {
       const lines = [...(grids?.[axis] || [])].sort((p, q) => p.at - q.at);

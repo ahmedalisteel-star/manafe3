@@ -23,9 +23,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
-next: the field fixes list (below), then step 5.**
+the R1 field fixes list done (2026-11-09, below); next: step 5 (wind columns, end rafter, bracing, eave struts).**
 
-## Field fixes from the first real project (R1) — in progress (2026-11-08)
+## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
 The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 agent API → P3 crane → P4 concrete → P7 drawings
 → regression project R1), worked in that order; Phase 4 resumes at step 5 afterwards. Tests: `tests/bin/test-manafe3-fieldfixes.mjs`.
@@ -125,6 +125,43 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
 - **22:** GA elevations on all grid lines in both directions - already so in the drawing set (tested with item 17).
 - **20, 21, 25 -> Phase 6** (the brief's fallback): GA-00 3D view sheet with area labels and steel summary, the typical
   frame section sheet per building, and the "Approval set" / "Shop drawings" presets.
+
+### Field fixes — status
+
+| Item | Status | Where / why |
+|---|---|---|
+| 1 grids none / merge / replace | done | peb-building.js `mergeLines`; levels merged |
+| 2 weight by material | done | materials.js; concrete as m³, never steel kg |
+| 3 refresh on load | done | panels.js; Name field forced |
+| 4 move / rotate / mirror | done | transform already right; CFC mirror fixed |
+| 5 placement origin + rotation | done | `placementXf`; grids for multiples of 90° only |
+| 6 uneven bays / from site grids | done | engine `bays`; "A-L", "14-7" |
+| 7 span reference | done | engine `resolve()`: outside / centreline / grid |
+| 8 several buildings | done | `m3buildings`, gen `peb:<id>`; Properties-panel button not built (picker instead) |
+| 9 footings / remove orphans | done | peb-footings.js |
+| 10 base plates + anchor sheet | done | base section stand-in; placeholders |
+| 11, 12 crane runway, built-up girders | done | crane.js; R1 block 2 checked |
+| 13 crane warning | done | build problems + Analysis note |
+| 14 metric rebar, C-grades | done | units.js, Job units… |
+| 15 RC member type | roadmap | warning / weight / clash exclusion done with 2 |
+| 16 clash groups + generated filter | done | clash-groups.js; + true web strips (327 → 260 false clashes gone) |
+| 17 elevations on lettered grids | done | views.js, view3d x-axis elevations |
+| 18, 19, 23, 24 drawings | done | drawings.js settings, drawings-ui.js |
+| 22 elevations all grid lines | done | already in the drawing set |
+| 20, 21, 25 | moved to Phase 6 | 3D sheet, typical frame sheet, presets |
+| 26 agent tools | done | agent-tools.js (assistants still off by default: the person's switch) |
+| 27 model.replace | done | model.js |
+| R1 regression | done | tests/bin/test-manafe3-r1.mjs |
+
+**R1 (2026-11-09):** both blocks rebuilt from engine fixtures (`fixtures/manafe3/r1-block1.json`, `r1-block2.json`) on the
+site grids — bays from the grids, span read as COLUMN CENTRELINES (27.6 / 28.9 m c/c — **to confirm with the user**),
+girts from +4.00. Every frame column on its grid intersection, no grid line added, crane runway on block 2 with no clash
+against the tapered columns, no concrete in the steel. Totals with the engine's span-rule placeholder sizes (NOT designed;
+no footings, base plates or connections): Store 19.4 t, F&S-1 27.3 t, F&S-2 54.7 t incl. crane 8.4 t — **101.4 t =
+36.4 kg/m²** over 2 788.5 m² (the user's earlier baseline 86.5 t / 31.0 kg/m² came from different placeholder sizes).
+Expect a change again once Phase 4 sizing is in.
+Not checked in a browser this round: the new dialogs (Building picker / placement, Crane runway…, Job units…, the Drawings
+panels) — their logic is tested in Node; open them once in the app before relying on them.
 
 ### Phase 4 plan (approved 2026-11-08)
 
