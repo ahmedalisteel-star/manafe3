@@ -152,6 +152,11 @@ wheels = [
 ]
 
 [[package]]
+name = "ecp205-lrfd"
+version = "0.1.0"
+source = { git = "https://github.com/ahmedalisteel-star/ecp205-lrfd?rev=7c459d70b676d2940137a097d057774dc4950e85#7c459d70b676d2940137a097d057774dc4950e85" }
+
+[[package]]
 name = "executing"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -353,6 +358,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "anastruct" },
     { name = "bimsteelauto" },
+    { name = "ecp205-lrfd" },
     { name = "fastapi" },
     { name = "pynitefea" },
     { name = "uvicorn" },
@@ -369,6 +375,7 @@ dev = [
 requires-dist = [
     { name = "anastruct", specifier = ">=1.6" },
     { name = "bimsteelauto", git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=ad33eb64d66bfa6eaa7add58995a81ac955e0e84" },
+    { name = "ecp205-lrfd", git = "https://github.com/ahmedalisteel-star/ecp205-lrfd?rev=7c459d70b676d2940137a097d057774dc4950e85" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pynitefea", specifier = "==3.0.0" },
     { name = "uvicorn", specifier = ">=0.30" },

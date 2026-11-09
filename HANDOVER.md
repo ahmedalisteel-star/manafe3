@@ -24,8 +24,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
 the R1 field fixes list done (2026-11-09, below); step 5 done in the engine; step 6 (purlins / girts / eave struts,
-AISI S100-16 DSM, properties and buckling from the geometry) done in the engine; next: step 7 (ECP 205-LRFD side by
-side, from the ecp205-lrfd dependency).**
+AISI S100-16 DSM, properties and buckling from the geometry) done in the engine, with the user's decisions (R-factor,
+zones by slope, tied-off sag rods); step 7 (ECP 205-LRFD side by side, main frames) done in the engine — its K chart
+and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrfd; next: step 8 (sizing loop).**
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -196,7 +197,7 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
 | 4 | Serviceability (ASD): sway H/100, rafter L/180 under Lr; editable; crane hook | **done** (engine) — `engine/design/serviceability.py`, `test_serviceability.py` |
 | 5 | Wind columns (C&C), end rafter, side- and end-wall bracing, eave struts | **done** (engine) except eave struts (moved to step 6) — `engine/design/secondary_checks.py`, `test_secondary_checks.py` |
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | **done** (engine) incl. eave struts — `engine/design/cfs_section.py`, `cfs_checks.py`, `test_cfs.py` (one line by hand: the bay-2 eave strut) |
-| 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | one member longhand ECP, equations confirmed with the user |
+| 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | **done** (engine, main frames) — `engine/design/ecp_checks.py`, `test_ecp_checks.py` (column A of line 3 longhand); equations to confirm with the user listed below |
 | 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | converges on building 1, minimums kept |
 | 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
 | 10 | HANDOVER, `end-work.ps1` | |
@@ -297,6 +298,35 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Step 7 — what was built (2026-11-09):** `engine/design/ecp_checks.py`, main-frame columns and rafters to ECP 205-LRFD (2008)
+through the user's **ecp205-lrfd** library (git dependency pinned at 7c459d7, `main`; MIT; ton / cm / t/cm² inside, ONE
+boundary in `ecp_checks`: kN ÷ 9.80665, kN·m × 100 / 9.80665, MPa ÷ 98.0665, mm ÷ 10). NOT FOR ISSUE.
+- **User decisions (2026-11-09):** (1) the SAME ASCE 7-16 LRFD combinations as the AISC side — ECP checks the resistance
+  side only; ECP 201 stays refused. (2) Its OWN second-order solve (`ecp_solve`): nominal stiffness, P-Δ, ≥ 4 elements,
+  NO notional loads (no B2 on top); in-plane K of the columns from the sway alignment chart. (3) Class 3 sections,
+  unequal flanges and h/tw > 260 read NOT EVALUATED (ratio inf) until ch. 6 (slender webs, effective properties) and
+  mono-symmetric I flexure are added to ecp205-lrfd on a branch and confirmed by the user from the printed code.
+- **Claude's readings — TO CONFIRM with the user against the printed ECP 205 (`ecp_checks.VERIFIED`, all False):**
+  the sway chart as the Jackson–Mooreland equation (GA GB (π/K)² − 36) / (6 (GA + GB)) = (π/K) / tan(π/K) (cl. 2.2.1.3 /
+  its figure); G at the knee = (Ic/Lc) / (Ir/Lr) with the column's LARGEST I, the rafter's SMALLEST I and Lr = the whole
+  sloping rafter (both halves — symmetric sway); G base 10 pinned / 1 fixed; rafters K = 1 over knee-to-ridge; out of
+  plane K = 1 between FULL brace points (purlin / girt AND a flange brace at the same point, ± 50 mm, plus the ends — on
+  building 1 the rafter's out-of-plane length is 8.48 m, conservative); a tapered member's φPn = the smallest over 21
+  stations of its own section.
+- Checks (library functions, clause on every row): Table 2.12 classification (welded), cl. 4.2 compression (φ 0.80, Q),
+  cl. 5.1.3 flexure (φ 0.85; Lb = the compression flange's brace segment, Cb eq. 5.2 from that segment's quarter-point
+  moments), cl. 5.2.2 shear (Aw = d tw), cl. 7.1 eq. 7.1a / 7.1b (tension: cl. 7.3 with cl. 3.1, Ae = Ag).
+- `side_by_side(aisc, ecp, governing="AISC"|"ECP")` and `frame_line_both(b, li, i, governing=)` (both solves, both
+  checks). The governing code becomes a project setting in step 9.
+- Building 1, frame line 3 (V 45, C): ECP columns 0.561 / rafters 0.486 against AISC 0.351 / 0.329; column K = 3.41
+  (pinned base, G_top from the knee), φPn governed by in-plane elastic buckling at the base section.
+- Not yet on the ECP side: wind columns, end rafters, bracing, cold-formed members (ECP ch. 13 is not in the library;
+  AISI stays for those).
+- Tests (`test_ecp_checks.py`, 7): the K chart's limits (1.0, 2.0, 1.32 at G = 1), the unit boundary, the ECP solve has no
+  notional twins and differs from the DAM solve, **column A of line 3 longhand** (λc, eq. 4.2 / 4.3 with Q over every
+  station; class 2 eq. 5.16 with Mp ≤ 1.5 My and Mr = 0.6 Fy Sx; eq. 7.1a / 7.1b), a class 3 section and unequal flanges
+  NOT EVALUATED, both codes on a whole frame line (slow).
 
 **Step 6 — what was built (2026-11-09):** purlins, ridge purlins, side-wall girts, gable girts and eave struts, AISI S100-16
 by the Direct Strength Method, LRFD strength + ASD deflection, NOT FOR ISSUE. `cfs_checks(b, li, supplier=, limits=)`; also
@@ -891,7 +921,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-09 14:05 on ENG04-PC
-- Did: Phase 4 step 6: purlins, girts, gable girts and eave struts to AISI S100-16 (DSM) with properties and finite-strip buckling from the geometry
-- Tests: engine 159 passed, 2 warnings in 438.10s (0:07:18) | app 15 of 15 test files passed
+- When: 2026-11-09 15:17 on ENG04-PC
+- Did: Phase 4 step 7: ECP 205-LRFD main-frame checks side by side (ecp205-lrfd pinned, own nominal P-Delta solve, sway K chart); step 6 decisions
+- Tests: engine 169 passed, 2 warnings in 477.54s (0:07:57) | app 15 of 15 test files passed
 <!-- LAST-SESSION:END -->

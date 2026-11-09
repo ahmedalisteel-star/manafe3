@@ -16,6 +16,8 @@ dependencies = [
     "anastruct>=1.6",
     # the engineering engine (public, MIT), a git dependency pinned to one commit in [tool.uv.sources]
     "bimsteelauto",
+    # ECP 205-LRFD member checks (the user's library, MIT), a git dependency pinned to one commit in [tool.uv.sources]
+    "ecp205-lrfd",
 ]
 
 [dependency-groups]
@@ -31,6 +33,7 @@ package = false
 
 [tool.uv.sources]
 bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "ad33eb64d66bfa6eaa7add58995a81ac955e0e84" }  # main: 0.15.1 DG 25 nonprismatic (opt-in, other-flange restraints), 0.14.3 E7 (2026-11-08)
+ecp205-lrfd = { git = "https://github.com/ahmedalisteel-star/ecp205-lrfd", rev = "7c459d70b676d2940137a097d057774dc4950e85" }  # main: 0.1.0 + cl. 4.3 flexural-torsional (2026-11-09)
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]
