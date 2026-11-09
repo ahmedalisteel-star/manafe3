@@ -154,14 +154,17 @@ The user's list (P1 bugs → P2 PEB generator → P5 clash → P6 views → P8 a
 | R1 regression | done | tests/bin/test-manafe3-r1.mjs |
 
 **R1 (2026-11-09):** both blocks rebuilt from engine fixtures (`fixtures/manafe3/r1-block1.json`, `r1-block2.json`) on the
-site grids — bays from the grids, span read as COLUMN CENTRELINES (27.6 / 28.9 m c/c — **to confirm with the user**),
+site grids — bays from the grids, span = COLUMN CENTRE TO CENTRE (27.6 / 28.9 m; CONFIRMED by the user 2026-11-09),
 girts from +4.00. Every frame column on its grid intersection, no grid line added, crane runway on block 2 with no clash
 against the tapered columns, no concrete in the steel. Totals with the engine's span-rule placeholder sizes (NOT designed;
 no footings, base plates or connections): Store 19.4 t, F&S-1 27.3 t, F&S-2 54.7 t incl. crane 8.4 t — **101.4 t =
 36.4 kg/m²** over 2 788.5 m² (the user's earlier baseline 86.5 t / 31.0 kg/m² came from different placeholder sizes).
 Expect a change again once Phase 4 sizing is in.
-Not checked in a browser this round: the new dialogs (Building picker / placement, Crane runway…, Job units…, the Drawings
-panels) — their logic is tested in Node; open them once in the app before relying on them.
+Browser check (2026-11-09, headless Chrome, `node tools/manafe3-smoke.mjs` with the app running): Building… (placement,
+pads, a second building at 90°, the picker), Crane runway…, Job units…, base plates / footing clean-up, the Analysis
+picker, the Drawings settings and tick-box export (PDF and DXF zip) and the Elevation view on an x grid line all work with
+no page error. The 4 load messages are not Manafe3's: the offline bootstrap-icons stylesheet and three upstream shell
+scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addons-account.js).
 
 ### Phase 4 plan (approved 2026-11-08)
 
