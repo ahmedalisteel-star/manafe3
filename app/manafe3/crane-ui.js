@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * crane-ui.js — PEB › "Crane runway…" (field fixes 11–13): one form per building; the mapping is crane.js.
  *   mountCrane({ model: () => Model, edit(label, fn), print(msg) })

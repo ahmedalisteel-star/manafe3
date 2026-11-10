@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Field fixes 6 (uneven bays) and 7 (span reference) — engine/peb/building.py resolve(); values by hand.
 
     bays        R1 block 1's site spacings 6600 6000 6000 6500 6000 5500 6000 6000 6000 5400 (A … L, 60 000 mm): the frame

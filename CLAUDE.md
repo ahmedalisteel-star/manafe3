@@ -33,7 +33,8 @@ changing anything.
 - Visible names are **Manafe3** (TRADEMARKS.md). After merging an upstream release run
   `node tools/manafe3-rebrand.mjs`, then `npm test`. Never show "DetailCraft"/"CadCraft" as our product name.
 - No code from proprietary software or GPL/LGPL/MPL projects (CONTRIBUTING.md "Clean room"). Permissive deps only.
-- Our own new code: header `Copyright (c) 2026 Ahmed Ali. All rights reserved.`
+- Our own new code: header `Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).`
+  (the repository is public and all of it is Apache-2.0 — user decision 2026-11-10)
 
 ## Working agreements (from BIMSteelAuto — not optional)
 - **VERIFIED flags:** a number is verified only by an independent source (another tool, another implementation or

@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * drawings-ui.js — two panels added to the Drawings dialog (field fixes 18, 19, 23, 24), from JS (no ui.inc edit):
  *   "Drawing settings"  readability (text, dimension text, line weights, hide marks on GA plans), the GA paper, the title

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 6: cold-formed sections from geometry, the finite strip, purlin / girt / eave-strut lines — independent checks.
 
     finite strip   a flat plate, both long edges supported (w = 0): the minimum over the half-wavelength is k = 4.00 at a = b

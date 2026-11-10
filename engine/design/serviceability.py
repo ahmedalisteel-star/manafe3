@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 4: serviceability of the main frames — from the service (nominal stiffness, no notional loads) results
 of analyse_frame_line; limits editable per job (user decision 2026-11-08).
 

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 8: the sizing loop for the main frames (and the cold-formed roles). NOT FOR ISSUE.
 
 Decisions (user, 2026-11-08): target utilisation 0.90, never above 1.00; plates 6, 8, 10, 12, 14, 16, 18, 20, 22, 25 mm
@@ -140,7 +140,10 @@ def _solve(args):
 def distinct_lines(b: BuildingInput, li, sec: dict) -> list[list[int]]:
     """Frame lines (0-based) grouped by identical loads: one solve per group."""
     groups: dict = {}
-    for i in range(len(b.frame_xs())):
+    n = len(b.frame_xs()) - 1
+    for i in range(n + 1):
+        if (i == 0 and b.end_first == "rafter") or (i == n and b.end_last == "rafter"):
+            continue                                     # an end-rafter wall: no main frame on that line
         _, fl = _line_setup(b, li, i, sec, 0.10)
         groups.setdefault(_signature(fl), []).append(i)
     return list(groups.values())

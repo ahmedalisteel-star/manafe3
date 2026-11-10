@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 2: purlin and girt lines against hand values.
 
 Building 1: span 24 000, eave 6 000, slope 0.1, length 24 000, defaults (spacing 1 250, eave strut s = 0, ridge 200 from apex,

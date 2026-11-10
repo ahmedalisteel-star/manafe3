@@ -1,4 +1,4 @@
-# Manafe3: start a work session on this PC. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3: start a work session on this PC. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 #   powershell -ExecutionPolicy Bypass -File .\start-work.ps1          (or .\start-work.ps1 if scripts are allowed)
 #   -SkipTests   pull and sync only
 # Steps: git pull -> uv sync -> tests (engine pytest + npm test) -> print the current task from HANDOVER.md.

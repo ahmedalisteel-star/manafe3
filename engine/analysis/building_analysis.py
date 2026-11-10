@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 8 (engine side): the whole building's analysis, on demand (results are not stored in the model).
 
     frame lines   every main frame line (step 4) with the model's secondary steel weighed into case D

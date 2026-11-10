@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * crane.js — the crane runway of a PEB building: GEOMETRY ONLY (field fixes 11, 12, 13). DOM-free.
  * Crane loads, the analysis and the design of girders and brackets stay on the roadmap (Phase 4+).

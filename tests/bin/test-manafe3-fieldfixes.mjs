@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * Field fixes from the first real project (R1) — one section per item, values by hand.
  *

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 3: loads on the frames — building 1 (span 24 000, eave 6 000, slope 0.1, 4 bays of 6 000), V 45 m/s,
 exposure C, enclosed, roof secondary 0.05 kN/m² (given), single-skin sheeting 0.07.
 

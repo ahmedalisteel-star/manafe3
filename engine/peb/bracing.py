@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 4: sag rods, X-bracing, flange braces. Geometry only, NOT designed (Phase 4).
 
 User decisions (2026-11-05):

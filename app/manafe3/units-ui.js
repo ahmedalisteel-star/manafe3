@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * units-ui.js — PEB › "Job units…" (field fix 14): footings metric or imperial, the metric bar mark (T / Y / Ø / H) and the
  * concrete grade (C25/30, C30/37, C35/45 — fck / fcu), kept in the model. The mapping is units.js.

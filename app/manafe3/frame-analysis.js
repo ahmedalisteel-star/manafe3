@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * frame-analysis.js — the "Analysis…" data side, DOM-free (tests/bin/test-manafe3-analysis.mjs). The engine solves on
  * demand (POST /peb/analysis, engine/analysis/building_analysis.py); nothing is stored in the model.

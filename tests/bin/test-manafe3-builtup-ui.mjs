@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * The built-up section editor's rules (app/manafe3/builtup-ui.js, DOM-free part) and the 3D shape of a web
  * (view3d.js partGeometry for a shaped plate). Run by npm test.

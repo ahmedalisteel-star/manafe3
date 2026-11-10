@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Built-up (welded) I members: tapered or constant segments joined at splice points.
 
 The section properties are bimsteelauto's (`bimsteelauto.sections.WeldedI` / `TaperedMember`): this module does not

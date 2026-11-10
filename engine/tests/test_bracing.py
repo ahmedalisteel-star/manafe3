@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 4: sag rods, X-bracing, flange braces — building 1 by hand.
 
 Building 1: span 24 000, eave 6 000, slope 0.1 (cos = 1/√1.01, sin = 0.1/√1.01 = 0.0995037), frames 0 … 24 000 every 6 000;

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Per-machine settings from `.env.local` at the repo root (git-ignored; see `.env.local.example`).
 
 No path or user name is written in the code: the office PC and the laptop each keep their own `.env.local`.

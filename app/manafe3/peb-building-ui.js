@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * peb-building-ui.js — the "PEB building…" button (Place group) and its form. Loaded by detailcraft.js:
  *   mountPebBuilding({ model: () => Model, edit(label, fn), print(msg), fit(), selected?: () => refs })

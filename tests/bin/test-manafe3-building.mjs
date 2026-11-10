@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * "PEB building…" mapping (app/manafe3/peb-building.js) with the engine's real answer for building 1 + a door
  * (fixtures/manafe3/building1.json, made by engine/peb/building.py; engine tests check its geometry by hand).

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 7: the whole PEB building in one call — main frames (Phase 1), secondary steel (steps 2–4), end walls
 (step 5), openings (step 6) and cleats. Geometry only, NOT designed (Phase 4).
 
@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 from .bracing import BracingInput, flange_braces, sag_rods, x_bracing
 from .builtup_frame import BuiltUpSizes, builtup_frame_members, default_sizes
-from .endwall import end_wall, endwall_braces, wind_column_braces
+from .endwall import check_section, end_wall, endwall_braces, wind_column_braces
 from .openings import apply_openings
 from .secondary import HOLE, RoofSide, SecondaryInput, Sections, Wall, cf_dims, gauge, secondary_lines, secondary_members
 
@@ -52,6 +52,8 @@ class BuildingInput:
     grid_inset: float = 0.0                 # span_ref "grid": from a grid line in to the columns' outer face, mm
     wc_braces_first: int = 2                # wind-column flange braces at every n-th gable girt (from the top), end wall at
     wc_braces_last: int = 2                 # the first / last frame line; 0 = none (user, 2026-11-09)
+    wind_column: dict | None = None         # Phase 4 step 9: the wind columns' section {hw, tw, bf, tf}; None = the placeholder
+    end_rafter: dict | None = None          # the end rafters' section {hw, tw, bf, tf}; None = the main rafter's
 
     def bay_list(self) -> tuple[float, ...]:
         return tuple(float(v) for v in self.bays) if self.bays else (float(self.bay_spacing),) * int(self.n_bays)
@@ -80,6 +82,8 @@ class BuildingInput:
         for k in ("wc_braces_first", "wc_braces_last"):
             if not (isinstance(getattr(self, k), int) and 0 <= getattr(self, k) <= 10):
                 raise ValueError("wind-column flange braces: every n-th girt, n a whole number 0 (none) to 10")
+        check_section("wind column section", self.wind_column)
+        check_section("end rafter section", self.end_rafter)
 
 
 def resolve(b: BuildingInput) -> tuple[BuildingInput, float]:
@@ -148,14 +152,15 @@ def peb_building(b: BuildingInput) -> dict:
     gable_sets = []
     end_walls = []
     for end, kind, x in (("first", b.end_first, frames[0]), ("last", b.end_last, L)):
-        w = end_wall(kind, end, b.span, b.eave_height, b.roof_slope, x, z, wall=b.gable, girt=b.sections.girt, bolt=b.bolt)
+        w = end_wall(kind, end, b.span, b.eave_height, b.roof_slope, x, z, wall=b.gable, girt=b.sections.girt, bolt=b.bolt,
+                     wc=b.wind_column, er=b.end_rafter)
         members += [{**m, "type": ROLE_TYPE[m["role"]]} for m in w["members"]]
         girts += w["girts"]
         gable_sets.append((end, w["supports"]))
         eb = b.end_braced_bays if b.end_braced_bays is not None else ((1,) if kind == "rafter" else ())
         tops = {round(m["start"][1], 3): m["end"][2] for m in w["members"] if m["role"] == "wind_column"}
         prof = "RD20" if b.brace_type == "rod" else "L75x6"
-        for m in endwall_braces(end, w["x_face"], b.span, b.eave_height, w["supports"], tops, tuple(eb), prof):
+        for m in endwall_braces(end, w["x_face"], b.span, b.eave_height, w["supports"], tops, tuple(eb), prof, wc=b.wind_column):
             members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
         end_walls.append({"end": end, "kind": kind, "x_frame": _r(x), "x_face": w["x_face"], "supports": w["supports"]})
 
@@ -166,7 +171,7 @@ def peb_building(b: BuildingInput) -> dict:
         cols = [m for m in members if m["role"] == "wind_column" and m["id"].startswith(tag)]
         gg = [g for g in op["girts"] if g.get("role") == "gable_girt" and g["id"].startswith("G" + ew["end"][0].upper())]
         every = b.wc_braces_first if ew["end"] == "first" else b.wc_braces_last
-        for m in wind_column_braces(ew["end"], ew["x_face"], cols, gg, every):
+        for m in wind_column_braces(ew["end"], ew["x_face"], cols, gg, every, wc=b.wind_column):
             members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
     cleats = sec["cleats"] + [c for end, sup in gable_sets for c in gable_cleats(op["girts"], end, sup, b.bolt)]
     for m in others + op["girts"] + op["members"]:
@@ -183,7 +188,8 @@ def peb_building(b: BuildingInput) -> dict:
         "units": {"length": "mm"}, "section": "builtup", "designed": False,
         "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays,
                   "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset,
-                  "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last},
+                  "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last,
+                  "wind_column": b.wind_column, "end_rafter": b.end_rafter},
         # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
         # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)
         "y_shift": _r(y0),

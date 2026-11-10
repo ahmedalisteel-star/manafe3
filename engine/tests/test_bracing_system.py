@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 6: the longitudinal bracing system of building 1 (24 × 24 m, eave 6 m, slope 0.1, bays 4 × 6 m, braced
 bays 1 and 4, V 45 m/s, exposure C).
 

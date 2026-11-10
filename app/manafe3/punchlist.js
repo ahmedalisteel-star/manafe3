@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * punchlist.js — the CSV punch list for cold-formed C and Z (user decision 2026-11-05: DSTV and a CSV punch list).
  * One row per hole, per part mark:  Mark, Profile, Grade, Length mm, Qty, Face, Hole x mm, Hole y mm, Hole d mm

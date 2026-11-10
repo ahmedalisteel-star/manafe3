@@ -1,10 +1,10 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 5: wind columns, end rafters and the bracing — AISC 360-16 LRFD. NOT FOR ISSUE.
 
     wind columns   pinned-pinned simple beams under ASCE 7-16 Ch. 30 C&C wall pressure (endwall_analysis.wind_columns,
                    LRFD 1.0 W), inward and outward; stations M(x) = w x (L − x) / 2, V(x) = w (L/2 − x); axial = 1.2 × own
                    weight above the station, + on an end-rafter wall the frame's largest LRFD column load (an envelope:
-                   conservative). Sections: the generated built-up WIND_COLUMN. check_member (prismatic: constant section).
+                   conservative). Sections: each wind columns generated built-up section. check_member (prismatic: constant section).
                    Flanges: the OUTER flange (girt side) is "top", braced at every gable girt; the INNER flange at the
                    column's ends and at its flange braces from the gable girts (user 2026-11-09: default every second girt
                    from the top, per wall, 0 = none). Inward pressure puts the outer flange in compression (M +), suction
@@ -60,17 +60,18 @@ def _ratio_row(name, ref, demand, capacity, unit="kN", note=""):
 def wind_column_inputs(out: dict, li, end_frames: dict) -> list[tuple[dict, MemberDesignInput]]:
     """(row, MemberDesignInput) per wind column."""
     wc = wind_columns(out, li)
-    seg = dict(tw=WIND_COLUMN["tw"], tf_top=WIND_COLUMN["tf"], tf_bot=WIND_COLUMN["tf"], grade=WIND_COLUMN["grade"])
-    st = section_strength(seg)
-    wi = WeldedI(d=WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"], tw=WIND_COLUMN["tw"], bf_top=WIND_COLUMN["bf"], tf_top=WIND_COLUMN["tf"],
-                 bf_bot=WIND_COLUMN["bf"], tf_bot=WIND_COLUMN["tf"])
-    sw = wi.A * 1e-6 * STEEL_KN_M3                                   # kN/m
+    segs = {m["id"]: m["section"]["segments"][0] for m in out["members"] if m["role"] == "wind_column"}   # the generated sections
     girts = {}
     for m in out["members"]:
         if m["role"] == "gable_girt":
             girts.setdefault(m["id"][:2], set()).add(round(m["z"] if "z" in m else m["start"][2], 1))
     res = []
     for c in wc["columns"]:
+        seg = segs[c["id"]]
+        st = section_strength(seg)
+        wi = WeldedI(d=seg["hw_start"] + seg["tf_top"] + seg["tf_bot"], tw=seg["tw"], bf_top=seg["bf_top"], tf_top=seg["tf_top"],
+                     bf_bot=seg["bf_bot"], tf_bot=seg["tf_bot"])
+        sw = wi.A * 1e-6 * STEEL_KN_M3                               # kN/m
         L = c["L_m"] * 1000
         tag = "G" + c["id"][1]                                       # WF… → GF, WL… → GL
         top = tuple(sorted(z for z in girts.get(tag, ()) if 1.0 < z < L - 1.0))

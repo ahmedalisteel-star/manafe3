@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /* i18n-ignore-file — tool names, descriptions and results are read by the assistant program, not shown to the person. */
 /**
  * agent-tools.js — Manafe3's tools for the person's own assistant (field fix 26), next to DetailCraft's (agents.js),

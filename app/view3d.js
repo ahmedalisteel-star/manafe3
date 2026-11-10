@@ -7,6 +7,7 @@
  *
  *   const v = new View3D(canvas, { onPick(ref|null), onNode(node), onHoverNode(node|null) });
  *   v.setModel(state, built, marks);  v.setSelection(refs);  v.setMode('3d' | 'plan' | 'elevation', { level, grid });
+ *   v.setColors(Map(member id → '#rrggbb') | null)  Manafe3 (changed file, Phase 4 step 9): Design… colours members by utilisation
  *   v.placing = true; v.rubberFrom = [x,y,z] | null;  v.fit();
  *   v.ghost = [[a, b], …] | null  — lines relative to the hovered node, drawn there while placing (paste follows the pointer)
  *   v.showBolts = false hides bolts and anchor rods (and they are not picked) — Settings › DetailCraft
@@ -253,13 +254,14 @@ export class View3D {
     for (const p of built.parts) {
       if (!shown(p.phase)) continue;
       const geo = partGeometry(p);
-      const m = new THREE.Mesh(geo, this.mats[p.look || (p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type)]);   // Manafe3: p.look = a built-up flange drawn as its member
+      const ck = this.colorKey(p);   // Manafe3 (changed file, Phase 4 step 9): a utilisation colour from Design…
+      const m = new THREE.Mesh(geo, ck ? this.mats[ck] : this.mats[p.look || (p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type)]);   // Manafe3: p.look = a built-up flange drawn as its member
       const f = p.frame;
       const basis = new THREE.Matrix4().makeBasis(v3(f.u), v3(f.v), v3(f.x));
       basis.setPosition(new THREE.Vector3(...f.o).addScaledVector(v3(f.v), p.voff));
       m.applyMatrix4(basis);
       const ref = p.member ? { kind: 'member', id: p.member } : p.stair ? { kind: 'stair', id: p.stair } : { kind: 'conn', id: p.conn };
-      addPick(m, ref, p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type);
+      addPick(m, ref, ck || (p.type === 'plate' ? 'plate' : p.type === 'stringer' ? 'beam' : p.type));
       const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 35), this.mats.edge);
       edges.applyMatrix4(basis);
       this.root.add(edges);
@@ -403,6 +405,16 @@ export class View3D {
   }
 
   setSelection(refs) { this.selection = refs || []; this.applySelection(); this.render(); }
+  // Manafe3 (changed file, Phase 4 step 9): member colours from Design… (null clears them); each colour is a material key
+  // "util:#hex" so applySelection restores it like any other
+  setColors(map) { this.colorMap = map && map.size ? map : null; if (this.state) { this.setModel(this.state, this.built, this.marks); this.applySelection(); this.render(); } }
+  colorKey(p) {
+    const c = this.colorMap && p.member != null ? this.colorMap.get(p.member) : null;
+    if (!c) return null;
+    const k = 'util:' + c;
+    if (!this.mats[k]) this.mats[k] = new THREE.MeshLambertMaterial({ color: new THREE.Color(c), side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+    return k;
+  }
   applySelection() {
     const key = (r) => r && r.kind + ':' + r.id;
     const sel = new Set(this.selection.map(key));

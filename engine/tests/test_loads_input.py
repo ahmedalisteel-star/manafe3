@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 1: the load inputs.
 
 Hand values: Kd = 0.85 (ASCE 7-16 Table 26.6-1, main wind-force resisting system of a building); GCpi = ±0.18 for an

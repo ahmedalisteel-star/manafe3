@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * peb-building.js — the "PEB building…" data mapping, DOM-free (tests/bin/test-manafe3-building.mjs, test-manafe3-fieldfixes.mjs).
  *
@@ -116,6 +116,10 @@ export function buildingRequest(form, state = null) {
   if (bl) body.bays = bl.bays;
   const sizes = sizesOf(form);
   if (sizes) body.sizes = sizes;
+  for (const g of ['wind_column', 'end_rafter']) {   // Phase 4 step 9: the sections Design… sizes ({hw, tw, bf, tf}; absent = default)
+    const v = form[g];
+    if (v && typeof v === 'object') body[g] = Object.fromEntries(['hw', 'tw', 'bf', 'tf'].map((k) => [k, Number(v[k])]));
+  }
   return body;
 }
 

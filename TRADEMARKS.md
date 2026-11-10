@@ -23,3 +23,11 @@ and the help. Do not suggest that your version is made or endorsed by The Data D
 CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit, Civil 3D and Fusion are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. All other company and product names, logos and brands are the property of their respective owners and are used only to identify their products. CadCraft is independent and not affiliated with, sponsored by or endorsed by any of them.
 
 Questions about the names: https://getcadcraft.com/support
+
+## Manafe3
+
+**Manafe3** (منافع) and the Manafe3 logo (the `branding/` folder) are the names and marks of Ahmed Ali. The Apache License
+covers this repository's code, not these names (section 6): a fork that changes the code and shares the result must use a
+name of its own and take out the Manafe3 logo, and must not suggest that it is made or endorsed by the author. Saying
+truthfully "based on Manafe3" is fine. Manafe3 itself is based on DetailCraft and is not made or endorsed by The Data
+Design Group, Inc.

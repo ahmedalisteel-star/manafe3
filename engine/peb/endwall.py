@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 5: end walls (gables). Geometry only, NOT designed (Phase 4).
 
 User decisions (2026-11-05): an end wall is either the main frame, or an END RAFTER + WIND COLUMNS; built-up, wind columns
@@ -20,6 +20,7 @@ Claude's set-out (flagged to the user, editable):
 
 from __future__ import annotations
 
+import dataclasses
 import math
 
 from .bracing import WALL_BRACE_TOP, BracingInput, rafter_depth
@@ -29,6 +30,23 @@ from .secondary import HOLE, Wall, gauge, girt_heights, z_pieces
 MAX_WIND_SPACING = 6000.0
 # wind column placeholder (user, 2026-11-05): built-up web 300 constant, flanges 150x8, S355; NOT designed
 WIND_COLUMN = {"hw": 300.0, "tw": 6.0, "bf": 150.0, "tf": 8.0, "grade": "S355"}
+SECTION_KEYS = ("hw", "tw", "bf", "tf")   # a wind-column / end-rafter override (Phase 4 step 9: the sizing loop)
+
+
+def wind_column_section(over: dict | None = None) -> dict:
+    """The wind columns' section: the placeholder, with an override's hw / tw / bf / tf (and grade) on top."""
+    return {**WIND_COLUMN, **{k: float(v) for k, v in (over or {}).items() if k in SECTION_KEYS}, **({"grade": over["grade"]} if over and over.get("grade") else {})}
+
+
+def check_section(name: str, over: dict | None) -> None:
+    if not over:
+        return
+    bad = set(over) - set(SECTION_KEYS) - {"grade"}
+    if bad:
+        raise ValueError(f"{name}: unknown key(s) {sorted(bad)} (hw, tw, bf, tf, grade)")
+    for k in SECTION_KEYS:
+        if k in over and not (isinstance(over[k], (int, float)) and over[k] > 0):
+            raise ValueError(f"{name}: {k} must be a number above 0")
 # its top follows the rafter slope under a cap plate (user); PL10, 20 mm past the column all round (CONFIRMED by the user)
 CAP_T = 10.0
 CAP_EDGE = 20.0
@@ -52,8 +70,11 @@ def roof_z(y: float, span: float, eave: float, slope: float) -> float:
 
 
 def end_wall(kind: str, end: str, span: float, eave: float, slope: float, x_frame: float, z: BuiltUpSizes,
-             wall: Wall = Wall(), girt: str = "Z200x65x20x2.0", bolt: str = "M12", top_gap: float = 300.0) -> dict:
-    """The end wall at the first (end='first') or last (end='last') frame line x_frame."""
+             wall: Wall = Wall(), girt: str = "Z200x65x20x2.0", bolt: str = "M12", top_gap: float = 300.0,
+             wc: dict | None = None, er: dict | None = None) -> dict:
+    """The end wall at the first (end='first') or last (end='last') frame line x_frame. wc / er: the wind-column and
+    end-rafter section overrides {hw, tw, bf, tf} (None: the placeholder / the main rafter's section)."""
+    WC = wind_column_section(wc)
     if kind not in ("frame", "rafter"):
         raise ValueError("end wall type must be frame or rafter")
     out_dir = -1.0 if end == "first" else 1.0          # outward along X
@@ -64,34 +85,41 @@ def end_wall(kind: str, end: str, span: float, eave: float, slope: float, x_fram
     ys = wind_column_ys(span, z.bf, kind)
     bi = BracingInput(span=span, eave_height=eave, roof_slope=slope, frames=[x_frame], sizes=z)
     u_sign = 1.0 if end == "first" else -1.0            # a wind column's u (across its flanges) is +Y at the first end, -Y at the last
-    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]       # its overall depth along X
+    wd = WC["hw"] + 2 * WC["tf"]       # its overall depth along X
     for k, y in enumerate(ys):
         under = raf_d if kind == "rafter" else rafter_depth(roof_s(y, span, slope), bi)
         rise = 0.0 if abs(y - span / 2) < 1.0 else (slope if y < span / 2 else -slope)   # dz/dy of the roof over the column
         top = roof_z(y, span, eave, slope) - (under + CAP_T) * c
-        seg = dict(length=_r(top), hw_start=WIND_COLUMN["hw"], hw_end=WIND_COLUMN["hw"], tw=WIND_COLUMN["tw"], bf_top=WIND_COLUMN["bf"], tf_top=WIND_COLUMN["tf"],
-                   bf_bot=WIND_COLUMN["bf"], tf_bot=WIND_COLUMN["tf"], grade=WIND_COLUMN["grade"], straight="top")
+        seg = dict(length=_r(top), hw_start=WC["hw"], hw_end=WC["hw"], tw=WC["tw"], bf_top=WC["bf"], tf_top=WC["tf"],
+                   bf_bot=WC["bf"], tf_bot=WC["tf"], grade=WC["grade"], straight="top")
         members.append(dict(id=f"W{end[0].upper()}{k + 1}", role="wind_column", start=[_r(x_face), _r(y), 0.0], end=[_r(x_face), _r(y), _r(top)],
                             rotation=180.0 if end == "first" else 0.0,
                             section=dict(segments=[seg], cut_start=0.0, cut_end=0.0, cut_end_u=_r(u_sign * rise))))
         # cap plate: PL10, the column + 20 mm all round, lying on the roof slope over the column, its mid-plane 5 mm above the top
         ny, nz = -rise / c, 1.0 / c                      # roof normal (y, z)
         xa, xb = x_face + out_dir * CAP_EDGE, x_face - out_dir * (wd + CAP_EDGE)
-        members.append(dict(id=f"W{end[0].upper()}{k + 1}-CAP", role="cap_plate", profile=f"PL{CAP_T:g}x{WIND_COLUMN['bf'] + 2 * CAP_EDGE:g}",
+        members.append(dict(id=f"W{end[0].upper()}{k + 1}-CAP", role="cap_plate", profile=f"PL{CAP_T:g}x{WC['bf'] + 2 * CAP_EDGE:g}",
                             start=[_r(xa), _r(y + ny * CAP_T / 2), _r(top + nz * CAP_T / 2)], end=[_r(xb), _r(y + ny * CAP_T / 2), _r(top + nz * CAP_T / 2)],
-                            width_dir=[0.0, _r(1.0 / c), _r(rise / c)], rotation=0.0, position="middle", material=WIND_COLUMN["grade"], designed=False))
+                            width_dir=[0.0, _r(1.0 / c), _r(rise / c)], rotation=0.0, position="middle", material=WC["grade"], designed=False))
     if kind == "rafter":
         apex = [_r(x_frame), _r(span / 2), _r(eave + slope * span / 2)]
         for side, y0 in (("A", 0.0), ("B", span)):
             L = math.hypot(span / 2, slope * span / 2)
             members.append(dict(id=f"E{end[0].upper()}R{side}", role="end_rafter", start=[_r(x_frame), _r(y0), _r(eave)], end=apex, rotation=0.0,
-                                section=dict(segments=_split(L, z.hw_rafter, z), cut_start=_r(slope), cut_end=_r(slope))))
+                                section=dict(segments=_er_segments(L, z, er), cut_start=_r(slope), cut_end=_r(slope))))
     for m in members:
         if "section" in m:
             m.update(material=m["section"]["segments"][0]["grade"], designed=False, profile=mark(m["section"]["segments"]))
     supports = sorted(ys) if kind == "rafter" else sorted([z.bf / 2, *ys, span - z.bf / 2])
     return {"members": members, "girts": gable_girts(kind, span, eave, slope, x_face, out_dir, ys, z, wall, girt, bolt, top_gap, end),
             "x_face": _r(x_face), "supports": [_r(s) for s in supports]}
+
+
+def _er_segments(L: float, z: BuiltUpSizes, er: dict | None) -> list[dict]:
+    if not er:
+        return _split(L, z.hw_rafter, z)
+    ze = dataclasses.replace(z, bf=float(er.get("bf", z.bf)), tf=float(er.get("tf", z.tf)), grade=er.get("grade", z.grade))
+    return _split(L, float(er.get("hw", z.hw_rafter)), ze, er.get("tw"))
 
 
 def roof_s(y: float, span: float, slope: float) -> float:
@@ -134,7 +162,7 @@ WC_BRACE_PROFILE = "L50x5"
 
 
 def wind_column_braces(end: str, x_face: float, columns: list[dict], girts: list[dict], every: int = WC_BRACE_EVERY,
-                       profile: str = WC_BRACE_PROFILE) -> list[dict]:
+                       profile: str = WC_BRACE_PROFILE, wc: dict | None = None) -> list[dict]:
     """Flange braces from the gable girts to each wind column's INNER flange (user decision 2026-11-09), like the main
     columns' (bracing.py): a pair at 45°, horizontal in plan, from the inner flange's mid-thickness to 50 mm into the girt
     on the outer face. Rows: the girt rows a column carries (below its top), the TOP one and then every `every`-th row
@@ -145,10 +173,11 @@ def wind_column_braces(end: str, x_face: float, columns: list[dict], girts: list
         return []
     from .bracing import INTO_SECONDARY
     out_dir = -1.0 if end == "first" else 1.0
-    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]
-    x_in = x_face - out_dir * (wd - WIND_COLUMN["tf"] / 2)              # the inner flange's mid-thickness
+    WC = wind_column_section(wc)
+    wd = WC["hw"] + 2 * WC["tf"]
+    x_in = x_face - out_dir * (wd - WC["tf"] / 2)                       # the inner flange's mid-thickness
     x_out = x_face + out_dir * INTO_SECONDARY                           # 50 mm into the girt
-    run = wd - WIND_COLUMN["tf"] / 2 + INTO_SECONDARY                    # 45° in plan
+    run = wd - WC["tf"] / 2 + INTO_SECONDARY                             # 45° in plan
     out = []
     for c in columns:
         y, top = c["start"][1], c["end"][2]
@@ -165,7 +194,7 @@ def wind_column_braces(end: str, x_face: float, columns: list[dict], girts: list
 
 
 def endwall_braces(end: str, x_face: float, span: float, eave: float, supports: list[float], tops: dict[float, float],
-                   bays: tuple[int, ...], profile: str) -> list[dict]:
+                   bays: tuple[int, ...], profile: str, wc: dict | None = None) -> list[dict]:
     """X-bracing in the end-wall plane (user decision 2026-11-08: the end-rafter frame does NOT rely on sheeting; default
     one braced bay per end-rafter wall). An end-wall bay k (1-based, counted from column line A) lies between supports
     k−1 and k. Set-out (Claude, as the side walls): the diagonals run in the wind columns' centre plane, from a column's
@@ -173,7 +202,8 @@ def endwall_braces(end: str, x_face: float, span: float, eave: float, supports: 
     tops: support y → its top z (wind columns); a support missing there is a main-frame column (eave)."""
     sup = sorted(supports)
     out_dir = -1.0 if end == "first" else 1.0
-    wd = WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"]
+    WC = wind_column_section(wc)
+    wd = WC["hw"] + 2 * WC["tf"]
     x = x_face - out_dir * wd / 2
     out = []
     for k in bays:

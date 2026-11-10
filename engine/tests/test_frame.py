@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 0 hot-rolled portal-frame geometry (section="hot_rolled") against coordinates worked out by hand (written out below, not recomputed by the code).
 
 Case 1: span 20 000, eave 6 000, slope 1:10, bays 2 x 6 000

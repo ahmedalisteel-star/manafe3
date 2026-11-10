@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Components and cladding (C&C) wall pressures, ASCE 7-16 Ch. 30 Part 1 (low-rise, h ≤ 60 ft) — for wind columns now,
 girts and purlins later (user decision 2026-11-08).
 

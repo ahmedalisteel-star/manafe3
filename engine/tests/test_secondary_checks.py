@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 5: wind columns, end rafters, bracing (engine/design/secondary_checks.py) — longhand per type.
 
     wind column   the demand is the simple beam's: M(L/2) = w L² / 8 (inward +, outward −), V(0) = w L / 2; the inner

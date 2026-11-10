@@ -1896,6 +1896,8 @@ async function start(root) {
     .then(({ mountCrane }) => mountCrane({ model: () => model, edit, print }))
     .then(() => import('./manafe3/units-ui.js'))   // field fix 14: "Job units…" (metric bars, C-grades)
     .then(({ mountUnits }) => mountUnits({ model: () => model, edit, print }))
+    .then(() => import('./manafe3/design-ui.js'))   // Manafe3 (changed file, Phase 4 step 9): "Design…" — checks, sizing, 3D colours, calc sheets
+    .then(({ mountDesign }) => mountDesign({ model: () => model, edit, print, download, select: (refs) => { setTool('select'); setSelection(refs); }, colorize: (map) => view?.setColors(map) }))
     .catch((err) => console.warn('Manafe3: no PEB building / loads / analysis button —', err?.message || err));   // i18n-ignore: a console line
   import('./manafe3/output-ui.js')   // Manafe3: the "Plate list" output (plate cut list CSV)
     .then(({ mountOutputs }) => mountOutputs({ built: () => built, marks: () => marks, name: () => safeName(), download, print }))

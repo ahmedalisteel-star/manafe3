@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Built-up portal frames (Phase 1) against geometry worked out by hand.
 
 Case A: span 24 000, eave 6 000, slope 1:10, 1 bay of 6 000

@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * platelist.js — the plate cut list: every plate part (built-up webs and flanges, connection plates), one row per part
  * mark, with totals per grade and thickness. DOM-free. (nest.js nests bars only; plates are cut from sheet.)

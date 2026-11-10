@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * peb-frame.js — the "PEB frame…" data mapping, DOM-free (tested by tests/bin/test-manafe3-pebframe.mjs).
  *
@@ -83,8 +83,16 @@ export function sizesOf(form) {
     out[k] = v;
   });
   out.grade = String(form.grade || 'S355');
+  for (const k of TW_FIELDS) {   // Phase 4 step 9: the webs Design… sizes (optional; empty = the 6 / 8 mm rule)
+    const s = String(form[k] ?? '').trim();
+    if (s === '') continue;
+    const v = Number(s);
+    if (!Number.isFinite(v) || v <= 0) throw new Error(`Size ${k.replace('_', ' ')} must be a number above 0 (or empty for the rule)`);
+    out[k] = v;
+  }
   return out;
 }
+export const TW_FIELDS = ['tw_column', 'tw_haunch', 'tw_rafter'];
 
 /** POST /peb/frame/defaults: the span rules' sizes, for the form. */
 export async function requestDefaults(span, fetchFn = globalThis.fetch, base = ENGINE_URL) {

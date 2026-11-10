@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * output-ui.js — Manafe3's Output button "Lists" (one button, so the toolbar stays on one row), a small menu of:
  *   Plate list (CSV)       platelist.js: every plate part by mark, totals per grade and thickness

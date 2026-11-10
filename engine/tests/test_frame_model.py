@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 2: the frame model adapter, and bimsteelauto's solver on Manafe3-style layouts, against hand values.
 
 1. Closed-form portal (prismatic, pinned bases, rigid joints, UDL w on the beam), force method with H redundant:

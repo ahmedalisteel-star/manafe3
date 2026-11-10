@@ -11,51 +11,70 @@
 [سورة الحديد: 25]
 </p>
 
-A browser-based PEB / steel detailing app that runs on your own PC (localhost), with PEB design inside it.
+## What is Manafe3
 
-- **Front end:** JavaScript in the browser, based on [DetailCraft](https://github.com/getcadcraft/detailcraft) by
-  The Data Design Group, Inc. (Apache-2.0): 3D view, panels, drawings, NC, IFC, numbering, BOM, clash.
-- **Engine:** Python (FastAPI) at http://127.0.0.1:8765: all PEB engineering. Uses
-  [BIMSteelAuto](https://github.com/ahmedalisteel-star/bimsteelauto) and PyNite.
-- Status: **Phase 0** (skeleton). See `HANDOVER.md`.
+Manafe3 (منافع) is a free, browser-based app for **pre-engineered steel buildings (PEB)** that runs on your own PC
+(localhost — nothing leaves your machine). You describe a building — span, bays, eave, slope, end walls, openings — and
+it makes the whole steel model: tapered built-up frames, purlins and girts with their laps and holes, sag rods, bracing,
+end walls, cleats. It then loads and analyses it and checks and sizes every member:
 
-## Install and run on a new Windows PC (PowerShell)
+- **Model and output** (based on [DetailCraft](https://github.com/getcadcraft/detailcraft), Apache-2.0): 3D, plans and
+  elevations, part marks, BOM, plate and cut lists, DSTV NC, IFC4 in / out, drawings, clash check.
+- **Engine** (Python, FastAPI at http://127.0.0.1:8765): ASCE 7-16 loads (wind, Lr, C&C), second-order frame analysis
+  (PyNite; AISC Direct Analysis Method), member checks to **AISC 360-16 LRFD** (tapered members by Design Guide 25),
+  **ECP 205-LRFD** side by side, cold-formed purlins and girts to **AISI S100-16** (DSM, properties and buckling computed
+  from the profile geometry), serviceability, and a sizing loop. Uses [BIMSteelAuto](https://github.com/ahmedalisteel-star/bimsteelauto)
+  and [ecp205-lrfd](https://github.com/ahmedalisteel-star/ecp205-lrfd).
+- **PEB › Design…**: check or size a building, 3D utilisation colours, a results table and printable calc sheets.
 
-Needs: Git, Python 3.12, Node.js 20.19+, uv, GitHub CLI. Install any that are missing with
-`winget install Git.Git Python.Python.3.12 OpenJS.NodeJS.LTS astral-sh.uv GitHub.cli`.
+> **Not for issue.** Every design result carries a NOT FOR ISSUE banner until the items it rests on have been verified
+> against the printed codes (they are listed in the app). Manafe3 does not replace a licensed engineer's own check.
+
+## Install and run (Windows, PowerShell)
+
+Needs Git, Python 3.12, Node.js 20.19+ and [uv](https://docs.astral.sh/uv/). Install any that are missing:
+`winget install Git.Git Python.Python.3.12 OpenJS.NodeJS.LTS astral-sh.uv`. No GitHub account is needed.
 
 ```powershell
-gh auth login                                   # once per PC (the repo is private)
-cd D:\                                          # or any folder you like; paths with spaces are fine
-gh repo clone ahmedalisteel-star/manafe3 Manafe3
+git clone https://github.com/ahmedalisteel-star/manafe3.git Manafe3
 cd .\Manafe3
-Copy-Item .env.local.example .env.local         # then edit .env.local: this PC's folders
-uv sync                                         # identical Python packages on every PC (uv.lock)
-python manafe3.py                               # engine + web app, opens http://localhost:8000
+uv sync                                          # the exact Python packages (uv.lock)
+python manafe3.py                                # engine + web app, opens http://localhost:8000
 ```
 
-Click **PEB frame…** in the toolbar (Place group), keep or change the numbers, **Add frame**: the frame appears in 3D.
-
-## Every day, on either PC
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start-work.ps1                  # pull, uv sync, tests, prints the task
-python manafe3.py
-powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"   # tests, HANDOVER, commit, push
-```
+Then **PEB › Building…** makes a building, **PEB › Loads…** takes the site's wind, **PEB › Analysis…** and
+**PEB › Design…** analyse, check and size it. On macOS / Linux the same commands work in a shell.
 
 ## Tests
 
 ```powershell
-uv run pytest -q        # engine
-npm test                # the app (DetailCraft's suite + Manafe3's tests in tests/bin/test-manafe3-*.mjs)
-python manafe3.py --check   # starts both servers, checks them, stops
+uv run pytest -q -m "not slow"   # engine, fast (uv run pytest -q: everything, several minutes)
+npm test                         # the app (DetailCraft's suite + Manafe3's tests in tests/bin/test-manafe3-*.mjs)
+python manafe3.py --check        # starts both servers, checks them, stops
 ```
 
-## Licences
+GitHub Actions runs the fast tests on every push and the full suite on `main` (`.github/workflows/tests.yml`).
 
-- DetailCraft code: Apache-2.0 (`LICENSE`, `NOTICE`; changed files in `MANAFE3-CHANGES.md`). Manafe3 is based on
-  DetailCraft by The Data Design Group, Inc. and is not made or endorsed by it (`TRADEMARKS.md`).
-- Manafe3's own code (`engine/`, `manafe3.py`, `app/manafe3/`, the `*.ps1` scripts, `tests/bin/test-manafe3-*`):
-  All rights reserved – Ahmed Ali. `tools/manafe3-rebrand.mjs` is Apache-2.0 like the code it edits.
+## Licences and names
+
+- **Everything in this repository is Apache-2.0** (`LICENSE`).
+  - The DetailCraft code: Copyright 2026 The Data Design Group, Inc. (`NOTICE`); the files Manafe3 changed are listed in
+    `MANAFE3-CHANGES.md`.
+  - Manafe3's own code (`engine/`, `manafe3.py`, `app/manafe3/`, `tools/manafe3-*`, the `*.ps1` scripts,
+    `tests/bin/test-manafe3-*`): Copyright 2026 Ahmed Ali, Apache-2.0.
+- **Names:** Manafe3 is based on DetailCraft and is not made or endorsed by The Data Design Group, Inc. The Manafe3 name
+  and logo are the author's; the licence covers the code, not the names (`TRADEMARKS.md`).
 - Upstream's README: `docs/DETAILCRAFT-README.md`.
+
+## Maintainer only — the two-PC workflow
+
+The author works on two PCs through git; contributors do not need any of this.
+
+```powershell
+Copy-Item .env.local.example .env.local          # this PC's own folders (never committed)
+powershell -ExecutionPolicy Bypass -File .\start-work.ps1                    # pull, uv sync, tests, prints the task
+python manafe3.py
+powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"   # tests, HANDOVER, commit, push
+```
+
+`HANDOVER.md` holds the architecture, the decisions and the current task; `CLAUDE.md` the working rules.

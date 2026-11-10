@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 3: main-frame member checks (engine/design/frame_checks.py) — the Manafe3 plumbing into bimsteelauto's
 check_member. The limit states themselves are verified longhand in bimsteelauto (test_e7_slender, test_slender_web_
 flexure_shear, test_design_verification; DG 25 in test_nonprismatic / test_dg25_application, NOT VERIFIED).

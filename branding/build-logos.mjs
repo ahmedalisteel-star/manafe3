@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Ahmed Ali. All rights reserved.
+// Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 // Manafe3 brand — logo concepts. Writes every SVG into branding/concepts/.
 // Run from the repo root:  node branding/build-logos.mjs
 // The wordmark is drawn as geometry (no font needed). Only the Arabic word and the small taglines use fonts.

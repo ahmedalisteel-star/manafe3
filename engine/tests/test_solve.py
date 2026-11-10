@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 4: solving a frame line — statics for every load case, P-Delta, labels.
 
 Statics (an independent check of what the solver received): for each case the base reactions must balance the applied

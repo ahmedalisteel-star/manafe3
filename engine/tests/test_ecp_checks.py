@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 7: ECP 205-LRFD main-frame checks (engine/design/ecp_checks.py) — longhand.
 
     K chart      the sway equation's own limits: GA = GB → 0 gives K = 1, one end fixed (G → 0) and one pinned (G → ∞)

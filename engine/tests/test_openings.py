@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 6: framed openings — building 1, side wall A, by hand.
 
 Wall A girt pieces (rows 1 250 / 2 500 / 3 750 / 5 000; pieces −325 → 6 600, 5 400 → 12 600, 11 400 → 18 600, 17 400 → 24 325;

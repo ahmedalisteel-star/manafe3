@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 3: main-frame member checks, AISC 360-16 LRFD, through bimsteelauto's check_member.
 
 One design member = a column, or a rafter HALF chained from the knee to the ridge across its splices (step 1). For each:

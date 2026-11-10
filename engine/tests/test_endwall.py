@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 5: end walls — building 1 (span 24 000, eave 6 000, slope 0.1; span-rule sizes: rafter web 400, flanges
 250×12) by hand.
 

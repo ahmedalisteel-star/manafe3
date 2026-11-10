@@ -1,10 +1,12 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """The engine's HTTP API (FastAPI). Run: `python manafe3.py` (or `uv run uvicorn engine.api:app --port 8765`).
 
     GET  /health      engine, PyNite, bimsteelauto (and anastruct) versions; which per-machine paths are set
     POST /peb/frame   {span, eave_height, roof_slope, bay_spacing, n_bays} -> a portal frame as members (mm)
     POST /section/builtup  {segments: [...], x?: [...]} -> A, Ix, Iy, Zx, Sx_top/bot along a built-up member
     POST /peb/frame/defaults  {span} -> the built-up placeholder sizes from the span rules
+    POST /peb/design  {building, loads, settings, action: check | size} -> {job}; GET /peb/design/{job} -> progress / result
+                      (Phase 4 step 9: every member check, the sizing loop; NOT FOR ISSUE; nothing is stored)
     /peb/frame takes section "builtup" (default, Phase 1) or "hot_rolled" (Phase 0), and optional sizes
 """
 
@@ -66,6 +68,17 @@ class SizesIn(BaseModel):
     haunch_length: float
     bf: float
     tf: float
+    grade: str = "S355"
+    tw_column: float | None = None
+    tw_haunch: float | None = None
+    tw_rafter: float | None = None
+
+
+class SectionOverrideIn(BaseModel):
+    hw: float = Field(..., gt=0)
+    tw: float = Field(..., gt=0)
+    bf: float = Field(..., gt=0)
+    tf: float = Field(..., gt=0)
     grade: str = "S355"
 
 
@@ -177,6 +190,8 @@ class BuildingRequest(BaseModel):
     grid_inset: float = Field(0.0, description="span_ref grid: grid line to the columns' outer face, mm")
     wc_braces_first: int = Field(2, ge=0, le=10, description="wind-column flange braces at every n-th gable girt, first end wall; 0 = none")
     wc_braces_last: int = Field(2, ge=0, le=10, description="the same, last end wall")
+    wind_column: SectionOverrideIn | None = Field(None, description="wind columns' built-up section (Design… sizes it); default the placeholder")
+    end_rafter: SectionOverrideIn | None = Field(None, description="end rafters' built-up section; default the main rafter's")
 
 
 @app.post("/peb/building")
@@ -200,7 +215,8 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         end_braced_bays=tuple(req.end_braced_bays) if req.end_braced_bays is not None else None,
         bolt=req.bolt, fixed_lap=req.fixed_lap, openings=tuple(o.model_dump() for o in req.openings),
         bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset,
-        wc_braces_first=req.wc_braces_first, wc_braces_last=req.wc_braces_last)
+        wc_braces_first=req.wc_braces_first, wc_braces_last=req.wc_braces_last,
+        wind_column=req.wind_column.model_dump() if req.wind_column else None, end_rafter=req.end_rafter.model_dump() if req.end_rafter else None)
 
 
 class LoadsIn(BaseModel):
@@ -253,3 +269,65 @@ class DefaultsRequest(BaseModel):
 def peb_frame_defaults(req: DefaultsRequest) -> dict:
     """The built-up placeholder sizes the span rules give (HANDOVER.md, Phase 1 decisions); the form shows them for editing."""
     return {"sizes": sizes_dict(default_sizes(req.span)), "designed": False}
+
+
+# --------------------------------------------------------------------------------------------- Phase 4 step 9: Design…
+
+class DesignSettingsIn(BaseModel):
+    code_basis: Literal["AISC", "ECP", "both"] = "both"
+    governing: Literal["AISC", "ECP"] = "AISC"
+    target: float = Field(0.90, ge=0.5, le=1.0)
+    limits: dict | None = Field(None, description="serviceability: sway (H / n), rafter_Lr (L / n), purlin (L / n)")
+    uplift_method: Literal["r_factor", "strict"] = "r_factor"
+    stability: Literal["dg25", "prismatic"] = "dg25"
+
+
+class DesignRequest(BaseModel):
+    building: BuildingRequest
+    loads: LoadsIn
+    settings: DesignSettingsIn = DesignSettingsIn()
+    action: Literal["check", "size"] = "check"
+
+
+_JOBS: dict[str, dict] = {}
+
+
+def _design_job(job: str, req: DesignRequest) -> None:
+    from .design.design_run import DesignSettings, check_building, size_building
+    rec = _JOBS[job]
+    try:
+        b = _building_input(req.building)
+        li = LoadsInput(**req.loads.model_dump())
+        s = DesignSettings(**req.settings.model_dump()).check()
+        f = check_building if req.action == "check" else size_building
+        rec["result"] = f(b, li, s, progress=lambda m: rec.update(progress=m))
+        rec["status"] = "done"
+    except Exception as e:                      # reported to the browser, never swallowed
+        rec.update(status="error", error=f"{type(e).__name__}: {e}")
+
+
+@app.post("/peb/design")
+def peb_design(req: DesignRequest) -> dict:
+    """Phase 4 step 9: start a design run (check, or size + check) for one building; poll GET /peb/design/{job}.
+    NOT FOR ISSUE while any VERIFIED flag a result rests on is False (listed in the result's summary)."""
+    import threading
+    import uuid
+    try:
+        _building_input(req.building).check()
+        LoadsInput(**req.loads.model_dump()).check()
+    except (ValueError, BuiltUpError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    for k in [k for k, v in _JOBS.items() if v["status"] != "running"][:-4]:
+        _JOBS.pop(k, None)                      # keep the last few finished runs
+    job = uuid.uuid4().hex[:12]
+    _JOBS[job] = {"status": "running", "progress": "starting…", "action": req.action}
+    threading.Thread(target=_design_job, args=(job, req), daemon=True).start()
+    return {"job": job}
+
+
+@app.get("/peb/design/{job}")
+def peb_design_job(job: str) -> dict:
+    rec = _JOBS.get(job)
+    if rec is None:
+        raise HTTPException(status_code=404, detail="no such design run (the engine restarted?)")
+    return {"job": job, **rec}

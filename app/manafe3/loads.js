@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * loads.js — the "Loads…" data mapping, DOM-free (tests/bin/test-manafe3-loads.mjs). The inputs live in the model as
  * state.m3loads (one undo step per edit) and go to the engine (engine/peb/loads_input.py) for every analysis.

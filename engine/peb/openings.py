@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 6: framed openings (doors, windows). Geometry only, NOT designed.
 
 User decision (2026-11-05): framed openings per wall — girts cut at the opening, C jambs + header (+ sill for windows).

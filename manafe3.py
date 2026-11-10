@@ -1,4 +1,4 @@
-# Manafe3 launcher. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 launcher. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Start Manafe3 with one command:   python manafe3.py
 
   1. makes sure the Python environment exists (runs `uv sync` the first time),

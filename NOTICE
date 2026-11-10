@@ -11,3 +11,7 @@ Manafe3
 Manafe3 is based on DetailCraft by The Data Design Group, Inc.
 The DetailCraft code in this repository stays under the Apache License, Version 2.0. Files Manafe3 changed are listed
 in MANAFE3-CHANGES.md. Manafe3 is not made or endorsed by The Data Design Group, Inc.
+
+Manafe3's own code (engine/, manafe3.py, app/manafe3/, tools/manafe3-*, the *.ps1 scripts, tests/bin/test-manafe3-*)
+Copyright 2026 Ahmed Ali
+Licensed under the Apache License, Version 2.0 (see LICENSE).

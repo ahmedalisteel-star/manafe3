@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 8 (engine): the whole building — taper-step convergence, the secondary steel weighed by hand, frame-line
 de-duplication (a de-duplicated line re-solved on its own must match), labels, the API."""
 

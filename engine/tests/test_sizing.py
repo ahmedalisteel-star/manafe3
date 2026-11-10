@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 8: the sizing loop (engine/design/sizing.py).
 
     ladders      plates 6 … 25 (web ≥ 6, flange ≥ 8), flange widths 150 … 300, depths in 25 mm steps; hw_base and

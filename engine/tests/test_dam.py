@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 2: the Direct Analysis Method (AISC 360-16 Chapter C) in the strength analysis — building 1, frame line 3
 (24 m span, eave 6 m, slope 0.1, bays 6 m; V 45 m/s, exposure C).
 

@@ -1,4 +1,4 @@
-# Manafe3: end a work session on this PC. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3: end a work session on this PC. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 #   powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"
 #   -Next "..."   also replace the "Next task" line in the Last session block (optional)
 #   -Footer "..." extra lines at the end of the commit message, e.g. a Co-Authored-By trailer (optional)

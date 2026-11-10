@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 4 / Phase 4 step 2: solve one frame line (bimsteelauto FrameAnalysis, PyNite, P-Delta) and shape the results.
 
 Every load case is ALSO solved on its own, unfactored (user decision: the foundation designer applies their own factors),

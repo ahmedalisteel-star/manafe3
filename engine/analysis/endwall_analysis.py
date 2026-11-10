@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 7: the end walls.
 
 1. Wind columns OUT OF PLANE (wind_columns): each a simple beam, pinned at the base and at the top, under the end-wall
@@ -171,8 +171,9 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     raf = next(m for m in out["members"] if m["role"] == "end_rafter" and m["id"] == f"E{tag}RA")
     seg = raf["section"]["segments"][0]
     rw = _wi(seg, seg["hw_start"])
-    cw = WeldedI(d=WIND_COLUMN["hw"] + 2 * WIND_COLUMN["tf"], tw=WIND_COLUMN["tw"], bf_top=WIND_COLUMN["bf"], tf_top=WIND_COLUMN["tf"],
-                 bf_bot=WIND_COLUMN["bf"], tf_bot=WIND_COLUMN["tf"])
+    wcm = next(m for m in out["members"] if m["role"] == "wind_column" and m["id"].startswith("W" + tag))   # the generated section
+    wseg = wcm["section"]["segments"][0]
+    cw = _wi(wseg, wseg["hw_start"])
     c = math.sqrt(1 + slope * slope)
     e = (rw.d - rw.y_bar) * c                              # the rafter's centroid, plumb below the roof line
     zc = lambda y: eave + slope * min(y, span - y) - e
@@ -194,7 +195,7 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
             wind_r[(ld.case, ld.member_mark[1])] = ld.w
         elif ld.direction.name == "GLOBAL_X":
             wind_c[(ld.case, ld.member_mark[1])] = ld.w / kcol[ld.member_mark]
-    fy_col = section_strength(dict(tw=WIND_COLUMN["tw"], tf_top=WIND_COLUMN["tf"], tf_bot=WIND_COLUMN["tf"], grade=WIND_COLUMN["grade"]))["Fy"]
+    fy_col = section_strength(wseg)["Fy"]
 
     def build(k: float, nseg: int, notional: float, combos: list[tuple[str, dict]], second_order: bool, diagonals=None):
         """The end frame in PyNite: stiffness × k, every rafter span and column in nseg elements, notional twins

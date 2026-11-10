@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * builtup.js — the built-up (welded I) member: tapered or constant segments joined at splice points. DOM-free.
  * The same rules as the engine (engine/sections/builtup.py); tests: tests/bin/test-manafe3-builtup.mjs.

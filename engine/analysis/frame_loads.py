@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 3: the loads on one frame line, and the combinations — bimsteelauto's verified load modules, unchanged.
 
 Cases (all kN/m on the frame's members):

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 6: cold-formed lipped C and Z sections FROM THEIR GEOMETRY — gross properties and elastic buckling
 (finite strip). No supplier catalogue yet (user decision 2026-11-08); a supplier table overrides any value (cfs_checks).
 

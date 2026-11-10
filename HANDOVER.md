@@ -26,8 +26,10 @@ in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 
 the R1 field fixes list done (2026-11-09, below); step 5 done in the engine; step 6 (purlins / girts / eave struts,
 AISI S100-16 DSM, properties and buckling from the geometry) done in the engine, with the user's decisions (R-factor,
 zones by slope, tied-off sag rods); step 7 (ECP 205-LRFD side by side, main frames) done in the engine — its K chart
-and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrfd; step 8 (sizing loop) done in the engine; next: step 9
-(browser "Design…" and the project design settings).**
+and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrfd; step 8 (sizing loop) done in the engine; step 9 (PEB ›
+"Design…" in the browser) and step 10 done (2026-11-10). PHASE 4 DONE — NOT FOR ISSUE until the user confirms the open
+items (DG 25, the AISI R table, the ECP K / G rules). The repository is PUBLIC and Apache-2.0 (2026-11-10).
+Next: the user's confirmations; then Phase 5 (connections) as planned.**
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -200,8 +202,8 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
 | 6 | Purlins / girts AISI S100: properties from geometry (DSM / EWM, vendored engine), supplier-table override; C&C zones; L/150 | **done** (engine) incl. eave struts — `engine/design/cfs_section.py`, `cfs_checks.py`, `test_cfs.py` (one line by hand: the bay-2 eave strut) |
 | 7 | ECP 205-LRFD from the ecp205-lrfd dependency (ton / cm inside, one boundary), side by side; the governing code from the project setting | **done** (engine, main frames) — `engine/design/ecp_checks.py`, `test_ecp_checks.py` (column A of line 3 longhand); equations to confirm with the user listed below |
 | 8 | Sizing loop: target 0.90, ≤ 1.00, the plate / width / depth lists above, re-analyse until stable | **done** (engine) — `engine/design/sizing.py`, `test_sizing.py`: building 1 converges, minimums kept |
-| 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | mapping + browser check |
-| 10 | HANDOVER, `end-work.ps1` | |
+| 9 | Browser "Design…" + project design settings (governing code, limits, target); utilisation colours, tables, HTML calc sheets (NOT FOR ISSUE until verified) | **done** — `engine/design/design_run.py`, `POST /peb/design`, `app/manafe3/design.js` / `design-ui.js`; `test_design_run.py`, `test-manafe3-design.mjs`, smoke |
+| 10 | HANDOVER, `end-work.ps1` | **done** (2026-11-10) |
 
 **Findings and fixes (2026-11-08):**
 - **bimsteelauto moment sign — FIXED in bimsteelauto (user decision) and re-pinned.** PyNite gives Mz + for tension on
@@ -299,6 +301,71 @@ scripts the fork does not ship (app-devices-studio.js, skill-packs.js, app-addon
   the analysis' own, Ritz within 1 %).
 - **Open for the user:** confirm DG 25 against the printed guide (the γe / Fe = γe·fr application, the κ calibration,
   the Lb,eq mapping, and the other-flange restraints).
+
+**Phase 4 — summary (2026-11-10).** Every member of a PEB building is checked and can be sized, NOT FOR ISSUE:
+- main frames AISC 360-16 LRFD (Direct Analysis Method, DG 25 for tapered members, E7 / F5 / G2 without TFA) and ECP 205-LRFD
+  side by side (its own nominal P-Δ solve, sway K chart); serviceability H/100, L/180, L/150 (editable);
+- wind columns (C&C, flange braces from the girts), end rafters, rod / angle bracing (AISC);
+- purlins, girts, gable girts, eave struts to AISI S100-16 by DSM with properties and finite-strip buckling from the
+  profile geometry; R-factor (I6.2.1) default for sizing, the strict rule beside it;
+- the sizing loop (frames re-analysed until stable; cold-formed by the R-factor; wind columns and end rafters on held
+  forces) and PEB › Design… in the browser.
+- **Open for the user (each result says so):** DG 25 (four items), the AISI S100 Table I6.2.1-1 R values and limits, the
+  ECP K / G rules (chart, G at the knee and base, rafter K, full brace points), ch. 6 / mono-symmetric flexure in
+  ecp205-lrfd, the EN / ASTM grade values, the R-factor readings (Se Fy = Mnlo; the larger of two valid methods).
+
+**Step 9 — what was built (2026-11-10):** PEB › "Design…" per building. NOT FOR ISSUE.
+- **Engine** `engine/design/design_run.py`: `check_building(b, li, DesignSettings)` — main frames by every code asked for
+  (sizing.evaluate: every distinct frame line, end-rafter walls skipped), wind columns, end rafters, bracing, cold-formed
+  lines (uplift mode AND strict beside); rows keyed by the MODEL member id (pieces of a purlin line, every frame line of a
+  group, every brace of a type) with ratio (None = NOT EVALUATED), governing check + clause, combination, station, code,
+  VERIFIED and its flags; summary (steel t and kg/m² from every generated member, max ratio per member type,
+  serviceability, NOT EVALUATED count, the unconfirmed items); per-member calc data. `size_building`: frames (step 8),
+  cold-formed (R-factor), wind columns and end rafters (`size_end_walls`, same plate lists, web ≥ 300, held forces), then
+  a full Check of the proposal; weights before / after. JSON-safe (`clean`: inf → null).
+- **Generator:** `BuildingInput.wind_column` / `end_rafter` section overrides {hw, tw, bf, tf} (refused when malformed);
+  `BuiltUpSizes.tw_column / tw_haunch / tw_rafter`; the end-rafter analysis and the wind-column check read the generated
+  sections (no longer the WIND_COLUMN constant, which stays the default).
+- **API:** `POST /peb/design {building, loads, settings, action}` → `{job}` (a thread), `GET /peb/design/{job}` → progress /
+  result / error; the last few runs kept; BuildingRequest takes wind_column / end_rafter, SizesIn the tw_*.
+- **Browser** (`app/manafe3/design.js` DOM-free, `design-ui.js`): settings (code basis AISC / ECP / both, governing code,
+  target, sway / rafter / purlin limits, uplift R-factor default with strict beside, stability), "Keep as project settings"
+  (`state.m3design`, saved with the model); Check; Size members → proposal table (now → proposed) and weight before /
+  after, **Apply = ONE undo step** (the building regenerated with the new sizes through applyBuilding, the crane entry
+  kept), Cancel changes nothing; 3D colours (blue < 0.5, green 0.5–0.90, orange 0.90–1.00, red > 1.00, grey NOT EVALUATED)
+  through a new `view.setColors(map)` hook, legend; results table (sort, filter, ratio band, code; a row click selects the
+  member; ticks for calc sheets); summary; calc sheets per member (data, section, restraints, loads, forces, every check
+  with clause, demand, capacity, ratio, basis; R-factor limits; NOT FOR ISSUE banner listing the open flags) → one HTML
+  document opened for printing to PDF (selected or all).
+- **Upstream files changed** (MANAFE3-CHANGES.md): `app/view3d.js` (setColors), `app/model.js` (m3design), `app/detailcraft.js`
+  (mount).
+- **Results (V 45 m/s, C — placeholder site wind):** building 1 (end-rafter first wall, Check, prismatic) 20.5 t,
+  35.6 kg/m², max 0.73 (a gable girt by the R-factor; frames AISC 0.52); Size → 14.8 t (25.7 kg/m²), max 0.892; R1: block 1 (27.6 m c/c, 10 bays) Check 46.3 t, 27.6 kg/m2, max 1.87 (side-wall girts in the 6.6 m end bay; frames 0.43 / 0.47); Size (41 min) -> 46.3 t, 27.6 kg/m2, max 0.896: girts Z250x65x20x3, purlins Z200x65x20x1.8, eave struts C200x65x20x1.8, gable girts lighter; the FRAMES stayed at the span-rule sizes although their ratios are 0.47 — not yet examined (serviceability steering suspected): TO LOOK AT. Block 2 (28.9 m c/c, 7 bays, 10 m eave; crane loads NOT analysed) Check 45.9 t, 42.0 kg/m2, max 3.07 (gable girts; side girts 1.72; columns 0.77, wind columns 0.97); Size (23 min) -> 41.1 t, 37.6 kg/m2: frames lighter (knee 700, base 375, rafter 300, webs 6 — columns 0.90, rafters 0.74), wind columns 300 x 180x8, purlins Z200x65x20x2, eave struts C200x65x20x1.8 — but NO ladder profile (up to Z300x65x20x3) brings the girts / gable girts to 0.90: they keep Z200 and the proposal does NOT pass (max 3.07). TO LOOK AT: the tall gable's girt spans / cantilevers to the roof, a deeper or heavier ladder, or more wind columns / sag rods on the walls.
+- **Tests:** `test_design_run.py` (settings, JSON, member weights by hand, the section sizer, overrides reaching the members,
+  the API job flow, building 1 Check — slow), `test-manafe3-design.mjs` (23: colour bands, settings, governing rows, colour
+  map by name, table, proposal, Apply as one undo step, request, settings saved, calc sheets); `tools/manafe3-smoke.mjs` now
+  opens Design…, runs Check with the engine, colours, a row, calc sheets (`--size` also sizes and cancels): Check 112 s,
+  286 rows, no new browser errors.
+
+**Public repository pass (2026-11-10, user request):**
+- Scan of the working tree and the WHOLE git history: no live secret (two false positives: a base64 run in an upstream
+  showcase fixture, a dummy "sk-ant-api03-THISISASECRETKEY…" in an upstream MCP test); no client or job names; no code
+  PDFs (the PDFs / DWGs are DetailCraft's own test fixtures); nothing needs the private peb folder (only `/health` says
+  whether it is configured). The private folder's PATH was in HANDOVER and `.env.local.example`: removed from the current
+  files — it is still in the git history (not a secret; rewriting history would need a force push: the user's call).
+  The two PC names and user folder names stay in CLAUDE.md / HANDOVER / `.env.local.example` (maintainer workflow); the
+  author's email is in the commit metadata only.
+- **Licence (user decision 2026-11-10):** everything Apache-2.0. 110 file headers now read `Copyright 2026 Ahmed Ali.
+  Licensed under the Apache License, Version 2.0 (see LICENSE).`; `pyproject.toml` license = "Apache-2.0"; NOTICE gains
+  the Manafe3 line; TRADEMARKS gains a Manafe3 name / logo section; LICENSE, NOTICE (DetailCraft), TRADEMARKS (DetailCraft),
+  MANAFE3-CHANGES kept; CLAUDE.md's header rule updated.
+- README for public users: the logo and the Surah Al-Hadid verse kept verbatim; "What is Manafe3"; install with
+  `git clone https://github.com/ahmedalisteel-star/manafe3.git` (no GitHub login); licences and names; the two-PC
+  section marked "maintainer only".
+- A fresh clone + `uv sync --locked` with every git credential switched off and an empty uv cache: works (bimsteelauto
+  and ecp205-lrfd are public); the imports run.
+- GitHub Actions re-added (`.github/workflows/tests.yml`): fast engine tests + Manafe3's app tests on every push and PR;
+  the full engine suite and the whole app suite on `main`.
 
 **Step 8 — what was built (2026-11-09):** `engine/design/sizing.py`. NOT FOR ISSUE.
 - **Main frames** (`size_frames(b, li, code="AISC"|"ECP", stability="dg25", target=0.90)`): the generator's own
@@ -840,7 +907,8 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 | GitHub CLI installed with winget on ENG04-PC | user | 2026-11-04 |
 | BIMSteelAuto as a git dependency: `pyproject.toml` added on branch `packaging` of the public repo (only files already public) | user | 2026-11-05 |
 | Upstream CI workflow removed (no Actions minutes); tests run locally via start-work/end-work | user | 2026-11-05 |
-| Manafe3's own code stays "All rights reserved – Ahmed Ali" (final) | user | 2026-11-05 |
+| Manafe3's own code stays "All rights reserved – Ahmed Ali" (final) — SUPERSEDED 2026-11-10 | user | 2026-11-05 |
+| The repository is public; Manafe3's own code is Apache-2.0 too (NOTICE, TRADEMARKS for the name and logo) | user | 2026-11-10 |
 | The 5 private peb files that differ from the public repo stay PRIVATE (used through `BIMSTEELAUTO_PEB_PATH`) | user | 2026-11-05 |
 | bimsteelauto `packaging` merged into its `main` (fast-forward; `main` = c0b2318, the commit Manafe3 pins) | user | 2026-11-05 |
 | Upstream bug fixed: `app/dwg/objects-write.js` synced from `tests/lib/dwg` (upstream's own test failed on v0.8.1) | Claude | 2026-11-04 |
@@ -859,7 +927,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
   `main` (`uv.lock`; it was branch `packaging`, merged 2026-11-05). Installs `bimsteelauto`, `bimsteelauto_connections`, and the vendored cfs modules
   `aisi_s100`, `direct_strength`. Optional extra `[fabdraw]` (ifcopenshell 0.8.5, ifcclash, ifctester, ezdxf, shapely,
   pymupdf) — not installed yet. Pins: PyNiteFEA 3.0.0, numpy 2.5.1, scipy 1.18.0, pyaisc360 @ 007a3f6.
-- **Private PEB pipeline (ENG04-PC)** `D:\Download\AI estimation\bimsteelauto_connections_v0.7.0\peb\`
+- **Private PEB pipeline (office PC)** — a private local folder (`BIMSTEELAUTO_PEB_PATH` in `.env.local`); never in this repo
   (`BIMSTEELAUTO_PEB_PATH`). Its HANDOVER_PROMPT.md was read. Facts:
   - Layer 1 engine `bimsteelauto\` (spec.py ProjectSpec/DesignResult = THE CONTRACT; pipeline.run_frame; sections.py
     tapered built-up I; loads\wind.py = ASCE 7-16 wind — **there is no file called `peb_wind.py`**; analysis\frame.py
@@ -886,9 +954,13 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 1. Laptop: choose its projects folder and fill `.env.local`; do the MySteelApp inventory.
 2. Upstream checks skipped on Windows (python venv for oracle readers, poppler, unzip, DSTV runners): optional.
 
-(Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`; own code All rights reserved.)
+3. Optional: rewrite the git history to drop the old private-folder path (a force push — the user's call).
+
+(Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
+public and all of it Apache-2.0.)
 
 ## Roadmap (do NOT build ahead of the current phase)
+- Wind-column deflection limit and end-wall serviceability in Design… (not checked today; the web is held ≥ 300).
 - Sizing loop: different flange plates per segment (column / haunch / rafter) for lighter frames (user, 2026-11-09 —
   roadmap, not now; the generator's splice rule keeps one flange plate today).
 
@@ -955,7 +1027,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-09 16:00 on ENG04-PC
-- Did: Phase 4 step 8: sizing loop (main frames to target 0.90 with re-analysis; cold-formed roles by R-factor with the strict ratio beside, NOT FOR ISSUE)
-- Tests: engine 176 passed, 2 warnings in 684.45s (0:11:24) | app 15 of 15 test files passed
+- When: 2026-11-10 15:24 on ENG04-PC
+- Did: Phase 4 steps 9-10: PEB Design..., Apache-2.0, public README, CI workflow
+- Tests: engine 183 passed, 2 warnings in 776.35s (0:12:56) | app 16 of 16 test files passed
 <!-- LAST-SESSION:END -->

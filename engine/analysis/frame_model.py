@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 2: one Manafe3 frame line → a bimsteelauto FrameLayout (2D, solved by its verified FrameAnalysis).
 
 User decision (2026-11-05): members on their CENTROID LINES, with RIGID links at the knee (and the ridge if needed).

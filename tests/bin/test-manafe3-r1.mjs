@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * Regression project R1 (field fixes; anonymised — no client name or job number): the first real job rebuilt on its site
  * grids from the engine's buildings (fixtures/manafe3/r1-block1.json, r1-block2.json made by engine/peb/building.py with

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 1 portal frame with welded built-up members: tapered columns, a haunch at the knee, rafters. NOT a design.
 
 Sizes come from span rules (user decision 2026-11-05, HANDOVER.md "Phase 1 plan"); every one can be overridden from the

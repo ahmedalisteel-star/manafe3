@@ -1,19 +1,23 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * manafe3-smoke.mjs — opens Manafe3's own dialogs in headless Chrome / Edge over the DevTools Protocol (no packages) and
  * prints every page error, console error and failed load. Start the app first (python manafe3.py, or the engine on 8765
  * and `node devshell/serve.mjs --port 8000`), then:   node tools/manafe3-smoke.mjs [http://localhost:8000/]
  * Browser: MANAFE3_CHROME, else Chrome or Edge in their standard Program Files folders. The profile is a temp folder.
  * Steps: Building… (placement, pads), a second building rotated 90°, Crane runway…, Job units…, base plates and footing
- * clean-up, Analysis… picker, Drawings settings + tick-box export, Elevation view on an x grid line.
+ * clean-up, Analysis… picker, Design… (settings, Check on the first building with the engine, 3D colours and legend, a
+ * table row selecting its member, calc sheets; `--size` also runs "Size members" and Cancel), Drawings settings + tick-box
+ * export, Elevation view on an x grid line.
  */import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 const CHROME = [process.env.MANAFE3_CHROME, ...['ProgramFiles', 'ProgramFiles(x86)'].flatMap((k) => process.env[k] ? [path.join(process.env[k], 'Google/Chrome/Application/chrome.exe'), path.join(process.env[k], 'Microsoft/Edge/Application/msedge.exe')] : [])].find((p) => p && fs.existsSync(p));
 if (!CHROME) { console.error('No Chrome or Edge found: set MANAFE3_CHROME to its path.'); process.exit(2); }
-const URL0 = process.argv[2] || 'http://localhost:8000/';
+const ARGS = process.argv.slice(2);
+const URL0 = ARGS.find((a) => !a.startsWith('--')) || 'http://localhost:8000/';
+const SIZE = ARGS.includes('--size');
 const PROFILE = fs.mkdtempSync(path.join(os.tmpdir(), 'manafe3-smoke-'));
 fs.mkdirSync(PROFILE, { recursive: true });
 const chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=9333', '--user-data-dir=' + PROFILE, '--no-first-run', '--no-default-browser-check', '--window-size=1600,1000', 'about:blank'], { stdio: 'ignore' });
@@ -75,6 +79,33 @@ await step('Remove footings with no column + base plates', H + `
 await step('Analysis dialog: building picker', H + `
   $('[data-m3-act="analysis"]').click(); await sleep(800);
   const d = $('dialog[data-m3-analysis]'); const o = [...$('[data-m3-a-building]').options].map((x) => x.textContent); d.close(); return { open0: true, picker: o };`);
+await step('Design dialog: settings, Check, colours, a row, calc sheets', H + `
+  M().change('loads for the smoke test', (tx) => { tx.s.m3loads = { V: 45, exposure: 'C' }; });
+  $('[data-m3-act="design"]').click(); await sleep(800);
+  const d = $('dialog[data-m3-design]'); if (!d || !d.open) return 'not open';
+  const parts = ['[data-m3-d-check]', '[data-m3-d-size]', '[data-m3-d-legend]', '[data-m3-d-table]', '[data-m3-d-summary]', '[data-m3-d-calc-all]'].filter((s) => !d.querySelector(s));
+  set('[data-m3-d="code_basis"]', 'AISC'); set('[data-m3-d="stability"]', 'prismatic');
+  $('[data-m3-d-check]').click();
+  let note = '';
+  for (let i = 0; i < 200; i++) { await sleep(3000); note = $('[data-m3-d-note]').textContent; if (/done in|Engine:|not running|No /.test(note)) break; }
+  const rows = d.querySelectorAll('[data-m3-d-row]').length;
+  const legend = d.querySelectorAll('[data-m3-d-legend] > span').length;
+  const first = d.querySelector('[data-m3-d-row]'); if (first) first.click(); await sleep(500);
+  const sel = $('[data-m3-d-note]').textContent;
+  const opened = []; const wo = window.open; window.open = () => { const w = { document: { open() {}, write(h) { opened.push(h.length); }, close() {} }, focus() {}, print() {} }; return w; };
+  $('[data-m3-d-calc-all]').click(); await sleep(800); window.open = wo;
+  let size = 'skipped';
+  if (${SIZE}) {
+    $('[data-m3-d-size]').click();
+    for (let i = 0; i < 400; i++) { await sleep(3000); size = $('[data-m3-d-note]').textContent; if (/done in|Engine:/.test(size)) break; }
+    const prop = d.querySelectorAll('[data-m3-d-proposal-table] tbody tr').length;
+    const c = d.querySelector('[data-m3-d-cancel]'); if (c) c.click();
+    size = { note: size.slice(0, 160), proposalRows: prop };
+  }
+  const colours = $('[data-m3-d-colours]').textContent;
+  d.close();
+  return { missing: parts, note: note.slice(0, 200), rows, legend, selected: sel.slice(0, 120), colours, calcSheetsHtmlLength: opened[0] || 0, size,
+    weight: d.querySelector('[data-m3-d-weight]')?.textContent?.slice(0, 160) };`);
 await step('Drawings: open, settings panel, change, tick export', H + `
   document.querySelector('[data-act="drawings"]').click(); await sleep(9000);
   const d = document.querySelector('dialog[open]'); if (!d) return 'no dialog open';

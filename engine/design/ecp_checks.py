@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 7: main-frame members to ECP 205-LRFD (2008), side by side with AISC 360-16. NOT FOR ISSUE.
 
 Decisions (user, 2026-11-09):

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 0 portal frame: geometry only, NOT a design.
 
 A symmetric gable portal frame repeated on every frame line: two columns and two rafters per frame.

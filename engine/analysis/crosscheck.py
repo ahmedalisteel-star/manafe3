@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 5a: an independent cross-check of one frame line with anastruct (a different FE code), first order.
 
 The same layout (nodes, rigid knee arms) and the same loads, but its own discretisation: each tapered member cut into

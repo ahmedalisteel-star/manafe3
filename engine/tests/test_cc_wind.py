@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """C&C wall pressures (ASCE 7-16 Ch. 30, engine/analysis/cc_wind.py) — VERIFIED False; this is the hand-check of ONE
 case, written out longhand (user, 2026-11-08): wind column WF3 of building 1 (24 m span, eave 6 m, slope 0.1 → θ 5.71°,
 V 45 m/s, exposure C; qh 0.94843 kN/m² from bimsteelauto).

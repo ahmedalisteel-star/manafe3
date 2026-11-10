@@ -1,0 +1,66 @@
+# Manafe3 tests on GitHub Actions (free for public repositories). Copyright 2026 Ahmed Ali. Apache-2.0 (see LICENSE).
+#   every push and pull request: the engine's fast tests (pytest -m "not slow") and Manafe3's own app tests
+#   main (and by hand): the full engine suite (whole buildings, minutes) and the whole app suite (DetailCraft's + Manafe3's)
+# The Python packages come from uv.lock (bimsteelauto and ecp205-lrfd are public git dependencies: no login needed).
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Python packages (uv.lock)
+        run: uv sync --locked
+      - name: Engine — fast tests
+        run: uv run pytest -q -m "not slow"
+      - name: App — Manafe3's tests
+        run: |
+          for f in tests/bin/test-manafe3-*.mjs; do
+            npm test --silent -- --only "$(basename "$f")" --offline --no-python || exit 1
+          done
+
+  full:
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # DetailCraft's PDF checks read their output back with poppler
+      - name: Poppler
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      - name: Cache libraries
+        uses: actions/cache@v4
+        with:
+          path: devshell/vendor
+          key: vendor-${{ hashFiles('devshell/vendor.json') }}
+      - name: Python packages (uv.lock)
+        run: uv sync --locked
+      - name: Engine — every test (whole buildings included)
+        run: uv run pytest -q
+      - name: App — the whole suite
+        run: npm test

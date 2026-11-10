@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 secondary steel layout. Geometry only, NOT designed (Phase 4).
 
 Step 2 — purlin and girt LINES (continuous along the building; step 3 cuts them into lapped pieces).

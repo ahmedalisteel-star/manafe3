@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 4: serviceability (engine/design/serviceability.py) — ratios by hand.
 
     synthetic   a hand-made result: sway = |dx| / (H/100) of the worst eave over the ASD wind combinations only (a gravity

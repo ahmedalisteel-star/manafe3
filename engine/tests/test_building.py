@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 2 step 7: the whole building — building 1 (span 24 000, eave 6 000, slope 0.1, 4 bays of 6 000), composed from
 the component cases checked by hand in test_secondary_*, test_bracing, test_endwall, test_openings.
 

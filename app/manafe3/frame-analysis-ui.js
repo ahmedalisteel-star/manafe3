@@ -1,4 +1,4 @@
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * frame-analysis-ui.js — PEB › "Analysis…": runs the engine's analysis of the kept building and loads, then shows per frame
  * line and per case / combination the deflected shape and the N / V / M diagrams (SVG), the summary (ASD drift and apex,

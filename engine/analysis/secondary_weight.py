@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """The model's own secondary steel as a dead load per m² (feeds case D of the frames: engine/analysis/frame_loads.py).
 
 Weighed from the generated members (not typed): steel 7850 kg/m³ → 76.982 kN/m³.

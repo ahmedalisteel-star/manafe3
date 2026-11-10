@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /** Phase 3 step 8: the "Analysis…" data side (app/manafe3/frame-analysis.js) on a hand-made result. Run by npm test.
  *  A 10 m × 6 m portal: column CA up (i base → j knee), rafter R left → right, column CB up. Every diagram point below is
  *  worked by hand. M + = the member's TOP flange in compression (bimsteelauto 0.14.1): a + value is drawn OPPOSITE the top

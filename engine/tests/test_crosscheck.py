@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 5: the interior frame of building 1 cross-checked with anastruct (independent FE code, its own taper
 slicing), first order, for a gravity case (D) and a wind case (WA+L); and the STAAD.Pro .std text by hand.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Manafe3 file. Copyright (c) 2026 Ahmed Ali. All rights reserved. (Not part of upstream DetailCraft.) */
+/* Manafe3 file. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE). (Not part of upstream DetailCraft.) */
 /**
  * Phase 2 step 8: outputs for the secondary steel — DSTV NC, the C/Z punch list, IFC out and back in — on the engine's
  * building 1 + door (fixtures/manafe3/building1.json).

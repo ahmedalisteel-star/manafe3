@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 4 step 6: purlins, girts and eave struts — AISI S100-16 (DSM), LRFD strength, ASD deflection. NOT FOR ISSUE.
 
 Lines (from the generated building):

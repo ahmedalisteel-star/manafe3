@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 6: the longitudinal (tension-only X-bracing) system — bimsteelauto's verified chain, on Manafe3's panels,
 driven by the ACTUAL end-wall top reactions (user decision 2026-11-08).
 

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Built-up members: hand-checked section properties, sectionproperties cross-check, splice and minimum checks.
 
 Longhand (y from the bottom fibre; parts = bottom flange, web, top flange; d = hw + tf_top + tf_bot):

@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """The HTTP API: /health versions and /peb/frame over HTTP (FastAPI TestClient, no server needed)."""
 
 from importlib.metadata import version

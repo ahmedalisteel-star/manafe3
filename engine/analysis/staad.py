@@ -1,4 +1,4 @@
-# Manafe3 engine. Copyright (c) 2026 Ahmed Ali. All rights reserved.
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 """Phase 3 step 5b: one frame line as a STAAD.Pro input file (.std), for the user to run in STAAD.Pro V8i and compare.
 
     STAAD PLANE, UNIT METER KN; joints = the layout's nodes (X across, Y up); members = the layout's members
