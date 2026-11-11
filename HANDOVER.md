@@ -57,7 +57,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
 | 4 | Flange-to-web welds of built-up members | |
-| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints** (user 2026-11-11) | |
+| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
 | 8 | PEB > "Connections..." in the browser: Check, Design, Apply as one undo step, calc sheets, NOT FOR ISSUE | |
@@ -102,20 +102,31 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
   rod end at (x 0, y 8.66, z 5 913.4) — inside the 12 mm outer flange of column F1-CA, 815 mm outboard of the rafter's
   start (y 824); 8 ends on building 1. **Now (`bracing.roof_brace_lines`): the roof X uses the purlin lines from the FIRST
   PURLIN PAST THE KNEE** (s > (hw_knee + 2 tf) √(1 + slope²)) to the ridge purlin; building 1: eave node s 1 185.985,
-  rod end (0, 1 188.756, 6 031.442) in the rafter web (host F1-RA), 360 mm inboard of the column's inner face; the next
-  node 7 115.91 (a 0.001 mm tie with 5 929.925 at the 45° target — deterministic, but a knife edge); diagonal length
-  unchanged 8 435.876, deepest roof panel unchanged 5 929.9 → roof / wall diagonal forces unchanged (21.37 / 21.32 kN
-  LRFD). Joints unchanged in number (291; 95 evaluated, 196 cleats NOT EVALUATED); brace-end hosts rafters 32 / columns
-  16 (were 24 / 24). Fewer than two purlin lines past the knee on a slope → refused.
-- **OPEN — the eave transfer is not in any analysis or check:** at each eave of a braced bay the roof truss must hand its
+  rod end (0, 1 188.756, 6 031.442) in the rafter web (host F1-RA), 360 mm inboard of the column's inner face. **Tie rule
+  (user 2026-11-11, `bracing.NODE_TIE`):** node candidates within 1 mm of the same distance from the 45° target → the purlin
+  nearer the eave (it was decided by the 0.001 mm rounding of the lines). Building 1's 45° target is such a tie (592.993 /
+  592.992) → the next node is 5 929.925: first diagonal 7 648.854, deepest roof panel still 5 929.9 → roof / wall diagonal
+  forces unchanged (21.37 / 21.32 kN LRFD). Joints unchanged in number (291; 95 evaluated, 196 cleats NOT EVALUATED);
+  brace-end hosts rafters 32 / columns 16 (were 24 / 24). Fewer than two purlin lines past the knee on a slope → refused.
+- **Eave transfer — DECIDED (user 2026-11-11): option (a), an automatic check in step 5** (below). Why: at each eave of a braced bay the roof truss must hand its
   reaction to the wall X (top in the column web plane, 100 mm below the eave): **15.2 kN LRFD on building 1** (30.4 kN
   per braced bay / 2 side walls). From the first-purlin node it travels through the rafter's haunch end (weak-axis shear
   and bending, ≈ 15.2 kN × 0.36 m ≈ 5.5 kN·m), the knee end plate (bolt shear along the building) and the column top
   (weak axis, down to the wall X top). The eave strut does NOT carry it (no diagonal in the eave panel). Neither the
   2D frame analysis nor the member checks see these out-of-plane actions — before the move the same gap existed with the
-  node at the column. To decide: (a) a check of that transfer in step 3 / 5 (rafter weak-axis at the haunch end, knee
-  bolts in shear, column top), or (b) a member that closes the eave panel (e.g. a horizontal diagonal or strut from the
-  first-purlin node to the column top / wall X top) so the path is a truss member the analysis carries.
+  node at the column. Step 5 checks the transfer automatically (haunch-end weak-axis bending, knee bolt shear along the
+  building, column top); if it fails, the result says so and suggests an eave-panel strut (from the first-purlin node
+  to the column top / wall X top).
+- **Sized fixture (user 2026-11-11):** `fixtures/manafe3/building1-sized.json` — building 1 with the Phase 4 step 8 frame
+  sizes (knee 475, base 300, rafter 300, flanges 200 × 10, webs 6). Full check: interior lines 0.893 (column, H1-1b, AISC
+  prismatic; DG 25 0.894), rafters 0.84; end frames 0.47; serviceability 0.80. Joints: **analysis force governs 21 of the
+  75 capacity-rule actions** — on each interior frame (2, 3, 4) the knee Mu+ (217.7 vs 0.5 × 395.0) and Mu− (341.8),
+  the splice Mu− (140.5 vs 0.5 × 233.5) and the ridge Mu+ (146.9); **the 50 % rule governs the other 54**: every action of
+  the end frames 1 and 5 (half the tributary width), the splice Mu+, the ridge Mu−, and **every Vu** (V/φVn ≤ 0.19 on PEB
+  frames — the shear rule will nearly always govern the end-plate bolt shear).
+- **Placeholder warning (user 2026-11-11):** `placeholder_warnings(b)` → `building_joints()["warnings"]`: main frames on
+  the span-rule sizes (sizes not given, or equal to `default_sizes` of the typed span), wind columns / end rafters on the
+  generator's section. Step 8 shows them in the browser.
 - Tests (`test_joints.py`, 9): counts of building 1 and of an end-rafter variant by hand (291 / 295, hosts), settings
   (switches, refusals), the ridge φMn (F3, 447.6, the same for −M: no LTB) and φVn (G2.1, 441.3) longhand, the KNEE φMn
   (F4-13, 1 038.3) longhand, the 50 % rule; not firing on a heavy joint, f = None, moment / shear switched separately,

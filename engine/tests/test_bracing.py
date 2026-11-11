@@ -65,6 +65,18 @@ def test_two_rows_above_7_5_m():
     assert sag_rods(LINES, inp)["rows"] == [3000, 6000]
 
 
+def test_roof_node_tie_takes_the_purlin_nearer_the_eave():
+    # lines 0, 1 000, 2 000, 3 000, 4 000 with a 4 000 bay: 1 panel → [0, 4 000]; bay 2 000 → 2 panels, target 2 000
+    # exact → 2 000 (no tie). Lines 0, 1 000, 3 000, 4 000, bay 2 000: target 2 000 is 1 000 from both 1 000 and 3 000 →
+    # the tie rule takes 1 000 (nearer the eave)
+    assert roof_nodes([0, 1000, 2000, 3000, 4000], 2000) == [0, 2000, 4000]
+    assert roof_nodes([0, 1000, 3000, 4000], 2000) == [0, 1000, 4000]
+    # within 1 mm is still a tie (999.4 vs 1 000.0 away): the nearer-eave line wins although it is 0.6 mm farther
+    assert roof_nodes([0, 999.4, 3000, 4000], 2000) == [0, 999.4, 4000]
+    # negative control: 1.5 mm apart is NOT a tie — the truly nearer line (3 000, 1 000 away vs 1 001.5) wins
+    assert roof_nodes([0, 998.5, 3000, 4000], 2000) == [0, 3000, 4000]
+
+
 def test_roof_and_wall_bracing():
     out = x_bracing(LINES, LINES["walls"], INP)
     roof = [m for m in out if m["role"] == "roof_brace"]
@@ -74,18 +86,20 @@ def test_roof_and_wall_bracing():
     assert roof_nodes(ss, 6000) == [0, pytest.approx(5929.925, abs=1e-3), pytest.approx(11859.851, abs=1e-3)]
     # user decision 2026-11-11: the eave node is the FIRST PURLIN PAST THE KNEE, not the eave strut. By hand: the rafter
     # starts at the column's inner face y = 800 + 24 = 824, s = 824 √1.01 = 828.11; purlins at k × 1 185.985 → the first
-    # past it is 1 185.985 (k = 1). Run to the ridge purlin 10 673.866 → 2 panels; target 6 522.918 is a tie between
-    # 5 929.925 and 7 115.910 (592.993 / 592.992 with the 0.001 mm rounding of the lines) → 7 115.910.
+    # past it is 1 185.985 (k = 1). Run to the ridge purlin 10 673.866 → 2 panels; target 6 522.918 is a TIE between
+    # 5 929.925 and 7 115.910 (592.993 / 592.992) → the tie rule (within 1 mm: the one nearer the eave) → 5 929.925.
     assert roof_brace_lines(ss, INP)[0] == pytest.approx(1185.985, abs=1e-3)
-    assert roof_nodes(roof_brace_lines(ss, INP), 6000) == [pytest.approx(1185.985, abs=1e-3), pytest.approx(7115.91, abs=1e-3),
+    assert roof_nodes(roof_brace_lines(ss, INP), 6000) == [pytest.approx(1185.985, abs=1e-3), pytest.approx(5929.925, abs=1e-3),
                                                            pytest.approx(11859.851, abs=1e-3)]
     a0 = [m for m in roof if m["side"] == "A" and m["bay"] == 0]
     # start: roof point y = 1 185.985 / √1.01 = 1 180.099, z = 6 118.010, then 87 (tf 12 + 75) along the inward normal
     # (+0.0995 × 87, −0.9950 × 87) → (1 188.756, 6 031.442): in the rafter web, 360 mm inboard of the column's inner face
     assert a0[0]["start"] == [0, pytest.approx(1188.756, abs=1e-3), pytest.approx(6031.442, abs=1e-3)]
-    assert a0[0]["end"] == [6000, pytest.approx(7089.252, abs=1e-3), pytest.approx(6621.491, abs=1e-3)]
-    # √(6 000² + 5 900.496² + 590.049²) — the same panel length (5 929.9 along the roof) as before the move
-    assert a0[0]["length"] == pytest.approx(8435.876, abs=1e-3)
+    # end at s 5 929.925: y = 5 900.496, z = 6 590.050, + (8.657, −86.568) → (5 909.153, 6 503.481)
+    assert a0[0]["end"] == [6000, pytest.approx(5909.153, abs=1e-3), pytest.approx(6503.481, abs=1e-3)]
+    # √(6 000² + 4 720.397² + 472.039²) = 7 648.854; the second panel (5 929.925 → 11 859.851, 5 929.9 along the roof)
+    # is the deepest, as before — the bracing system's panel depth is unchanged
+    assert a0[0]["length"] == pytest.approx(7648.854, abs=1e-3)
     # negative control: no brace end lies outboard of the rafter's start (the old node was at y 8.657, in the column flange)
     assert min(min(m["start"][1], m["end"][1]) for m in roof if m["side"] == "A") > 824
     w = [m for m in wall if m["side"] == "A" and m["bay"] == 0]

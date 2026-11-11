@@ -317,3 +317,63 @@ def test_end_rafter_splice_is_evaluated_at_its_own_node(monkeypatch):
     c = next(k for k, r in ef2["results"].items() if r["set"] == "LRFD")
     for cid, v in ef2["results"][c]["reactions"].items():
         assert v == pytest.approx(ef0["results"][c]["reactions"][cid], rel=5e-3, abs=0.05)
+
+
+# ------------------------------------------------------------------------------------------------- the sized fixture
+
+def _sized():
+    from engine.peb.builtup_frame import BuiltUpSizes
+    from engine.peb.loads_input import LoadsInput
+    p = __import__("pathlib").Path(__file__).resolve().parents[2] / "fixtures" / "manafe3" / "building1-sized.json"
+    fx = json.loads(p.read_text(encoding="utf-8"))
+    return BuildingInput(**fx["building"], sizes=BuiltUpSizes(**fx["sizes"])), LoadsInput(**fx["loads"])
+
+
+def test_placeholder_warnings():
+    from engine.connections.joints import placeholder_warnings
+    from engine.peb.builtup_frame import default_sizes
+    w = placeholder_warnings(BuildingInput(**B1))
+    assert any("Main frames" in s for s in w) and any("Wind columns" in s for s in w)
+    # the default sizes typed in explicitly are still the placeholder (negative control: not fooled by sizes != None)
+    assert any("Main frames" in s for s in placeholder_warnings(BuildingInput(**B1, sizes=default_sizes(24000))))
+    b, _ = _sized()
+    w = placeholder_warnings(b)
+    assert not any("Main frames" in s for s in w) and any("Wind columns" in s for s in w)
+    assert any("End rafters" in s for s in placeholder_warnings(BuildingInput(**B1, end_first="rafter")))
+    assert not any("End rafters" in s for s in placeholder_warnings(BuildingInput(**B1)))
+
+
+@pytest.mark.slow
+def test_sized_building_1_analysis_or_capacity_by_joint():
+    """Building 1 with the Phase 4 sizes (fixtures/manafe3/building1-sized.json: knee 475, base 300, rafter 300, flanges
+    200 × 10, webs 6). Knee capacity by hand (column top, d 489.189, hw 469.189 × 6, S355): h/tw 78.20 ≤ 89.25 compact web →
+    F3; Zx = 2 000 · 479.189 + 6 · 469.189² / 4 = 1 288 585 mm³, Ix = 281 298 670 mm⁴, Sx = Ix / 244.5945 = 1 150 061 mm³;
+    Mp = 457.45 kN·m; λ 10 > λpf 9.020; kc = 4/√78.198 = 0.45234, λrf = 18.126, (10 − 9.020)/(18.126 − 9.020) = 0.10766;
+    Mn = 457.45 − (457.45 − 0.7 · 355 · Sx = 285.79) × 0.10766 = 438.97; φMn = 395.07 kN·m.
+    Shear: h/tw 78.20 > 60.33 → Cv1 = 0.77156; φVn = 0.9 · 0.6 · 355 · 489.189 · 6 · 0.77156 = 434.13 kN."""
+    from engine.analysis.building_analysis import analyse_building
+    from engine.connections.joints import building_joints
+
+    b0, li = _sized()
+    b, _ = resolve(b0)
+    out = peb_building(b)
+    r = building_joints(b0, li, analysis=analyse_building(b, li), out=out)
+    assert not any("Main frames" in s for s in r["warnings"])
+    js = {j["id"]: j for j in r["joints"]}
+    k = js["F3-KA"]["capacity"]
+    assert k["section"]["d"] == pytest.approx(489.189, abs=1e-3)
+    assert k["phiMn_neg"] == pytest.approx(395.07, rel=1e-3) and k["phiVn"] == pytest.approx(434.13, rel=1e-3)
+    gov = Counter()
+    for j in r["joints"]:
+        if j["type"] not in ("knee", "ridge", "rafter_splice"):
+            continue
+        for key in ("Mu_pos", "Mu_neg", "Vu"):
+            d = j["design"][key]
+            assert d["value"] == pytest.approx(max(d["analysis"], d["capacity_based"]))      # the rule, every action
+            gov[(j["frame_line"] in ("1", "5"), key, d["criterion"])] += 1
+    # interior frames (2, 3, 4): the knee M+ and M−, the splice M− and the ridge M+ exceed half the section strength —
+    # the analysis governs there (7 per line); the end frames (half the tributary width) and every Vu: the 50 % rule
+    assert gov[(False, "Mu_pos", "analysis force")] == 3 * 3 and gov[(False, "Mu_neg", "analysis force")] == 3 * 4
+    assert sum(v for (end, key, c), v in gov.items() if c == "analysis force") == 21
+    assert not any(c == "analysis force" for (end, key, c) in gov if end or key == "Vu")
+    assert js["F3-KA"]["design"]["Mu_neg"]["analysis"] / k["phiMn_neg"] > 0.5                   # 341.8 / 395.1 = 0.87

@@ -52,7 +52,7 @@ from bimsteelauto_connections import CAPACITY_FRACTION, CAPACITY_FRACTION_SOURCE
 from ..analysis.frame_model import frame_line_model
 from ..design.frame_checks import _materials, strengths_by_mark
 from ..peb.building import BuildingInput, peb_building, resolve
-from ..peb.builtup_frame import builtup_frame_members
+from ..peb.builtup_frame import builtup_frame_members, default_sizes
 
 BANNER = "NOT FOR ISSUE — connection joints and design forces (Phase 5 step 1); connections not designed"
 SECTION_LB = 1.0             # mm: "Lb = 0" for the section strength (available_strengths needs a length > 0)
@@ -388,6 +388,21 @@ def _analysis_only(j: dict, items: dict) -> None:
     j["status"] = EVALUATED
 
 
+def placeholder_warnings(b: BuildingInput) -> list[str]:
+    """Warnings when the members the connections develop still have the generator's PLACEHOLDER sizes (user decision
+    2026-11-11): frames on the span rules (sizes not given, or equal to default_sizes of the typed span), wind columns /
+    end rafters on the generator's constant section. The 50 % rule then follows an undesigned section."""
+    w = []
+    if b.sizes is None or b.sizes == default_sizes(b.span):
+        w.append("Main frames have the span-rule PLACEHOLDER sizes (not sized by PEB > Design...): the capacity-based "
+                 "connection forces follow an undesigned section - size the frames first.")
+    if getattr(b, "wind_column", None) is None:
+        w.append("Wind columns have the generator's placeholder section (not sized).")
+    if "rafter" in (b.end_first, b.end_last) and getattr(b, "end_rafter", None) is None:
+        w.append("End rafters have the generator's placeholder section (not sized).")
+    return w
+
+
 def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, settings: ConnectionSettings | None = None,
                     out: dict | None = None) -> dict:
     """Every joint with its LRFD forces and design forces. analysis = analyse_building(b, li) (run here when None)."""
@@ -395,6 +410,7 @@ def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, setti
     from ..design.secondary_checks import wind_column_inputs
 
     settings = (settings or ConnectionSettings()).check()
+    warnings = placeholder_warnings(b)                  # before resolve(): it fills sizes with the defaults
     b, _ = resolve(b)
     out = out or peb_building(b)
     if analysis is None:
@@ -523,7 +539,7 @@ def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, setti
         c["joints"] += 1
         c["evaluated" if j["status"] == EVALUATED else "not_evaluated"] += 1
     counts["total"] = {k: sum(v[k] for v in counts.values()) for k in ("joints", "evaluated", "not_evaluated")}
-    return {"banner": BANNER, "designed": False, "settings": asdict(settings),
+    return {"banner": BANNER, "designed": False, "warnings": warnings, "settings": asdict(settings),
             "capacity_rule": {"fraction": settings.capacity_fraction, "source": CAPACITY_RULE_SOURCE, "basis": CAPACITY_BASIS,
                               "applies_to": ("knee / ridge / rafter-splice joints only: "
                                              + (", ".join(x for x, on in (("Mu+ and Mu-", settings.capacity_moment),

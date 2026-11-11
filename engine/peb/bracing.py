@@ -32,6 +32,7 @@ THREAD = 50.0                # per rod end, added to the web-to-web length
 ROOF_BRACE_BELOW = 75.0      # below the rafter's top flange
 WALL_BRACE_TOP = 100.0       # below the eave
 INTO_SECONDARY = 50.0        # flange brace end into the purlin / girt
+NODE_TIE = 1.0               # mm: roof-brace node candidates this close in distance are a tie → the one nearer the eave
 
 
 @dataclass(frozen=True)
@@ -141,13 +142,16 @@ def sag_rods(lines: dict, inp: BracingInput) -> dict:
 
 
 def roof_nodes(ss: list[float], bay: float) -> list[float]:
-    """Node s values near 45°: n panels = max(1, round(run / bay)), each target snapped to the nearest purlin line."""
+    """Node s values near 45°: n panels = max(1, round(run / bay)), each target snapped to the nearest purlin line.
+    Tie rule (user decision 2026-11-11): two lines within NODE_TIE (1 mm) of the same distance → the one nearer the eave
+    (smaller s) — an explicit rule, not the 0.001 mm rounding of the line positions."""
     run = ss[-1] - ss[0]
     n = max(1, round(run / bay))
     out = [ss[0]]
     for i in range(1, n):
         t = ss[0] + run * i / n
-        best = min(ss, key=lambda s: abs(s - t))
+        dmin = min(abs(s - t) for s in ss)
+        best = min(s for s in ss if abs(s - t) <= dmin + NODE_TIE)
         if best not in out and best != ss[-1]:
             out.append(best)
     return out + [ss[-1]]
