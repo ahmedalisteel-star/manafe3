@@ -57,7 +57,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
 | 4 | Flange-to-web welds of built-up members | |
-| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder) | |
+| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
 | 8 | PEB > "Connections..." in the browser: Check, Design, Apply as one undo step, calc sheets, NOT FOR ISSUE | |
@@ -72,21 +72,45 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 - `building_joints(b, li, analysis=, settings=)` — LRFD forces: frame joints from the DAM strength solve, member-end
   stations within 1 mm of the joint, both members at a knee: largest +M and −M with their V and P, largest |V|, largest
   compression and tension, each with combination and member; bases from the reactions (compression, uplift, |H|, |M|);
-  wind columns from their member-check forces (+ uplift / in-plane H from the end-rafter frame); end-rafter ridge from
-  that frame's stations; braces = the tension-only diagonal force. **Cleats and end-rafter splices: NOT EVALUATED**
-  (cold-formed support reactions come with step 5; the end-rafter frame has no station at the splice).
-- Capacity rule: `ConnectionSettings.capacity_fraction` (default the library's 0.50; None = analysis only) through
-  `bimsteelauto_connections.design_force`, at knee / ridge / splice for Mu+, Mu−, Vu: section = the smaller Zx at the
-  joint (library rule), φMn by `available_strengths` with Lb = the compression flange's brace segment at the joint, Cb = 1,
-  Fy = the lowest plate of that piece. Axial, bases, wind columns, braces: analysis force alone — **TO CONFIRM**.
-- Building 1 (V 45, C): 291 joints, all evaluated except the 196 cleats; line 3: knee −M 345.3 / +M 208.4 kN·m (design
-  519.1 = 0.5 × φMn 1038.2), ridge +M 121.2 (design 223.8 = 0.5 × 447.6), base uplift 49.0 kN. The capacity rule governs
-  every frame joint on building 1 (moments well below 50 % of capacity).
-- Found: the roof bracing's eave node is at the COLUMN top (y 8.7, z 5 913), not on the rafter — step 5 must detail it there.
-- Tests (`test_joints.py`, 7): counts of building 1 and of an end-rafter variant by hand (291 / 295, hosts), settings,
-  φMn (F3, 447.6) and φVn (G2.1, 441.3) at the ridge longhand and the 50 % rule; the rule not firing on a heavy joint and
-  f = None; negative controls (a 5 000 kN·m mid-member moment is not the joint's; missing stations, stations 5 mm off the
-  joint, no LRFD combination → NOT EVALUATED); line 3 against the analysis' own first / last stations and reactions (slow).
+  wind columns from their member-check forces (+ uplift / in-plane H from the end-rafter frame); end-rafter ridge and
+  splices from that frame's stations; braces = the tension-only diagonal force. **Cleats: NOT EVALUATED** (cold-formed
+  support reactions come with step 5).
+- **End-rafter splices (fix 2026-11-11):** the end-rafter frame now has a node at every end-rafter splice
+  (`endwall_analysis.end_rafter_splice_ys`). With today's generator (end rafter split in halves, wind columns equally
+  spaced) the splice always fell on a strength-model quarter-point node already — the step-1 code had marked these
+  joints NOT EVALUATED without looking. The node covers every other splice position (test: a splice moved to y 4 975.2).
+- **Capacity rule (user decisions 2026-11-10 / 11).** SOURCE: a project setting, NOT a code clause (AISC 360-16 has no
+  general minimum); default 0.50 = `bimsteelauto_connections.CAPACITY_FRACTION`; stated on every result
+  (`capacity_rule.source`). Only at knee / ridge / rafter-splice joints; `ConnectionSettings(capacity_fraction,
+  capacity_moment, capacity_shear)` — moment and shear switch separately; None = analysis only. Basis = the SECTION
+  strength of the shallower section at the joint (smaller Zx): yielding + local buckling, NO LTB (Lb = 0; bimsteelauto
+  `available_strengths` with Lb = Lc = 1 mm), Fy = the lowest plate of that piece. Axial, bases, wind columns, end
+  rafters, braces: the analysis force alone.
+- **Building 1 (V 45, C) — 291 joints: 95 EVALUATED, 196 NOT EVALUATED.** By type: base 10/10, knee 10/10, rafter
+  splice 10/10, ridge 5/5, wind-column top 6/6, wind-column base 6/6, brace end 48/48 evaluated; cleat 0 of 196 (all NOT
+  EVALUATED). End-rafter variant: 295 joints, cleats the only NOT EVALUATED.
+- **Why the 50 % rule governs at every frame joint of building 1** (25 joints, Mu+, Mu− and Vu): the frames are the span-rule
+  PLACEHOLDER sizes, oversized for this load. Line 3 knee: governing −M 345.3 kN·m (V 60.9, P 93.7) under LRFD 1.2D +
+  1.6Lr (+C) [−N] at the column top; φMn = 1 038.2 kN·m (column top, shallower than the haunch: Zx 3 546 168 < 3 716 000;
+  F4, compression-flange local buckling F4-13 governs — longhand 1 038.3); M/φMn = 0.333; Phase 4 ratio of column A AT
+  that section 0.3505 (H1-1b, P/Pc 0.036). The highest M/φMn of any frame joint is 0.333 (knee), the splice 0.31, the ridge
+  0.27; V/φVn ≤ 0.15. Forces are not low (they are the analysis' own, checked in the slow test) and the capacity is right
+  (longhand); the members are heavy: Phase 4 sizing takes building 1's frames from 2 551 to 1 669 kg per frame (ratio
+  0.39 → 0.89), after which the analysis forces will govern most joints.
+- **Roof-bracing eave end — a Phase 2 GENERATOR DEFECT (found 2026-11-11, NOT changed; the user decides the detail):** the
+  roof X-bracing's eave node is the eave strut line (s = 0, the roof line at the column's OUTER face, y = 0), and the
+  rule "75 mm below the rafter's top flange" puts the rod end at (x 0, y 8.66, z 5 913.4) on frame line 1 — inside the
+  12 mm outer flange of column F1-CA (outer face y 0, top of steel z 6 000), 815 mm outboard of the rafter's start
+  (y 824). No member's web is there. The rafter does not exist at s = 0. Same on every braced bay, both slopes (8 ends).
+  Options for the user: end the diagonal on the rafter web at the first purlin past the knee, or at the knee in the
+  column web plane (y = column depth / 2). Joint hosts follow the model as generated until then.
+- Tests (`test_joints.py`, 9): counts of building 1 and of an end-rafter variant by hand (291 / 295, hosts), settings
+  (switches, refusals), the ridge φMn (F3, 447.6, the same for −M: no LTB) and φVn (G2.1, 441.3) longhand, the KNEE φMn
+  (F4-13, 1 038.3) longhand, the 50 % rule; not firing on a heavy joint, f = None, moment / shear switched separately,
+  bases never; negative controls (a 5 000 kN·m mid-member moment is not the joint's; missing stations, stations 5 mm off
+  the joint, no LRFD combination → NOT EVALUATED); slow: line 3 against the analysis' own end stations and reactions,
+  the exact counts by type; the end-rafter splice at its own node (30 m span; moved splice; WITHOUT the node → NOT
+  EVALUATED; the node changes neither the ridge moment nor the reactions).
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 

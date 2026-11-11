@@ -153,6 +153,21 @@ def longitudinal_feed(out: dict, li) -> dict:
             "walls": walls, "directions": directions, "governing": gov, "F_eave": directions[gov]["F_eave"], "F_base": directions[gov]["F_base"]}
 
 
+def end_rafter_splice_ys(out: dict, tag: str) -> list[float]:
+    """Plan y of every splice of the end rafters of one wall (tag "F" / "L") — a node of the end-rafter frame, so the
+    connection step (Phase 5 step 1) finds a station there. Rounded to 0.001 mm (the joints read the same value)."""
+    ys = []
+    for m in out["members"]:
+        if m["role"] != "end_rafter" or not m["id"].startswith(f"E{tag}R"):
+            continue
+        L = math.dist(m["start"], m["end"])
+        s0 = 0.0
+        for seg in m["section"]["segments"][:-1]:
+            s0 += seg["length"]
+            ys.append(round(m["start"][1] + (m["end"][1] - m["start"][1]) * s0 / L, 3))
+    return ys
+
+
 def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, wall_secondary_kpa: float = 0.0) -> dict:
     inp = out["input"]
     span, eave, slope = float(inp["span"]), float(inp["eave_height"]), float(inp["roof_slope"])
@@ -179,7 +194,7 @@ def end_rafter_frame(out: dict, end: str, li, roof_secondary_kpa: float = 0.0, w
     zc = lambda y: eave + slope * min(y, span - y) - e
     cols = sorted((m["start"][1], m["id"]) for m in out["members"] if m["role"] == "wind_column" and m["id"].startswith("W" + tag)
                   and not m["id"].endswith("CAP"))
-    ys = sorted({0.0, span / 2, span, *[y for y, _ in cols]})
+    ys = sorted({0.0, span / 2, span, *[y for y, _ in cols], *end_rafter_splice_ys(out, tag)})
     braces = [m for m in out["members"] if m["role"] == "endwall_brace" and m.get("wall") == end]
     if not braces:
         raise ValueError(f"the {end} end wall is an end-rafter wall with no X-bracing: its frame has no in-plane stability "

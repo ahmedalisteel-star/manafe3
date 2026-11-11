@@ -8,9 +8,10 @@ Building 1 (24 m span, 4 bays of 6 m, eave 6 m, slope 1:10, main frames at both 
     half, no transport split) = 7 → 35
     wind columns at y 6 000, 12 000, 18 000 on each end wall: 6 → 6 tops + 6 bases = 12
     X-braces: roof 2 braced bays × 2 slopes × 2 panels × 2 diagonals = 16, side walls 2 bays × 2 walls × 1 X × 2 = 8 →
-    24 braces, 48 ends. The roof bracing's eave node is at the column top (generator: y 8.7, z 5 913 — below the rafter's
-    start at y 824), so each eave-panel diagonal (2 bays × 2 slopes × 2) has one end on a column: rafters 32 − 8 = 24,
-    columns 16 + 8 = 24
+    24 braces, 48 ends. Hosts follow the model AS GENERATED: the roof bracing's eave node is at y 8.7, z 5 913 — inside
+    the column's 12 mm outer flange, because the generator applies "rafter web, 75 mm below the top flange" at the eave
+    strut line where there is no rafter (a Phase 2 generator DEFECT, reported to the user 2026-11-11, not changed here).
+    So each eave-panel diagonal (2 bays × 2 slopes × 2) has one end on a column: rafters 32 − 8 = 24, columns 16 + 8 = 24
     cleats: purlin lines per slope = eave strut + 9 purlins + ridge purlin (11 860 mm between eave strut and ridge purlin /
     1 250 → 10 spaces); on each rafter the 9 purlins + ridge purlin = 10 → 5 × 2 × 10 = 100 on rafters; on each column
     the eave strut + 4 girts (1 250 … 5 000) = 5 → 5 × 2 × 5 = 50 on columns; gable girts per end wall: each wind column
@@ -26,12 +27,24 @@ Capacity at the ridge of line 3 (rafter 400 × 6, flanges 250 × 12, S355, all p
     flange λ = 250 / 24 = 10.417 > λpf = 0.38 √(E/Fy) = 9.020 → F3 (web 400/6 = 66.7 ≤ 3.76 √(E/Fy) = 89.2, compact);
     kc = 4/√66.67 = 0.4899, λrf = 0.95 √(kc E / 0.7Fy) = 18.864
     Mn = Mp − (Mp − 0.7 Fy Sx)(λ − λpf)/(λrf − λpf) = 523.98 − 187.93 × 0.14192 = 497.31; φMn = 447.6 kN·m
-    (+M: top flange braced by the ridge purlin 179 mm away — far below Lp, no LTB)
+    section strength (Lb = 0, user decision 2026-11-11): the same for +M and −M (doubly symmetric, no LTB)
     Shear G2.1: h/tw 66.67 > 1.10 √(5.34 E/Fy) = 60.33 → Cv1 = 0.9050; φVn = 0.9 · 0.6 · 355 · 424 · 6 · 0.9050 = 441.3 kN
-    capacity rule f = 0.50: Mu+ ≥ 223.8 kN·m, Vu ≥ 220.7 kN
+    capacity rule f = 0.50: Mu ≥ 223.8 kN·m, Vu ≥ 220.7 kN
+Capacity at the knee of line 3 (column top: hw 772.361 (796.361 − 24) × 8, flanges 250 × 12, S355): web h/tw 96.545 >
+    λpw = 3.76 √(E/Fy) = 89.246 (Table B4.1b case 15, doubly symmetric) ≤ λrw = 5.70 √(E/Fy) = 135.293 → F4
+    Ix = 2(250·12³/12 + 3 000·392.181²) + 8·772.361³/12 = 1 230 069 794 mm⁴, Sx = Ix / 398.181 = 3 089 226 mm³,
+    Zx = 3 000·784.361 + 8·772.361²/4 = 3 546 168 mm³; Mp/My = 1.14791
+    Rpc = 1.14791 − 0.14791 (96.545 − 89.246)/(135.293 − 89.246) = 1.12447 (F4-9b); Myc = 355 Sx = 1 096.68 kN·m
+    FLB F4-13: kc = 4/√96.545 = 0.40709, λrf = 0.95 √(kc E / 0.7Fy) = 17.196, (10.417 − 9.020)/(17.196 − 9.020) = 0.170876
+    Mn = 1 233.18 − (1 233.18 − 0.7·355·Sx = 767.67) × 0.170876 = 1 153.63; φMn = 1 038.3 kN·m
+    (an earlier longhand took λpw from case 16 — the singly-symmetric formula — and got 1 028.8: that was the error)
+End-rafter splice (span 30 m, first wall an end rafter): the end rafter (12 000 plan, 15 074.8 along the slope) is split in
+    halves, so its splice is at y = 7 500 (and 22 500) — between the wind columns at 6 000 and 12 000; the end-rafter frame
+    must have a node there.
 Negative controls: a much larger moment in the MIDDLE of a member is not taken for the joint; a member with no station at
 the joint, or no LRFD combination, reads NOT EVALUATED (no design force); the capacity branch fires on a light joint and
-does not on a heavy one; f = None gives the analysis force alone.
+does not on a heavy one; f = None, or either switch off, gives the analysis force alone for that action; the end-rafter
+frame without the splice node leaves the splice NOT EVALUATED.
 """
 
 import json
@@ -47,6 +60,7 @@ from engine.peb.building import BuildingInput, peb_building, resolve
 B1 = dict(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4)
 PHI_MN_RIDGE = 447.6
 PHI_VN_RIDGE = 441.3
+PHI_MN_KNEE = 1038.3
 
 
 @pytest.fixture(scope="module")
@@ -96,7 +110,9 @@ def test_settings():
     assert ConnectionSettings().capacity_fraction == 0.50
     assert ConnectionSettings.from_dict({"capacity_fraction": 0.6}).capacity_fraction == 0.6
     assert ConnectionSettings.from_dict({"capacity_fraction": None}).capacity_fraction is None
-    for bad in ({"capacity_fraction": 0}, {"capacity_fraction": 1.5}, {"fraction": 0.5}):
+    s = ConnectionSettings.from_dict({"capacity_shear": False})
+    assert s.capacity_moment is True and s.capacity_shear is False
+    for bad in ({"capacity_fraction": 0}, {"capacity_fraction": 1.5}, {"fraction": 0.5}, {"capacity_shear": "no"}):
         with pytest.raises(ValueError):
             ConnectionSettings.from_dict(bad)
 
@@ -115,11 +131,11 @@ def _synthetic(info, M_end, V_end=5.0, P=10.0, M_mid=5000.0, skip=None):
             "results": {"LRFD: t": {"members": members, "reactions": {"BA": [3.0, 20.0, 0.0], "BB": [-3.0, -7.0, 0.0]}}}}
 
 
-def _run(b1, res, f=0.50):
+def _run(b1, res, f=0.50, **switches):
     b, out, ms, info = _line3(b1)
     js = _frame_joints(b, 2, info)
     frame_joint_forces(js, res)
-    frame_joint_capacities(js, info, out, b.frame_xs()[2], ms, ConnectionSettings(f))
+    frame_joint_capacities(js, info, out, b.frame_xs()[2], ms, ConnectionSettings(f, **switches))
     return {j["id"]: j for j in js}
 
 
@@ -134,10 +150,16 @@ def test_capacity_rule_by_hand_and_the_mid_member_moment_is_not_the_joints(b1):
     assert cap["Fy"] == 355 and cap["section"]["Zx"] == pytest.approx(1476000.0)
     assert cap["phiMn_pos"] == pytest.approx(PHI_MN_RIDGE, rel=5e-3)
     assert cap["phiVn"] == pytest.approx(PHI_VN_RIDGE, rel=5e-3)
-    assert cap["Lb_top"] < 300 and cap["Lb_bottom"] > 5000          # ridge purlin on top; bottom flange to the last flange brace
+    # section strength, Lb = 0: −M (bottom flange in compression, 8.5 m to the last flange brace) has NO LTB reduction
+    assert cap["Lb"] == 0.0 and cap["phiMn_neg"] == pytest.approx(PHI_MN_RIDGE, rel=5e-3)
     d = r["design"]
     assert d["Mu_pos"]["value"] == pytest.approx(0.5 * PHI_MN_RIDGE, rel=5e-3) and d["Mu_pos"]["criterion"] == "% of member capacity"
-    assert d["Mu_neg"]["value"] == pytest.approx(0.5 * cap["phiMn_neg"], rel=1e-4) and d["Mu_neg"]["analysis"] == 10.0
+    assert d["Mu_neg"]["value"] == pytest.approx(0.5 * PHI_MN_RIDGE, rel=5e-3) and d["Mu_neg"]["analysis"] == 10.0
+    # the knee: the column top is the shallower section (Zx 3 546 168 < the haunch's 3 716 000); F4 longhand
+    kc = js["F3-KA"]["capacity"]
+    assert kc["section_of"] == "CA" and kc["section"]["Zx"] == pytest.approx(3546168, rel=1e-5)
+    assert kc["phiMn_pos"] == pytest.approx(PHI_MN_KNEE, rel=1e-3) and kc["phiMn_neg"] == pytest.approx(PHI_MN_KNEE, rel=1e-3)
+    assert "F4-13" in kc["citations"]["Flexure"]
     assert d["Vu"]["value"] == pytest.approx(0.5 * PHI_VN_RIDGE, rel=5e-3)
     assert d["Pu"]["criterion"] == "analysis force" and d["Pu"]["capacity_based"] is None           # axial: analysis alone
     # the knee: column top (j end, M = -10) and rafter start (i end, M = +10) both scanned
@@ -155,6 +177,18 @@ def test_capacity_rule_does_not_fire_on_a_heavy_joint_and_f_none(b1):
     js = _run(b1, _synthetic(_line3(b1)[3], M_end=10.0), f=None)
     d = js["F3-R"]["design"]
     assert d["Mu_neg"]["value"] == 10.0 and d["Mu_neg"]["capacity_based"] is None and d["Vu"]["value"] == 5.0
+
+
+def test_moment_and_shear_switch_separately(b1):
+    info = _line3(b1)[3]
+    d = _run(b1, _synthetic(info, M_end=10.0), capacity_shear=False)["F3-R"]["design"]
+    assert d["Mu_neg"]["criterion"] == "% of member capacity" and d["Vu"]["value"] == 5.0 and d["Vu"]["capacity_based"] is None
+    d = _run(b1, _synthetic(info, M_end=10.0), capacity_moment=False)["F3-R"]["design"]
+    assert d["Mu_neg"]["value"] == 10.0 and d["Mu_neg"]["capacity_based"] is None
+    assert d["Vu"]["value"] == pytest.approx(0.5 * PHI_VN_RIDGE, rel=5e-3)
+    # bases never take the rule (switches on)
+    base = _run(b1, _synthetic(info, M_end=10.0))["F3-BA"]["design"]
+    assert all(v["capacity_based"] is None for v in base.values())
 
 
 def test_negative_control_missing_forces_read_not_evaluated(b1):
@@ -190,6 +224,11 @@ def test_building_1_forces_of_frame_line_3_are_the_analysis_own(b1):
     assert r["banner"].startswith("NOT FOR ISSUE") and not r["designed"]
     assert r["not_evaluated"] == 196                                                  # the cleats (step 5), nothing else
     assert all(j["status"] == EVALUATED for j in r["joints"] if j["type"] != "cleat")
+    hand = {"base": 10, "knee": 10, "rafter_splice": 10, "ridge": 5, "wind_column_top": 6, "wind_column_base": 6, "brace_end": 48}
+    assert r["counts"] == {**{t: {"joints": n, "evaluated": n, "not_evaluated": 0} for t, n in hand.items()},
+                           "cleat": {"joints": 196, "evaluated": 0, "not_evaluated": 196},
+                           "total": {"joints": 291, "evaluated": 95, "not_evaluated": 196}}
+    assert "not a code clause" in r["capacity_rule"]["source"] and "Lb = 0" in r["capacity_rule"]["basis"]
     res = next(f for f in an["frames"] if f["line"] == "3")
     res = res.get("result") or next(f for f in an["frames"] if f["line"] == res["same_as"])["result"]
     lrfd = [c for c, s in res["combos"] if s == "LRFD"]
@@ -224,3 +263,59 @@ def test_building_1_forces_of_frame_line_3_are_the_analysis_own(b1):
     assert all(j["forces"]["tension"] == br["roof_diagonal"] for j in r["joints"]
                if j["type"] == "brace_end" and _by_id(out)[j["id"][:-2]]["role"] == "roof_brace")
     assert all(math.isfinite(j["forces"]["V_out_of_plane"]) for j in r["joints"] if j["type"] == "wind_column_base")
+
+
+@pytest.mark.slow
+def test_end_rafter_splice_is_evaluated_at_its_own_node(monkeypatch):
+    import copy
+
+    import engine.analysis.endwall_analysis as ewa
+    from engine.analysis.secondary_weight import secondary_kpa
+    from engine.connections.joints import building_joints
+    from engine.peb.loads_input import LoadsInput
+
+    b, _ = resolve(BuildingInput(span=30000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4, end_first="rafter"))
+    out = peb_building(b)
+    li = LoadsInput(V=45, exposure="C")
+    sec = secondary_kpa(out)
+    assert ewa.end_rafter_splice_ys(out, "F") == [7500.0, 22500.0]                    # by hand (halves of the end rafter)
+
+    def frame(o):
+        return ewa.end_rafter_frame(o, "first", li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"])
+
+    def run(o, ef):
+        an = {"frames": [], "end_frames": [ef], "bracing": {}, "input": {"base": "pinned"}}
+        return {j["id"]: j for j in building_joints(b, li, analysis=an, out=o)["joints"]}
+
+    def own_rows(ef, y):
+        return [row for r in ef["results"].values() if r["set"] == "LRFD" for row in r["rafter_stations"] if abs(row[0] - y) <= 1e-6]
+    # 1. as generated: splices at 7 500 / 22 500, the end-rafter frame's own stations there
+    ef = frame(out)
+    js = run(out, ef)
+    for jid, y in (("EFRA-S1", 7500.0), ("EFRB-S1", 22500.0)):
+        rows = own_rows(ef, y)
+        assert js[jid]["status"] == EVALUATED and rows
+        assert js[jid]["forces"]["M_abs"] == pytest.approx(max(abs(r[3]) for r in rows))
+        assert js[jid]["forces"]["V_abs"] == pytest.approx(max(abs(r[2]) for r in rows))
+    # 2. a splice off every model node: EFRA split at 5 000 along the slope → y = 5 000 × 15 000 / 15 074.813 = 4 975.18
+    #    (between the corner column at 125 and the wind column at 6 000; their quarter points are 1 593.75, 3 062.5, 4 531.25)
+    o2 = copy.deepcopy(out)
+    era = next(m for m in o2["members"] if m["id"] == "EFRA")
+    L = math.dist(era["start"], era["end"])
+    era["section"]["segments"][0]["length"] = 5000.0
+    era["section"]["segments"][1]["length"] = L - 5000.0
+    y = round(5000.0 * 15000.0 / L, 3)
+    assert y == pytest.approx(4975.18, abs=0.01) and y in ewa.end_rafter_splice_ys(o2, "F")
+    ef2 = frame(o2)
+    j = run(o2, ef2)["EFRA-S1"]
+    assert j["status"] == EVALUATED and j["forces"]["M_abs"] == pytest.approx(max(abs(r[3]) for r in own_rows(ef2, y)))
+    # negative control: the same frame WITHOUT the splice node — NOT EVALUATED, never an interpolated value
+    monkeypatch.setattr(ewa, "end_rafter_splice_ys", lambda o_, tag: [])
+    ef0 = frame(o2)
+    j0 = run(o2, ef0)["EFRA-S1"]
+    assert j0["status"] == NOT_EVALUATED and j0["design"] is None and not own_rows(ef0, y)
+    # the extra node does not change the frame: the ridge moment and the reactions agree
+    assert run(o2, ef2)["EF-R"]["forces"]["M_abs"] == pytest.approx(run(o2, ef0)["EF-R"]["forces"]["M_abs"], rel=5e-3)
+    c = next(k for k, r in ef2["results"].items() if r["set"] == "LRFD")
+    for cid, v in ef2["results"][c]["reactions"].items():
+        assert v == pytest.approx(ef0["results"][c]["reactions"][cid], rel=5e-3, abs=0.05)

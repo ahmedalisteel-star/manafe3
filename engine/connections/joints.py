@@ -24,15 +24,19 @@ Forces (LRFD, the strength solve = Direct Analysis Method, Phase 4 step 2):
     wind columns   the forces their member check uses (secondary_checks.wind_column_inputs: C&C 1.0 W simple beam, 1.2 ×
                    self weight, + the end-rafter frame's column load); uplift at an end-rafter wall's column base from that
                    frame's reactions
-    end rafters    the end-rafter frame's rafter stations at the ridge (a splice between its stations: NOT EVALUATED)
+    end rafters    the end-rafter frame's rafter stations at the ridge and at each splice (the frame has a node at every
+                   end-rafter splice: endwall_analysis.end_rafter_splice_ys)
     braces         the tension-only diagonal force (longitudinal bracing; end walls: the end-rafter frame)
     cleats         NOT EVALUATED — the cold-formed lines' support reactions come with step 5
-Capacity rule (user decision 2026-11-10; bimsteelauto_connections.design_force, CAPACITY_FRACTION = 0.50, editable per job):
-    at the end-plate joints (knee, ridge, rafter splice) Mu+ = max(analysis +M, f × φMn+), Mu− likewise, Vu = max(|V|, f × φVn);
-    the section is the SHALLOWER (smaller Zx) of the sections meeting at the joint (the library's rule); φMn from
-    bimsteelauto design.available_strengths on that section with Lb = the brace segment of the compression flange that
-    holds the joint (Phase 4 step 1 restraints) and Cb = 1; Fy = the lowest plate of that piece. Axial forces, bases,
-    wind columns and braces: the analysis force alone (TO CONFIRM with the user).
+Capacity rule. SOURCE: a project setting, not a code clause — user decision 2026-11-10 (Phase 5 plan); AISC 360-16 has no
+general minimum connection strength as a fraction of the member's. Default fraction 0.50 = bimsteelauto_connections.
+CAPACITY_FRACTION; editable per job (ConnectionSettings), applied through bimsteelauto_connections.design_force:
+    ONLY at knee, ridge and rafter-splice joints (user decision 2026-11-11): Mu+ = max(analysis +M, f × φMn+) and Mu−
+    likewise (switch capacity_moment); Vu = max(|V|, f × φVn) (switch capacity_shear, separate). Axial forces, bases, wind
+    columns, end rafters, braces: the analysis force alone.
+    φMn, φVn = the SECTION strength (user decision 2026-11-11) of the shallower section at the joint (smaller Zx — the
+    library's rule): yielding and local buckling, no LTB (Lb = 0), AISC 360-16 F2–F5 / G2.1 through bimsteelauto
+    design.available_strengths; Fy = the lowest plate of that piece.
 A joint whose forces are not available reads NOT EVALUATED with the missing items — never a value.
 """
 
@@ -47,12 +51,20 @@ from bimsteelauto_connections import CAPACITY_FRACTION, CAPACITY_FRACTION_SOURCE
 
 from ..analysis.frame_model import frame_line_model
 from ..design.frame_checks import _materials, strengths_by_mark
-from ..design.inputs import design_members, restraints
 from ..peb.building import BuildingInput, peb_building, resolve
 from ..peb.builtup_frame import builtup_frame_members
 
 BANNER = "NOT FOR ISSUE — connection joints and design forces (Phase 5 step 1); connections not designed"
-TOL_STATION = 1.0            # mm: a station counts for a joint only this close to it
+SECTION_LB = 1.0             # mm: "Lb = 0" for the section strength (available_strengths needs a length > 0)
+CAPACITY_BASIS = ("section strength of the shallower section at the joint (smaller Zx): yielding and local buckling, "
+                  "no lateral-torsional buckling (Lb = 0); Fy = the lowest plate of that piece; AISC 360-16 Ch. F, G2.1")
+#: Where the 50 % rule comes from — stated on every result.
+CAPACITY_RULE_SOURCE = (
+    "Project setting, not a code clause: user decision 2026-11-10 (Manafe3 Phase 5 plan) - a connection is designed for "
+    "the larger of the analysis force and a fraction (default 0.50, editable per job) of the connected member's design "
+    "strength. AISC 360-16 has no such general minimum. The default is bimsteelauto_connections.CAPACITY_FRACTION, whose "
+    "own source reads: " + CAPACITY_FRACTION_SOURCE + ".")
+TOL_STATION = 1.0           # mm: a station counts for a joint only this close to it
 SEC_TOL = 50.0              # mm: an eave strut stops 5 mm short of the frame line (10 mm butt gap); its cleat still holds it
 HOST_TOL = 1000.0            # mm: a brace end / cleat farther than this from every primary member has no host
 PRIMARY = ("column", "rafter", "end_rafter", "wind_column")
@@ -62,19 +74,25 @@ EVALUATED, NOT_EVALUATED = "EVALUATED", "NOT EVALUATED"
 
 @dataclass
 class ConnectionSettings:
-    """Project connection settings (editable per job). capacity_fraction None = analysis forces alone."""
+    """Project connection settings (editable per job). capacity_fraction None = analysis forces alone; the rule applies to
+    the moments (capacity_moment) and the shear (capacity_shear) of knee / ridge / rafter-splice joints, each switchable."""
     capacity_fraction: float | None = CAPACITY_FRACTION
+    capacity_moment: bool = True
+    capacity_shear: bool = True
 
     def check(self) -> "ConnectionSettings":
         f = self.capacity_fraction
         if f is not None and not (isinstance(f, (int, float)) and 0.0 < f <= 1.0):
             raise ValueError(f"capacity_fraction must be in (0, 1] or None, got {f!r}")
+        for k in ("capacity_moment", "capacity_shear"):
+            if not isinstance(getattr(self, k), bool):
+                raise ValueError(f"{k} must be true or false, got {getattr(self, k)!r}")
         return self
 
     @classmethod
     def from_dict(cls, d: dict | None) -> "ConnectionSettings":
         d = dict(d or {})
-        bad = set(d) - {"capacity_fraction"}
+        bad = set(d) - {"capacity_fraction", "capacity_moment", "capacity_shear"}
         if bad:
             raise ValueError(f"unknown connection settings: {', '.join(sorted(bad))}")
         return cls(**d).check()
@@ -303,23 +321,14 @@ def frame_joint_forces(joints: list[dict], result: dict) -> None:
                        "source": "member-end stations at the joint, LRFD strength solve (DAM)"}
 
 
-def _segment(points: list[float], L: float, s: float) -> float:
-    """Length of the brace segment (between restraint points and the ends) that holds station s; on a point: the longer."""
-    s = min(max(s, 0.0), L)                                   # the chain length is rounded to 0.1 mm
-    pts = sorted({0.0, L, *[p for p in points if 0.0 < p < L]})
-    best = 0.0
-    for a, b_ in zip(pts, pts[1:]):
-        if a - 1e-6 <= s <= b_ + 1e-6:
-            best = max(best, b_ - a)
-    return best
-
-
 def frame_joint_capacities(joints: list[dict], info, out: dict, x_frame: float, ms: list[dict], settings: ConnectionSettings) -> None:
-    """Capacity of the governing section and the design forces by the capacity rule (end-plate joints) — in place."""
+    """Section strength at the joint and the design forces by the capacity rule (end-plate joints) — in place.
+
+    Basis (user decision 2026-11-11): the SECTION strength of the shallower section at the joint — yielding and local
+    buckling, NO lateral-torsional buckling (Lb = 0: bimsteelauto available_strengths with Lb = Lc = 1 mm, below every
+    Lp). Fy = the lowest plate of that piece."""
     lay = {m.mark: m for m in info.layout.members}
     strengths = strengths_by_mark(ms)
-    dms = {c["mark"]: (d, c["s0"]) for d in design_members(info) for c in d["chain"]}
-    rs = restraints(out, info, x_frame)
     f = settings.capacity_fraction
     for j in joints:
         if j.get("forces") is None:
@@ -334,31 +343,32 @@ def frame_joint_capacities(joints: list[dict], info, out: dict, x_frame: float, 
             continue
         secs = [(mk, st, lay[mk].taper.at(st)) for mk, st in j["ends"]]
         mk, st, sec = min(secs, key=lambda t: t[2].Zx)
-        d, s0 = dms[mk]
-        r = rs[d["name"]]
-        s = s0 + st
-        Lb_top, Lb_bot = _segment(r["top"], r["length"], s), _segment(r["bottom"], r["length"], s)
-        if min(Lb_top, Lb_bot) <= 0.0:
-            j.update(status=NOT_EVALUATED, design=None, missing=[f"no brace segment found at the joint (s = {s:.1f} mm)"])
-            continue
         stg = strengths[mk]
         mat = _materials(stg["Fy"], stg["Fu"])
-        cp = available_strengths(sec, mat, Lb=Lb_top, compression_flange="top", method=DesignMethod.LRFD)
-        cn = available_strengths(sec, mat, Lb=Lb_bot, compression_flange="bottom", method=DesignMethod.LRFD)
+        cp = available_strengths(sec, mat, Lb=SECTION_LB, Lc=SECTION_LB, compression_flange="top", method=DesignMethod.LRFD)
+        cn = available_strengths(sec, mat, Lb=SECTION_LB, Lc=SECTION_LB, compression_flange="bottom", method=DesignMethod.LRFD)
         j["capacity"] = {"section_of": mk, "member": info.marks[mk], "station": round(st, 1), "section": _section(sec),
-                         "Fy": stg["Fy"], "Fy_from": stg["governed_by"], "Lb_top": round(Lb_top, 1), "Lb_bottom": round(Lb_bot, 1),
-                         "Cb": 1.0, "phiMn_pos": round(cp.Mc, 3), "phiMn_neg": round(cn.Mc, 3), "phiVn": round(cp.Vc, 3),
-                         "citations": cp.citations,
-                         "rule": "the shallower section at the joint (smaller Zx); Lb = the compression flange's brace segment at the joint; Cb = 1"}
-        kw = {} if f is None else {"fraction": f}
+                         "Fy": stg["Fy"], "Fy_from": stg["governed_by"], "Lb": 0.0,
+                         "phiMn_pos": round(cp.Mc, 3), "phiMn_neg": round(cn.Mc, 3), "phiVn": round(cp.Vc, 3),
+                         "citations": {k: v for k, v in cp.citations.items() if k in ("Flexure", "Shear")},
+                         "basis": CAPACITY_BASIS}
+        fm = f if (f is not None and settings.capacity_moment) else None
+        fv = f if (f is not None and settings.capacity_shear) else None
         j["design"] = {
-            "Mu_pos": _df(design_force(analysis=F["M_pos"]["value"], label="Mu+", unit="kNm", **({"member_capacity": cp.Mc} if kw else {}), **kw)),
-            "Mu_neg": _df(design_force(analysis=F["M_neg"]["value"], label="Mu-", unit="kNm", **({"member_capacity": cn.Mc} if kw else {}), **kw)),
-            "Vu": _df(design_force(analysis=F["V_max"]["value"], label="Vu", unit="kN", **({"member_capacity": cp.Vc} if kw else {}), **kw)),
-            "Pu": _df(design_force(analysis=F["P_comp"]["value"], label="Pu", unit="kN")),
-            "Tu": _df(design_force(analysis=F["P_tens"]["value"], label="Tu", unit="kN")),
+            "Mu_pos": _dfc(F["M_pos"]["value"], cp.Mc, fm, "Mu+", "kNm"),
+            "Mu_neg": _dfc(F["M_neg"]["value"], cn.Mc, fm, "Mu-", "kNm"),
+            "Vu": _dfc(F["V_max"]["value"], cp.Vc, fv, "Vu", "kN"),
+            "Pu": _dfc(F["P_comp"]["value"], None, None, "Pu", "kN"),
+            "Tu": _dfc(F["P_tens"]["value"], None, None, "Tu", "kN"),
         }
         j["status"] = EVALUATED
+
+
+def _dfc(analysis: float, capacity: float | None, fraction: float | None, label: str, unit: str) -> dict:
+    """bimsteelauto_connections.design_force: with the capacity rule when a fraction is given, else the analysis alone."""
+    if fraction is None:
+        return _df(design_force(analysis=analysis, label=label, unit=unit))
+    return _df(design_force(analysis=analysis, member_capacity=capacity, fraction=fraction, label=label, unit=unit))
 
 
 def _df(d) -> dict:
@@ -466,8 +476,18 @@ def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, setti
             j["forces"] = None if M is None else {"M_abs": M, "V_abs": V, "P_abs": P, "source": "end-rafter frame, rafter stations at the ridge (LRFD)"}
             _analysis_only(j, {"Mu": M, "Vu": V, "Pu": P})
         elif j["type"] == "end_rafter_splice":
-            j.update(status=NOT_EVALUATED, design=None,
-                     missing=["the end-rafter frame has no station at this splice (its stations are at the wind columns and the ridge)"])
+            end = "first" if j["id"].startswith("EF") else "last"
+            ef = efs.get(end)
+            ys = j["point"][1]
+            cands = [] if not ef else [row for r in ef["results"].values() if r["set"] == "LRFD"
+                                       for row in (r.get("rafter_stations") or []) if abs(row[0] - ys) <= TOL_STATION]
+            if not cands:
+                j.update(status=NOT_EVALUATED, design=None,
+                         missing=[f"no end-rafter frame station within {TOL_STATION:g} mm of the splice (y = {ys})"])
+                continue
+            M, V, P = (max(abs(r[k]) for r in cands) for k in (3, 2, 1))
+            j["forces"] = {"M_abs": M, "V_abs": V, "P_abs": P, "source": "end-rafter frame, rafter stations at the splice node (LRFD)"}
+            _analysis_only(j, {"Mu": M, "Vu": V, "Pu": P})
     # braces
     br = analysis.get("bracing", {}).get("sets", {}).get("LRFD", {})
     mem = {m["id"]: m for m in out["members"] if m.get("id")}
@@ -499,11 +519,15 @@ def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, setti
         j.setdefault("status", NOT_EVALUATED)
     counts: dict[str, dict] = {}
     for j in joints:
-        c = counts.setdefault(j["type"], {"joints": 0, "evaluated": 0})
+        c = counts.setdefault(j["type"], {"joints": 0, "evaluated": 0, "not_evaluated": 0})
         c["joints"] += 1
-        c["evaluated"] += j["status"] == EVALUATED
+        c["evaluated" if j["status"] == EVALUATED else "not_evaluated"] += 1
+    counts["total"] = {k: sum(v[k] for v in counts.values()) for k in ("joints", "evaluated", "not_evaluated")}
     return {"banner": BANNER, "designed": False, "settings": asdict(settings),
-            "capacity_rule": {"fraction": settings.capacity_fraction, "source": CAPACITY_FRACTION_SOURCE,
-                              "applies_to": "Mu+, Mu−, Vu at knee / ridge / rafter-splice joints; other forces: analysis only (to confirm)"},
+            "capacity_rule": {"fraction": settings.capacity_fraction, "source": CAPACITY_RULE_SOURCE, "basis": CAPACITY_BASIS,
+                              "applies_to": ("knee / ridge / rafter-splice joints only: "
+                                             + (", ".join(x for x, on in (("Mu+ and Mu-", settings.capacity_moment),
+                                                                         ("Vu", settings.capacity_shear)) if on) or "nothing (both switched off)")
+                                             + "; every other force and joint: the analysis force alone")},
             "joints": joints, "counts": counts,
             "not_evaluated": sum(j["status"] == NOT_EVALUATED for j in joints)}
