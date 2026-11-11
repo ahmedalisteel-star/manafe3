@@ -25,7 +25,7 @@ import math
 
 import pytest
 
-from engine.peb.bracing import BracingInput, flange_braces, roof_nodes, sag_rods, x_bracing
+from engine.peb.bracing import BracingInput, flange_braces, roof_brace_lines, roof_nodes, sag_rods, x_bracing
 from engine.peb.builtup_frame import default_sizes
 from engine.peb.secondary import SecondaryInput, secondary_lines, secondary_members
 
@@ -72,9 +72,22 @@ def test_roof_and_wall_bracing():
     assert len(roof) == 16 and len(wall) == 8 and all(m["profile"] == "RD20" for m in out)
     ss = sorted(m["s"] for m in LINES["roof"] if m["side"] == "A")
     assert roof_nodes(ss, 6000) == [0, pytest.approx(5929.925, abs=1e-3), pytest.approx(11859.851, abs=1e-3)]
+    # user decision 2026-11-11: the eave node is the FIRST PURLIN PAST THE KNEE, not the eave strut. By hand: the rafter
+    # starts at the column's inner face y = 800 + 24 = 824, s = 824 √1.01 = 828.11; purlins at k × 1 185.985 → the first
+    # past it is 1 185.985 (k = 1). Run to the ridge purlin 10 673.866 → 2 panels; target 6 522.918 is a tie between
+    # 5 929.925 and 7 115.910 (592.993 / 592.992 with the 0.001 mm rounding of the lines) → 7 115.910.
+    assert roof_brace_lines(ss, INP)[0] == pytest.approx(1185.985, abs=1e-3)
+    assert roof_nodes(roof_brace_lines(ss, INP), 6000) == [pytest.approx(1185.985, abs=1e-3), pytest.approx(7115.91, abs=1e-3),
+                                                           pytest.approx(11859.851, abs=1e-3)]
     a0 = [m for m in roof if m["side"] == "A" and m["bay"] == 0]
-    assert a0[0]["start"] == [0, pytest.approx(8.657, abs=1e-3), pytest.approx(5913.432, abs=1e-3)]
+    # start: roof point y = 1 185.985 / √1.01 = 1 180.099, z = 6 118.010, then 87 (tf 12 + 75) along the inward normal
+    # (+0.0995 × 87, −0.9950 × 87) → (1 188.756, 6 031.442): in the rafter web, 360 mm inboard of the column's inner face
+    assert a0[0]["start"] == [0, pytest.approx(1188.756, abs=1e-3), pytest.approx(6031.442, abs=1e-3)]
+    assert a0[0]["end"] == [6000, pytest.approx(7089.252, abs=1e-3), pytest.approx(6621.491, abs=1e-3)]
+    # √(6 000² + 5 900.496² + 590.049²) — the same panel length (5 929.9 along the roof) as before the move
     assert a0[0]["length"] == pytest.approx(8435.876, abs=1e-3)
+    # negative control: no brace end lies outboard of the rafter's start (the old node was at y 8.657, in the column flange)
+    assert min(min(m["start"][1], m["end"][1]) for m in roof if m["side"] == "A") > 824
     w = [m for m in wall if m["side"] == "A" and m["bay"] == 0]
     assert len(w) == 2 and w[0]["start"] == [0, 287, 0] and w[0]["end"] == [6000, 287, 5900]
     assert w[0]["length"] == pytest.approx(8414.868, abs=1e-3)

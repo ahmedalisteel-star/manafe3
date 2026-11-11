@@ -6,9 +6,9 @@ User decisions (2026-11-05):
                   to the ridge purlin, plus one across the ridge between the two ridge purlins; through the webs at ONE
                   THIRD OF THE DEPTH BELOW THE TOP FLANGE (2H/3 above the roof)
     X-bracing     in the chosen bays, roof and side walls; rods M20 by default, or angles (L75x6); roof nodes near 45°
-                  (panels about as long up the roof as the bay is wide, snapped to the nearest purlin line; the eave
-                  strut and the ridge purlin always nodes); walls: one X if eave ≤ 1.5 × bay, else two panels with a node
-                  at the girt nearest mid-height
+                  (panels about as long up the roof as the bay is wide, snapped to the nearest purlin line; the FIRST
+                  PURLIN PAST THE KNEE — user decision 2026-11-11, was the eave strut — and the ridge purlin always
+                  nodes); walls: one X if eave ≤ 1.5 × bay, else two panels with a node at the girt nearest mid-height
     flange braces L50x5, a PAIR (one each side of the frame web) at 45°: roof — every purlin over the haunch plus the next
                   one, at every frame (end frames: the inward brace only — user, 2026-11-08); columns — the top two girts
                   of every column (end columns: the inward brace only)
@@ -153,6 +153,19 @@ def roof_nodes(ss: list[float], bay: float) -> list[float]:
     return out + [ss[-1]]
 
 
+def roof_brace_lines(ss: list[float], inp: BracingInput) -> list[float]:
+    """The purlin lines the roof X-bracing may use: from the FIRST PURLIN PAST THE KNEE to the ridge purlin (user decision
+    2026-11-11). The eave strut line (s = 0, the roof line at the column's OUTER face) is not a roof-brace node: there is
+    no rafter there — the rafter starts at the column's inner face, s = (hw_knee + 2 tf) · √(1 + slope²) — and the rod's
+    "75 mm below the rafter's top flange" landed inside the column's outer flange (Phase 2 defect, found 2026-11-11)."""
+    z = inp.sizes
+    s_knee = (z.hw_knee + 2 * z.tf) * math.sqrt(1 + inp.roof_slope ** 2)
+    past = [s for s in ss if s > s_knee + 1e-6]
+    if len(past) < 2:
+        raise ValueError(f"roof X-bracing: fewer than two purlin lines past the knee (s > {s_knee:.0f} mm) on a slope")
+    return past
+
+
 def x_bracing(lines: dict, girts: dict, inp: BracingInput) -> list[dict]:
     span, eave, slope, z = inp.span, inp.eave_height, inp.roof_slope, inp.sizes
     prof = inp.brace_rod if inp.brace_type == "rod" else inp.brace_angle
@@ -167,7 +180,7 @@ def x_bracing(lines: dict, girts: dict, inp: BracingInput) -> list[dict]:
         bay = x1 - x0
         for side in "AB":
             ss = sorted(m["s"] for m in lines["roof"] if m["side"] == side)
-            nodes = roof_nodes(ss, bay)
+            nodes = roof_nodes(roof_brace_lines(ss, inp), bay)
             for sa, sb in zip(nodes, nodes[1:]):
                 pa = _pt(side, sa, -(z.tf + ROOF_BRACE_BELOW), slope, span, eave)
                 pb = _pt(side, sb, -(z.tf + ROOF_BRACE_BELOW), slope, span, eave)

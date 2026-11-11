@@ -8,10 +8,8 @@ Building 1 (24 m span, 4 bays of 6 m, eave 6 m, slope 1:10, main frames at both 
     half, no transport split) = 7 → 35
     wind columns at y 6 000, 12 000, 18 000 on each end wall: 6 → 6 tops + 6 bases = 12
     X-braces: roof 2 braced bays × 2 slopes × 2 panels × 2 diagonals = 16, side walls 2 bays × 2 walls × 1 X × 2 = 8 →
-    24 braces, 48 ends. Hosts follow the model AS GENERATED: the roof bracing's eave node is at y 8.7, z 5 913 — inside
-    the column's 12 mm outer flange, because the generator applies "rafter web, 75 mm below the top flange" at the eave
-    strut line where there is no rafter (a Phase 2 generator DEFECT, reported to the user 2026-11-11, not changed here).
-    So each eave-panel diagonal (2 bays × 2 slopes × 2) has one end on a column: rafters 32 − 8 = 24, columns 16 + 8 = 24
+    24 braces, 48 ends: every roof-brace end on a rafter (the eave node is the first purlin past the knee, user decision
+    2026-11-11; before, it sat inside the column's outer flange) = 32, every wall-brace end on a column = 16
     cleats: purlin lines per slope = eave strut + 9 purlins + ridge purlin (11 860 mm between eave strut and ridge purlin /
     1 250 → 10 spaces); on each rafter the 9 purlins + ridge purlin = 10 → 5 × 2 × 10 = 100 on rafters; on each column
     the eave strut + 4 girts (1 250 … 5 000) = 5 → 5 × 2 × 5 = 50 on columns; gable girts per end wall: each wind column
@@ -85,7 +83,7 @@ def test_joint_counts_of_building_1_by_hand(b1):
         return Counter(mem[m["id"]]["role"] for j in js if j["type"] == t for m in j["members"]
                        if mem.get(m["id"], {}).get("role") in ("column", "rafter", "wind_column", "end_rafter"))
     assert host_roles("cleat") == {"column": 66, "rafter": 100, "wind_column": 30}
-    assert host_roles("brace_end") == {"rafter": 24, "column": 24}
+    assert host_roles("brace_end") == {"rafter": 32, "column": 16}
     # every cleat holds at least one secondary piece (two at a lap / a butt joint of eave struts)
     assert all(len(j["members"]) >= 2 for j in js if j["type"] == "cleat")
     # frame joints: the members at the joint, their sections; the knee joins column top and rafter start
