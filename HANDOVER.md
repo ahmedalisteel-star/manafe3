@@ -20,7 +20,10 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 ## Next task
 
-**Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
+**Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Step 1 (joint list and design
+forces, engine) first; one step at a time, the user says when to go on.**
+
+Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
 in the engine — DG 25 NOT VERIFIED until the user has the printed guide; step 4 (serviceability) done in the engine;
 the R1 field fixes list done (2026-11-09, below); step 5 done in the engine; step 6 (purlins / girts / eave struts,
@@ -30,6 +33,60 @@ and G rules TO CONFIRM, ch. 6 / mono-symmetric flexure to be added to ecp205-lrf
 "Design…" in the browser) and step 10 done (2026-11-10). PHASE 4 DONE — NOT FOR ISSUE until the user confirms the open
 items (DG 25, the AISI R table, the ECP K / G rules). The repository is PUBLIC and Apache-2.0 (2026-11-10).
 Next: the user's confirmations; then Phase 5 (connections) as planned.**
+
+## Phase 5 plan (approved 2026-11-10)
+
+**Decisions (user, 2026-11-10):**
+- **Knee, ridge and rafter splices:** extended end plates **4E / 4ES / 8ES from `bimsteelauto_connections` only**. A joint
+  these do not fit reads NOT EVALUATED (ratio inf, never a pass). AISC Design Guide 16 flush / multi-row types: roadmap,
+  when the user has the printed guide.
+- **Design force** = the larger of the analysis force and **50 % of the member's design capacity** (the library's
+  `CAPACITY_FRACTION`); a project setting, editable per job.
+- **Bolts:** grades **8.8 and 10.9** now, **M12 to M30**. Grade 4.6 is NOT in bimsteelauto_connections: roadmap, the
+  user's decision later. End-plate bolts **pretensioned**, secondary bolts **snug-tight**.
+- **Anchors and concrete:** anchor grade and concrete strength are editable defaults (**C30/37** as in Job units).
+  **Pedestal size is the user's input per building; blank = anchor check NOT EVALUATED.** Never invent a value.
+- **Code:** AISC only for connections now; ECP later.
+- **Do NOT modify `bimsteelauto_connections`.** If a step seems to need a change there, stop and ask the user.
+
+**Steps** (each: hand-checked independent test, a negative control, commit after green):
+
+| # | Step | Status |
+|---|---|---|
+| 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
+| 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | |
+| 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
+| 4 | Flange-to-web welds of built-up members | |
+| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder) | |
+| 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
+| 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
+| 8 | PEB > "Connections..." in the browser: Check, Design, Apply as one undo step, calc sheets, NOT FOR ISSUE | |
+| 9 | R1 regression, HANDOVER, end-work | |
+
+**Step 1 — what was built (2026-11-11):** `engine/connections/joints.py`. NOT FOR ISSUE.
+- `joint_list(b)` — every joint from the MODEL: base, knee, ridge, rafter_splice (frame lines), wind_column_top / _base
+  (incl. an end-rafter wall's corner columns), end_rafter_ridge / _splice, brace_end (roof / side-wall / end-wall X), cleat;
+  the members joined (frame joints: analysis mark, station, section at the joint). Host of a brace end / cleat = the
+  nearest primary member line (the generator's cleat "host" labels are wrong on an end-rafter wall). Not joints yet:
+  sag rods, ridge ties, flange braces.
+- `building_joints(b, li, analysis=, settings=)` — LRFD forces: frame joints from the DAM strength solve, member-end
+  stations within 1 mm of the joint, both members at a knee: largest +M and −M with their V and P, largest |V|, largest
+  compression and tension, each with combination and member; bases from the reactions (compression, uplift, |H|, |M|);
+  wind columns from their member-check forces (+ uplift / in-plane H from the end-rafter frame); end-rafter ridge from
+  that frame's stations; braces = the tension-only diagonal force. **Cleats and end-rafter splices: NOT EVALUATED**
+  (cold-formed support reactions come with step 5; the end-rafter frame has no station at the splice).
+- Capacity rule: `ConnectionSettings.capacity_fraction` (default the library's 0.50; None = analysis only) through
+  `bimsteelauto_connections.design_force`, at knee / ridge / splice for Mu+, Mu−, Vu: section = the smaller Zx at the
+  joint (library rule), φMn by `available_strengths` with Lb = the compression flange's brace segment at the joint, Cb = 1,
+  Fy = the lowest plate of that piece. Axial, bases, wind columns, braces: analysis force alone — **TO CONFIRM**.
+- Building 1 (V 45, C): 291 joints, all evaluated except the 196 cleats; line 3: knee −M 345.3 / +M 208.4 kN·m (design
+  519.1 = 0.5 × φMn 1038.2), ridge +M 121.2 (design 223.8 = 0.5 × 447.6), base uplift 49.0 kN. The capacity rule governs
+  every frame joint on building 1 (moments well below 50 % of capacity).
+- Found: the roof bracing's eave node is at the COLUMN top (y 8.7, z 5 913), not on the rafter — step 5 must detail it there.
+- Tests (`test_joints.py`, 7): counts of building 1 and of an end-rafter variant by hand (291 / 295, hosts), settings,
+  φMn (F3, 447.6) and φVn (G2.1, 441.3) at the ridge longhand and the 50 % rule; the rule not firing on a heavy joint and
+  f = None; negative controls (a 5 000 kN·m mid-member moment is not the joint's; missing stations, stations 5 mm off the
+  joint, no LRFD combination → NOT EVALUATED); line 3 against the analysis' own first / last stations and reactions (slow).
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
