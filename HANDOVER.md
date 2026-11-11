@@ -20,8 +20,10 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 ## Next task
 
-**Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Step 1 (joint list and design
-forces, engine) first; one step at a time, the user says when to go on.**
+**Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
+forces) and 2 (base plates and anchors) done in the engine (2026-11-11); next step 3 (knee / ridge / splice end plates)
+when the user says so. Open for the user: the DG 1 section for the inside-rod plate model, F1554 inch vs metric rods,
+the detailing rules of step 2, the shear lug.**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
@@ -54,7 +56,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | # | Step | Status |
 |---|---|---|
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
-| 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | |
+| 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
 | 4 | Flange-to-web welds of built-up members | |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
@@ -134,6 +136,47 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
   the joint, no LRFD combination → NOT EVALUATED); slow: line 3 against the analysis' own end stations and reactions,
   the exact counts by type; the end-rafter splice at its own node (30 m span; moved splice; WITHOUT the node → NOT
   EVALUATED; the node changes neither the ridge moment nor the reactions).
+
+**Step 2 — what was built (2026-11-11):** `engine/connections/baseplates.py`, every main-frame and wind-column base. NOT FOR ISSUE.
+- **User decisions (2026-11-11):** anchor grade default **F1554 Gr 36** (editable; ISO 8.8 / 10.9, F1554 55 / 105 offered);
+  rod layout per building, default **inside the flanges** (2 rods each side of the web), outside (field-fix-10 layout)
+  available; **anchors in shear, no friction credit, plate washers WELDED** (a note on every result, carried to the
+  detail); breakout / pryout failures name the mode and suggest a larger edge distance / pedestal, anchor reinforcement
+  (hairpins or ties) or a shear lug — **no shear-lug check yet** (later item); anchors **designed** (smallest rod M16 … M36,
+  then the shortest embedment).
+- Engineering = bimsteelauto_connections, unchanged: `design_base_plate` (DG 1 Sect. 3.1–3.4 + J8: bearing, eccentricity,
+  net uplift, thickness; Eq. 3.4.5–3.4.7 for rods outside the flanges) and `check_anchors` (ACI 318-19 Ch. 17).
+- **New model, rods inside the flanges (user-approved):** `inside_rod_plate` — the plate cantilevers from the web face,
+  lever = rod to web face, 45° spread → the two rods of one side share min(2 lever + s, d − 2 tf); φ Fy b_eff t²/4 ≥ T ×
+  lever. **The DG 1 section / example that gives it is TO CONFIRM against the printed guide** (only Sect. 3.1–3.4 are
+  transcribed in bimsteelauto; believed Sect. 3.2, tensile axial loads) — VERIFIED False.
+- Cases per frame base (forces from step 1, analysis alone): largest compression with its H, largest uplift with its H,
+  largest |H| with its V; wind columns: largest P / uplift with the largest V (conservative pairing). Pinned uplift → all 4
+  rods share T; with a moment the tension row (2 rods).
+- **Claude's detailing rules — TO CONFIRM (constants in the module):** 4 rods, ISO metric thread areas with F1554 Gr 36
+  strengths (F1554 is supplied in inch sizes: which does the user buy?); holes / plate washers DG 1 Table 2.3 as tabulated
+  in the upstream app (not re-read from the guide; its 2-1/2 in. row repeats the 2 in. hole — a likely slip, never
+  reached ≤ M36); clearance rod centre to a steel face = washer/2 + 8 (assumed weld leg) + 5, rounded up to 5; spacing ≥ 4d
+  (ACI 17.9.1) and ≥ washer + 10; inside: plate = footprint + 25 each side; outside: rods c beyond the flanges, plate edge
+  c; embedment 150 mm upward in 25 mm steps to pedestal depth − 100; A2/A1 from the largest similar rectangle in the
+  pedestal (≤ 4). Plate palette = the library's (12 … 70 mm). Plate grades: S275 / S355 / A572 Gr 50 → the library's
+  names; **St 37 / 44 / 52 → NOT EVALUATED** (not in the library; no invented mapping). Note: the library's S355 plate
+  Fy is 355 to 40 mm (EN 1993-1-1 Table 3.1), Manafe3's member inputs use EN 10025-2 (345 above 16 mm).
+- Statuses: DESIGNED; **PLATE DESIGNED - ANCHORS NOT EVALUATED** (no pedestal: the rods are sized on steel only and the
+  concrete modes are not shown as checked); FAILS (with the fixes; reported at the SMALLEST rod whose steel passes, at the
+  deepest embedment that fits — concrete shear breakout barely depends on the rod); NOT EVALUATED (no forces, an unknown
+  grade, rods that do not fit). `app_params` = the app's base-plate parameters for steps 7 / 8.
+- **Building 1 (placeholder frames):** no pedestal → 16 bases "PLATE DESIGNED - ANCHORS NOT EVALUATED", M16, 12 mm plates
+  (inside layout 375 × 300, rods 65 × 90). Pedestal 600 × 500 × 700: 6 frame bases FAIL on **concrete shear breakout**
+  (U 1.80 under the 65 kN thrust; fixes listed); 1 300 × 700 × 900: all 16 DESIGNED (M16, hef 150, interaction ≤ 0.94).
+  The 65 kN thrust in shear breakout is what a PEB base usually needs a shear lug or hairpins for — the shear-lug check is
+  the next item to decide.
+- Not checked yet (stated): the column-to-base-plate weld (proposal: with the welds of step 4), the shear lug, the
+  pedestal itself (reinforcement, bearing on the footing), the grout.
+- Tests (`test_baseplates.py`, 8): DG 1 rows and clearances, both layouts by hand, the inside-rod plate longhand (and the
+  flange cap), anchor steel tension / shear longhand (φNsa 188.40, φVsa 78.37 kN), no pedestal → concrete NOT EVALUATED,
+  small pedestal → FAILS naming shear breakout with the fixes, large → DESIGNED, St 37 / no forces → NOT EVALUATED,
+  settings refused, outside layout on the library's tension interface; building 1 end to end (slow).
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
