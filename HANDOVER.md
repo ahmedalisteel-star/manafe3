@@ -21,10 +21,10 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
-forces), 2 and 2b (base plates, anchors, anchor reinforcement) done in the engine (2026-11-11); next step 3 (knee /
-ridge / splice end plates) — WAIT for the user's go. Open for the user: DG 1 Sect. 3.2 / Example 4.6 for the inside-rod
-plate model (the user confirms; VERIFIED False until then), the ISO 4.6 values (ISO 898-1 Table 3, not re-read) and its
-ductility (reduction of area), the ACI 17.5.2.1(b) / Table 25.4.2.3 clause readings.**
+forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
+engine (2026-11-12); next step 4 (flange-to-web welds, the column-to-plate weld, the shear lug, the stiffener welds) —
+WAIT for the user's go. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
@@ -58,7 +58,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 |---|---|---|
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
-| 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
+| 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine) — `engine/connections/endplates.py`, `test_endplates.py` |
 | 4 | Flange-to-web welds of built-up members | |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
@@ -212,6 +212,71 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
   (9.055 mm), 4.6 steel modes longhand (φNsa 254.80, φVsa 112.90 kN), the hairpin design and ld longhand, 17.8 cases,
   hairpins do not fix pryout, reinforcement off → FAILS naming it, a shallow pedestal → NOT EVALUATED, hooked refused, St 37
   (Fy 235.36) through the inside-rod plate, building 1 end to end (slow: 10 DESIGNED + 6 with hairpins on 600 × 500 × 700).
+
+**Step 3 decisions (user, 2026-11-12 — confirmed list):**
+1. Forces: step 1's design forces (the 50 % rule on Mu+, Mu−, Vu at knee / ridge / splice). Axial tension CONCURRENT with
+   the moment (the same combination; step 1 stores it), the worst pair: Mu_eq = max(|M|, f × φMn) + T (d − tf)/2;
+   compression not credited.
+2. Knee: extended above AND below; ONE plate and ONE bolt layout for both signs; the result names the sign that governs
+   the bolts and the one that governs the plate.
+3. Ridge and rafter splices: extended below the bottom flange only, FLUSH at the top; the −M side = the DG 16 flush
+   unstiffened case (two-bolt, then four-bolt), Yp WRITTEN FROM MEMORY (VERIFIED False, section TO CONFIRM from the
+   user's photos of DG 16), thick-plate procedure, prying cross-checked; a failing flush side is reported with fixes.
+4. Extended configurations from the library (AISC 358 Yp, VERIFIED): 4E → 4ES → 8ES.
+5. Bolts 8.8, pretensioned BEARING-type, threads INCLUDED, no slip check (slip-critical: roadmap, cranes); ≥ M20 on
+   main-frame end plates, M16 on secondary joints (settings), up to M30; ONE bolt size and grade per joint type; 8.8
+   failing up to M30 → 10.9, reported.
+6. Shear: each moment sign separately; the compression-side bolts first; if they fail, ALL bolts with the J3.7
+   interaction (the method is reported); J3.10 bearing / tear-out on every ply.
+7. Plate stock (setting) 12, 15, 16, 18, 20, 22, 25, 30, 35, 40, 50; ONE thickness per joint type; plate grade = the frame's.
+8. Geometry defaults: bp = bf + 50 ↑10, g 100 (≤ M24) / 140, pf = max(40, d + 12), de 1.5 d, pb 3 d; checks: gauge vs plate
+   and column-flange edge (Table J3.4M), web wrench clearance, pitch clears the flange weld + nut.
+9. Welds: flanges FULL STRENGTH, web its yield over the tension-bolt zone + the shear; double fillets; a full-strength
+   fillet over 12 mm (setting) → CJP, said so; minimum legs AISC 360-16 Table J2.4 (thinner part); ONE weld size per joint
+   type; E70XX (482 MPa). The t − 2 maximum does not apply (welds on the plate face, not along an edge) — so the library's
+   size_fillet_weld (edge rule, thicker-part minimum) is not used for these T-joints.
+10. 4ES / 8ES end-plate stiffeners sized; their welds NOT EVALUATED until step 4.
+11. Column side (knee): J10.1 / .2 / .3 / .6; J10.4 NOT APPLICABLE (the flange-level stiffeners restrain the flanges);
+    J10.5 NOT APPLICABLE (one-sided connection — the library runs it; listed, not used). Transverse stiffeners at both rafter
+    flange levels at EVERY knee (standard detail), sized up by J10.7 / J10.8; panel zone φVpanel = min(J10.6, G2.1 shear
+    buckling of the panel web, kv from the stiffener spacing); a shortfall → diagonal stiffener As = (Vu − φVpanel) /
+    (φ Fy cos θ), shown in the calc (doubler as an option); stiffener welds NOT EVALUATED until step 4.
+12. Every default listed on each result as an editable setting; statuses DESIGNED / FAILS (with fixes) / NOT EVALUATED.
+
+**Step 3 — what was built (2026-11-12):** `engine/connections/endplates.py` (`design_joint`, `building_endplates`). NOT FOR ISSUE.
+- Library parts used unchanged: 4E / 4ES / 8ES Yp, DG 4 thick-plate thickness, no-prying bolt moment, bolt strengths,
+  prying (`evaluate_bolt_row`), J10 (`check_column_side`); pyaisc360 J3.10, J3-3a, G2.1. Manafe3 parts flagged
+  (`endplates.VERIFIED`, all False): DG 16 flush Yp, T-joint fillets, Table J2.4 / J3.3M / J3.4M values, column
+  stiffeners and the diagonal, the end-plate stiffener, the clearances, the web tension-zone weld rule, J10.4 / J10.5.
+- One size per joint type: each joint designed, then the per-type maxima (bolt size + grade, plate, weld legs) imposed on
+  every joint of the type and re-checked until stable.
+- **Building 1, placeholder frames:** 25 joints DESIGNED; every type 4E, M24 8.8, plate 16; flange fillets 10, web 8 (ridge
+  5); knee transverse stiffeners 12 mm (J10.7 force: J10.1 flange bending governs), no panel-zone diagonal needed; shear
+  max 0.80 (compression-side bolts).
+- **Building 1, sized frames (fixture):** 25 DESIGNED; 4E, M24 8.8, plate 18; flange fillets 8, web 5; interior knees
+  transverse stiffeners 16 mm and a **panel-zone diagonal pair 12 mm** (Vu 701.3 > φVpanel 562.7: As = 138.6 × 10³ /
+  (0.9 × 355 × 0.708) = 612 mm²); at the ridge and splices the **flush top side governs** (four-bolt flush).
+- Tests (`test_endplates.py`, 9): DG 16 arithmetic longhand (2729.94 / 3614.82), extended rows by hand, the full-strength
+  flange weld (8 mm, 736.07 kN) and the CJP switch, J2.4 by the thinner part, the CONCURRENT pair (never max M with max T
+  of another combination; the 50 % rule + concurrent T), the shear fallback to all bolts with J3-3a (F'nt 337.9 MPa), a
+  knee with one layout for both signs, J10.4 / J10.5 not applicable, G2.1 kv / Cv1 / φV and the diagonal formula by hand,
+  the flush ridge, the 10.9 escalation at 200 kN·m (8.8 φMnp 191.1, 10.9 238.9 by hand) and its negative control, NOT
+  EVALUATED cases, settings refused; the sized building end to end — one size per type, stiffeners at every knee (slow).
+
+**Unverified sources — to check by the user (one list; status as of 2026-11-12):**
+
+| Item | What was assumed | What the user checks | Status |
+|---|---|---|---|
+| DG 1 inside-rod plate model (step 2) | plate cantilever from the web face, 45° spread, φ Fy b_eff t²/4 ≥ T × lever | DG 1 2nd ed. Sect. 3.2 / Example 4.6 (the user's copy) | VERIFIED False |
+| ISO 4.6 anchor values (bimsteelauto 0.15.2) | fya 240, futa 400 MPa, A 22 % (ISO 898-1:2013 Table 3, from memory); NOT ductile | the printed ISO 898-1 Table 3; a reduction-of-area value from the supplier for ductility | checked_against_source False |
+| ACI 318-19 17.5.2.1(b) anchor reinforcement (step 2b) | hairpins replace the shear breakout, φ 0.75; ld by Table 25.4.2.3 (simplified, ψg 1.15) | the clause numbers and the ld conditions in the printed ACI 318-19 | VERIFIED False |
+| DG 16 flush yield lines (step 3) | two- / four-bolt flush unstiffened Yp as written in `flush_Yp` | the DG 16 table and section (photos), line by line | VERIFIED False |
+| AISC Tables J3.3M / J3.4M, J2.4 (step 3) | standard holes, minimum edge distances, minimum fillet legs (metric, from memory) | the printed AISC 360-16 tables | VERIFIED False |
+| Column stiffeners J10.7 / J10.8 and the diagonal (step 3) | widths / thicknesses / half depth; As = (Vu − φVpanel)/(φ Fy cos θ) | the printed J10.7 / J10.8 and the diagonal practice | VERIFIED False |
+| J10.4 / J10.5 not applicable at a one-sided knee (step 3) | J10.5 needs forces on both flanges; J10.4 restrained by the stiffeners | AISC 360-16 J10.4 / J10.5 | confirmed by the user 2026-11-12 (reading); VERIFIED False until checked in the code text |
+| AISC 358 end-plate stiffener (step 3) | ts ≥ tw, hst/ts ≤ 0.56 √(E/Fy), Lst = hst / tan 30° | AISC 358-16 Sect. 6 | VERIFIED False |
+| Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
+| bimsteelauto_connections limits found (step 3) | `size_fillet_weld` uses the thicker-part minimum and the edge maximum; `check_column_side` always runs J10.5 | whether to fix them in the library (a library change: the user's decision) | open |
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
