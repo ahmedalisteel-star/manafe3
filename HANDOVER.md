@@ -21,9 +21,10 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 ## Next task
 
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
-forces) and 2 (base plates and anchors) done in the engine (2026-11-11); next step 3 (knee / ridge / splice end plates)
-when the user says so. Open for the user: the DG 1 section for the inside-rod plate model, F1554 inch vs metric rods,
-the detailing rules of step 2, the shear lug.**
+forces), 2 and 2b (base plates, anchors, anchor reinforcement) done in the engine (2026-11-11); next step 3 (knee /
+ridge / splice end plates) — WAIT for the user's go. Open for the user: DG 1 Sect. 3.2 / Example 4.6 for the inside-rod
+plate model (the user confirms; VERIFIED False until then), the ISO 4.6 values (ISO 898-1 Table 3, not re-read) and its
+ductility (reduction of area), the ACI 17.5.2.1(b) / Table 25.4.2.3 clause readings.**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
 the bimsteelauto sign fix and end-frame braces done; step 2 (Direct Analysis Method) done; step 3 (main-frame checks) done
@@ -56,7 +57,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | # | Step | Status |
 |---|---|---|
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
-| 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
+| 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | |
 | 4 | Flange-to-web welds of built-up members | |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
@@ -176,7 +177,41 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 - Tests (`test_baseplates.py`, 8): DG 1 rows and clearances, both layouts by hand, the inside-rod plate longhand (and the
   flange cap), anchor steel tension / shear longhand (φNsa 188.40, φVsa 78.37 kN), no pedestal → concrete NOT EVALUATED,
   small pedestal → FAILS naming shear breakout with the fixes, large → DESIGNED, St 37 / no forces → NOT EVALUATED,
-  settings refused, outside layout on the library's tension interface; building 1 end to end (slow).
+  settings refused, outside layout on the library's tension interface; building 1 end to end (slow). (Superseded by 2b
+  below: the default grade, minimums and statuses changed.)
+
+**Step 2b — the user's answers and anchor reinforcement (2026-11-11):**
+- **Rods are metric; default anchor grade ISO 4.6** — added to bimsteelauto_connections at the user's request (route:
+  library branch + public push, user-approved): **bimsteelauto 0.15.2** (`feature/anchor-grade-4-6` b0424c1, merged to
+  `main` e7c9de9, pushed; Manafe3 re-pinned). 4.6: fya 240, futa 400 MPa (ISO 898-1:2013 Table 3: ReL 240, Rm 400, A 22 %)
+  — **values from memory of the standard, `GRADE_SOURCES["4.6"]["checked_against_source"] = False`**; **NOT ductile** (user:
+  brittle until the supplier's certificate shows reduction of area ≥ 30 %, ACI 318-19 2.3) → φ 0.65 tension / 0.60 shear.
+  F1554 grades are offered ONLY with inch rods (5/8 … 1-1/2 in., the library's UNC areas). Library suite: 1053 passed (the
+  known `test_fc_adapter` failure; `test_bsa_dxf` needs ezdxf, not in Manafe3's env).
+- **St 37 / 44 / 52 plates** — also in 0.15.2 (`bolts._PLATE_GRADES` ST37 / ST44 / ST52, the ecp205-lrfd values ×
+  98.0665, both thickness bands).
+- **Detailing rules ACCEPTED**, except the embedment: **main-frame columns ≥ M20 and hef ≥ 300 mm, wind columns ≥ M16 and
+  ≥ 150 mm, 50 mm steps** — all settings (`BaseSettings.rod_min_frame / rod_min_wind / hef_min_frame / hef_min_wind /
+  hef_step / hef_cover`). **Anchor type stated on every result: HEADED** (hex head / heavy hex nut; the library's pullout
+  uses that bearing area); hooked refused.
+- **Shear lug and the column-to-plate weld → step 4** (with the welds).
+- **Anchor reinforcement — the first fix for shear breakout** (`anchor_reinforcement`, ACI 318-19 **17.5.2.1(b)**, φ 0.75 —
+  clause numbering TO CONFIRM against the printed code): when ONLY the concrete breakout in shear fails, hairpins (2 legs
+  each, ≤ 4, bars 10 / 12 / 16 / 20 B500, fy 500 from Job units) with φ As fy ≥ Vua replace it; 17.8 is re-run with φVn =
+  min(rod steel, reinforcement, pryout). ld per Table 25.4.2.3 (simplified; db ≤ 20: / 2.1, ψg 1.15 for B500) reported.
+  **Status "DESIGNED WITH ANCHOR REINFORCEMENT - DEVELOPMENT NOT EVALUATED"**: legs within 0.5 ca1, development on both
+  sides of the breakout surface and the Table's spacing / cover conditions are listed TO CHECK — never a pass. A pryout or
+  any other failure is not "fixed" by hairpins (FAILS with the fixes).
+- **Building 1 (placeholder frames, V 45, C), fresh analysis:**
+  - no pedestal: 10 frame bases 4 × M20 4.6, plate 375 × 300 × 12, rods 80 × 100 (inside); 6 wind-column bases 4 × M16,
+    370 × 200 × 12, rods 65 × 90 — all "PLATE DESIGNED - ANCHORS NOT EVALUATED" (rod steel ≤ 0.57).
+  - **pedestal 600 × 500 × 700:** end frames (F1, F5) DESIGNED, M20, hef 300, max interaction 0.983 (shear breakout);
+    interior frames (F2–F4, thrust 64.8 kN) **1 hairpin T12 each** (As 226 ≥ 173 mm², φVn 84.8 kN, ld 600 mm), max
+    interaction 0.885 — "development NOT EVALUATED"; wind columns DESIGNED, M16, hef 150, max 0.443.
+- Tests (`test_baseplates.py`, 12): + rod lists (metric / inch, minimums, hef steps), M20 layout and inside-rod plate
+  (9.055 mm), 4.6 steel modes longhand (φNsa 254.80, φVsa 112.90 kN), the hairpin design and ld longhand, 17.8 cases,
+  hairpins do not fix pryout, reinforcement off → FAILS naming it, a shallow pedestal → NOT EVALUATED, hooked refused, St 37
+  (Fy 235.36) through the inside-rod plate, building 1 end to end (slow: 10 DESIGNED + 6 with hairpins on 600 × 500 × 700).
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
