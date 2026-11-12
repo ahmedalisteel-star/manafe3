@@ -22,9 +22,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
-engine (2026-11-12); step 3 follow-ups done (2026-11-12, below) — step 3 awaits the user's approval; next step 4
-(flange-to-web welds, the column-to-plate weld, the shear lug, the stiffener welds) — the step 4 decisions are asked
-first, WAIT for the user's answers before coding. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); next step 4 (flange-to-web
+welds, the column-to-plate weld, the shear lug, the stiffener welds) — the user's 13 answers are in "Step 4 decisions"
+below; the function / test / hand-value list goes to the user first, WAIT for the OK before coding. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -59,8 +59,8 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 |---|---|---|
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
-| 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine) — `engine/connections/endplates.py`, `test_endplates.py` |
-| 4 | Flange-to-web welds of built-up members | |
+| 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine; approved by the user 2026-11-12) — `engine/connections/endplates.py`, `test_endplates.py` |
+| 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | decisions answered 2026-11-12; plan to the user |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
@@ -290,6 +290,30 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 10 | 4ES / 8ES end-plate stiffener | `test_defaults_bolt_minimum_plate_width_gauge_stiffener`, `test_config_and_bolt_order_by_hand` |
 | 11 | Column side: J10.1–3 / J10.6, J10.4 / J10.5 not applied, stiffeners at every knee, G2.1, diagonal / doubler | `test_column_side_J10_and_stiffeners_by_hand`, `test_knee_one_layout_both_signs_and_column_side` |
 | 12 | Every default listed; DESIGNED / FAILS / NOT EVALUATED; one size per type | `test_not_evaluated_and_settings`, `test_sized_building_1_end_plates_one_per_type` (slow) |
+
+**Step 4 decisions (user, 2026-11-12):**
+1. Flange-to-web demand q = V·Q/I at each station (envelope of the LRFD combinations; tapered: no credit for the sloping
+   flange's vertical component) PLUS the local concentrated loads at flange-brace and purlin points. Shop butt splices of
+   flange and web plates are CJP — stated, not designed.
+2. Default ONE-SIDED continuous fillet (SAW, PEB practice); both sides automatically in the end zones (item 4) and wherever
+   q exceeds the one-sided capacity. Setting `shop_min_leg` = 5 mm; leg = max(J2.4 minimum by the thinner part,
+   shop_min_leg, demand).
+3. One leg per member segment.
+4. Within one depth of a knee / ridge / splice end plate: full-strength web weld, both sides (as the step 3 web weld).
+5. Column-to-base-plate weld: uplift and shear on the weld; compression by bearing. AISC M2.6 (unmilled base plates up to
+   50 mm) and J1.4 listed as unverified; the result states "base plate <= 50 mm, unmilled"; a plate over 50 mm → NOT
+   EVALUATED.
+6. Shear in both directions: strong-axis shear on the web welds, weak-axis shear (bracing reactions) on the flange welds;
+   uplift shared by weld length; elastic method, vector sum, no directional increase.
+7. Shear lug only as the fix when the anchors fail in shear / breakout; per-job setting, default hairpins.
+8. Lug: flat plate; ACI 318-19 17.11 (bearing, breakout) and DG 1 (lug bending, lug weld) — both VERIFIED False.
+9. With a lug, the lug takes all the shear; the anchors tension only.
+10. Column transverse stiffeners welded to the flanges and the web to develop the FULL stiffener strength As × Fy (they
+    also take the horizontal component of the diagonal stiffener).
+11. Diagonal stiffener welds: As·Fy; doubler welds: its shear strength (J10.6).
+12. Non-seismic: AISC 358 is reference only (unverified). End-plate stiffeners: double fillets developing the stiffener's
+    strength; CJP only when the fillet needed is over 12 mm (the flange rule).
+13. E70XX and the same leg list everywhere; one weld size per joint type; NOT FOR ISSUE; weld symbols in step 7.
 
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
@@ -1230,6 +1254,10 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 2. Upstream checks skipped on Windows (python venv for oracle readers, poppler, unzip, DSTV runners): optional.
 
 3. Optional: rewrite the git history to drop the old private-folder path (a force push — the user's call).
+4. bimsteelauto suite, two failures that are not from Manafe3's changes (seen 2026-11-12, run with the Manafe3 venv):
+   `tests/test_bsa_dxf.py` cannot import `ezdxf` (not installed in that venv); `tests/test_fc_adapter.py::
+   test_the_engine_writes_the_json_the_adapter_reads` needs `design_result.json`, written by `run_frame_example.py`
+   (not present in the clone). Both fail the same way without the 0.15.3 change.
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)
