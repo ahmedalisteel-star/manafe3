@@ -9,7 +9,8 @@ memory; a single pytest process keeps every file's imports, caches and results a
 Every file runs with MANAFE3_WORKERS=1 (analyses serial; a test that passes workers= explicitly still gets its pool —
 test_building_analysis.py keeps the parallel path tested with 2). Per file: pytest's summary, the time and the PEAK
 memory of the whole process tree (pytest + its analysis subprocesses), sampled every 0.2 s. Nothing is skipped: a file
-that fails or runs out of memory is reported by name with its peak, and the exit code is 1.
+that fails or runs out of memory is reported by name with its peak, and the exit code is 1. In the full run (no -m) a
+file that collects no test is a failure; with -m a file whose tests are all deselected is fine.
 The last line is the summary end-work.ps1 records:  engine: <n> passed, <n> failed, ... (<files> files, largest peak ...)
 """
 
@@ -77,7 +78,9 @@ def run_file(f: Path, marker: str | None) -> dict:
         if m:
             key = "errors" if k in ("error", "errors") else k
             counts[key] = counts.get(key, 0) + int(m.group(1))
-    ok = p.returncode in (0, 5)                                   # 5 = nothing collected (all deselected by -m)
+    # 5 = nothing collected: fine when -m deselected every test of the file (the fast set), a FAILURE in the full run
+    # (user decision 2026-11-12: a file that collects no test is a broken file)
+    ok = p.returncode == 0 or (p.returncode == 5 and marker is not None)
     return {"file": f.name, "rc": p.returncode, "ok": ok, "seconds": time.time() - t0, "peak_mib": peak / 2**20,
             "procs": procs_at_peak, "summary": summary or "(no pytest summary - killed?)", "counts": counts,
             "tail": "" if ok else "\n".join(lines[-40:])}

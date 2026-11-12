@@ -20,7 +20,7 @@ KEYS = {
     "MYSTEELAPP_PATH": "MySteelApp Studio folder (laptop only)",
     "MANAFE3_ENGINE_PORT": "engine port, default 8765",
     "MANAFE3_WEB_PORT": "web app port, default 8000",
-    "MANAFE3_WORKERS": "analysis processes at once (frame lines / sizing); default: one per job up to CPUs - 1; "
+    "MANAFE3_WORKERS": "analysis processes at once (frame lines / sizing); default: one per job up to CPUs - 1, at most 3; "
                        "the per-file test runner sets 1",
 }
 
@@ -46,10 +46,14 @@ def get(key: str, default: str | None = None) -> str | None:
     return os.environ.get(key) or read_env_file().get(key) or default
 
 
+#: The default ceiling on analysis processes (user decision 2026-11-12: memory) — MANAFE3_WORKERS or workers= override it.
+DEFAULT_WORKER_CAP = 3
+
+
 def analysis_workers(requested: int | None, n_jobs: int, cap: int | None = None) -> int:
     """How many analysis processes to start (user decision 2026-11-12, memory): an explicit `requested` wins; else
-    MANAFE3_WORKERS (environment or .env.local; the per-file test runner sets 1); else one per job up to CPUs − 1 and
-    `cap`. Never more than the jobs, never fewer than 1. A malformed MANAFE3_WORKERS is refused (no silent default)."""
+    MANAFE3_WORKERS (environment or .env.local; the per-file test runner sets 1); else one per job up to CPUs − 1, at most
+    DEFAULT_WORKER_CAP (3), and `cap`. Never more than the jobs, never fewer than 1. A malformed MANAFE3_WORKERS is refused (no silent default)."""
     if requested is not None:
         n = int(requested)
     else:
@@ -62,7 +66,7 @@ def analysis_workers(requested: int | None, n_jobs: int, cap: int | None = None)
             if n < 1:
                 raise ValueError(f"MANAFE3_WORKERS must be >= 1, got {n}")
         else:
-            n = max(1, (os.cpu_count() or 2) - 1)
+            n = min(max(1, (os.cpu_count() or 2) - 1), DEFAULT_WORKER_CAP)
             if cap is not None:
                 n = min(n, cap)
     return max(1, min(n, max(1, n_jobs)))
