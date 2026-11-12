@@ -7,10 +7,13 @@ VERIFIED engineering used from bimsteelauto_connections (not modified) and pyais
     bolts.bolt_tension_capacity / bolt_shear_capacity / get_bolt  (AISC J3.6, Table J3.2; 8.8 / 10.9 by the J3.2 ratios)
     bolts.evaluate_bolt_row     tension with prying (AISC Manual Part 9 T-stub) — the cross-check of the plate
     welds.check_column_side     AISC J10.1, .2, .3, .5, .6
+    welds.size_fillet_weld      AISC J2 fillet sizing, joint="tee" (no J2.2b edge maximum), min_leg_by="thinner"
+                                (Table J2.4) — bimsteelauto 0.15.3, added for these welds (user 2026-11-12)
     pyaisc360                   J3.10 bearing / tearout, J3.7 Eq. J3-3a, G2.1 web shear (Cv1, kv Eq. G2-5)
 Manafe3 code (flagged in VERIFIED, TO CONFIRM — see the HANDOVER "unverified sources" list):
     flush_Yp            DG 16 two- / four-bolt FLUSH unstiffened yield lines — WRITTEN FROM MEMORY (user 2026-11-12)
-    tjoint_fillet       the T-joint fillet welds (flange / web on the end-plate FACE)
+    fillet_or_cjp       only the SETTINGS around the library's weld: the leg list, one size per joint type, and the
+                        switch to a CJP groove weld above weld_max_fillet (12 mm)
     column stiffeners   transverse pairs (J10.7 / J10.8) as the standard detail; panel-zone diagonal stiffener or doubler
     end-plate stiffener 4ES / 8ES (AISC 358-16 Sect. 6 as recalled)
     clearances          gauge vs plate / column-flange edges (Table J3.4M), web wrench clearance, pitch vs weld + nut
@@ -44,10 +47,11 @@ from dataclasses import asdict, dataclass
 
 from bimsteelauto_connections import EndPlateConfig, EndPlateGeometry
 from bimsteelauto_connections.anchors import NUT_ACROSS_FLATS
-from bimsteelauto_connections.bolts import (bolt_shear_capacity, bolt_tension_capacity, evaluate_bolt_row, get_bolt, get_grade)
+from bimsteelauto_connections.bolts import (GeometryError, bolt_shear_capacity, bolt_tension_capacity, evaluate_bolt_row,
+                                            get_bolt, get_grade)
 from bimsteelauto_connections.endplate import (VERIFIED as EP_VERIFIED, endplate_moment_strength, no_prying_moment_strength,
                                                required_thickness_dg4, yield_line_Yp)
-from bimsteelauto_connections.welds import check_column_side
+from bimsteelauto_connections.welds import ELECTRODES, check_column_side, min_weld_size, size_fillet_weld
 from pyaisc360 import chapter_g as _g
 from pyaisc360 import chapter_j as _j
 
@@ -62,8 +66,11 @@ IN, KSI, KIP = 25.4, 6.894757, 4.448222
 HOLE = {12: 14.0, 16: 18.0, 20: 22.0, 22: 24.0, 24: 27.0, 27: 30.0, 30: 33.0}
 EDGE_MIN = {12: 18.0, 16: 22.0, 20: 26.0, 22: 28.0, 24: 30.0, 27: 34.0, 30: 38.0}
 FILLET_LEGS = (3.0, 5.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0)
-ELECTRODE_FEXX = {"E60": 414.0, "E70": 482.0, "E80": 552.0}
-VERIFIED = {"flush_Yp_DG16": False, "tjoint_fillet": False, "j24_min_leg_table": False, "column_stiffeners": False,
+#: the mark every ridge / rafter-splice result carries while VERIFIED["flush_Yp_DG16"] is False (user 2026-11-12)
+DG16_MARK = "NOT FOR ISSUE: DG 16 flush unverified"
+#: j24_min_leg_table: the Table J2.4 values are the library's min_weld_size (3 / 5 / 6 / 8 mm up to 6 / 13 / 19 mm) — the
+#: user checks them against the printed table. cjp_switch: Manafe3's rule (a setting), not a code clause.
+VERIFIED = {"flush_Yp_DG16": False, "cjp_switch": False, "j24_min_leg_table": False, "column_stiffeners": False,
             "panel_zone_diagonal": False, "endplate_stiffener": False, "clearance_rules": False, "hole_edge_tables": False,
             "web_weld_tension_zone": False, "j10_4_j10_5_not_applicable": False}
 SIDE_NAME = {"-M": "-M (top flange in tension)", "+M": "+M (bottom flange in tension)"}
@@ -104,7 +111,7 @@ class EndPlateSettings:
             raise ValueError(f"configs from 4E / 4ES / 8ES, got {self.configs}")
         if any(int(d) not in HOLE for d in self.bolt_sizes):
             raise ValueError("a bolt size with no standard hole / edge distance listed")
-        if self.electrode not in ELECTRODE_FEXX:
+        if self.electrode not in ELECTRODES:
             raise ValueError("electrode E60 / E70 / E80")
         if self.panel_zone not in ("diagonal", "doubler"):
             raise ValueError("panel_zone: diagonal / doubler")
@@ -225,39 +232,37 @@ def sign_demands(j: dict, lever: float) -> dict:
 
 # ------------------------------------------------------------------------------------------------------------- welds
 
-def j24_min_leg(t_thin: float) -> float:
-    """AISC 360-16 Table J2.4, minimum fillet leg by the THINNER part joined, mm (metric reading — TO CONFIRM)."""
-    return 3.0 if t_thin <= 6.0 else 5.0 if t_thin <= 13.0 else 6.0 if t_thin <= 19.0 else 8.0
-
-
-def tjoint_fillet(demand: float, length: float, theta: float, t_thin: float, st: EndPlateSettings, leg_min: float = 0.0) -> dict:
-    """Double fillet welds of a T-joint: a flange or the web welded on the FACE of the end plate (Manafe3).
-    The t − 2 maximum of AISC J2.2b does NOT apply: these welds lie on the plate face, not along a plate edge (that is
-    why the library's size_fillet_weld — which applies it, and takes the minimum from the thicker part — is not used).
-    φRn = 0.75 × 0.60 FEXX × 0.707 w × L × 2 × (1 + 0.50 sin^1.5 θ) (AISC 360-16 J2.4, Eqs. J2-4 / J2-5); the smallest leg
-    ≥ Table J2.4 (thinner part) and ≥ leg_min (one size per joint type) that carries the demand; above weld_max_fillet
-    (12 mm) or the thinner part → CJP, said so. kN, mm."""
-    F = ELECTRODE_FEXX[st.electrode]
-    k = 1.0 + 0.5 * math.sin(math.radians(theta)) ** 1.5
-    wmin = max(j24_min_leg(t_thin), leg_min)
-    for w in FILLET_LEGS:
-        if w + 1e-9 < wmin:
-            continue
-        if w > min(st.weld_max_fillet, t_thin) + 1e-9:
-            break
-        cap = 0.75 * 0.60 * F * 0.707 * w * length * 2 * k / 1000.0
-        if cap + 1e-9 >= demand:
-            return {"type": "double fillet", "leg": w, "demand": round(demand, 2), "capacity": round(cap, 2),
-                    "U": round(demand / cap, 4), "min_leg_J2_4": j24_min_leg(t_thin), "theta": theta, "length": round(length, 1)}
-    return {"type": "CJP groove weld (matching E70XX filler; full strength, AISC 360-16 Table J2.5)", "leg": 0.0,
-            "demand": round(demand, 2), "capacity": round(demand, 2), "U": 1.0, "min_leg_J2_4": j24_min_leg(t_thin),
-            "theta": theta, "length": round(length, 1),
-            "why": f"a full-strength fillet would exceed {min(st.weld_max_fillet, t_thin):g} mm (setting / thinner part)"}
+def fillet_or_cjp(demand: float, length: float, theta: float, t_part: float, t_plate: float, grade: str,
+                  st: EndPlateSettings, leg_min: float = 0.0) -> dict:
+    """Double fillet of a T-joint — a flange or the web welded on the FACE of the end plate. The weld is sized by the
+    library: bimsteelauto_connections.welds.size_fillet_weld(joint="tee", min_leg_by="thinner") — AISC 360-16 J2.4 weld
+    metal (with the directional increase) and J2-2 base metal, the Table J2.4 minimum by the thinner part, and NO J2.2b
+    t − 2 maximum (these welds lie on the plate face, not along a plate edge). Manafe3 adds only its settings: the leg
+    list, leg ≥ leg_min (one size per joint type), and the switch to a CJP groove weld when the fillet would exceed
+    weld_max_fillet (12 mm) or the thinner part — said so. kN, mm; capacity = both weld lines."""
+    if demand <= 0 or length <= 0:
+        raise ValueError(f"weld demand and length must be > 0, got {demand} kN on {length} mm")
+    t_thin = min(t_part, t_plate)
+    top = min(st.weld_max_fillet, t_thin)
+    legs = tuple(w for w in FILLET_LEGS if leg_min - 1e-9 <= w <= top + 1e-9)
+    out = {"demand": round(demand, 2), "min_leg_J2_4": min_weld_size(t_thin), "theta": theta, "length": round(length, 1)}
+    try:
+        if not legs:
+            raise GeometryError("no leg in the list")
+        w = size_fillet_weld(demand=demand, length=length, t_part1=t_part, t_part2=t_plate, base_grade=grade, theta=theta,
+                             electrode=st.electrode, n_welds=2, palette=legs, joint="tee", min_leg_by="thinner")
+    except GeometryError:
+        return {"type": "CJP groove weld (matching E70XX filler; full strength, AISC 360-16 Table J2.5)", "leg": 0.0, **out,
+                "capacity": round(demand, 2), "U": 1.0,
+                "why": f"a full-strength fillet would exceed {top:g} mm (setting / thinner part)"}
+    return {"type": "double fillet", "leg": float(w.leg), **out, "capacity": round(2 * float(w.capacity), 2),
+            "U": round(float(w.utilization), 4), "governs": w.governing,
+            "sized_by": "bimsteelauto_connections.size_fillet_weld (tee joint, Table J2.4 by the thinner part)"}
 
 
 def flange_weld(bf: float, tf: float, tp: float, grade: str, st: EndPlateSettings, leg_min: float = 0.0) -> dict:
     Fy, _ = get_grade(grade, tf)
-    return {**tjoint_fillet(Fy * bf * tf / 1000.0, bf, 90.0, min(tf, tp), st, leg_min), "basis": "full strength Fy bf tf"}
+    return {**fillet_or_cjp(Fy * bf * tf / 1000.0, bf, 90.0, tf, tp, grade, st, leg_min), "basis": "full strength Fy bf tf"}
 
 
 def web_weld(sec: dict, zone: float, Vu: float, tp: float, grade: str, st: EndPlateSettings, leg_min: float = 0.0) -> dict:
@@ -268,9 +273,9 @@ def web_weld(sec: dict, zone: float, Vu: float, tp: float, grade: str, st: EndPl
     hw = sec["d"] - sec["tf_t"] - sec["tf_c"]
     Lt = min(zone, hw / 2)
     rest = max(hw - 2 * Lt, 50.0)                    # a tension zone at each flange (both signs)
-    wt = tjoint_fillet(Fy * tw * Lt / 1000.0, Lt, 90.0, min(tw, tp), st, leg_min)
-    wv = tjoint_fillet(max(Vu, 1e-6), rest, 0.0, min(tw, tp), st, leg_min)
-    return {"tension_zone": wt, "shear": wv, "leg": max(wt["leg"], wv["leg"]),
+    wt = fillet_or_cjp(Fy * tw * Lt / 1000.0, Lt, 90.0, tw, tp, grade, st, leg_min)
+    wv = fillet_or_cjp(max(Vu, 1e-6), rest, 0.0, tw, tp, grade, st, leg_min)
+    return {"tension_zone": wt, "shear": wv, "leg": max(wt["leg"], wv["leg"]), "zone_length": round(Lt, 1),
             "basis": "web yield Fy tw over each tension-bolt zone; the shear on the rest"}
 
 
@@ -481,6 +486,9 @@ def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings
     pg = PLATE_GRADE.get(grade)
     if pg is None:
         return {**out, "status": "NOT EVALUATED", "missing": [f"plate grade {grade!r} not in bimsteelauto_connections"]}
+    if j["type"] != "knee" and not VERIFIED["flush_Yp_DG16"]:
+        # the top side of a ridge / splice is the DG 16 flush case, written from memory: marked until the user confirms it
+        out["not_for_issue"] = DG16_MARK
     secs = {"-M": _plate_section(rs, cos, True), "+M": _plate_section(rs, cos, False)}
     lever = secs["-M"]["d"] - (secs["-M"]["tf_t"] + secs["-M"]["tf_c"]) / 2
     dem = sign_demands(j, lever)
@@ -537,18 +545,24 @@ def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed
         res["shear"][SIDE_NAME[sg]] = shear_for_sign(Vu, sides[comp]["rows"]["n_bolts"], sd["rows"]["n_bolts"], Tu_b, db, gb,
                                                      plies, st.de_factor * db, st)
     res["endplate_stiffener"] = endplate_stiffener(cfg, ext, rs["tw"], pg, st.plate_stock)
-    ok = all(s["plate_ok"] for s in sides.values()) and all(s["prying_check"]["U"] <= 1.0 for s in sides.values()) \
-        and all(c["ok"] for c in res["clearances"]) and all(v["U"] <= 1.0 for v in res["shear"].values()) \
-        and all(w["U"] <= 1.0 for w in (fw, ww["tension_zone"], ww["shear"])) \
-        and (res["endplate_stiffener"] is None or res["endplate_stiffener"]["t"] is not None)
+    bad = [f"plate thickness, {k}" for k, s in named.items() if not s["plate_ok"]]
+    bad += [f"prying cross-check, {k} (U {s['prying_check']['U']:.2f})" for k, s in named.items() if s["prying_check"]["U"] > 1.0]
+    bad += [f"clearance: {c['check']} ({c['value']:g} < {c['required']:g} mm)" for c in res["clearances"] if not c["ok"]]
+    bad += [f"bolt shear, {k} (U {v['U']:.2f})" for k, v in res["shear"].items() if v["U"] > 1.0]
+    bad += [f"weld: {n}" for n, w in (("flanges", fw), ("web tension zone", ww["tension_zone"]), ("web shear", ww["shear"]))
+            if w["U"] > 1.0]
+    if res["endplate_stiffener"] is not None and res["endplate_stiffener"]["t"] is None:
+        bad.append("end-plate stiffener: no stock plate")
     if col is not None:
         Mu = max(s["Mu"] for s in sides.values())
         lb = rs["tf_top"] / cos + 2 * fw["leg"] + 2 * t
         res["column_side"] = column_side(Mu, psec["d"], tf_max / cos, lever, lb, col, pg, st)
-        ok = ok and res["column_side"]["ok"]
-    res["ok"] = bool(ok)
-    if not ok:
-        res["why"] = "a plate / prying / clearance / shear / weld / stiffener check failed"
+        if not res["column_side"]["ok"]:
+            bad.append("column side: no stock plate for a stiffener / doubler")
+    res["ok"] = not bad
+    if bad:
+        res["failed_checks"] = bad
+        res["why"] = "; ".join(bad)
     return res
 
 
@@ -610,7 +624,12 @@ def building_endplates(joints_result: dict, out: dict, settings: EndPlateSetting
     counts = {}
     for r in lst:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
+    marked = [r["joint"] for r in lst if r.get("not_for_issue")]
+    if marked:
+        notes.append(f"{DG16_MARK} — {len(marked)} ridge / rafter-splice joints: their top (flush) side uses the DG 16 yield "
+                     "lines written from memory, until the user confirms them against the printed guide")
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "joints": lst, "counts": counts, "per_type": per_type,
+            "not_for_issue": {DG16_MARK: marked} if marked else {},
             "notes": notes, "warnings": list(joints_result.get("warnings", [])),
             "open_flags": sorted([f"engine.connections.endplates.{k}" for k, v in VERIFIED.items() if not v]),
             "library_flags": {"endplate": dict(EP_VERIFIED)}}

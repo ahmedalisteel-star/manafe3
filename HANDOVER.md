@@ -22,8 +22,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
-engine (2026-11-12); next step 4 (flange-to-web welds, the column-to-plate weld, the shear lug, the stiffener welds) —
-WAIT for the user's go. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+engine (2026-11-12); step 3 follow-ups done (2026-11-12, below) — step 3 awaits the user's approval; next step 4
+(flange-to-web welds, the column-to-plate weld, the shear lug, the stiffener welds) — the step 4 decisions are asked
+first, WAIT for the user's answers before coding. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -234,7 +235,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 9. Welds: flanges FULL STRENGTH, web its yield over the tension-bolt zone + the shear; double fillets; a full-strength
    fillet over 12 mm (setting) → CJP, said so; minimum legs AISC 360-16 Table J2.4 (thinner part); ONE weld size per joint
    type; E70XX (482 MPa). The t − 2 maximum does not apply (welds on the plate face, not along an edge) — so the library's
-   size_fillet_weld (edge rule, thicker-part minimum) is not used for these T-joints.
+   size_fillet_weld (edge rule, thicker-part minimum) is not used for these T-joints. (Superseded 2026-11-12: the library 0.15.3 tee mode is used — see "Step 3 follow-ups".)
 10. 4ES / 8ES end-plate stiffeners sized; their welds NOT EVALUATED until step 4.
 11. Column side (knee): J10.1 / .2 / .3 / .6; J10.4 NOT APPLICABLE (the flange-level stiffeners restrain the flanges);
     J10.5 NOT APPLICABLE (one-sided connection — the library runs it; listed, not used). Transverse stiffeners at both rafter
@@ -263,6 +264,33 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
   the flush ridge, the 10.9 escalation at 200 kN·m (8.8 φMnp 191.1, 10.9 238.9 by hand) and its negative control, NOT
   EVALUATED cases, settings refused; the sized building end to end — one size per type, stiffeners at every knee (slow).
 
+**Step 3 follow-ups (2026-11-12, user request):**
+- **Library fillet routine fixed:** bimsteelauto 0.15.3 (main `3a2bf3f`, pushed with the user's approval):
+  `size_fillet_weld(joint="tee", min_leg_by="thinner")` — no J2.2b t − 2 edge maximum on a T-joint, Table J2.4 minimum by
+  the thinner part; both default to the old behaviour. Manafe3's `tjoint_fillet` and `j24_min_leg` are removed; the
+  adapter `fillet_or_cjp` only carries the settings (leg list, one size per type, the CJP switch above 12 mm).
+- **DG 16 mark:** every ridge / rafter-splice result carries `not_for_issue = "NOT FOR ISSUE: DG 16 flush unverified"`
+  (and the building result lists the joints) while `VERIFIED["flush_Yp_DG16"]` is False; knees are not marked.
+- A failing joint names each failing check (`failed_checks`) instead of a generic sentence.
+- Building 1 (sized) unchanged with the library routine: 25 DESIGNED, 4E M24 8.8, plate 18, flange fillets 8, web 5,
+  interior-knee stiffeners 16 mm and the diagonal pair 12 mm (As 612.3 mm²); 15 ridge / splice joints marked.
+- **Decision → test** (`engine/tests/test_endplates.py`, hand values in its docstring):
+
+| # | Step 3 decision | Test(s) |
+|---|---|---|
+| 1 | Concurrent (M, T) pairs per sign; compression not credited; 50 % rule | `test_concurrent_pair_not_max_with_max` |
+| 2 | Knee: one layout for both signs, the governing sign by Mu | `test_knee_both_signs_by_hand`, `test_knee_one_layout_both_signs_and_column_side` |
+| 3 | Order 4E → 4ES → 8ES, smallest bolt first; M20 minimum on main frames | `test_config_and_bolt_order_by_hand`, `test_defaults_bolt_minimum_plate_width_gauge_stiffener` |
+| 4 | Ridge / splice: flush top side (two-bolt, then four-bolt), extended bottom | `test_ridge_flush_side_by_hand`, `test_ridge_flush_top_and_grade_escalation` |
+| 5 | DG 16 flush from memory, NOT FOR ISSUE mark | `test_flush_yield_lines_arithmetic`, `test_dg16_mark_only_while_unverified` |
+| 6 | 8.8 → 10.9 only when allowed | `test_ridge_flush_top_and_grade_escalation` |
+| 7 | Shear: compression-side bolts, else all bolts with J3.7 | `test_shear_fallback_to_all_bolts_with_J3_7` |
+| 8 | Welds: full-strength flange, web tension zone + shear, tee joint, CJP above 12 mm | `test_welds_by_hand`, `test_cjp_switch_above_12mm_by_hand`, `test_web_weld_and_tee_joint_by_hand` |
+| 9 | Clearances (edge, wrench, pitch, column flange edge) → FAILS named | `test_clearances_by_hand` |
+| 10 | 4ES / 8ES end-plate stiffener | `test_defaults_bolt_minimum_plate_width_gauge_stiffener`, `test_config_and_bolt_order_by_hand` |
+| 11 | Column side: J10.1–3 / J10.6, J10.4 / J10.5 not applied, stiffeners at every knee, G2.1, diagonal / doubler | `test_column_side_J10_and_stiffeners_by_hand`, `test_knee_one_layout_both_signs_and_column_side` |
+| 12 | Every default listed; DESIGNED / FAILS / NOT EVALUATED; one size per type | `test_not_evaluated_and_settings`, `test_sized_building_1_end_plates_one_per_type` (slow) |
+
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
 | Item | What was assumed | What the user checks | Status |
@@ -270,13 +298,13 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | DG 1 inside-rod plate model (step 2) | plate cantilever from the web face, 45° spread, φ Fy b_eff t²/4 ≥ T × lever | DG 1 2nd ed. Sect. 3.2 / Example 4.6 (the user's copy) | VERIFIED False |
 | ISO 4.6 anchor values (bimsteelauto 0.15.2) | fya 240, futa 400 MPa, A 22 % (ISO 898-1:2013 Table 3, from memory); NOT ductile | the printed ISO 898-1 Table 3; a reduction-of-area value from the supplier for ductility | checked_against_source False |
 | ACI 318-19 17.5.2.1(b) anchor reinforcement (step 2b) | hairpins replace the shear breakout, φ 0.75; ld by Table 25.4.2.3 (simplified, ψg 1.15) | the clause numbers and the ld conditions in the printed ACI 318-19 | VERIFIED False |
-| DG 16 flush yield lines (step 3) | two- / four-bolt flush unstiffened Yp as written in `flush_Yp` | the DG 16 table and section (photos), line by line | VERIFIED False |
-| AISC Tables J3.3M / J3.4M, J2.4 (step 3) | standard holes, minimum edge distances, minimum fillet legs (metric, from memory) | the printed AISC 360-16 tables | VERIFIED False |
+| DG 16 flush (governs ridge/splice) (step 3) | two- / four-bolt flush unstiffened Yp as written in `flush_Yp`; it governs the ridge and splice plates of building 1 | the DG 16 table and section (photos), line by line | VERIFIED False; results marked "NOT FOR ISSUE: DG 16 flush unverified" |
+| AISC Tables J3.3M / J3.4M, J2.4 (step 3) | standard holes, minimum edge distances (metric, from memory); minimum fillet legs = the library's `min_weld_size` (3 / 5 / 6 / 8 mm) | the printed AISC 360-16 tables | VERIFIED False |
 | Column stiffeners J10.7 / J10.8 and the diagonal (step 3) | widths / thicknesses / half depth; As = (Vu − φVpanel)/(φ Fy cos θ) | the printed J10.7 / J10.8 and the diagonal practice | VERIFIED False |
 | J10.4 / J10.5 not applicable at a one-sided knee (step 3) | J10.5 needs forces on both flanges; J10.4 restrained by the stiffeners | AISC 360-16 J10.4 / J10.5 | confirmed by the user 2026-11-12 (reading); VERIFIED False until checked in the code text |
 | AISC 358 end-plate stiffener (step 3) | ts ≥ tw, hst/ts ≤ 0.56 √(E/Fy), Lst = hst / tan 30° | AISC 358-16 Sect. 6 | VERIFIED False |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
-| bimsteelauto_connections limits found (step 3) | `size_fillet_weld` uses the thicker-part minimum and the edge maximum; `check_column_side` always runs J10.5 | whether to fix them in the library (a library change: the user's decision) | open |
+| bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 

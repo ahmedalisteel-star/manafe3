@@ -34,7 +34,7 @@ dev = [
 package = false
 
 [tool.uv.sources]
-bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "e7c9de9d1e56181d1cf9d9a5ebef1389069d8174" }  # main: 0.15.2 anchor grade 4.6, ECP plate grades (2026-11-11); 0.15.1 DG 25; 0.14.3 E7
+bimsteelauto = { git = "https://github.com/ahmedalisteel-star/bimsteelauto", rev = "3a2bf3fa1ae987a0f3ecb64a23831c1e6d71c4e8" }  # main: 0.15.3 fillet weld T-joint mode (2026-11-12); 0.15.2 anchor grade 4.6, ECP plate grades (2026-11-11); 0.15.1 DG 25; 0.14.3 E7
 ecp205-lrfd = { git = "https://github.com/ahmedalisteel-star/ecp205-lrfd", rev = "7c459d70b676d2940137a097d057774dc4950e85" }  # main: 0.1.0 + cl. 4.3 flexural-torsional (2026-11-09)
 
 [tool.pytest.ini_options]
