@@ -14,10 +14,10 @@ Every output carries NOT FOR ISSUE: nothing here is a verified design (Phase 4 d
 
 from __future__ import annotations
 
-import os
 from concurrent.futures import ProcessPoolExecutor
 
 from ..peb.building import BuildingInput, peb_building, resolve
+from ..settings import analysis_workers
 from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from ..design.inputs import section_strength
@@ -85,7 +85,7 @@ def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, 
         same_as[i] = first_of.setdefault(_signature(fl), i)
     unique = sorted(set(same_as.values()))
     jobs = [(b, li, i, sec, step, p_delta) for i in unique]
-    n = workers if workers is not None else min(len(jobs), max(1, (os.cpu_count() or 2) - 1))
+    n = analysis_workers(workers, len(jobs))                 # explicit > MANAFE3_WORKERS > one per job up to CPUs - 1
     if n > 1:
         with ProcessPoolExecutor(max_workers=n) as ex:
             solved = dict(zip(unique, ex.map(_solve_line, jobs)))

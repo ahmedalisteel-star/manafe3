@@ -25,6 +25,8 @@ dev = [
     "pytest>=8",
     "httpx>=0.27",
     "sectionproperties>=3.10.2",
+    # memory of each test file's process tree (tools/run-tests-by-file.py); was only a transitive dependency
+    "psutil>=7.2",
 ]
 
 [tool.uv]

@@ -20,6 +20,8 @@ KEYS = {
     "MYSTEELAPP_PATH": "MySteelApp Studio folder (laptop only)",
     "MANAFE3_ENGINE_PORT": "engine port, default 8765",
     "MANAFE3_WEB_PORT": "web app port, default 8000",
+    "MANAFE3_WORKERS": "analysis processes at once (frame lines / sizing); default: one per job up to CPUs - 1; "
+                       "the per-file test runner sets 1",
 }
 
 
@@ -42,6 +44,28 @@ def read_env_file(path: Path = ENV_FILE) -> dict[str, str]:
 
 def get(key: str, default: str | None = None) -> str | None:
     return os.environ.get(key) or read_env_file().get(key) or default
+
+
+def analysis_workers(requested: int | None, n_jobs: int, cap: int | None = None) -> int:
+    """How many analysis processes to start (user decision 2026-11-12, memory): an explicit `requested` wins; else
+    MANAFE3_WORKERS (environment or .env.local; the per-file test runner sets 1); else one per job up to CPUs − 1 and
+    `cap`. Never more than the jobs, never fewer than 1. A malformed MANAFE3_WORKERS is refused (no silent default)."""
+    if requested is not None:
+        n = int(requested)
+    else:
+        v = get("MANAFE3_WORKERS")
+        if v is not None:
+            try:
+                n = int(v)
+            except ValueError:
+                raise ValueError(f"MANAFE3_WORKERS must be a whole number, got {v!r}") from None
+            if n < 1:
+                raise ValueError(f"MANAFE3_WORKERS must be >= 1, got {n}")
+        else:
+            n = max(1, (os.cpu_count() or 2) - 1)
+            if cap is not None:
+                n = min(n, cap)
+    return max(1, min(n, max(1, n_jobs)))
 
 
 def get_path(key: str) -> Path | None:

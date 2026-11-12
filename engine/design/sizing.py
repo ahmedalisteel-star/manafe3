@@ -39,6 +39,7 @@ from ..analysis.secondary_weight import secondary_kpa
 from ..analysis.solve import analyse_frame_line
 from ..peb.building import BuildingInput, peb_building, resolve
 from ..peb.builtup_frame import builtup_frame_members, web_t
+from ..settings import analysis_workers
 from .cfs_section import parse_name
 from .serviceability import ServiceLimits, frame_serviceability
 
@@ -158,10 +159,11 @@ def evaluate(b: BuildingInput, li, z, *, code="AISC", stability="dg25", limits: 
     sec = secondary_kpa(out)
     groups = distinct_lines(bz, li, sec)
     jobs = [(code, bz, li, g[0], sec) for g in groups]
-    if workers == 1 or len(jobs) == 1:
+    n = analysis_workers(workers, len(jobs), cap=4)          # explicit > MANAFE3_WORKERS > one per job up to 4
+    if n == 1:
         results = [_solve(j) for j in jobs]
     else:
-        with ProcessPoolExecutor(max_workers=workers or min(len(jobs), 4)) as ex:
+        with ProcessPoolExecutor(max_workers=n) as ex:
             results = list(ex.map(_solve, jobs))
     lines = []
     for g, res in zip(groups, results):

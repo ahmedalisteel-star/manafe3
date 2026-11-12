@@ -63,6 +63,8 @@ def test_secondary_weight_by_hand():
 
 @pytest.fixture(scope="module")
 def whole():
+    # THE parallel-path test (user decision 2026-11-12): workers=2 EXPLICITLY — it beats MANAFE3_WORKERS=1, which the
+    # per-file runner sets for every other test — on 2 distinct frame lines (2 and 5); line 4 is re-solved serially below
     return analyse_building(BuildingInput(**B1, end_first="rafter"), LI, p_delta=False, workers=2)
 
 

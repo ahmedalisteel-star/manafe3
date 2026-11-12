@@ -2,7 +2,7 @@
 #   powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"
 #   -Next "..."   also replace the "Next task" line in the Last session block (optional)
 #   -Footer "..." extra lines at the end of the commit message, e.g. a Co-Authored-By trailer (optional)
-# Steps: tests -> update HANDOVER.md "Last session" -> git add -> commit -> git push. Nothing is pushed if a test fails.
+# Steps: tests (engine: one file at a time, tools/run-tests-by-file.py) -> update HANDOVER.md "Last session" -> git add -> commit -> git push. Nothing is pushed if a test fails.
 param([string]$Message, [string]$Next, [string]$Footer)
 $ErrorActionPreference = 'Continue'   # native tools write progress to stderr; exit codes are checked instead
 Set-Location -LiteralPath $PSScriptRoot
@@ -11,11 +11,13 @@ function Step($t) { Write-Host "`n== $t ==" -ForegroundColor Cyan }
 if (-not $Message) { $Message = Read-Host 'What did you do this session (one line, used as the commit message)' }
 if (-not $Message.Trim()) { Write-Host 'A message is needed.' -ForegroundColor Red; exit 1 }
 
-Step 'engine tests (pytest)'
-$py = (uv run pytest -q 2>&1 | Out-String)
+Step 'engine tests (every file on its own, slow included; tools/run-tests-by-file.py)'
+# one fresh Python process per test file, analyses serial (MANAFE3_WORKERS=1); it warns first when memory is short
+uv run python tools/run-tests-by-file.py | Tee-Object -Variable pyOut | Out-Host
 $pyOk = ($LASTEXITCODE -eq 0)
-$pyLine = ($py -split "`r?`n" | Where-Object { $_ -match '\d+ (passed|failed)' } | Select-Object -Last 1)
-Write-Host $pyLine
+$py = ($pyOut | Out-String)
+$pyLine = ($py -split "`r?`n" | Where-Object { $_ -match '^engine: ' } | Select-Object -Last 1)
+if (-not $pyLine) { $pyLine = 'engine: no summary (the runner did not finish)'; $pyOk = $false }
 Step 'app tests (npm test)'
 $js = (npm test --silent 2>&1 | Out-String)
 $jsOk = ($LASTEXITCODE -eq 0)
