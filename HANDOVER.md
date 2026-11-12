@@ -22,9 +22,10 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
-engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); next step 4 (flange-to-web
-welds, the column-to-plate weld, the shear lug, the stiffener welds) — the user's 13 answers are in "Step 4 decisions"
-below; the function / test / hand-value list goes to the user first, WAIT for the OK before coding. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); step 4 (flange-to-web
+welds, the column-to-plate weld, the shear lug, the stiffener welds) BUILT in the engine (2026-11-12, "Step 4 — what was
+built" below) — WAIT for the user's review / approval; right after step 4: bimsteelauto 0.15.4 (the shared base metal of
+double fillets, open item 5). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -60,7 +61,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine; approved by the user 2026-11-12) — `engine/connections/endplates.py`, `test_endplates.py` |
-| 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | decisions answered 2026-11-12; plan to the user |
+| 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | **built** (engine, awaiting the user's review) — `engine/connections/welds.py`, `test_welds.py` |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
@@ -315,6 +316,31 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
     strength; CJP only when the fillet needed is over 12 mm (the flange rule).
 13. E70XX and the same leg list everywhere; one weld size per joint type; NOT FOR ISSUE; weld symbols in step 7.
 
+**Step 4 — what was built (2026-11-12):** `engine/connections/welds.py` (`building_welds`, `WeldSettings`); the stiffener
+welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
+- From the libraries: pyaisc360 J2.4 weld metal and J2-2 base metal, `min_weld_size` (Table J2.4), `get_grade`. Manafe3:
+  the shared base metal of double fillets (0.45 Fu t / 2 per line, the user's rule) and, for a plate pulled ACROSS the
+  weld (θ 90°: a stiffener into a flange or an end plate), J4.1 min(0.9 Fy t, 0.75 Fu t) shared the same way (Claude).
+- Flange-to-web: per station and per LRFD combination q = VQ/I + the local loads of the SAME combination (purlins on
+  rafters, girts on columns: w × spacing, w = |dV/dx|; flange braces 2 % of |M|/(d − tf)), spread over lb = t_cleat + 5k
+  (83 mm in building 1), vector sum, applied at every station (conservative); one leg per segment; end zones of one depth
+  at every knee / ridge / splice, both sides, developing 0.9 × 0.6 Fy tw. Columns and rafters of the frame lines only
+  (wind columns and end-wall rafters: not yet — stated by their absence, to add with step 5).
+- Base weld: the cases of step 2 (compression, uplift, shear; wind columns paired conservatively as in step 2); braced
+  bays: the wall-brace force T cos α (weak axis) and T sin α (uplift), paired ONLY with the frame reaction of the same
+  combination — in building 1 the bracing is one longitudinal-wind case and the frame lines have only transverse wind, so
+  the 8 braced-bay bases read "DESIGNED - BRACE CASE NOT EVALUATED" with the reason.
+- Shear lug only with `shear_fix = "lug"` and failing anchors (building 1: no pedestal → anchors not evaluated → no lug);
+  f'c from the base-plate settings; the 17.11.3 breakout NOT EVALUATED (U = inf) until the user sends the page.
+- Column transverse stiffeners: the welds AND the stiffener thickness carry (Rst + ΔV / φ) / 2 per stiffener across the
+  flange contact bs − clip (J4.1) — building 1 interior knees: **stiffeners 60 × 30** (was 16), CJP to the flanges, 6 mm
+  to the web; end knees 60 × 15 (was 12), 10 mm fillets to the flanges, 5 mm to the web. Diagonals 5 mm end welds.
+- End-plate stiffeners (4ES / 8ES): double fillets developing the DESIGN strength (0.9 Fy ts into the plate, 0.6 Fy ts
+  along the flange), CJP above 12 mm.
+- Building 1: end plates 25 DESIGNED; flange-to-web 20 members one-sided 5 mm (largest U 0.31); base welds 5 mm.
+- Tests `test_welds.py` (10, hand values in its docstring); the step 3 tests updated where the welds replaced
+  "NOT EVALUATED" and where the stiffener now sizes for its contact (`test_endplates.py`).
+
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
 | Item | What was assumed | What the user checks | Status |
@@ -326,7 +352,12 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | AISC Tables J3.3M / J3.4M, J2.4 (step 3) | standard holes, minimum edge distances (metric, from memory); minimum fillet legs = the library's `min_weld_size` (3 / 5 / 6 / 8 mm) | the printed AISC 360-16 tables | VERIFIED False |
 | Column stiffeners J10.7 / J10.8 and the diagonal (step 3) | widths / thicknesses / half depth; As = (Vu − φVpanel)/(φ Fy cos θ) | the printed J10.7 / J10.8 and the diagonal practice | VERIFIED False |
 | J10.4 / J10.5 not applicable at a one-sided knee (step 3) | J10.5 needs forces on both flanges; J10.4 restrained by the stiffeners | AISC 360-16 J10.4 / J10.5 | confirmed by the user 2026-11-12 (reading); VERIFIED False until checked in the code text |
-| AISC 358 end-plate stiffener (step 3) | ts ≥ tw, hst/ts ≤ 0.56 √(E/Fy), Lst = hst / tan 30° | AISC 358-16 Sect. 6 | VERIFIED False |
+| AISC 358 end-plate stiffener (step 3) | ts ≥ tw, hst/ts ≤ 0.56 √(E/Fy), Lst = hst / tan 30°; REFERENCE ONLY (non-seismic, user 2026-11-12); its welds by the Manafe3 rule (step 4: develop the design strength, CJP above 12 mm) | AISC 358-16 Sect. 6 | VERIFIED False |
+| AISC 360-16 M2.6 / J1.4 (step 4) | unmilled base plates up to 50 mm bear without milling; compression by bearing, the weld takes uplift and shear; over 50 mm → NOT EVALUATED | the printed M2.6 and J1.4 | VERIFIED False |
+| ACI 318-19 17.11 shear lug (step 4) | 17.11.2 bearing φ 0.65 × 1.7 f'c Aef Ψbrg (Ψ: 1 + Pu/(n Nsa) ≤ 1 tension, 1 + 4Pu/(Abp f'c) ≤ 2 compression); 17.11.3 breakout NOT EVALUATED | the printed 17.11.2 / 17.11.3 and Fig. R17.11.3.1 (the user sends them) | VERIFIED False |
+| AISC DG 1 shear lug (step 4) | lug bending t ≥ √(4 Mu / (0.9 Fy B)), Mu = Vu (G + h/2); the lug weld: shear + the moment as a couple over t | DG 1 2nd ed. (the lug section) | VERIFIED False |
+| Step 4 rules by Claude | local-load spread lb = t_cleat + 5k; the end zone develops 0.9 × 0.6 Fy tw; the stiffener corner clip 20 mm (setting); weak-axis base shear = the wall brace's T cos α; J4.1 for plates pulled across a weld; stiffener thickness for its flange contact; grout 50 mm (setting) | the user's call | VERIFIED False |
+| Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule, in Manafe3); the library `size_fillet_weld` still credits the full t to each line | bimsteelauto 0.15.4 right after step 4 (open item 5) | open |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
 | bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
 
@@ -1258,6 +1289,9 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    `tests/test_bsa_dxf.py` cannot import `ezdxf` (not installed in that venv); `tests/test_fc_adapter.py::
    test_the_engine_writes_the_json_the_adapter_reads` needs `design_result.json`, written by `run_frame_example.py`
    (not present in the clone). Both fail the same way without the 0.15.3 change.
+5. bimsteelauto 0.15.4 (right after step 4, user 2026-11-12): `size_fillet_weld` credits the full base-metal thickness to
+   EACH weld line; for a double fillet straddling one plate the lines share it (0.45 Fu t / 2 per line). Manafe3 checks it
+   itself in `engine/connections/welds.py`; the step 3 web weld passes either way (web shear 199.4 kN per line ≥ 108.5).
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

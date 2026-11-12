@@ -37,7 +37,7 @@ The user's decisions (2026-11-10 / 12) — the full list is in HANDOVER "Step 3 
                  both rafter flange levels at EVERY knee (standard detail), sized up by J10.7 / J10.8 where needed;
                  panel zone: φVpanel = min(J10.6, G2.1 shear buckling of the panel web, kv from the stiffener spacing);
                  shortfall → a diagonal stiffener As = (Vu − φVpanel) / (φ Fy cos θ) (doubler as an option); stiffener
-                 welds NOT EVALUATED until step 4
+                 welds: step 4 (engine/connections/welds.py, 2026-11-12)
 """
 
 from __future__ import annotations
@@ -56,6 +56,8 @@ from pyaisc360 import chapter_g as _g
 from pyaisc360 import chapter_j as _j
 
 from .baseplates import PLATE_GRADE
+from .welds import (WeldSettings, column_stiffener_welds, diagonal_welds, doubler_welds,  # step 4 (2026-11-12)
+                    endplate_stiffener_welds)
 
 BANNER = ("NOT FOR ISSUE — end plates (Phase 5 step 3); DG 16 flush yield lines written from memory; stiffener, weld and "
           "clearance rules TO CONFIRM")
@@ -387,31 +389,38 @@ def clearances(sec: dict, db: float, bp: float, g: float, pf: float, w_flange: f
     return [{"check": n, "value": round(v, 1), "required": round(r, 1), "ok": bool(v + 1e-9 >= r)} for n, v, r in rows]
 
 
-def endplate_stiffener(config: str, side: dict, tw_beam: float, pg: str, stock) -> dict | None:
+def endplate_stiffener(config: str, side: dict, tw_beam: float, pg: str, stock, tp: float | None = None,
+                       tf_beam: float | None = None, ws: WeldSettings | None = None) -> dict | None:
     """4ES / 8ES end-plate stiffener (AISC 358-16 Sect. 6, as recalled — TO CONFIRM): height hst = the extension beyond
-    the flange; Lst = hst / tan 30°; ts ≥ tw (Fyb / Fys) and hst / ts ≤ 0.56 √(E / Fys). Weld NOT EVALUATED (step 4)."""
+    the flange; Lst = hst / tan 30°; ts ≥ tw (Fyb / Fys) and hst / ts ≤ 0.56 √(E / Fys). Welds (step 4): welds.endplate_stiffener_welds — double fillets developing the
+    stiffener, CJP above 12 mm (needs the end-plate thickness tp and the beam flange tf_beam)."""
     if config not in ("4ES", "8ES"):
         return None
     hst = side["rows"]["extension"]
     for t in sorted(stock):
         Fys, _ = get_grade(pg, t)
         if t + 1e-9 >= tw_beam and hst / t <= 0.56 * math.sqrt(E_STEEL / Fys) + 1e-9:
-            return {"height": round(hst, 1), "length": round(hst / math.tan(math.radians(30.0)), 1), "t": t,
-                    "weld": "NOT EVALUATED (step 4)"}
-    return {"height": round(hst, 1), "t": None, "weld": "NOT EVALUATED (step 4)", "why": "no stock plate meets hst/ts"}
+            Lst = hst / math.tan(math.radians(30.0))
+            weld = ("NOT EVALUATED (no end-plate thickness given)" if tp is None or tf_beam is None
+                    else endplate_stiffener_welds(hst, Lst, t, tp, tf_beam, pg, (ws or WeldSettings()).check()))
+            return {"height": round(hst, 1), "length": round(Lst, 1), "t": t, "weld": weld}
+    return {"height": round(hst, 1), "t": None, "weld": "NOT EVALUATED (no stiffener plate)",
+            "why": "no stock plate meets hst/ts"}
 
 
 # ------------------------------------------------------------------------------------------------------- column side
 
 def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: float, col: dict, pg: str,
-                st: EndPlateSettings) -> dict:
+                st: EndPlateSettings, ws: WeldSettings | None = None) -> dict:
     """Knee column side. Library J10.1 / .2 / .3 / .6 (J10.5 run by the library, listed NOT APPLICABLE: one-sided);
     J10.4 not applicable (the flange-level stiffeners restrain the flanges). Transverse stiffeners at both rafter flange
     levels at EVERY knee (standard detail; Claude's reading of J10.8: bs + tw/2 ≥ bf/3, ts ≥ tb/2, ts ≥ bs/16, half depth),
     sized up for Rst = Puf − min φRn(J10.1–3) when one fails (J10.7: Ast = Rst / (φ Fy)). Panel zone: φVpanel =
     min(J10.6, φ 0.6 Fy dc tw Cv1 — G2.1 with kv from a = the stiffener spacing (the lever), h = dc − 2 tf); Vu = Puf;
     a shortfall → diagonal stiffener As = (Vu − φVpanel) / (φ Fy cos θ), cos θ = dc / √(dc² + a²) (or a doubler
-    td = (Vu − φVpanel) / (φ 0.6 Fy dc)). Stiffener welds NOT EVALUATED (step 4)."""
+    td = (Vu − φVpanel) / (φ 0.6 Fy dc)). Welds (step 4, welds.py): the transverse stiffeners to the flanges and the web
+    for Rst + the horizontal part of the diagonal force; the diagonal for As_req Fy; the doubler for its required shear."""
+    ws = (ws or WeldSettings()).check()
     cs = check_column_side(Mu=Mu, d_beam=rafter_d, tf_beam=rafter_tf, col_grade=pg, d_col=col["d"], tw_col=col["tw"],
                            tf_col=col["tf"], k_col=col["tf"] + st.k_weld_assumed, h_col=col["d"] - 2 * col["tf"], lb=lb,
                            Pr_col=col.get("Pr", 0.0), Py_col=col.get("Py", 0.0), bcf=col["bf"], near_member_end=True)
@@ -442,8 +451,7 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
     ts = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= need), None)
     trans = {"detail": "standard: a pair at both rafter flange levels", "bs": bs, "t": ts, "t_req": round(need, 2),
              "length": round(d / 2, 1), "Rst": round(Rst, 2), "As_req": round(As, 1),
-             "sized_by": "J10.7 force (a J10.1-J10.3 check fails)" if Rst > 0 else "J10.8 dimensions only (minimum)",
-             "weld": "NOT EVALUATED (step 4)"}
+             "sized_by": "J10.7 force (a J10.1-J10.3 check fails)" if Rst > 0 else "J10.8 dimensions only (minimum)"}
     a, h = lever, d - 2 * tf
     kv = _g.kv_coefficient(a / h)
     Vn, cv1, phi, _ = _g.g2_1_strength(Fy / KSI, (d * tw) / IN ** 2, h / tw, E_STEEL / KSI, kv=kv, rolled=False)
@@ -453,6 +461,7 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
              "G2_1": {"a": round(a, 1), "h": round(h, 1), "a_over_h": round(a / h, 3), "kv": round(kv, 3), "Cv1": round(cv1, 4),
                       "phi": phi},
              "phiVpanel": round(phiV, 2), "U": round(Puf / phiV, 4)}
+    F_diag_h = 0.0
     if Puf > phiV:
         dV = Puf - phiV
         if st.panel_zone == "diagonal":
@@ -462,13 +471,34 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
             panel["diagonal_stiffener"] = {"formula": "As = (Vu - phiVpanel) / (phi Fy cos theta)", "Vu": round(Puf, 2),
                                            "phiVpanel": round(phiV, 2), "phi": PHI_STIFF, "Fy": Fy_st,
                                            "cos_theta": round(cos_t, 4), "theta_deg": round(math.degrees(math.acos(cos_t)), 2),
-                                           "As_req": round(Areq, 1), "pair_bs": bs, "t": tsd, "weld": "NOT EVALUATED (step 4)"}
+                                           "As_req": round(Areq, 1), "pair_bs": bs, "t": tsd}
+            if tsd is not None:
+                panel["diagonal_stiffener"]["weld"] = diagonal_welds(Areq, Fy_st, bs, tsd, tf, pg, ws)
+                F_diag_h = Areq * Fy_st * cos_t / 1000.0
         else:
             td_req = dV * 1000.0 / (PHI_STIFF * 0.6 * Fy * d)
             tdd = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= td_req), None)
-            panel["doubler"] = {"formula": "td = (Vu - phiVpanel) / (phi 0.6 Fy dc)", "td_req": round(td_req, 2), "t": tdd,
-                                "weld": "NOT EVALUATED (step 4)"}
-    ok = ts is not None and all(v.get("t") is not None for k, v in panel.items() if k in ("diagonal_stiffener", "doubler"))
+            panel["doubler"] = {"formula": "td = (Vu - phiVpanel) / (phi 0.6 Fy dc)", "td_req": round(td_req, 2), "t": tdd}
+            if tdd is not None:
+                panel["doubler"]["weld"] = doubler_welds(dV, d, tdd, tf, pg, ws)
+    # Manafe3 step 4 (2026-11-12): each stiffener must carry (Rst + the diagonal's horizontal part) / 2 in tension across
+    # its flange contact bs − clip (J4.1, φ 0.9) — the force its welds are sized for (user answer 10); thicker from stock
+    Fc = Rst + F_diag_h
+    if ts is not None and Fc > 0 and bs > ws.stiffener_clip:
+        def contact_need(t):
+            return Fc / 2 * 1000.0 / (PHI_STIFF * get_grade(pg, t)[0] * (bs - ws.stiffener_clip))
+        if ts + 1e-9 < contact_need(ts):
+            ts2 = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= max(need, contact_need(t))), None)
+            trans.update(t=ts2, t_req=round(max(need, contact_need(ts2 or max(st.plate_stock))), 2),
+                         t_contact=round(contact_need(ts2 or max(st.plate_stock)), 2),
+                         sized_by=trans["sized_by"] + "; the flange contact bs - clip carries (Rst + diagonal horizontal) / 2")
+            ts = ts2
+    if ts is not None:
+        trans["weld"] = column_stiffener_welds(Rst, F_diag_h, bs, ts, d / 2 - tf, tf, tw, pg, ws)
+    welds = [trans.get("weld")] + [v.get("weld") for k, v in panel.items() if k in ("diagonal_stiffener", "doubler")]
+    welds_ok = all(w["status"] == "DESIGNED" for w in welds if w)
+    ok = ts is not None and welds_ok and all(v.get("t") is not None for k, v in panel.items()
+                                             if k in ("diagonal_stiffener", "doubler"))
     return {"Puf": round(Puf, 2), "checks": rows, "transverse_stiffeners": trans, "panel_zone": panel, "ok": ok,
             "near_member_end": True, "k_note": f"k = tf + {st.k_weld_assumed:g} mm (assumed flange-to-web weld, step 4)"}
 
@@ -476,7 +506,7 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
 # --------------------------------------------------------------------------------------------------------- one joint
 
 def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings, col: dict | None = None,
-                 fixed: dict | None = None) -> dict:
+                 fixed: dict | None = None, ws: WeldSettings | None = None) -> dict:
     """One knee / ridge / splice joint (step 1, with design forces). fixed = {grade, db, t, w_flange, w_web} imposes the
     per-type values (one size per joint type)."""
     fixed = fixed or {}
@@ -502,7 +532,7 @@ def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings
                 for fk in ([None] if j["type"] == "knee" else ["two-bolt", "four-bolt"]):
                     sides = {"-M": _side(cfg if fk is None else fk, secs["-M"], db, gb, pg, dem["-M"]["Mu_eq"], st),
                              "+M": _side(cfg, secs["+M"], db, gb, pg, dem["+M"]["Mu_eq"], st)}
-                    r = _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed)
+                    r = _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed, ws)
                     last = r
                     if r["ok"]:
                         if gb != st.bolt_grade:
@@ -513,7 +543,7 @@ def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings
             + (["the flush (top) side: four-bolt flush, a deeper rafter at the joint, or bigger bolts"] if j["type"] != "knee" else [])}
 
 
-def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed) -> dict:
+def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed, ws=None) -> dict:
     res = {"bolt": {"d": db, "label": f"M{db:g}", "grade": gb, "hole": HOLE[int(db)], "pretensioned": True,
                     "type": "pretensioned bearing-type (no slip check)", "threads": "included" if st.threads == "N" else "excluded"},
            "config": cfg, "demands": dem}
@@ -544,7 +574,7 @@ def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed
         Tu_b = sd["Mu"] * 1000.0 / (2 * sum(sd["rows"]["h_rows"]))
         res["shear"][SIDE_NAME[sg]] = shear_for_sign(Vu, sides[comp]["rows"]["n_bolts"], sd["rows"]["n_bolts"], Tu_b, db, gb,
                                                      plies, st.de_factor * db, st)
-    res["endplate_stiffener"] = endplate_stiffener(cfg, ext, rs["tw"], pg, st.plate_stock)
+    res["endplate_stiffener"] = endplate_stiffener(cfg, ext, rs["tw"], pg, st.plate_stock, t, tf_max, ws)
     bad = [f"plate thickness, {k}" for k, s in named.items() if not s["plate_ok"]]
     bad += [f"prying cross-check, {k} (U {s['prying_check']['U']:.2f})" for k, s in named.items() if s["prying_check"]["U"] > 1.0]
     bad += [f"clearance: {c['check']} ({c['value']:g} < {c['required']:g} mm)" for c in res["clearances"] if not c["ok"]]
@@ -553,12 +583,14 @@ def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed
             if w["U"] > 1.0]
     if res["endplate_stiffener"] is not None and res["endplate_stiffener"]["t"] is None:
         bad.append("end-plate stiffener: no stock plate")
+    elif res["endplate_stiffener"] is not None and res["endplate_stiffener"]["weld"].get("status") != "DESIGNED":
+        bad.append("end-plate stiffener welds")
     if col is not None:
         Mu = max(s["Mu"] for s in sides.values())
         lb = rs["tf_top"] / cos + 2 * fw["leg"] + 2 * t
-        res["column_side"] = column_side(Mu, psec["d"], tf_max / cos, lever, lb, col, pg, st)
+        res["column_side"] = column_side(Mu, psec["d"], tf_max / cos, lever, lb, col, pg, st, ws)
         if not res["column_side"]["ok"]:
-            bad.append("column side: no stock plate for a stiffener / doubler")
+            bad.append("column side: no stock plate for a stiffener / doubler, or a stiffener weld fails")
     res["ok"] = not bad
     if bad:
         res["failed_checks"] = bad
@@ -584,7 +616,8 @@ def _args(j: dict, mem: dict, cos_slope: float):
     return rs, cos, mem[raf["id"]].get("material", "S355"), col
 
 
-def building_endplates(joints_result: dict, out: dict, settings: EndPlateSettings | None = None) -> dict:
+def building_endplates(joints_result: dict, out: dict, settings: EndPlateSettings | None = None,
+                       weld_settings: WeldSettings | None = None) -> dict:
     """Every knee / ridge / rafter-splice joint of a building_joints() result. One bolt size and grade, one plate
     thickness and one weld size per joint type (user decisions): each joint designed, then the per-type maxima imposed
     on every joint of the type and re-checked until they stop changing."""
@@ -595,7 +628,7 @@ def building_endplates(joints_result: dict, out: dict, settings: EndPlateSetting
     js = [j for j in joints_result["joints"] if j["type"] in ("knee", "ridge", "rafter_splice")]
     def run(j, fixed=None):
         rs, cos, grade, col = _args(j, mem, cos_slope)
-        return design_joint(j, rs, cos, grade, st, col, fixed)
+        return design_joint(j, rs, cos, grade, st, col, fixed, weld_settings)
     rows = {j["id"]: run(j) for j in js}
     per_type, notes = {}, []
     if st.one_per_type:
