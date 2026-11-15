@@ -1390,7 +1390,7 @@ public and all of it Apache-2.0.)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-10 15:24 on ENG04-PC
-- Did: Phase 4 steps 9-10: PEB Design..., Apache-2.0, public README, CI workflow
-- Tests: engine 183 passed, 2 warnings in 776.35s (0:12:56) | app 16 of 16 test files passed
+- When: 2026-11-15 09:20 on ENG04-PC
+- Did: Phase 5 step 4: welds (approved)
+- Tests: engine engine: 239 passed (34 files, largest peak 323 MiB in test_building_analysis.py, 1152 s) | app 16 of 16 test files passed
 <!-- LAST-SESSION:END -->
