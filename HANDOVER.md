@@ -24,11 +24,11 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
 engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); step 4 (flange-to-web
 welds, the column-to-plate weld, the shear lug, the stiffener welds) APPROVED AS DONE by the user (2026-11-15, "Step 4 —
-what was built" below). Open item 5 CLOSED (bimsteelauto 0.15.4, 2026-11-15); open item 6 BUILT (2026-11-15:
-longitudinal pairing at the braced-bay bases, `engine/connections/longitudinal.py` — building 1's 8 braced-bay bases now
-DESIGNED, sizes unchanged) — WAIT for the user's review. Still open from step 4: the shear-lug breakout NOT EVALUATED
-(waiting for the user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the brace axial forces, before
-step 7). NEXT after the review: step 5 (decisions first). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+what was built" below). Open items 5 and 6 CLOSED (2026-11-15: bimsteelauto 0.15.4; the longitudinal pairing at the
+braced-bay bases, `engine/connections/longitudinal.py`). Still open: the shear-lug breakout NOT EVALUATED (waiting for the
+user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the brace axial forces) and open item 8
+(pedestal / footing input for the ACI concrete anchor checks), both before step 7. NEXT: step 5 — decisions asked first,
+WAIT for the answers. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -1321,7 +1321,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    0.9 Fy bf tf, web tension zone 0.9 Fy tw Lt; the end-plate stiffener already used it): the base-metal row of such a
    weld reads "develops plate (by definition)", U is the weld metal's. Building 1 weld sizes unchanged (end plates 8 / 5
    mm, stiffener welds as before, flange-to-web 5 mm, base 5 mm).
-6. **Longitudinal wind — BUILT 2026-11-15** (awaiting the user's review). Finding: the frame lines already carry ASCE 7-16
+6. **CLOSED (2026-11-15, user review: hand values match, every U ≤ 1.0)** — longitudinal wind. Finding: the frame lines already carry ASCE 7-16
    Load Case B (WB+ / WB−, Fig. 28.3-1's longitudinal case); the bracing is Case B zones 5 / 6 scaled to the §28.3.4
    minimum when that governs. What was missing was the PAIRING. User decisions (1a–7a + additions):
    - `engine/connections/longitudinal.py`: every LRFD combination with WB± pairs the frame reaction (Ry, Rx) with the
@@ -1341,9 +1341,25 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
      EVALUATED").
    - Tests: `engine/tests/test_longitudinal.py` (hand values, negative controls: the minimum never paired with a WB
      uplift; h > 18 m → NOT EVALUATED; h above the least plan dimension; torsion not exempt); `test_welds.py` building 1.
+   - Review table (building 1, old → new, governing over every case; anchor U = rod STEEL only — φ 0.65 tension, 0.60 ×
+     0.80 grout shear, 4 × M20 4.6; combined = ACI 17.8 on the steel U; plate = (t_req / 12)²; weld = the larger of web /
+     flanges):
+     | Bases | Uplift kN (governing) | V strong / V weak max | rod T | rod V | combined | plate | weld |
+     |---|---|---|---|---|---|---|---|
+     | F1-BA, F5-BA | 24.48 → 35.53 (0.9D+1.0WB+) | 31.62 / 0 → 31.62 / 15.03 | 0.096 → 0.139 | 0.280 → 0.280 | 0.280 → 0.280 | 0.287 → 0.417 | 0.080 → 0.080 |
+     | F1-BB, F5-BB | 24.48 → 27.93 (0.9D+1.0WB+) | 31.62 / 0 → 31.62 / 15.03 | 0.096 → 0.110 | 0.280 → 0.280 | 0.280 → 0.280 | 0.287 → 0.328 | 0.080 → 0.080 |
+     | F2-BA/BB, F4-BA/BB | 54.87 → 54.87 (0.9D+1.0WA±: transverse still governs; the Case B pair 44.34 / 35.31) | 59.74 / 0 → 59.74 / 15.03 | 0.215 → 0.215 | 0.529 → 0.529 | 0.529 → 0.529 | 0.644 → 0.644 | 0.151 → 0.151 |
+     Sizes set by the minimums: plate 12 mm = the palette minimum (t_req at most 9.63); rods M20 = `rod_min_frame` (steel U
+     at most 0.53); the 300 mm embedment minimum is NOT applied (no pedestal → no embedment chosen; the concrete modes
+     are not evaluated).
 7. **Phase 4 member-check gap** (user 2026-11-15) — fix BEFORE step 7: the braced-bay columns (axial force from the wall
    bracing) and the eave struts (strut forces) are not checked under the brace axial forces. Shown as NOT EVALUATED on the
    connection results (`longitudinal.members_not_evaluated`) and in the design run summary (`brace_axial_not_evaluated`).
+8. **Pedestal / footing input** (user 2026-11-15) — fix BEFORE step 7, the user's decisions first: with no pedestal input
+   EVERY base of a building (building 1: all 16 — 10 frame bases and 6 wind-column bases) reads "PLATE DESIGNED - ANCHORS
+   NOT EVALUATED": only the rod steel is checked, the ACI 318-19 Ch. 17 concrete modes (breakout, pullout, side-face
+   blowout, pryout) and the embedment are not. Input needed per building (or per base type): pedestal / footing size,
+   edge distances, f'c, cracked or uncracked, and the hairpin / anchor-reinforcement option (step 2b).
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)
