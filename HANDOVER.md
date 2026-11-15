@@ -28,8 +28,8 @@ what was built" below). Open items 5 and 6 CLOSED (2026-11-15: bimsteelauto 0.15
 braced-bay bases, `engine/connections/longitudinal.py`). Still open: the shear-lug breakout NOT EVALUATED (waiting for the
 user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the brace axial forces) and open item 8
 (pedestal / footing input for the ACI concrete anchor checks), both before step 7. Step 5 decisions ANSWERED (2026-11-15,
-"Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); NEXT 5b
-(brace ends) — its decisions asked first. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+"Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); step 5b
+(brace ends) BUILT 2026-11-15 — WAIT for the user's review; then 5c (its decisions asked first). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -407,6 +407,35 @@ NOT FOR ISSUE, one detail per joint type, hand-value tests with negative control
   block shear toward the flange or into a continuous web, equilibrium of every building-1 line, an unknown web grade and a
   missing host → NOT EVALUATED, never a U). Found and fixed on the way: an unknown purlin grade crashed the whole run.
 
+**Step 5b decisions (user, 2026-11-15):** 1a hole d + 6 (26 mm for RD20), hillside washer 60 mm OD × 12, nut ISO 4032
+grade 8 — sizes in "Unverified sources"; 2a T split by the rod's angle to the web (normal → washer, in-plane → the hole
+edge and the rod's threads in shear); 3a rod J3.7 (the plain tension stays Phase 4's), web punching at the washer, washer
+bearing J7, web bearing / tear-out J3.10, the member net section at the hole; 4a elastic net-section stress + net-web shear
+rupture at the hole's station, every combination + the brace components; 5a a wall brace ending at the base goes through
+the column web 150 mm above the base plate; 6a the analysis T alone; 7b angle braces NOT EVALUATED with the reason (open
+item 10); 8a end-wall braces the same detail; 9a statuses as 5a.
+
+**Step 5b — what was built (2026-11-15, awaiting the user's review):** `engine/connections/brace_ends.py`
+(`building_brace_ends`, `BraceEndSettings`). NOT FOR ISSUE.
+- Per rod end: u = toward the rod's far end, n = the web normal (frame columns / rafters: X; wind columns: Y), Tn = T |u·n|,
+  Tp = T √(1 − (u·n)²). Rod (threaded part, Table J3.2: Fnt 0.75 Fu, Fnv 0.45 Fu, threads included): J3.7 with Tp, and
+  J3.6 for Tp. Web: punching φ 0.75 × 0.6 Fu π D tw, washer bearing J7, J3.10 at the hole with lc along Tp's in-plane
+  direction to the nearer flange's inside face or member end (the end counted as free). Net section (frame columns /
+  rafters): the frame line's LRFD stations at the hole (linear between stations), |P| / An + |M| c / In ≤ 0.9 Fy with In
+  about the net centroid, net-web shear rupture; the brace's axial / shear components and the axial part's moment about
+  the net centroid added to EVERY combination adversely (the frame lines do not carry the longitudinal case: a
+  conservative envelope). Hosts without frame stations (wind columns, end rafters) → the net section NOT EVALUATED → the
+  end reads PARTIAL. A rod more than 60° from the web normal → NOT EVALUATED ("a gusset / lug is needed"). No washer size
+  for the rod diameter → PARTIAL. The rod's push across the web (Tn into the host's weak axis) is step 5d.
+- Building 1: **48 brace ends DESIGNED** (32 roof through the rafter webs, 75 mm below the top flange, 38.3° / 44.7° from
+  the normal; 16 wall through the column webs, 8 at 100 mm below the eave, 8 at 150 mm above the base). Worst U 0.973:
+  the column's net section at the TOP wall-brace hole under 1.2D + 1.6Lr (elastic, 311 / 319.5 MPa) — the hole sits at the
+  column's centroid, so it costs almost nothing; the column itself is close to first yield there. Roof: rafter net section
+  0.878; rod J3.7 0.254, rod shear 0.30, web bearing 0.14, punching 0.07.
+- Tests `test_brace_ends.py` (10; hand values in its docstring; negative controls: no frame stations → PARTIAL never
+  DESIGNED, a missing T and angle braces → NOT EVALUATED with no U, the rod too close to the web plane → NOT EVALUATED,
+  no washer size → PARTIAL, T 200 kN → FAILS with fixes).
+
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
 | Item | What was assumed | What the user checks | Status |
@@ -428,6 +457,8 @@ NOT FOR ISSUE, one detail per joint type, hand-value tests with negative control
 | Fig. 28.3-1 torsional-case exception (open item 6) | "one-story buildings with h ≤ 30 ft (9.1 m), buildings two stories or less framed with light-frame construction, and buildings two stories or less designed with flexible diaphragms need not be designed for the torsional load cases" — from memory; Manafe3 uses one-story h ≤ 9.144 m or a stated flexible diaphragm (the user wrote 9 m) | the printed Fig. 28.3-1 note | VERIFIED False |
 | Longitudinal pairing rule (open item 6) | Case B brace force × the combination's wind factor with the frame reaction of the same combination; the §28.3.4 minimum family with dead load only | the user's decision; the physics by Claude | VERIFIED False |
 | Cleat rules (step 5a) | the bolt clear distances in the direction of each force (gravity: the cleat's welded edge counted as free; the web's lc to the flange's inside face); R and N together = the resultant against the smaller directional capacity; F_out (down-slope tan θ × gravity R without sag-rod credit; wall dead load) as bolt tension; the cleat as a fixed-free column K = 2.1 over the top-bolt height; the out-of-plane moment on the weld as a couple over t_cleat; the cleat base metal across + along added linearly; the cleat's grade = the host's; at a lap one web takes the whole force | Claude's rules — the user's call | VERIFIED False |
+| Rod-end hardware (step 5b) | hole = rod d + 6 (26 mm for RD20); hillside washer, bearing face 60 mm OD × 12 mm (RD20 only; other rods: no size → PARTIAL); nut ISO 4032 grade 8 (not checked: by grade ≥ the rod); max 60° from the web normal | the supplier's hillside washer / nut data and the shop's hole practice | VERIFIED False |
+| Brace-end rules (step 5b) | T split by the angle to the web; web punching φ 0.75 × 0.6 Fu π D tw; J7 for the washer bearing; Fnv = 0.45 Fu (threaded part, threads included, Table J3.2, from memory); the net-section envelope (brace components added to every combination); the base hole 150 mm above the plate; a member end counted as a free edge | Claude's rules — the user's call; Table J3.2 from the printed AISC | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
@@ -1419,6 +1450,10 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
       from the geometry, as now).
    4. One ISO 4.6 row in "Unverified sources" — checked 2026-11-15: one row (the step 2b text and the "Next task" line only
       mention it).
+10. **Angle-brace gussets** (user 2026-11-15, step 5b decision 7b) — to do WHEN A PROJECT USES ANGLE BRACES: the gusset by
+   bimsteelauto `check_gusset` and the angle's shear lag U from AISC 360-16 D3 Table D3.1 with the actual bolt count
+   (replacing the U = 0.6 placeholder of `secondary_checks.U_ANGLE`). Until then an angle brace end reads NOT EVALUATED with
+   this reason.
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

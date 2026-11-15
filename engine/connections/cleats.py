@@ -509,7 +509,7 @@ def _host_at(m: dict, p: list[float]) -> dict | None:
         return None
     Fy, _ = get_grade(grade, tf)
     return {"member": m["id"], "tf": tf, "tw": x["tw"], "d": x["d"], "bf": bf, "Fy": Fy, "grade": grade,
-            "end_distance": round(min(s, L - s), 1)}
+            "end_distance": round(min(s, L - s), 1), "s": s, "L": L, "sec": x}
 
 
 def _line_key(m: dict) -> str:
