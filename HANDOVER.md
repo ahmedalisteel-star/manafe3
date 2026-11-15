@@ -23,10 +23,13 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 **Phase 5 — connections. Plan APPROVED by the user (2026-11-10), below ("Phase 5 plan"). Steps 1 (joints and design
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
 engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); step 4 (flange-to-web
-welds, the column-to-plate weld, the shear lug, the stiffener welds) BUILT in the engine (2026-11-12, "Step 4 — what was
-built" below), first review fixes done (2026-11-12) — NOT approved yet, WAIT for the user's review; then, BEFORE step 5:
-the Phase 3 gap "longitudinal wind" as its own step (open item 6 — ask the user the decisions first); right after step 4:
-bimsteelauto 0.15.4 (the shared base metal of double fillets, open item 5). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+welds, the column-to-plate weld, the shear lug, the stiffener welds) APPROVED AS DONE by the user (2026-11-15, "Step 4 —
+what was built" below). Step 4 leaves OPEN: the 8 braced-bay bases of building 1 "PARTIAL - brace case NOT EVALUATED"
+(open item 6); the shear-lug breakout NOT EVALUATED (waiting for the user's ACI 318-19 17.11.3 page); the library's
+double-fillet base metal (open item 5). NEXT, in this order (user 2026-11-15), each with the user's decisions FIRST:
+(1) open item 5 — bimsteelauto 0.15.4, the double-fillet base metal shared by both lines (incl. whether the default
+changes and what that does to the step 3 / step 4 results); (2) open item 6 — longitudinal wind on the frames;
+(3) then step 5. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -62,7 +65,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 1 | Joint list and design forces from the model and the analysis (bases, knees, ridge, rafter splices, wind-column tops and bases, brace ends, cleats) | **done** (engine) — `engine/connections/joints.py`, `test_joints.py` |
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine; approved by the user 2026-11-12) — `engine/connections/endplates.py`, `test_endplates.py` |
-| 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | **built** (engine, awaiting the user's review) — `engine/connections/welds.py`, `test_welds.py` |
+| 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | **done** (engine; approved by the user 2026-11-15) — `engine/connections/welds.py`, `test_welds.py`; open: braced-bay bases PARTIAL (item 6), lug breakout (ACI 17.11.3), library base metal (item 5) |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
