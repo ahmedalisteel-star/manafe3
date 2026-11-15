@@ -17,6 +17,19 @@ written out longhand below (the angle by two rectangles and parallel axes, NOT t
     Cd            M (0, 0) (1000, 10) (2000, −10) (3000, 0): one inflection at 1500 (the zero end moments are not); brace
                   points 1000 / 1400 / 2500 → 1400 gets Cd 2
     Lbr           points 1000, 3000 on a 6000 member: 1000 → max(1000, 2000) = 2000; 3000 → max(2000, 3000) = 3000
+    H2 (1 bolt)   L50×5, L 700, Fy 355, P 10 kN on the gauge line g 28 at the contact face: (dx, dy) = (13.657895,
+                  −14.342105); e_w = 28 / √2 = 19.798990, e_z = 0.684211 / √2 = 0.483810; Iw = 112 502.74 + 66 611.84 =
+                  179 114.58; the farthest corners c_w = 50 / √2 = 35.35534 (a toe), c_z = 14.342105 √2 = 20.28280 (the heel): Sz = 1297.991,
+                  Sw = 8830.861. Compression: L / rz = 71.21665, Fe 389.194, Fcr = 0.658^(355/389.194) × 355 = 242.3398,
+                  Fa = 218.106; Mnz = 1.5 × 355 × 1297.991 = 691 180 N·mm; Myw = 3 134 956, Mcr = 9 × 200 000 × 475 × 9.82916
+                  × 5 / (8 × 700) = 7 503 512 → My/Mcr 0.4178 → Mnw = (1.92 − 1.17 √0.4178) Myw = 3 648 283; B1z = 1 / (1 −
+                  10 000 / 184 868) = 1.057186, B1w = 1.014054; U = 21.053/218.106 + 1.057186 × 197 990 / 622 062 + 1.014054 ×
+                  4838.1 / 3 283 460 = 0.434500; tension (no B1, Fta 319.5): 0.385646
+    SPRINGS       braces 135.714, cleat 400, purlin axial 23.782 (the bolt slip is NOT a spring, review 2026-11-15):
+                  1 / (1/135.714 + 1/400 + 1/23.782) = 19.2615 kN/mm
+    SLIP          a one-time slip 2 mm as an added imperfection, Lbr 1250: Δo = 1250 / 500 = 2.5, × (1 + 2 / 2.5) = 1.8;
+                  slip 0 → × 1.0 (the old force). H2 at 10 × 1.8 = 18 kN (L 700): B1z = 1 / (1 − 18 000 / 184 868) =
+                  1.107870 → U = 0.811168
     RD12 S355     Ab 113.097: threads 0.75 × 0.75 × 470 × 113.097 = 29.900 kN; body 0.9 × 355 × 113.097 = 36.134 kN;
                   40 × 40 × 4 washer through a 2 mm S350GD web: 0.75 × 0.6 × 420 × 160 × 2 = 60.48 kN
 """
@@ -42,9 +55,32 @@ def test_angle_properties_and_strength():
     assert S.angle_tension(50.0, 5.0, 14.0, 355.0, 470.0) == pytest.approx(63.45)
 
 
+def test_angle_eccentric_h2():
+    c = S.angle_eccentric(50.0, 5.0, 700.0, 355.0, 10.0, 28.0)
+    assert c["e_w"] == pytest.approx(19.798990, abs=1e-6) and c["e_z"] == pytest.approx(0.483810, abs=1e-6)
+    assert c["Sz"] == pytest.approx(1297.991, abs=1e-3) and c["Sw"] == pytest.approx(8830.861, abs=1e-2)
+    assert c["Mnw"] == pytest.approx(3648283.0, rel=1e-5) and c["B1z"] == pytest.approx(1.057186, abs=1e-6)
+    assert c["U"] == pytest.approx(0.434500, abs=1e-5)
+    assert S.angle_eccentric(50.0, 5.0, 700.0, 355.0, -10.0, 28.0)["U"] == pytest.approx(0.385646, abs=1e-5)
+    # NEGATIVE CONTROL: the eccentric angle is far weaker than E5 would say (E5 phiPn 65.0 kN -> U 0.154 at 10 kN)
+    assert c["U"] > 2.5 * 10.0 / S.angle_compression(50.0, 5.0, 700.0, 355.0)["phiPn"]
+    assert S.angle_eccentric(50.0, 5.0, 700.0, 355.0, 30.0, 28.0)["U"] > 1.0
+
+
 def test_stiffness_and_demand():
     k = S.stiffness_provided(2, 475.0, 700.0, 1 / math.sqrt(2), 8.0, 100.0, 100.0)
     assert k["braces"] == pytest.approx(135.714, abs=1e-3) and k["cleat"] == pytest.approx(400.0) and k["system"] == pytest.approx(101.333, abs=1e-3)
+    ks = S.stiffness_provided(2, 475.0, 700.0, 1 / math.sqrt(2), 8.0, 100.0, 100.0, k_secondary=23.782)
+    assert ks["system"] == pytest.approx(19.2615, abs=1e-4) and ks["web local bending"] == math.inf
+    assert "bolt slip" not in ks                                                   # a one-time slip is not a spring
+
+
+def test_slip_as_imperfection():
+    assert S.slip_factor(2.0, 1250.0) == pytest.approx(1.8)
+    assert S.slip_factor(0.0, 1250.0) == 1.0                                       # NEGATIVE CONTROL: no slip, the old force
+    P = 10.0 * S.slip_factor(2.0, 1250.0)
+    c = S.angle_eccentric(50.0, 5.0, 700.0, 355.0, P, 28.0)
+    assert c["B1z"] == pytest.approx(1.107870, abs=1e-6) and c["U"] == pytest.approx(0.811168, abs=1e-5)
     one = S.stiffness_provided(1, 475.0, 700.0, 1 / math.sqrt(2), 8.0, 100.0, 100.0)
     assert one["braces"] == pytest.approx(135.714 / 2, abs=1e-3)                           # an end frame: one brace
     d = S.point_demand(100.0, 2.0, 400.0, 1500.0)
@@ -55,6 +91,9 @@ def test_inflections_cd_lbr():
     rows = [(0.0, 0.0), (1000.0, 10.0), (2000.0, -10.0), (3000.0, 0.0)]
     assert S.inflections(rows) == [1500.0]
     assert S.inflections([(0.0, 0.0), (1000.0, -5.0), (2000.0, -9.0)]) == []         # a pinned end is not an inflection
+    # NEGATIVE CONTROL for the Cd fix (review 2026-11-15): a pinned base (M 0) with single curvature -> Cd 1 everywhere
+    pinned = [(0.0, 0.0), (1250.0, -40.0), (2500.0, -80.0), (5000.0, -160.0), (6000.0, -190.0)]
+    assert S.cd_factors([3750.0, 5000.0], pinned) == {3750.0: 1.0, 5000.0: 1.0}
     assert S.cd_factors([1000.0, 1400.0, 2500.0], rows) == {1000.0: 1.0, 1400.0: 2.0, 2500.0: 1.0}
     assert S.lbr_of([1000.0, 3000.0], (0.0, 6000.0)) == {1000.0: 2000.0, 3000.0: 3000.0}
 
@@ -127,15 +166,27 @@ def test_building_1_step_5c():
     b, _ = resolve(_sized()[0])
     an = analyse_building(b, li)
     r = S.building_stability_braces(jr, out, an, li)
-    assert r["counts"]["flange_braces"] == {"PARTIAL": 68}                               # the frame-side end: not in the model
+    assert r["counts"]["flange_braces"] == {"FAILS": 24, "PARTIAL": 44}                  # the 2 mm web bearing at 1.8 × Prb
     assert sum(x["n"] for x in r["flange_braces"]) == 116
-    assert all(S.FRAME_END_NOTE in x["notes"] and any("E5 condition" in n for n in x["notes"]) for x in r["flange_braces"])
+    assert all(S.FRAME_END_NOTE in x["notes"] and any("E5 does not apply" in n for n in x["notes"]) for x in r["flange_braces"])
+    assert not any(c["name"].startswith("flange brace compression (E5") for x in r["flange_braces"] for c in x["checks"])
     worst = lambda name: max(next(c["U"] for c in x["checks"] if c["name"] == name) for x in r["flange_braces"])
-    assert worst("bearing on the purlin / girt web") == pytest.approx(0.7088, abs=2e-3)
-    assert worst("flange brace compression (E5(a), E3)") < 0.2 and worst("brace stiffness βbr (App. 6.3.2a) vs braces + cleat in series") < 0.1
-    assert r["cleats"]["counts"] == {"DESIGNED": 196} and r["cleats"]["detail"]["weld_leg"] == 6.0
-    assert len(r["cleats_changed"]) == 68 and max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(0.8889, abs=2e-3)
-    # a NEGATIVE CONTROL: 5 × the brace force fails the thin-web bearing, with a fix
-    big = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(brace_fraction=0.10))
-    assert big["counts"]["flange_braces"].get("FAILS", 0) > 0
-    assert all(x["fixes"] for x in big["flange_braces"] if x["status"] == S.FAILS)
+    assert worst("bearing on the purlin / girt web") == pytest.approx(1.2759, abs=2e-3)
+    assert worst("flange brace compression on the gauge line (1 bolt: H2, eccentric both axes)") == pytest.approx(0.7885, abs=2e-3)
+    assert worst("brace stiffness βbr (App. 6.3.2a) vs every spring in series") == pytest.approx(0.3609, abs=2e-3)
+    assert all(x["stiffness"]["web_normal_cos"] < 1e-6 and x["demand"]["slip_mm"] == 2.0 for x in r["flange_braces"])
+    for x in r["flange_braces"]:
+        dm = x["demand"]
+        assert dm["slip_factor"] == pytest.approx(1 + 2.0 / (dm["Lbr"] / 500), abs=1e-4)
+        assert dm["Prb_amplified"] == pytest.approx(dm["Prb"] * dm["slip_factor"], abs=2e-3)
+    assert r["cleats"]["counts"] == {"DESIGNED": 192, "FAILS": 4} and r["cleats"]["detail"]["weld_leg"] == 8.0
+    assert max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(1.0535, abs=2e-3)
+    # NEGATIVE CONTROL: slip 0 gives the old forces (all PARTIAL, the cleats 196 DESIGNED with a 6 mm weld)
+    r0 = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(slip=0.0))
+    assert r0["counts"]["flange_braces"] == {"PARTIAL": 68} and r0["cleats"]["counts"] == {"DESIGNED": 196}
+    assert r0["cleats"]["detail"]["weld_leg"] == 6.0
+    assert all(x["fixes"] for x in r["flange_braces"] if x["status"] == S.FAILS)
+    # 2 bolts per end: E5 instead of H2 (and the H2 rows gone)
+    two = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(bolts_per_end=2))
+    names = {c["name"] for x in two["flange_braces"] for c in x["checks"]}
+    assert "flange brace compression (E5(a), E3)" in names and not any("H2" in n for n in names)

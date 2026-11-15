@@ -30,7 +30,9 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 (pedestal / footing input for the ACI concrete anchor checks), both before step 7. Step 5 decisions ANSWERED (2026-11-15,
 "Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); step 5b
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
-2026-11-15 — WAIT for the user's review; then 5d (its decisions asked first). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+2026-11-15 and revised after two reviews (H2 for 1-bolt braces; the springs in series; the bolt slip as an added
+imperfection, not a spring) — AWAITING THE USER'S APPROVAL, NOT DONE; step 5d decisions ANSWERED (2026-11-15) — start 5d
+only after the user approves 5c. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -447,29 +449,48 @@ force by Claude's method (Phase 4 has none): the down-slope component on a weak-
 the rows, accumulated up the slope, no eave-strut credit; ridge tie = the slope total × cos θ; 9a rods J3.6 / D2 and the
 washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (setting, VERIFIED False); 10a statuses as 5a.
 
-**Step 5c — what was built (2026-11-15, awaiting the user's review):** `engine/connections/stability_braces.py`
+**Step 5c — what was built (2026-11-15; revised after the user's review the same day; AWAITING APPROVAL, NOT DONE):** `engine/connections/stability_braces.py`
 (`building_stability_braces`, `StabilitySettings`); `cleats.py` gains the AISI J3 web bearing (`aisi_bolt_bearing`,
 `web_hole`; sheet < 4.76 mm; mf 0.75 unless `web_washers`) and the flange-brace axial N (`flange_brace_N`). NOT FOR ISSUE.
 - Flange braces: grouped by brace point (host, frame-side end); Mr from the frame line's LRFD moments at the point (M < 0 =
   the inner flange in compression; wind columns |M|), Cd 2 at the point nearest a SIGN CHANGE of M (a pinned end's zero is
   not an inflection — fixed during the build), Lbr = the longer adjacent segment between brace points / member ends; ho = d
   − (tf_top + tf_bot)/2; per brace P = Prb / (n cos α). Checks: E5(a) + E3 compression (pyaisc360), leg b/t nonslender,
-  tension (the connected leg's net area — one bolt, Table D3.1 does not apply), App. 6 stiffness vs braces + cleat in
-  series, bolt shear, bearing on the 5 mm leg (AISC J3.10, end distance 25 mm setting), bearing on the 2 mm web (AISI J3).
-  Every point carries two notes: the frame-side end is NOT detailed in the model (→ PARTIAL) and the E5 condition "≥ 2
-  bolts or welded" is not met by the default 1 bolt per end (`bolts_per_end`, the user's call).
+  tension (the connected leg's net area — one bolt, Table D3.1 does not apply), App. 6 stiffness, bolt shear, bearing on
+  the 5 mm leg (AISC J3.10, end distance 25 mm setting), bearing on the 2 mm web (AISI J3). The frame-side end is NOT
+  detailed in the model (a note on every point → at best PARTIAL).
+- **Review fixes (user 2026-11-15):** (1) ONE bolt per end (the default `bolts_per_end`): E5 does NOT apply and is not
+  shown; the angle is checked under eccentric axial load by H2 (`angle_eccentric`: the force on the bolt gauge line, 28 mm
+  setting, at the connected leg's contact face, eccentric about both principal axes; Lc = the full length about rz, E3;
+  B1 about each axis; minor axis F10-1, major axis F10-2/-3 with Mcr F10-4; compression and tension); E5 only with ≥ 2
+  bolts per end. (2) The springs in series: the braces n E A cos²α / L; the purlin / girt web local bending — none, the
+  brace lies in the web plane (checked on the model: |u·n_web| = 0; else NOT EVALUATED); the cleat's in-plane bending; the
+  purlin / girt axially to the nearest braced-bay frame line (gable girts: to the wall end), E A / L. (3) A negative-
+  control test: a pinned base's zero moment is no inflection point (Cd 1). (4) Second review: the bolt hole clearance is a
+  ONE-TIME slip, not a spring (the first revision's secant spring Prb / (slip / cos α) = 12.143 / (4 / 0.7071) = 2.15
+  kN/mm at F3-RA — 4 mm = 2 ends × 2 mm — is removed): it is an added initial imperfection, the App. 6 required brace force
+  × (1 + slip / Δo), Δo = Lbr / 500, slip = the hole clearance (2 mm for M12 in a 14 mm hole, setting `slip`). Claude
+  applies the amplified force to EVERY check of that force (H2, bolt shear, bearing on the leg and the web) and to the
+  force into the cleats — the user asked for H2; the rest follows the same physical force (the user's call).
 - Sag rods / ridge ties: `sag_forces` (per side and row, per gravity combination: the line reactions at the rows, the
   accumulated pieces, the tie); checks per row / side on the most loaded piece.
-- Building 1: **68 flange-brace points (116 braces) PARTIAL** (only the frame-side end missing; every evaluated U ≤ 1):
-  web bearing (AISI) 0.709 (column F1-CA at the top girt), bolt shear 0.32, angle-leg bearing < 0.3, E5 compression
-  0.151 (φPn 63.9–74.8 kN), tension 0.15, stiffness 0.070 (β_req 6.92 vs 98.97 kN/mm). **Sag rods 8 rows×sides DESIGNED**
+- Building 1 (after the second review): **68 flange-brace points (116 braces): 24 FAIL, 44 PARTIAL.** Stiffness worst
+  U 0.361 (F3-CA top girt: β_req 6.92 vs 19.17 kN/mm; braces 131.5, web rigid, cleat 400, purlin axial 23.8 = 6 m to the
+  braced bay). Slip factor 1.8 at Lbr 1250 (Δo 2.5 mm) to 1.12 at 8502. H2 compression worst 0.789 (F1-CA end frame, one
+  brace, P 17.36 kN), H2 tension 0.670, bolt shear 0.57, leg bearing 0.46, net-leg tension 0.27. **The 24 failures are all
+  the bearing on the 2 mm purlin / girt web (AISI J3, worst U 1.276)** at the amplified force (8 rafter singles, 6 rafter
+  pairs, 6 column pairs, 4 column singles). With slip 0 (negative control): all 68 PARTIAL, as before the review. **Sag rods 8 rows×sides DESIGNED**
   (80 pieces; worst piece RA9–RA10 6.68 kN, threads U 0.223); **ridge ties 4 DESIGNED** (7.12 kN, U 0.238).
-- Cleats re-run: still **196 DESIGNED**; 68 cleats change (the purlin lines over the haunch and the top two girt rows);
-  worst 0.698 → 0.889 (CL17, RA3, cleat compression + bending, N 12.84 kN); the one cleat weld 5 → **6 mm** (largest flow
-  386 → 774 N/mm). The AISI retrofit alone: the worst purlin-web bearing 0.49 → 0.66 (CL7).
-- Tests `test_stability_braces.py` (8; the angle by two rectangles; negative controls: no analysis → NOT EVALUATED, a pinned
-  end is not an inflection, accumulation monotonic, equilibrium of the weak-axis reactions, 5 × the brace fraction →
-  FAILS with fixes); `test_cleats.py` updated for AISI (14).
+- Cleats re-run with the (amplified) flange-brace force: **192 DESIGNED, 4 FAIL** (CL7 / CL9 on RA1, CL62 / CL64 on RB1:
+  the purlin-web bearing (AISI) U 1.054 at N 22.38 kN); the one cleat weld 5 → **8 mm**. Before the slip amplification
+  (slip 0): 196 DESIGNED, worst 0.889, weld 6 mm. The AISI retrofit alone: the worst purlin-web bearing 0.49 → 0.66 (CL7).
+- Tests `test_stability_braces.py` (10; the angle by two rectangles, H2 longhand, the slip factor and H2 at 1.8 × the
+  force; negative controls: slip 0 → the old force and results, no analysis → NOT EVALUATED, a pinned base → Cd 1, H2 far
+  below E5, 2 bolts → E5 and no H2 rows, accumulation monotonic, equilibrium of the weak-axis reactions); `test_cleats.py`
+  updated for AISI (14).
+- Note for 5d (user 2026-11-15): the wind columns stand 100 mm outside the end frame (x_face −100 / 24 100): the top clip
+  bending must include that offset as an eccentricity. End frames 1 and 5 are full rigid portal frames (end_first /
+  end_last = "frame", pinned bases; line 5 analysed as line 1).
 
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
@@ -495,7 +516,8 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
 | Rod-end hardware (step 5b) | hole = rod d + 6 (26 mm for RD20); hillside washer, bearing face 60 mm OD × 12 mm (RD20 only; other rods: no size → PARTIAL); nut ISO 4032 grade 8 (not checked: by grade ≥ the rod); max 60° from the web normal | the supplier's hillside washer / nut data and the shop's hole practice | VERIFIED False |
 | Brace-end rules (step 5b) | T split by the angle to the web; web punching φ 0.75 × 0.6 Fu π D tw; J7 for the washer bearing; Fnv = 0.45 Fu (threaded part, threads included, Table J3.2, from memory); the net-section envelope (brace components added to every combination); the base hole 150 mm above the plate; a member end counted as a free edge | Claude's rules — the user's call; Table J3.2 from the printed AISC | VERIFIED False |
 | AISI S100-16 J3 thin-sheet bearing (step 5c, open item 9.2) | J3.3.1 Pn = C mf d t Fu, φ 0.60; C: d/t < 10 → 3.0, 10–22 → 4 − 0.1 d/t, > 22 → 1.8; mf: washers under head and nut 1.00, without / one 0.75, inside sheet of double shear 1.33; J3.1 Pn = t e Fu, φ 0.70 (Fu/Fy ≥ 1.08) / 0.60; for sheet < 4.76 mm — TRANSCRIBED FROM MEMORY | the printed AISI S100-16 J3.1, J3.3.1, Tables J3.3.1-1 / -2 | VERIFIED False |
-| Flange-brace rules (step 5c) | the support stiffness = braces in series with the cleat's in-plane bending (purlin rigid, bolt slip neglected); E5 used with 1 bolt per end (its condition wants ≥ 2); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
+| Flange-brace rules (step 5c) | the springs in series: braces, web local bending none when the brace lies in the web plane, cleat in-plane bending, purlin / girt axial E A / L to the nearest braced-bay frame line (the transfer into the bracing node not a spring); 1 bolt per end → H2 eccentric (gauge 28 mm at the contact face, Lc = L about rz, B1, F10); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
+| Bolt slip as an added imperfection (step 5c, user 2026-11-15) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = Lbr / 500 — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
 | Sag rods / ridge ties (step 5c) | the down-slope component on a weak-axis continuous beam over the frames and the sag-rod rows, accumulated up the slope with no eave-strut credit; tie = slope total × cos θ; plate washer 40 × 40 × 4 (user default); pull-through φ 0.75 × 0.6 Fu × 4 side × t | Claude's method; the washer from the supplier | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |

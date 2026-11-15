@@ -19,8 +19,16 @@ The user's decisions (2026-11-15, step 5c: 1a–6a, 7b, 8a (as corrected), 9a, 1
                     the leg checked nonslender (Table B4.1a, b / t ≤ 0.45 √(E / Fy)); tension 0.9 Fy Ag and 0.75 Fu Ae with
                     Ae = the connected leg's net area (b − d0) t (one bolt: Table D3.1 does not cover it — conservative,
                     stated). Section without root fillets (A = t (2b − t)).
-                    E5 CONDITION: "at least two bolts or welded" — the model gives no bolt count; the setting
-                    bolts_per_end (default 1) is printed and a 1-bolt end is flagged on every result (the user's call).
+                    E5 only with bolts_per_end ≥ 2 (its condition "at least two bolts or welded"); with ONE bolt per end
+                    (the default — the model gives no count) E5 does not apply (user review 2026-11-15): the angle under
+                    eccentric axial load by H2, the force on the bolt gauge line (gauge 28 mm setting) eccentric about
+                    both principal axes, Lc = the full length (angle_eccentric).
+        springs     (user review 2026-11-15) the springs in series: the braces; the web local bending (none: the brace lies in the
+                    web plane — the model's geometry is checked, else NOT EVALUATED); the cleat; the purlin / girt axially
+                    to the nearest braced-bay frame line (gable girts: to the wall end), E A / L.
+        slip        (user 2026-11-15) the hole clearance is a ONE-TIME slip, not a spring: an added initial imperfection,
+                    the required brace force × (1 + slip / Δo), Δo = Lbr / 500, slip 2 mm (setting) — applied to every
+                    brace force check (H2, bolts, bearing) and to the force into the cleat; the stiffness is unchanged.
         bolts       M12 8.8 per end (bolts_per_end), threads included: shear J3.6; bearing on the 5 mm leg AISC J3.10 (lc =
                     end_distance − d0 / 2); on the 2 mm purlin / girt web AISI S100-16 J3.3.1 / J3.1 (VERIFIED False), e
                     = the hole's distance to the purlin's flange along the brace / sin 45° (conservative). The FRAME-SIDE
@@ -48,6 +56,8 @@ from dataclasses import asdict, dataclass
 
 from bimsteelauto_connections.bolts import bolt_shear_capacity
 from pyaisc360.chapter_e import AngleConfig, flexural_buckling_stress_E3, single_angle_effective_slenderness
+from pyaisc360.chapter_f import Mcr_F10_principal
+from pyaisc360.chapter_h import combined_stress_ratio
 
 from ..design.cfs_checks import COMBOS_ROOF, building_lines, tied_rows
 from ..design.cfs_section import cfs_section
@@ -64,8 +74,9 @@ VERIFIED = {"brace_support_springs": False, "e5_one_bolt": False, "one_bolt_Ae":
             "sag_accumulation": False, "plate_washer": False, "punching_rule": False, "frame_side_end": False}
 FRAME_END_NOTE = ("the flange brace's FRAME-SIDE end (a clip on the web / a hole in the inner flange) is not detailed in the "
                   "model: NOT EVALUATED")
-FIXES = {"brace": "a larger angle (L60×6) or a shorter brace", "stiffness": "a stiffer brace / a second brace, or a "
-         "stiffer cleat", "bolt": "2 bolts per end or M16", "web": "a thicker purlin / girt web or a washer under head and nut",
+FIXES = {"brace": "a larger angle (L60×6) or 2 bolts per end (E5)", "stiffness": "the smallest spring governs (see "
+         "the stiffness record): bolt slip -> pretensioned / slip-critical bolts, fitted holes or welded brace ends; "
+         "purlin axial -> a brace node / strut nearer; else a stiffer brace", "bolt": "2 bolts per end or M16", "web": "a thicker purlin / girt web or a washer under head and nut",
          "rod": "a larger rod (RD16)", "washer": "a larger / thicker plate washer"}
 
 
@@ -77,6 +88,9 @@ class StabilitySettings:
     threads: str = "N"
     bolts_per_end: int = 1               # the model gives no count; E5 wants ≥ 2 (flagged)
     end_distance: float = 25.0           # bolt to the angle's end, mm (setting, VERIFIED False)
+    gauge: float = 28.0                  # bolt gauge line from the heel in the connected leg, mm (setting, VERIFIED False)
+    slip: float = 2.0                    # one-time bolt slip = the hole clearance (M12 in a 14 mm hole), mm — an added
+                                         # initial imperfection: Prb × (1 + slip / Δo), Δo = Lbr / 500 (user 2026-11-15)
     web_washers: bool = False            # AISI mf: 1.00 with washers under head and nut, else 0.75
     plate_washer: float = 40.0           # sag rod / ridge tie square plate washer side, mm (user default)
     plate_washer_t: float = 4.0
@@ -123,11 +137,64 @@ def angle_tension(b: float, t: float, d0: float, Fy: float, Fu: float) -> float:
     return min(0.9 * Fy * A, 0.75 * Fu * (b - d0) * t) / 1000.0
 
 
-def stiffness_provided(n: int, A: float, L: float, cos_a: float, t_cleat: float, W: float, y_c: float) -> dict:
-    """kN/mm: n braces E A cos²α / L in series with the cleat's in-plane bending 3 E (t W³ / 12) / y_c³."""
+def angle_eccentric(b: float, t: float, L: float, Fy: float, P: float, gauge: float) -> dict:
+    """A single angle bolted through ONE leg by ONE bolt (E5 does not apply): AISC 360-16 H2 at the force P (kN, +
+    compression, − tension) applied on the bolt gauge line, eccentric to the centroid about BOTH principal axes.
+    The force acts at the gauge g from the heel on the connected leg's contact face: (dx, dy) = (g − x̄, −x̄) from the
+    centroid; principal axes of the equal-leg angle at 45°: w = (dx − dy)/√2 (the arm for bending about the minor axis
+    z), z = (dx + dy)/√2 (the arm about the major axis w). Compression: Fca = 0.9 Fcr (E3, Lc = L about rz, K 1);
+    moments amplified by B1 = 1 / (1 − P / Pe) about each axis (Cm 1). Bending: minor axis F10-1 (1.5 My, the leg compact);
+    major axis min(1.5 My, F10-2 / F10-3 LTB with Mcr F10-4, βw 0, Cb 1, Lb = L). Section moduli to the farthest corner.
+    Tension: Fta = 0.9 Fy, no amplification. pyaisc360: H2-1 (combined_stress_ratio), F10-4 (Mcr_F10_principal), E3."""
+    ap = angle_props(b, t)
+    A, xb, Ix, Ixy = ap["A"], ap["xbar"], ap["Ix"], ap["Ixy"]
+    Iz, Iw = Ix - abs(Ixy), Ix + abs(Ixy)
+    r2 = math.sqrt(2.0)
+    corners = [(0, 0), (b, 0), (b, t), (t, t), (t, b), (0, b)]
+    cw = max(abs(((x - xb) - (y - xb)) / r2) for x, y in corners)
+    cz = max(abs(((x - xb) + (y - xb)) / r2) for x, y in corners)
+    dx, dy = gauge - xb, -xb
+    ew, ez = abs(dx - dy) / r2, abs(dx + dy) / r2
+    Sz, Sw = Iz / cw, Iw / cz
+    rz = math.sqrt(Iz / A)
+    Mnz = 1.5 * Fy * Sz
+    Myw = Fy * Sw
+    Mcr = Mcr_F10_principal(1.0, E_STEEL / KSI, A / IN ** 2, rz / IN, t / IN, L / IN, 0.0) * KSI * IN ** 3
+    Mnw = min((1.92 - 1.17 * math.sqrt(Myw / Mcr)) * Myw, 1.5 * Myw) if Myw / Mcr <= 1.0 else (0.92 - 0.17 * Mcr / Myw) * Mcr
+    Pn = abs(P) * 1000.0
+    if P >= 0:
+        Fcr, _ = flexural_buckling_stress_E3(L / rz, E_STEEL / KSI, Fy / KSI)
+        Fa = 0.9 * Fcr * KSI
+        B1z = 1.0 / (1.0 - Pn / (math.pi ** 2 * E_STEEL * Iz / L ** 2)) if Pn < math.pi ** 2 * E_STEEL * Iz / L ** 2 else math.inf
+        B1w = 1.0 / (1.0 - Pn / (math.pi ** 2 * E_STEEL * Iw / L ** 2))
+    else:
+        Fa, B1z, B1w = 0.9 * Fy, 1.0, 1.0
+    if not math.isfinite(B1z):
+        return {"U": math.inf, "B1z": B1z, "note": "P above the minor-axis Euler load"}
+    r = combined_stress_ratio(Pn / A / KSI, Fa / KSI, frbw=B1w * Pn * ez / Sw / KSI, Fcbw=0.9 * Mnw / Sw / KSI,
+                              frbz=B1z * Pn * ew / Sz / KSI, Fcbz=0.9 * Mnz / Sz / KSI)
+    return {"U": r.ratio, "terms": dict(r.terms), "e_w": ew, "e_z": ez, "Sz": Sz, "Sw": Sw, "Mnz": Mnz, "Mnw": Mnw,
+            "Fa": Fa, "B1z": B1z, "B1w": B1w, "Lc_rz": L / rz}
+
+
+def slip_factor(slip: float, Lbr: float) -> float:
+    """The one-time bolt slip as an added initial imperfection (engineering judgement from the AISC 360-16 App. 6
+    commentary, VERIFIED False — user 2026-11-15): the brace force scales with the total displacement, × (1 + slip / Δo),
+    Δo = Lbr / 500 (the App. 6 initial out-of-straightness)."""
+    return 1.0 + slip / (Lbr / 500.0)
+
+
+def stiffness_provided(n: int, A: float, L: float, cos_a: float, t_cleat: float, W: float, y_c: float,
+                       k_secondary: float = math.inf) -> dict:
+    """kN/mm, the springs in series (step 5c review): the braces n × E A cos²α / L; the purlin / girt web local bending —
+    none, the brace force lies in the web plane (checked on the model by the caller); the cleat's in-plane bending
+    3 E (t W³ / 12) / y_c³; the purlin / girt axially out to where the bracing holds it, E A_p / L_p (k_secondary). The
+    bolt slip is NOT a spring (a one-time slip): it amplifies the brace force instead (slip_factor)."""
     kb = n * E_STEEL * A * cos_a ** 2 / L / 1000.0
     kc = 3 * E_STEEL * (t_cleat * W ** 3 / 12.0) / y_c ** 3 / 1000.0
-    return {"braces": kb, "cleat": kc, "system": 1.0 / (1.0 / kb + 1.0 / kc)}
+    springs = {"braces": kb, "web local bending": math.inf, "cleat": kc, "purlin axial": k_secondary}
+    inv = sum(0.0 if not math.isfinite(v) else (math.inf if v <= 0 else 1.0 / v) for v in springs.values())
+    return {**springs, "system": (1.0 / inv) if inv > 0 else math.inf}
 
 
 def point_demand(Mr: float, Cd: float, ho: float, Lbr: float, fraction: float = 0.02) -> dict:
@@ -360,7 +427,6 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             ups = sorted(h["up"] for h in ck["holes"])
             y_c = (ups[0] + ups[-1]) / 2
             ang = angle_props(bb, tb)
-            k = stiffness_provided(len(ms), ang["A"], Lb_, cos_a, tc, W, y_c)
             worst = None
             for combo, rows in mrows.items():
                 cd = cd_factors(brace_s, rows)
@@ -369,16 +435,46 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 dm = point_demand(Mr, cd[s], ho, lbr[s], st.brace_fraction)
                 if worst is None or dm["Prb"] > worst["Prb"]:
                     worst = {**dm, "combo": combo, "Mr": Mr, "Cd": cd[s]}
-            P = worst["Prb"] / (len(ms) * cos_a)
+            amp = slip_factor(st.slip, lbr[s])
+            Prb_amp = worst["Prb"] * amp
+            P = Prb_amp / (len(ms) * cos_a)              # every brace check takes the amplified force
+            # the springs (step 5c review): the brace's line must lie in the secondary's web plane (no web bending)
+            ub = [(b0["end"][i] - b0["start"][i]) / Lb_ for i in range(3)]
+            if sec_line["role"] in ("girt", "gable_girt"):
+                n_web = [0.0, 0.0, 1.0]
+            else:
+                sl = float(out["input"]["roof_slope"]) * (-1.0 if sec_line["side"] == "A" else 1.0)
+                nr = [0.0, sl / math.hypot(sl, 1.0), 1.0 / math.hypot(sl, 1.0)]
+                n_web = [0.0, -nr[2], nr[1]]
+            web_normal_cos = abs(sum(a_ * b_ for a_, b_ in zip(ub, n_web)))
+            if host["role"] == "wind_column":
+                ys_ = [0.0, float(out["input"]["span"])]
+                Lp = min(abs(p[1] - y) for y in ys_)
+            else:
+                xs_ = sorted(g["at"] for g in out["grids"]["x"])
+                bnd = [xs_[j - 1] for j in out.get("braced_bays", [])] + [xs_[j] for j in out.get("braced_bays", [])]
+                Lp = min((abs(p[0] - x) for x in bnd), default=math.inf)
+            Ap = cfs_section(sec_line["profile"], 350.0)["props"]["A"]
+            k_sec = math.inf if Lp < 1.0 else E_STEEL * Ap / Lp / 1000.0
+            k = stiffness_provided(len(ms), ang["A"], Lb_, cos_a, tc, W, y_c, k_sec)
             comp = angle_compression(bb, tb, Lb_, gb["Fy"])
             ten = angle_tension(bb, tb, d0, gb["Fy"], gb["Fu"])
             dims = cf_dims(sec_line["profile"])
             web_g = plate_strength(sec_line.get("material", ""), dims["t"])
             e_web = (INTO_SECONDARY - dims["t"]) / math.sin(math.radians(45.0))
             nb = st.bolts_per_end
-            rows_ = [("brace", "flange brace compression (E5(a), E3)", "AISC 360-16 E5, E3", P, comp["phiPn"], P / comp["phiPn"], worst["combo"]),
+            if nb >= 2:
+                brace_rows = [("brace", "flange brace compression (E5(a), E3)", "AISC 360-16 E5, E3", P, comp["phiPn"], P / comp["phiPn"], worst["combo"])]
+                ecc = None
+            else:                                   # 1 bolt per end: E5 does not apply (user 2026-11-15) → H2 eccentric
+                ecc = {"compression": angle_eccentric(bb, tb, Lb_, gb["Fy"], P, st.gauge),
+                       "tension": angle_eccentric(bb, tb, Lb_, gb["Fy"], -P, st.gauge)}
+                brace_rows = [("brace", f"flange brace {kk} on the gauge line (1 bolt: H2, eccentric both axes)",
+                               "AISC 360-16 H2-1, E3, F10", P, P / v["U"] if v["U"] > 0 else math.inf, v["U"], worst["combo"])
+                              for kk, v in ecc.items()]
+            rows_ = brace_rows + [
                      ("brace", "flange brace tension (connected leg net)", "AISC 360-16 D2", P, ten, P / ten, worst["combo"]),
-                     ("stiffness", "brace stiffness βbr (App. 6.3.2a) vs braces + cleat in series", "AISC 360-16 A-6-8; Claude's springs",
+                     ("stiffness", "brace stiffness βbr (App. 6.3.2a) vs every spring in series", "AISC 360-16 A-6-8; Claude's springs",
                       worst["beta"], k["system"], worst["beta"] / k["system"], worst["combo"]),
                      ("bolt", "bolt shear (per end)", "AISC 360-16 J3.6", P, nb * phiRv, P / (nb * phiRv)),
                      ("bolt", "bearing on the angle leg", "AISC 360-16 J3.10", P,
@@ -388,7 +484,10 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             rows_ = [r if r[5] is not None else (*r[:5], r[3] / r[4] if r[4] > 0 else math.inf) for r in rows_]
             notes = [FRAME_END_NOTE]
             if nb < 2:
-                notes.append(f"E5 condition 'at least two bolts or welded' not met by {nb} bolt per end (setting bolts_per_end)")
+                notes.append(f"{nb} bolt per end (setting bolts_per_end): E5 does not apply — H2 eccentric axial, gauge {st.gauge:g} mm")
+            if web_normal_cos > 0.01:
+                rows_.append(("stiffness", "web local bending spring — NOT EVALUATED (the brace is not in the web plane)",
+                              "Claude's springs", web_normal_cos, 0.0, math.inf))
             if comp["slender_leg"]:
                 rows_.append(("brace", "slender leg (E7) — NOT EVALUATED", "AISC 360-16 E7", 1.0, 0.0, math.inf))
             checks = sorted((_row(r) for r in rows_), key=lambda r: -r["U"])
@@ -398,12 +497,17 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
                        demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(ho, 1),
                                "Lbr": round(lbr[s], 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
-                               "P_brace": round(P, 3), "cos_alpha": round(cos_a, 4)},
-                       stiffness={kk: round(v, 3) for kk, v in k.items()},
-                       angle={"Lc_r": round(comp["Lc_r"], 2), "L_ra": round(comp["L_ra"], 2), "phiPn": round(comp["phiPn"], 3)},
+                               "slip_mm": st.slip, "delta_o": round(lbr[s] / 500.0, 3), "slip_factor": round(amp, 4),
+                               "Prb_amplified": round(Prb_amp, 3), "P_brace": round(P, 3), "cos_alpha": round(cos_a, 4)},
+                       stiffness={**{kk: (round(v, 3) if math.isfinite(v) else "rigid") for kk, v in k.items()},
+                                  "purlin_axial_length": round(Lp, 1) if math.isfinite(Lp) else None,
+                                  "web_normal_cos": round(web_normal_cos, 5)},
+                       angle=({"method": "E5(a)", "Lc_r": round(comp["Lc_r"], 2), "phiPn": round(comp["phiPn"], 3)} if ecc is None else
+                              {"method": "H2 eccentric (1 bolt)", **{kk: {x: (round(y, 4) if isinstance(y, float) else y) for x, y in v.items()
+                                                                       if x != "terms"} for kk, v in ecc.items()}}),
                        cleat=f"{ck['line']} at {ck['x']:g}")
             key = (ck["line"], round(ck["x"]))
-            N_map[key] = max(N_map.get(key, 0.0), worst["Prb"])
+            N_map[key] = max(N_map.get(key, 0.0), Prb_amp)
             points.append(rec)
     # sag rods and ridge ties
     sf = sag_forces(out, li)
