@@ -62,7 +62,7 @@ wheels = [
 [[package]]
 name = "bimsteelauto"
 version = "0.9.0.dev0"
-source = { git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=3a2bf3fa1ae987a0f3ecb64a23831c1e6d71c4e8#3a2bf3fa1ae987a0f3ecb64a23831c1e6d71c4e8" }
+source = { git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=358c2fb36800c15f2021c78c30d245e1a688f1e3#358c2fb36800c15f2021c78c30d245e1a688f1e3" }
 dependencies = [
     { name = "numpy" },
     { name = "pyaisc360" },
@@ -375,7 +375,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anastruct", specifier = ">=1.6" },
-    { name = "bimsteelauto", git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=3a2bf3fa1ae987a0f3ecb64a23831c1e6d71c4e8" },
+    { name = "bimsteelauto", git = "https://github.com/ahmedalisteel-star/bimsteelauto?rev=358c2fb36800c15f2021c78c30d245e1a688f1e3" },
     { name = "ecp205-lrfd", git = "https://github.com/ahmedalisteel-star/ecp205-lrfd?rev=7c459d70b676d2940137a097d057774dc4950e85" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "pynitefea", specifier = "==3.0.0" },

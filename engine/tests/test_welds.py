@@ -46,7 +46,8 @@ directional increase is allowed). S355JR in the library: Fy 355, Fu 490 MPa up t
                 girt 81.88 < 87.75
     END RAFTER  y → x along the member: x = |y − y_start| √1.01 (6000 → 6029.93); V 50 kN on 200 × 10 / 475 × 6 → 83.96
     DOUBLER     138.56 / 489.2 = 283.24 → 5 mm; 1100 kN → 2248.57, needs 14.66 → CJP (base 0.45 × 490 × 12 = 2646)
-    EP STIFF.   ts 12: into the plate 0.45 × 355 × 12 = 1917 per line → 10 mm (base metal governs, U 1.0); along the flange
+    EP STIFF.   ts 12: into the plate 0.45 × 355 × 12 = 1917 per line → 10 mm (2300.22), U 0.8334 — the base metal
+                "develops plate (by definition)"; along the flange
                 0.3 × 355 × 12 = 1278 → 10 mm (base 1323, U 0.966); ts 20: 3195 per line, needs 13.89 → CJP
 """
 
@@ -260,7 +261,10 @@ def test_diagonal_doubler_endplate_stiffener_welds_by_hand():
     assert dbc["flange_edges"]["base_metal"] == pytest.approx(2646.0)
     e = endplate_stiffener_welds(70, 121.2, 12, 18, 10, "S355JR", ST)
     tp, tf = e["to_end_plate"], e["to_beam_flange"]
-    assert tp["flow"] == pytest.approx(1917.0) and tp["leg"] == 10.0 and tp["U"] == pytest.approx(1.0, abs=1e-4)
+    # into the end plate the demand IS the stiffener's design strength: the base metal "develops plate (by definition)"
+    # and U is the weld metal's: 1917 / 2300.22 = 0.8334 (not a bare U 1.0)
+    assert tp["flow"] == pytest.approx(1917.0) and tp["leg"] == 10.0 and tp["U"] == pytest.approx(0.8334, abs=1e-4)
+    assert tp["base_metal"].startswith("develops plate (by definition)")
     assert tf["flow"] == pytest.approx(1278.0) and tf["leg"] == 10.0 and tf["U"] == pytest.approx(0.966, abs=1e-3)
     assert e["status"] == "DESIGNED" and "reference only" in e["reference"]
     e20 = endplate_stiffener_welds(70, 121.2, 20, 25, 20, "S355JR", ST)

@@ -26,10 +26,9 @@ engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (20
 welds, the column-to-plate weld, the shear lug, the stiffener welds) APPROVED AS DONE by the user (2026-11-15, "Step 4 —
 what was built" below). Step 4 leaves OPEN: the 8 braced-bay bases of building 1 "PARTIAL - brace case NOT EVALUATED"
 (open item 6); the shear-lug breakout NOT EVALUATED (waiting for the user's ACI 318-19 17.11.3 page); the library's
-double-fillet base metal (open item 5). NEXT, in this order (user 2026-11-15), each with the user's decisions FIRST:
-(1) open item 5 — bimsteelauto 0.15.4, the double-fillet base metal shared by both lines (incl. whether the default
-changes and what that does to the step 3 / step 4 results); (2) open item 6 — longitudinal wind on the frames;
-(3) then step 5. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+double-fillet base metal (open item 5 — CLOSED 2026-11-15, bimsteelauto 0.15.4). NEXT (user 2026-11-15), each with the
+user's decisions FIRST: (1) open item 6 — longitudinal wind on the frames (decisions asked, WAIT for the answers);
+(2) then step 5. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -237,7 +236,8 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 7. Plate stock (setting) 12, 15, 16, 18, 20, 22, 25, 30, 35, 40, 50; ONE thickness per joint type; plate grade = the frame's.
 8. Geometry defaults: bp = bf + 50 ↑10, g 100 (≤ M24) / 140, pf = max(40, d + 12), de 1.5 d, pb 3 d; checks: gauge vs plate
    and column-flange edge (Table J3.4M), web wrench clearance, pitch clears the flange weld + nut.
-9. Welds: flanges FULL STRENGTH, web its yield over the tension-bolt zone + the shear; double fillets; a full-strength
+9. Welds: flanges FULL STRENGTH (since 2026-11-15: the DESIGN strength 0.9 Fy bf tf, replacing the nominal Fy bf tf —
+   user decision, open item 5), web its yield (0.9 Fy tw) over the tension-bolt zone + the shear; double fillets; a full-strength
    fillet over 12 mm (setting) → CJP, said so; minimum legs AISC 360-16 Table J2.4 (thinner part); ONE weld size per joint
    type; E70XX (482 MPa). The t − 2 maximum does not apply (welds on the plate face, not along an edge) — so the library's
    size_fillet_weld (edge rule, thicker-part minimum) is not used for these T-joints. (Superseded 2026-11-12: the library 0.15.3 tee mode is used — see "Step 3 follow-ups".)
@@ -376,9 +376,9 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 | ACI 318-19 17.11 shear lug (step 4) | 17.11.2 bearing φ 0.65 × 1.7 f'c Aef Ψbrg (Ψ: 1 + Pu/(n Nsa) ≤ 1 tension, 1 + 4Pu/(Abp f'c) ≤ 2 compression); 17.11.3 breakout NOT EVALUATED | the printed 17.11.2 / 17.11.3 and Fig. R17.11.3.1 (the user sends them) | VERIFIED False |
 | AISC DG 1 shear lug (step 4) | lug bending t ≥ √(4 Mu / (0.9 Fy B)), Mu = Vu (G + h/2); the lug weld: shear + the moment as a couple over t | DG 1 2nd ed. (the lug section) | VERIFIED False |
 | Step 4 rules by Claude | local-load spread lb = t_cleat + 5k; the end zone develops 0.9 × 0.6 Fy tw; the stiffener corner clip 20 mm (setting); weak-axis base shear = the wall brace's T cos α; J4.1 for plates pulled across a weld; stiffener thickness for its flange contact; grout 50 mm (setting) | the user's call | VERIFIED False |
-| J4.1 for welds loaded across their axis (step 4) | a plate pulled across a double fillet (a stiffener into a flange or an end plate, a diagonal end): its limit is J4.1 min(0.9 Fy t, 0.75 Fu t), shared by the two lines — Claude's reading, not the user's shear rule | AISC 360-16 J2.4 / J4.1 | VERIFIED False |
+| J4.1 for welds loaded across their axis (step 4; library 0.15.4 `base_mode="tension"`) | a plate pulled across a double fillet (a stiffener into a flange or an end plate, a diagonal end): its limit is J4.1 min(0.9 Fy t, 0.75 Fu t), shared by the two lines — Claude's reading, not the user's shear rule | AISC 360-16 J2.4 / J4.1 | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
-| Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule, in Manafe3); the library `size_fillet_weld` still credits the full t to each line | bimsteelauto 0.15.4 right after step 4 (open item 5) | open |
+| Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
 | bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
 
@@ -1310,9 +1310,14 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    `tests/test_bsa_dxf.py` cannot import `ezdxf` (not installed in that venv); `tests/test_fc_adapter.py::
    test_the_engine_writes_the_json_the_adapter_reads` needs `design_result.json`, written by `run_frame_example.py`
    (not present in the clone). Both fail the same way without the 0.15.3 change.
-5. bimsteelauto 0.15.4 (right after step 4, user 2026-11-12): `size_fillet_weld` credits the full base-metal thickness to
-   EACH weld line; for a double fillet straddling one plate the lines share it (0.45 Fu t / 2 per line). Manafe3 checks it
-   itself in `engine/connections/welds.py`; the step 3 web weld passes either way (web shear 199.4 kN per line ≥ 108.5).
+5. **CLOSED (2026-11-15)** — bimsteelauto 0.15.4 (main `358c2fb`, pushed with the user's approval; Manafe3 pinned to it):
+   the double-fillet base metal (user decisions 2026-11-15: 1a 2a 3a 4a 5a, 6 yes): `size_fillet_weld(t_shared=, base_mode=)` opt-in (default unchanged: the
+   thinner part's full t to each line, J2-2 shear), `base_mode="tension"` = J4.1 (still unverified), `fillet_line_strength`
+   per mm; Manafe3 step 3 passes the flange / web as the shared plate, step 4's `size_line` calls `fillet_line_strength`
+   (its own pyaisc360 weld / base-metal code removed). Step 3 "full strength" now means the DESIGN strength 0.9 Fy (flange
+   0.9 Fy bf tf, web tension zone 0.9 Fy tw Lt; the end-plate stiffener already used it): the base-metal row of such a
+   weld reads "develops plate (by definition)", U is the weld metal's. Building 1 weld sizes unchanged (end plates 8 / 5
+   mm, stiffener welds as before, flange-to-web 5 mm, base 5 mm).
 6. **Phase 3 gap — longitudinal wind** (user 2026-11-12): the frame-line analysis has NO longitudinal-wind (wind parallel
    to the ridge) combinations; they often govern uplift on the end frames and the braced frames. The bracing analysis is
    one longitudinal case of its own, so a braced-bay base cannot pair the brace force with a frame reaction of the same

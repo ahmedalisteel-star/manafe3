@@ -10,8 +10,11 @@ Independent values (longhand, written out below; NOT recomputed by the code unde
                   = 2325.23 + 1239.59 + 50 = 3614.82
     Extended rows, d 400, tf 10 / 10, M20 (pf = max(40, 32) = 40, de 30, pb 60): 4E h = 400 + 40 − 5 = 435, 400 − 10 − 40 − 5
         = 345; 8ES h = 495, 435, 345, 285
-    Flange weld full strength 200 × 10 S355: 355 × 200 × 10 = 710 kN; per mm of leg 0.75 × 0.6 × 482 × 0.707 × 200 × 2 × 1.5
-        = 92.01 kN → 7.72 → 8 mm (≤ 10 and ≤ 12); a 300 × 25 flange: 2662.5 kN / 138.0 = 19.3 mm > 12 → CJP
+    Flange weld at FULL STRENGTH = the design strength 0.9 Fy bf tf (user 2026-11-15, replacing the nominal Fy bf tf),
+        200 × 10 S355: 0.9 × 355 × 200 × 10 = 639 kN; per mm of leg 0.75 × 0.6 × 482 × 0.707 × 200 × 2 × 1.5 = 92.01 kN
+        → 6.95 → 8 mm (736.07 kN), U 0.8681; the base metal (the flange shared by both lines, J4.1: 0.9 × 355 × 10 × 200 / 2
+        = 319.5 kN per line = the demand) reads "develops plate (by definition)"; a 300 × 25 flange: 2396.25 kN / 138.0
+        = 17.4 mm > 12 → CJP
     Shear fallback, M20 8.8, threads included: φRn = 0.75 × 0.45 × 800 × 314.16 = 84.82 kN per bolt; J3-3a with Vu 500 kN on
         8 bolts: frv = 62.5 kN / 314.16 = 198.94 MPa; F'nt = 1.3 × 600 − 600 / (0.75 × 360) × 198.94 = 337.9 MPa
 Negative controls: the concurrent pair is used, never the largest M with the largest T of another combination; 8.8 that
@@ -41,11 +44,14 @@ Step 3 follow-ups (2026-11-12) — one hand value per decision, longhand (S355JR
         splice (cos 1): h1 = 424 − 12 − 40 − 6 = 366; φMnp = 1.5 × 188.496 × 366 = 103.48
     J3.7: φT' = 0.75 × 337.9 × 314.16 = 79.62 kN; U = max(62.5 / 84.82, 50 / 79.62) = 0.7368; the switch at 4 × 84.82 =
         339.3 kN; bearing lc = 30 − 11 = 19, t 20, Fu 470: 0.75 × 1.2 × 19 × 20 × 470 = 160.74 kN
-    WELDS (E70: 0.75 × 0.6 × 482 × 0.707 = 153.348 MPa per mm of leg, per line): 300 × 12 flange 1278 kN / 138.013 = 9.26
-        → 10 mm (1380.13 kN); 300 × 16 flange 1704 / 138.013 = 12.35 → 14 > 12 → CJP; with the limit at 16: 14 mm,
-        1932.19 kN; a 10 mm leg imposed on the 200 × 10 flange: base metal 0.75 × 0.6 × 490 × 10 × 200 × 2 = 882.0 kN governs;
-        web: zone 80 mm: 355 × 6 × 80 = 170.4 kN / (153.348 × 80 × 2 × 1.5 = 36.80) = 4.63 → 5 mm (184.02 kN); shear 150 kN
-        on 380 − 160 = 220 mm: 153.348 × 220 × 2 = 67.47 kN / mm → 3 mm (the minimum; 202.42 kN)
+    WELDS (E70: 0.75 × 0.6 × 482 × 0.707 = 153.348 MPa per mm of leg, per line; demands 0.9 Fy): 300 × 12 flange
+        1150.2 kN / 138.013 = 8.33 → 10 mm (1380.13 kN), U 0.8334; 300 × 16 flange 1533.6 / 138.013 = 11.11 → 12 mm
+        (1656.16), U 0.926 (a fillet now: CJP before, at Fy); 300 × 20 flange 1917 / 138.013 = 13.89 → 14 > 12 → CJP; with
+        the limit at 16: 14 mm, 1932.19 kN, U 0.9921; a 10 mm leg imposed on the 200 × 10 flange: weld metal 920.09 kN,
+        U 0.6945 (the base metal develops the plate by definition); web: zone 80 mm: 0.9 × 355 × 6 × 80 = 153.36 kN /
+        (153.348 × 80 × 2 × 1.5 = 36.80) = 4.17 → 5 mm (184.02 kN), U 0.8334; shear 150 kN on 380 − 160 = 220 mm:
+        153.348 × 220 × 2 = 67.47 kN / mm → 3 mm (the minimum; 202.42 kN; the web base metal shared by both lines:
+        0.45 × 490 × 6 × 220 / 2 = 145.53 kN per line ≥ 75)
     COLUMN (d 489.2, tw 6, tf 10, bf 200, k 16, lb 46, near the end; Puf = Mu / 0.49):
         J10.1 0.9 × 6.25 × 355 × 10² × ½ = 99.84 kN; J10.2 355 × 6 (2.5 × 16 + 46) = 183.18 kN;
         J10.3 0.75 × 0.4 × 36 [1 + 3 (46/489.2)(0.6)^1.5] √(200 000 × 355 × 10/6) = 132.89 kN;
@@ -118,31 +124,42 @@ def test_extended_rows_by_hand():
 
 def test_welds_by_hand():
     w = flange_weld(200, 10, 20, "S355JR", ST)
-    assert w["type"] == "double fillet" and w["leg"] == 8.0 and w["demand"] == pytest.approx(710.0)
+    assert w["type"] == "double fillet" and w["leg"] == 8.0 and w["demand"] == pytest.approx(639.0)
     assert w["capacity"] == pytest.approx(0.75 * 0.6 * 482 * 0.707 * 8 * 200 * 2 * 1.5 / 1000, abs=0.01)   # 736.07
-    assert w["min_leg_J2_4"] == 5.0 and w["governs"] == "weld metal" and w["U"] == pytest.approx(0.9646, abs=1e-4)
+    assert w["min_leg_J2_4"] == 5.0 and w["governs"] == "weld metal" and w["U"] == pytest.approx(0.8681, abs=1e-4)
+    assert w["base_metal"].startswith("develops plate (by definition)") and "J4.1 tension" in w["base_metal"]
+    assert "0.9 Fy" in w["basis"]
     cjp = flange_weld(300, 25, 30, "S355JR", ST)
     assert cjp["type"].startswith("CJP") and "12" in cjp["why"]
 
 
 def test_cjp_switch_above_12mm_by_hand():
-    w12 = flange_weld(300, 12, 20, "S355JR", ST)                                  # 9.26 mm needed → 10
+    w12 = flange_weld(300, 12, 20, "S355JR", ST)                                  # 8.33 mm needed → 10
     assert (w12["type"], w12["leg"]) == ("double fillet", 10.0) and w12["capacity"] == pytest.approx(1380.13, abs=0.01)
-    w16 = flange_weld(300, 16, 20, "S355JR", ST)                                  # 12.35 mm needed → 14 > 12
-    assert w16["type"].startswith("CJP") and w16["leg"] == 0.0 and w16["U"] == 1.0 and "12 mm" in w16["why"]
-    assert w16["demand"] == pytest.approx(1704.0) and w16["capacity"] == pytest.approx(1704.0)   # full strength
-    big = flange_weld(300, 16, 20, "S355JR", EndPlateSettings(weld_max_fillet=16.0))             # negative control
+    assert w12["U"] == pytest.approx(0.8334, abs=1e-4)
+    w16 = flange_weld(300, 16, 20, "S355JR", ST)                                  # 11.11 → 12 mm: a fillet at 0.9 Fy
+    assert (w16["type"], w16["leg"]) == ("double fillet", 12.0) and w16["capacity"] == pytest.approx(1656.16, abs=0.01)
+    assert w16["U"] == pytest.approx(0.926, abs=1e-3)
+    w20 = flange_weld(300, 20, 25, "S355JR", ST)                                  # 13.89 mm needed → 14 > 12 → CJP
+    assert w20["type"].startswith("CJP") and w20["leg"] == 0.0 and w20["U"] == 1.0 and "12 mm" in w20["why"]
+    assert w20["demand"] == pytest.approx(1917.0) and w20["capacity"] == pytest.approx(1917.0)   # develops the flange
+    big = flange_weld(300, 20, 25, "S355JR", EndPlateSettings(weld_max_fillet=16.0))             # negative control
     assert (big["type"], big["leg"]) == ("double fillet", 14.0) and big["capacity"] == pytest.approx(1932.19, abs=0.01)
-    # one size per joint type: a 10 mm leg imposed where 8 mm is enough — the base metal then governs
+    assert big["U"] == pytest.approx(0.9921, abs=1e-4)
+    # one size per joint type: a 10 mm leg imposed where 8 mm is enough — the weld metal still sets U (the base metal
+    # develops the flange by definition, never a bare U 1.0)
     w10 = flange_weld(200, 10, 20, "S355JR", ST, 10.0)
-    assert w10["leg"] == 10.0 and w10["capacity"] == pytest.approx(882.0, abs=0.01) and w10["governs"] == "base metal"
+    assert w10["leg"] == 10.0 and w10["capacity"] == pytest.approx(920.09, abs=0.01) and w10["governs"] == "weld metal"
+    assert w10["U"] == pytest.approx(0.6945, abs=1e-4) and w10["base_metal"].startswith("develops plate (by definition)")
 
 
 def test_web_weld_and_tee_joint_by_hand():
     ww = web_weld(SEC, 80.0, 150.0, 18.0, "S355JR", ST)
     tz, sh = ww["tension_zone"], ww["shear"]
-    assert ww["zone_length"] == 80.0 and tz["demand"] == pytest.approx(170.4) and tz["theta"] == 90.0
-    assert tz["leg"] == 5.0 and tz["capacity"] == pytest.approx(184.02, abs=0.01)
+    assert ww["zone_length"] == 80.0 and tz["demand"] == pytest.approx(153.36) and tz["theta"] == 90.0
+    assert tz["leg"] == 5.0 and tz["capacity"] == pytest.approx(184.02, abs=0.01) and tz["U"] == pytest.approx(0.8334, abs=1e-4)
+    assert tz["base_metal"].startswith("develops plate (by definition)")
+    assert "shared by 2 lines" in sh["base_metal"]                                    # the web base metal, shared
     assert sh["length"] == 220.0 and sh["theta"] == 0.0 and sh["leg"] == 3.0 == sh["min_leg_J2_4"]
     assert sh["capacity"] == pytest.approx(202.42, abs=0.01) and ww["leg"] == 5.0
     assert web_weld(SEC, 500.0, 150.0, 18.0, "S355JR", ST)["zone_length"] == 190.0     # never more than half the web

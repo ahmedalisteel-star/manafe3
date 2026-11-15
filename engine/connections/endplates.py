@@ -68,6 +68,8 @@ IN, KSI, KIP = 25.4, 6.894757, 4.448222
 HOLE = {12: 14.0, 16: 18.0, 20: 22.0, 22: 24.0, 24: 27.0, 27: 30.0, 30: 33.0}
 EDGE_MIN = {12: 18.0, 16: 22.0, 20: 26.0, 22: 28.0, 24: 30.0, 27: 34.0, 30: 38.0}
 FILLET_LEGS = (3.0, 5.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0)
+#: the base-metal row of a weld whose demand is the plate's own design strength (user 2026-11-15)
+DEV_PLATE = "develops plate (by definition)"
 #: the mark every ridge / rafter-splice result carries while VERIFIED["flush_Yp_DG16"] is False (user 2026-11-12)
 DG16_MARK = "NOT FOR ISSUE: DG 16 flush unverified"
 #: j24_min_leg_table: the Table J2.4 values are the library's min_weld_size (3 / 5 / 6 / 8 mm up to 6 / 13 / 19 mm) — the
@@ -240,13 +242,18 @@ def sign_demands(j: dict, lever: float) -> dict:
 # ------------------------------------------------------------------------------------------------------------- welds
 
 def fillet_or_cjp(demand: float, length: float, theta: float, t_part: float, t_plate: float, grade: str,
-                  st: EndPlateSettings, leg_min: float = 0.0) -> dict:
+                  st: EndPlateSettings, leg_min: float = 0.0, base_mode: str = "shear",
+                  develops_plate: bool = False) -> dict:
     """Double fillet of a T-joint — a flange or the web welded on the FACE of the end plate. The weld is sized by the
     library: bimsteelauto_connections.welds.size_fillet_weld(joint="tee", min_leg_by="thinner") — AISC 360-16 J2.4 weld
     metal (with the directional increase) and J2-2 base metal, the Table J2.4 minimum by the thinner part, and NO J2.2b
     t − 2 maximum (these welds lie on the plate face, not along a plate edge). Manafe3 adds only its settings: the leg
     list, leg ≥ leg_min (one size per joint type), and the switch to a CJP groove weld when the fillet would exceed
-    weld_max_fillet (12 mm) or the thinner part — said so. kN, mm; capacity = both weld lines."""
+    weld_max_fillet (12 mm) or the thinner part — said so. kN, mm; capacity = both weld lines.
+    Base metal (bimsteelauto 0.15.4, user 2026-11-15): the two lines straddle the PART (the flange or the web) and share
+    it, t_part / 2 each (t_shared); base_mode "tension" (θ 90°, the part pulled across the weld) = J4.1. develops_plate:
+    the demand IS the part's design strength, so its base-metal row reads "develops plate (by definition)" and U is the
+    weld metal's."""
     if demand <= 0 or length <= 0:
         raise ValueError(f"weld demand and length must be > 0, got {demand} kN on {length} mm")
     t_thin = min(t_part, t_plate)
@@ -257,33 +264,43 @@ def fillet_or_cjp(demand: float, length: float, theta: float, t_part: float, t_p
         if not legs:
             raise GeometryError("no leg in the list")
         w = size_fillet_weld(demand=demand, length=length, t_part1=t_part, t_part2=t_plate, base_grade=grade, theta=theta,
-                             electrode=st.electrode, n_welds=2, palette=legs, joint="tee", min_leg_by="thinner")
+                             electrode=st.electrode, n_welds=2, palette=legs, joint="tee", min_leg_by="thinner",
+                             t_shared=t_part, base_mode=base_mode)
     except GeometryError:
         return {"type": "CJP groove weld (matching E70XX filler; full strength, AISC 360-16 Table J2.5)", "leg": 0.0, **out,
                 "capacity": round(demand, 2), "U": 1.0,
                 "why": f"a full-strength fillet would exceed {top:g} mm (setting / thinner part)"}
+    sized = "bimsteelauto_connections.size_fillet_weld (tee joint, Table J2.4 by the thinner part, base metal shared)"
+    if develops_plate:
+        cap = 2 * float(w.capacity_weld)
+        return {"type": "double fillet", "leg": float(w.leg), **out, "capacity": round(cap, 2), "U": round(demand / cap, 4),
+                "governs": "weld metal", "base_metal": f"{DEV_PLATE} ({w.base_rule})", "sized_by": sized}
     return {"type": "double fillet", "leg": float(w.leg), **out, "capacity": round(2 * float(w.capacity), 2),
-            "U": round(float(w.utilization), 4), "governs": w.governing,
-            "sized_by": "bimsteelauto_connections.size_fillet_weld (tee joint, Table J2.4 by the thinner part)"}
+            "U": round(float(w.utilization), 4), "governs": w.governing, "base_metal": w.base_rule, "sized_by": sized}
 
 
 def flange_weld(bf: float, tf: float, tp: float, grade: str, st: EndPlateSettings, leg_min: float = 0.0) -> dict:
+    """Flange to end plate at FULL STRENGTH = the flange's design strength 0.9 Fy bf tf (user 2026-11-15, replacing the
+    nominal Fy bf tf)."""
     Fy, _ = get_grade(grade, tf)
-    return {**fillet_or_cjp(Fy * bf * tf / 1000.0, bf, 90.0, tf, tp, grade, st, leg_min), "basis": "full strength Fy bf tf"}
+    return {**fillet_or_cjp(PHI_PLATE * Fy * bf * tf / 1000.0, bf, 90.0, tf, tp, grade, st, leg_min, base_mode="tension",
+                            develops_plate=True), "basis": "full strength = design strength 0.9 Fy bf tf"}
 
 
 def web_weld(sec: dict, zone: float, Vu: float, tp: float, grade: str, st: EndPlateSettings, leg_min: float = 0.0) -> dict:
-    """Web to end plate: the web's yield Fy tw over each tension-bolt zone (θ 90°), the shear Vu on the rest (θ 0°). The
-    zone (innermost tension row + tension_zone_extra × d from the flange) is Claude's rule — TO CONFIRM."""
+    """Web to end plate: the web's design yield 0.9 Fy tw over each tension-bolt zone (θ 90°; user 2026-11-15, replacing
+    Fy tw), the shear Vu on the rest (θ 0°). The zone (innermost tension row + tension_zone_extra × d from the flange) is
+    Claude's rule — TO CONFIRM."""
     tw = sec["tw"]
     Fy, _ = get_grade(grade, tw)
     hw = sec["d"] - sec["tf_t"] - sec["tf_c"]
     Lt = min(zone, hw / 2)
     rest = max(hw - 2 * Lt, 50.0)                    # a tension zone at each flange (both signs)
-    wt = fillet_or_cjp(Fy * tw * Lt / 1000.0, Lt, 90.0, tw, tp, grade, st, leg_min)
+    wt = fillet_or_cjp(PHI_PLATE * Fy * tw * Lt / 1000.0, Lt, 90.0, tw, tp, grade, st, leg_min, base_mode="tension",
+                       develops_plate=True)
     wv = fillet_or_cjp(max(Vu, 1e-6), rest, 0.0, tw, tp, grade, st, leg_min)
     return {"tension_zone": wt, "shear": wv, "leg": max(wt["leg"], wv["leg"]), "zone_length": round(Lt, 1),
-            "basis": "web yield Fy tw over each tension-bolt zone; the shear on the rest"}
+            "basis": "web design yield 0.9 Fy tw over each tension-bolt zone; the shear on the rest"}
 
 
 # --------------------------------------------------------------------------------------------------------- the sides

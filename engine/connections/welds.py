@@ -3,10 +3,11 @@
 and the stiffener welds (column transverse stiffeners, the panel-zone diagonal / doubler, the 4ES / 8ES end-plate
 stiffeners). NOT FOR ISSUE. SI: mm, kN, MPa (stresses in N/mm²; weld flows in N/mm).
 
-From bimsteelauto / pyaisc360 (not rewritten here):
-    pyaisc360.chapter_j.fillet_weld_strength   AISC 360-16 J2.4 weld metal: φ 0.75, Fnw = 0.60 FEXX (1 + 0.5 sin^1.5 θ when
-                                               the directional increase is allowed), throat 0.707 w
-    pyaisc360.chapter_j.base_metal_strength    AISC 360-16 J2-2 / J4.2 base metal, φ 0.75 × 0.60 Fu × ABM
+From bimsteelauto (not rewritten here):
+    bimsteelauto_connections.welds.fillet_line_strength (0.15.4)   one fillet line per mm: AISC 360-16 J2.4 weld metal
+                                               (φ 0.75, Fnw = 0.60 FEXX (1 + 0.5 sin^1.5 θ when allowed), throat 0.707 w)
+                                               and the base metal of the straddled plate shared by its lines — J2-2 shear
+                                               rupture 0.45 Fu t / n, or J4.1 tension min(0.9 Fy t, 0.75 Fu t) / n
     bimsteelauto_connections.welds.min_weld_size   Table J2.4 minimum leg (by the THINNER part joined)
     bimsteelauto_connections.bolts.get_grade       Fy / Fu by thickness
 Manafe3 here (the user's decisions 2026-11-12, HANDOVER "Step 4 decisions"; Claude's rules flagged in VERIFIED):
@@ -52,12 +53,10 @@ from dataclasses import asdict, dataclass
 
 from bimsteelauto_connections.anchors import ANCHOR_GRADES, THREAD_AREA
 from bimsteelauto_connections.bolts import get_grade
-from bimsteelauto_connections.welds import ELECTRODES, min_weld_size
-from pyaisc360 import chapter_j as _j
+from bimsteelauto_connections.welds import ELECTRODES, fillet_line_strength, min_weld_size
 
 BANNER = ("NOT FOR ISSUE — welds (Phase 5 step 4); the local-load spread, the one-sided limit, AISC M2.6 / J1.4, ACI 17.11 "
           "and DG 1 TO CONFIRM; the shear-lug breakout NOT EVALUATED")
-IN, KSI, KIP = 25.4, 6.894757, 4.448222
 FILLET_LEGS = (3.0, 5.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0)
 PHI_V_WEB = 0.9                    # the end-zone web shear developed: 0.9 × 0.6 Fy tw (G2.1, built-up)
 PHI_LUG_BEARING = 0.65             # ACI 318-19 17.11.2 / 21.2.1 — TO CONFIRM
@@ -126,39 +125,45 @@ class WeldSettings:
 # ------------------------------------------------------------------------------------------------------- strengths
 
 def weld_metal(leg: float, theta: float = 0.0, st: WeldSettings | None = None, directional: bool = True) -> float:
-    """φRn of ONE fillet line per mm of length, N/mm (pyaisc360 J2.4). directional=False: no 1 + 0.5 sin^1.5 θ."""
+    """φRn of ONE fillet line per mm of length, N/mm — bimsteelauto 0.15.4 fillet_line_strength (pyaisc360 J2.4).
+    directional=False: no 1 + 0.5 sin^1.5 θ."""
     st = st or WeldSettings()
-    awe = (0.707 * leg / IN) * (1.0 / IN)
-    r = _j.fillet_weld_strength(FEXX=st.fexx / KSI, Awe=awe, theta_degrees=theta, directional_increase=directional)
-    return r.available * KIP * 1000.0
+    return fillet_line_strength(leg, t_base=10.0, base_grade="S355JR", theta=theta, electrode=st.electrode,
+                                directional_increase=directional).weld
 
 
 def base_metal(t: float, grade: str, lines_sharing: int = 1) -> float:
-    """φRn of the base metal per mm per weld line, N/mm: 0.75 × 0.60 Fu t (pyaisc360 J2-2), shared by the lines that
-    straddle the plate (a double fillet on both faces of one plate: 2 → 0.45 Fu t / 2 per line)."""
-    _, Fu = get_grade(grade, t)
-    r = _j.base_metal_strength(FnBM=0.60 * Fu / KSI, ABM=(t / IN) * (1.0 / IN))
-    return r.available * KIP * 1000.0 / lines_sharing
+    """φRn of the base metal per mm per weld line, N/mm: 0.75 × 0.60 Fu t (J2-2), shared by the lines that straddle the
+    plate (a double fillet on both faces of one plate: 2 → 0.45 Fu t / 2 per line) — bimsteelauto 0.15.4."""
+    return fillet_line_strength(1.0, t_base=t, base_grade=grade, lines_sharing=lines_sharing).base
 
 
 def base_metal_tension(t: float, grade: str, lines_sharing: int = 1) -> float:
     """A plate pulled ACROSS the weld (θ 90°: a stiffener into a flange): AISC 360-16 J4.1 per mm, min(0.9 Fy t,
-    0.75 Fu t) (Ae = Ag), shared by the lines that straddle it, N/mm per line."""
-    Fy, Fu = get_grade(grade, t)
-    return min(0.9 * Fy * t, 0.75 * Fu * t) / lines_sharing
+    0.75 Fu t) (Ae = Ag), shared by the lines that straddle it, N/mm per line — bimsteelauto 0.15.4."""
+    return fillet_line_strength(1.0, t_base=t, base_grade=grade, lines_sharing=lines_sharing, base_mode="tension").base
+
+
+DEV_PLATE = "develops plate (by definition)"
 
 
 def size_line(flow: float, theta: float, t_shared: float, t_thinner: float, grade: str, st: WeldSettings,
-              lines_sharing: int = 2, directional: bool = True, leg_cap: float | None = None, mode: str = "shear") -> dict:
+              lines_sharing: int = 2, directional: bool = True, leg_cap: float | None = None, mode: str = "shear",
+              develops_plate: bool = False) -> dict:
     """The smallest leg of the list carrying `flow` (N/mm, per line): leg ≥ max(J2.4 by the thinner part, shop_min_leg),
     per line φRn = min(weld metal, base metal of the straddled plate shared by `lines_sharing`). Base metal: mode "shear"
     = 0.45 Fu t / lines (the user's rule, J2-2 / J4.2); mode "tension" (the plate pulled across the weld) = J4.1. The base
-    metal does not grow with the leg: above it → FAILS (a thicker plate); a fillet over weld_max_fillet → CJP."""
+    metal does not grow with the leg: above it → FAILS (a thicker plate); a fillet over weld_max_fillet → CJP.
+    develops_plate: the flow IS the straddled plate's design strength — the base metal row reads "develops plate (by
+    definition)" and U is the weld metal's (user 2026-11-15)."""
     lo = max(min_weld_size(t_thinner), st.shop_min_leg)
     top = st.weld_max_fillet if leg_cap is None else min(leg_cap, st.weld_max_fillet)
     bm = base_metal(t_shared, grade, lines_sharing) if mode == "shear" else base_metal_tension(t_shared, grade, lines_sharing)
     out = {"flow": round(flow, 2), "theta": theta, "min_leg": lo, "base_metal": round(bm, 2), "base_metal_mode": mode,
            "base_metal_plate": t_shared, "lines_sharing": lines_sharing}
+    if develops_plate:
+        out["base_metal"] = f"{DEV_PLATE} ({round(bm, 2)} N/mm per line)"
+        bm = math.inf
     if flow > bm + 1e-9:
         return {**out, "type": "FAILS", "leg": None, "U": round(flow / bm, 4), "ok": False,
                 "why": f"base metal of the {t_shared:g} mm plate: {flow:.1f} > {bm:.1f} N/mm per line — a thicker plate"}
@@ -170,6 +175,9 @@ def size_line(flow: float, theta: float, t_shared: float, t_thinner: float, grad
             return {**out, "type": "fillet", "leg": leg, "capacity": round(cap, 2), "U": round(flow / cap, 4), "ok": True,
                     "governs": "weld metal" if weld_metal(leg, theta, st, directional) <= bm else "base metal",
                     "sized_by": "minimum" if leg == lo and flow <= min(weld_metal(lo, theta, st, directional), bm) else "demand"}
+    if develops_plate:                                   # a CJP develops the plate by definition
+        return {**out, "type": CJP, "leg": 0.0, "U": 1.0, "ok": True, "capacity": round(flow, 2),
+                "why": f"a fillet over {top:g} mm would be needed"}
     return {**out, "type": CJP, "leg": 0.0, "U": round(flow / bm, 4), "ok": True, "capacity": round(bm, 2),
             "why": f"a fillet over {top:g} mm would be needed"}
 
@@ -530,7 +538,8 @@ def endplate_stiffener_welds(hst: float, Lst: float, ts: float, tp: float, tf_be
     the end plate (J4.1, θ 90°), 0.6 Fy ts per mm along the beam flange (J4.2 shear yielding, φ 1.0, θ 0°); CJP above
     12 mm. AISC 358 is reference only (non-seismic)."""
     Fy, _ = get_grade(grade, ts)
-    to_plate = size_line(PHI_PLATE * Fy * ts / 2.0, 90.0, ts, min(ts, tp), grade, st, lines_sharing=2, mode="tension")
+    to_plate = size_line(PHI_PLATE * Fy * ts / 2.0, 90.0, ts, min(ts, tp), grade, st, lines_sharing=2, mode="tension",
+                         develops_plate=True)
     to_flange = size_line(0.6 * Fy * ts / 2.0, 0.0, ts, min(ts, tf_beam), grade, st, lines_sharing=2)
     ok = to_plate["ok"] and to_flange["ok"]
     return {"to_end_plate": {**to_plate, "length": hst}, "to_beam_flange": {**to_flange, "length": Lst},
