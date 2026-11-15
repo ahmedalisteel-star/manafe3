@@ -1432,7 +1432,7 @@ public and all of it Apache-2.0.)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-15 09:20 on ENG04-PC
-- Did: Phase 5 step 4: welds (approved)
-- Tests: engine engine: 239 passed (34 files, largest peak 323 MiB in test_building_analysis.py, 1152 s) | app 16 of 16 test files passed
+- When: 2026-11-15 13:47 on ENG04-PC
+- Did: Open items 5 and 6 closed, item 8 added
+- Tests: engine engine: 243 passed (35 files, largest peak 319 MiB in test_building_analysis.py, 1108 s) | app 16 of 16 test files passed
 <!-- LAST-SESSION:END -->
