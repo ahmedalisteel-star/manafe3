@@ -27,7 +27,7 @@ Forces (LRFD, the strength solve = Direct Analysis Method, Phase 4 step 2):
     end rafters    the end-rafter frame's rafter stations at the ridge and at each splice (the frame has a node at every
                    end-rafter splice: endwall_analysis.end_rafter_splice_ys)
     braces         the tension-only diagonal force (longitudinal bracing; end walls: the end-rafter frame)
-    cleats         NOT EVALUATED — the cold-formed lines' support reactions come with step 5
+    cleats         NOT EVALUATED here — the cold-formed lines' support reactions and the cleat checks: engine/connections/cleats.py (step 5a)
 Capacity rule. SOURCE: a project setting, not a code clause — user decision 2026-11-10 (Phase 5 plan); AISC 360-16 has no
 general minimum connection strength as a fraction of the member's. Default fraction 0.50 = bimsteelauto_connections.
 CAPACITY_FRACTION; editable per job (ConnectionSettings), applied through bimsteelauto_connections.design_force:
@@ -528,7 +528,7 @@ def building_joints(b: BuildingInput, li, *, analysis: dict | None = None, setti
     for j in joints:
         if j["type"] == "cleat":
             j.update(forces=None, status=NOT_EVALUATED, design=None,
-                     missing=["support reactions of the cold-formed lines (Phase 5 step 5)"])
+                     missing=["support reactions of the cold-formed lines (engine/connections/cleats.py, step 5a)"])
     for j in joints:
         j.pop("ends", None)
         j.pop("node", None)

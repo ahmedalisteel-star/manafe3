@@ -27,8 +27,9 @@ welds, the column-to-plate weld, the shear lug, the stiffener welds) APPROVED AS
 what was built" below). Open items 5 and 6 CLOSED (2026-11-15: bimsteelauto 0.15.4; the longitudinal pairing at the
 braced-bay bases, `engine/connections/longitudinal.py`). Still open: the shear-lug breakout NOT EVALUATED (waiting for the
 user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the brace axial forces) and open item 8
-(pedestal / footing input for the ACI concrete anchor checks), both before step 7. NEXT: step 5 — decisions asked first,
-WAIT for the answers. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+(pedestal / footing input for the ACI concrete anchor checks), both before step 7. Step 5 decisions ANSWERED (2026-11-15,
+"Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); NEXT 5b
+(brace ends) — its decisions asked first. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -360,12 +361,58 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 - Tests `test_welds.py` (10, hand values in its docstring); the step 3 tests updated where the welds replaced
   "NOT EVALUATED" and where the stiffener now sizes for its contact (`test_endplates.py`).
 
+**Step 5 decisions (user, 2026-11-15):** 1a sub-steps 5a cleats, 5b brace ends, 5c flange braces / sag rods / ridge ties,
+5d eave transfer + end walls under longitudinal wind — report after each and WAIT; 2a cleat forces = the Phase 4
+cold-formed lines' support reactions, every combination, axial = the eave-strut / bracing force where a strut lands, else 0;
+3a the library cleat check + cleat bending + the cleat weld; 4a the purlin grade / t of the model (Phase 4's Fy); 5a bolts
+8.8 snug-tight, threads included; 6a rod ends: hole + hillside washer + nut through the frame web — rod tension, washer
+bearing, web local strength, AND (user addition) the member net section at the rod hole; angle braces: `check_gusset` and
+AISC D3 Table D3.1 U from the bolt count; 7a flange braces: 2 % of |M| / (d − tf), PLUS (user additions) the AISC Appendix 6
+point-bracing stiffness βbr = 10 Mr Cd / (φ Lbr ho), Cd = 2 for the brace nearest an inflection point, and the strength
+Prb with the same Cd; the L50×5 bolted through one leg in compression by AISC E5 (single angles), not K = 1.0; the purlin's
+flexibility as the brace support NOT EVALUATED unless Claude proposes a simple check (then flagged unverified); 8a sag rods /
+ridge ties from the Phase 4 purlin rows; 9a eave transfer automatic, on a failure suggest an eave-panel strut; 10a the
+wind-column tops into the rafter here (slotted holes stay in step 6); 11a DESIGNED / FAILS (with fixes) / NOT EVALUATED,
+NOT FOR ISSUE, one detail per joint type, hand-value tests with negative controls.
+
+**Step 5a — what was built (2026-11-15; accepted for now, open item 9 before issue):** `engine/connections/cleats.py` (`building_cleats`,
+`CleatSettings`). NOT FOR ISSUE.
+- **Deviation from 3a, for the user's review:** `check_purlin_cleat` is NOT called. (1) It takes only its own grade names
+  (EN 10025 / ASTM / ECP), and S350GD (the purlins, EN 10346, 350 / 420) is not among them — adding it would change
+  bimsteelauto (needs the user's approval). (2) It models ONE bolt line loaded along its length with one end distance for
+  both parts, and the resultant √(V² + N²) along it; at an interior eave-strut cleat the axial force runs ACROSS the
+  two-bolt column, both bolts are edge bolts, and the strut's butt end is 20 mm from its holes — the library model would
+  count one bolt as an inner bolt (lc 96 instead of 13): unconservative. So the checks are built from the same VERIFIED
+  primitives (pyaisc360 J3.10 `bolt_hole_strength`, J4.1 / J4.2 / J4.3, J10.1–J10.3, E3; bimsteelauto `bolt_shear_capacity`
+  / `bolt_tension_capacity`; the step 4 weld helpers), with the model's edges in each direction.
+- Forces: the Phase 4 lines (`cfs_checks.building_lines`: the same loads, laps at 2 EI, the same beam solver), one load
+  case at a time → the support reaction R at each cleat (normal to the roof / wall, along the bolt line); every LRFD
+  combination of the line. F_out (out of the cleat plane, along the bolt axis): roof — tan θ × the gravity part of R (no
+  credit for the sag rods: conservative); walls — the girt's own weight + the wall sheeting (1.4D / 1.2D / 0.9D with the
+  wind). N: the eave strut's bracing force (LRFD 1.0 W × the wind factor, both signs). The bolt group is concentric (R along
+  the bolt line, N through the group centroid at mid-web); the lever to the flange (y_c = 100 mm) goes into the cleat
+  bending and the weld instead of a bolt-group eccentricity.
+- Checks: per piece — bolt shear J3.6, bolt tension with shear J3.7; bearing / tearout J3.10 on the cleat and the web with
+  the clear distance in the direction of each bolt's force; block shear J4.3 toward free edges only. Per cleat — the section
+  at the flange (axial: tension 0.9 Fy A / compression E3 with K = 2.1 over the top-bolt height; in-plane F11 with LTB;
+  out-of-plane incl. the web offset (t_cleat + t_web)/2; H1-1), net tension at the bolt row, J4.2 shear, the plate between
+  two strut columns; the weld both sides along W (elastic: across + in-plane moment + out-of-plane moment as a couple over t;
+  no directional increase; the cleat base metal J4.1 across + 0.45 Fu t / 2 along, linear) — ONE leg for every cleat; the
+  host: J10.1 under uplift / suction (× 0.5 within 10 tf of the end), J10.2 / J10.3 under inward load.
+- Building 1: **196 cleats DESIGNED**; weld 5 mm both sides (largest flow 386 N/mm, U 0.50); worst U 0.698 (purlin cleat
+  CL7, line RA1, 1.2D + 1.6Lr + 0.5W: cleat compression + bending); eave struts 0.41, girts 0.37, gable girts 0.40. The
+  bracing gives building 1 no eave-strut force (braced bays 1 and 4 = the end bays), so N = 0 there; N is exercised by the
+  tests (the strut butt end in tension: U 1.0175 at 20 kN → FAILS "strut end"; the same force in compression passes).
+- Tests `test_cleats.py` (13; hand values in its docstring; negative controls: tension vs compression at the butt end, no
+  block shear toward the flange or into a continuous web, equilibrium of every building-1 line, an unknown web grade and a
+  missing host → NOT EVALUATED, never a U). Found and fixed on the way: an unknown purlin grade crashed the whole run.
+
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
 | Item | What was assumed | What the user checks | Status |
 |---|---|---|---|
 | DG 1 inside-rod plate model (step 2) | plate cantilever from the web face, 45° spread, φ Fy b_eff t²/4 ≥ T × lever | DG 1 2nd ed. Sect. 3.2 / Example 4.6 (the user's copy) | VERIFIED False |
-| ISO 4.6 anchor values (bimsteelauto 0.15.2) | fya 240, futa 400 MPa, A 22 % (ISO 898-1:2013 Table 3, from memory); NOT ductile | the printed ISO 898-1 Table 3; a reduction-of-area value from the supplier for ductility | checked_against_source False |
+| ISO 4.6 anchor values (bimsteelauto 0.15.2) | fya 240, futa 400 MPa, A 22 % (ISO 898-1:2013 Table 3, from memory); NOT ductile → ACI 318-19 Table 17.5.3 **brittle φ 0.65 tension / 0.60 shear** (not the ductile 0.75 / 0.65). Why: ACI 2.3 needs elongation ≥ 14 % AND reduction of area ≥ 30 % for a ductile steel element; ISO 898-1 states the elongation (22 %) but gives no minimum reduction of area for 4.6, so ductility is not shown. This is CONSERVATIVE — ISO 4.6 usually meets the ductile criteria; switch to ductile (`AnchorGrade.ductile`) when the supplier's certificate shows RA ≥ 30 % (user 2026-11-15) | the printed ISO 898-1 Table 3; a reduction-of-area value from the supplier for ductility | checked_against_source False |
 | ACI 318-19 17.5.2.1(b) anchor reinforcement (step 2b) | hairpins replace the shear breakout, φ 0.75; ld by Table 25.4.2.3 (simplified, ψg 1.15) | the clause numbers and the ld conditions in the printed ACI 318-19 | VERIFIED False |
 | DG 16 flush (governs ridge/splice) (step 3) | two- / four-bolt flush unstiffened Yp as written in `flush_Yp`; it governs the ridge and splice plates of building 1 | the DG 16 table and section (photos), line by line | VERIFIED False; results marked "NOT FOR ISSUE: DG 16 flush unverified" |
 | AISC Tables J3.3M / J3.4M, J2.4 (step 3) | standard holes, minimum edge distances (metric, from memory); minimum fillet legs = the library's `min_weld_size` (3 / 5 / 6 / 8 mm) | the printed AISC 360-16 tables | VERIFIED False |
@@ -380,6 +427,7 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 | ASCE 7-16 Ch. 28 envelope limits (open item 6) | low-rise: mean roof height h ≤ 60 ft (18 m) and h ≤ the least horizontal dimension (§26.2 / §28.1.2), from memory; not met → the longitudinal pairing NOT EVALUATED | the printed §26.2 definition and §28.1.2 | VERIFIED False |
 | Fig. 28.3-1 torsional-case exception (open item 6) | "one-story buildings with h ≤ 30 ft (9.1 m), buildings two stories or less framed with light-frame construction, and buildings two stories or less designed with flexible diaphragms need not be designed for the torsional load cases" — from memory; Manafe3 uses one-story h ≤ 9.144 m or a stated flexible diaphragm (the user wrote 9 m) | the printed Fig. 28.3-1 note | VERIFIED False |
 | Longitudinal pairing rule (open item 6) | Case B brace force × the combination's wind factor with the frame reaction of the same combination; the §28.3.4 minimum family with dead load only | the user's decision; the physics by Claude | VERIFIED False |
+| Cleat rules (step 5a) | the bolt clear distances in the direction of each force (gravity: the cleat's welded edge counted as free; the web's lc to the flange's inside face); R and N together = the resultant against the smaller directional capacity; F_out (down-slope tan θ × gravity R without sag-rod credit; wall dead load) as bolt tension; the cleat as a fixed-free column K = 2.1 over the top-bolt height; the out-of-plane moment on the weld as a couple over t_cleat; the cleat base metal across + along added linearly; the cleat's grade = the host's; at a lap one web takes the whole force | Claude's rules — the user's call | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
@@ -1360,6 +1408,17 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    NOT EVALUATED": only the rod steel is checked, the ACI 318-19 Ch. 17 concrete modes (breakout, pullout, side-face
    blowout, pryout) and the embedment are not. Input needed per building (or per base type): pedestal / footing size,
    edge distances, f'c, cracked or uncracked, and the hairpin / anchor-reinforcement option (step 2b).
+9. **Step 5a cleats — fix BEFORE ISSUE** (user 2026-11-15: "5a accepted for now; I'll review the details later"):
+   1. Decision 3a changed: Manafe3's own cleat check (`engine/connections/cleats.py`) instead of the library's
+      `check_purlin_cleat` (no S350GD in its grade table; one bolt line with one end distance — unconservative at the
+      eave-strut butt ends). Whether to update bimsteelauto instead: to be decided by the user later.
+   2. Bolt bearing / tear-out in the thin (2 mm) purlin / girt web must use AISI S100-16 (thin-sheet bearing, Sect. J3 /
+      E3 bolted connections), NOT AISC J3.10 as now. It may govern.
+   3. Unknown purlin grade: today the WHOLE cleat reads NOT EVALUATED; required: only the purlin-side strength checks
+      (web bearing / tear-out / block shear) NOT EVALUATED, the cleat-side checks still run (the reactions may keep Ix
+      from the geometry, as now).
+   4. One ISO 4.6 row in "Unverified sources" — checked 2026-11-15: one row (the step 2b text and the "Next task" line only
+      mention it).
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

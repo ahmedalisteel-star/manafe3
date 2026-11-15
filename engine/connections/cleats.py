@@ -1,0 +1,671 @@
+# Manafe3 engine. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
+"""Phase 5 step 5a: the purlin / girt / eave-strut / gable-girt cleats. NOT FOR ISSUE. SI: mm, kN, MPa (weld flows N/mm).
+
+The user's decisions (2026-11-15, step 5: 2a, 3a, 4a, 5a, 11a):
+    forces       the support reactions of the Phase 4 cold-formed lines (engine.design.cfs_checks: the same lines, loads,
+                 laps at 2 EI and the same beam solver), EVERY LRFD combination of the line — gravity, uplift, suction.
+                 Axial: the eave strut's bracing force (Phase 4: the LRFD 1.0 W value × the combination's wind factor,
+                 both signs — the wind reverses); no axial force on purlins / girts (no drag in the model, stated).
+    detail       from the model: PL t × W × h (PL8 × 100 × (H − 20)), standing on the frame flange beside the web; its holes
+                 match the purlin's (2 rows at the gauge g = H − 2 (lip + 25), centred on the web; an interior eave-strut
+                 cleat has 2 columns at ±25 mm, one per butt-jointed piece); bolts 8.8, snug-tight, threads INCLUDED
+                 (the Phase 5 plan rule); M12 → 14 mm holes (the model's).
+    materials    the purlin web: the member's grade and thickness, the same Fy / Fu the Phase 4 checks use
+                 (engine.design.inputs.plate_strength: S350GD 350 / 420 MPa, EN 10346); an unknown grade → NOT EVALUATED.
+                 The cleat: the host member's grade (bimsteelauto get_grade via PLATE_GRADE, as steps 3 / 4) unless set.
+
+Directions at a cleat ("up" = along the cleat height, away from the frame flange; "along" = along the purlin line):
+    R      the reaction normal to the roof / wall — ALONG the bolt line; + toward the flange (gravity, inward pressure)
+    N      the axial force of a piece — ACROSS the bolt line, in the cleat plane, through the bolt centroid
+    F_out  out of the cleat plane (along the bolt axis): the down-slope component of the roof gravity reaction (tan θ ×
+           the gravity part of R — taken at the cleat as if there were no sag rods: conservative) and, on wall lines,
+           the girt's own weight + the wall sheeting (1.4D / 1.2D / 0.9D with the wind; Phase 4 does not check it — a
+           stated gap there). Taken as bolt TENSION (conservative).
+    The bolt group is CONCENTRIC for R and N (e = 0: R acts along the bolt line, N through the group centroid at the web's
+    mid-height). The lever from the flange to the bolt centroid (y_c) goes into the cleat bending and the weld instead.
+
+Checks (worst over every combination; U = demand / capacity; φ by AISC 360-16 LRFD):
+    per piece (its own bolts):
+        bolt shear J3.6 (bimsteelauto bolt_shear_capacity, threads included) and bolt tension with shear J3.7 (J3-3a:
+            φRnt' = 1.3 φRnt − φRnt V / φRnv ≤ φRnt)
+        bearing / tearout J3.10 (pyaisc360 bolt_hole_strength, deformation considered) on the CLEAT and on the purlin WEB,
+            the group = the sum of its bolts, each with its own clear distance lc IN THE DIRECTION OF ITS FORCE: the cleat
+            is loaded in the direction of the load, the web the opposite way. Gravity: cleat lower bolt to the flange
+            (conservative: the welded edge counted as a free one), web upper bolt to the top flange (the web runs on
+            into the flange: conservative); uplift: cleat upper bolt to the top edge, web lower bolt to the bottom flange;
+            N: both bolts of a column are edge bolts — the cleat to its side edge (or to the other column's hole), the web
+            to the piece's own end (an eave strut's butt end: 20 mm). R and N together: the resultant against the smaller
+            directional capacity (conservative).
+        block shear J4.3 (pyaisc360 block_shear_strength, Ubs 1, net widths + 1.6 mm, B4.3b) where the force runs toward
+            a FREE edge: the cleat under uplift (one shear plane up the bolt line to the top edge, tension to the nearer
+            side edge) and under N toward a side edge (two shear planes to the edge with tension between the holes, or
+            one shear plane with tension up to the top edge — the smaller); the web under N toward its end (two shear
+            planes, tension between the holes). Toward the flange or into a continuous web: no free edge, not applicable.
+    per cleat (all pieces):
+        section at the flange: axial (tension 0.9 Fy A; compression E3 with Lc = K × the top-bolt height, K = 2.1
+            fixed-free, r = t / √12), in-plane bending N_net × y_c (F11 rectangular bar, Lb = the top-bolt height, Cb 1),
+            out-of-plane bending F_out × y_c + |R| × (t_cleat + t_web) / 2 (the web's offset; F11 minor axis, Mp ≤ 1.6
+            My), H1-1; net tension rupture at the bolt row 0.75 Fu (W − n_cols (d0 + 1.6)) t (J4.1); shear of N_net
+            J4.2 (gross / net through the bolt row); a two-column cleat: the piece force through the plate between the
+            columns, J4.1 on the vertical section.
+        weld to the frame flange: a fillet both sides along the width W (2 lines). Per mm per line, elastic: across the
+            weld |R| / 2W + 3 N_net y_c / W² (in-plane moment, two lines) + M_out / (t_cleat W) (out-of-plane moment as a
+            couple over the plate thickness: conservative), F_out / 2W transverse, N_net / 2W along; weld metal: the
+            resultant, NO directional increase (bimsteelauto fillet_line_strength, E70); base metal of the cleat shared
+            by the two lines: the across-weld part against J4.1 (base_mode "tension"), the rest against 0.45 Fu t / 2,
+            added linearly (conservative). Leg = max(J2.4 by the thinner part, shop_min_leg, demand) — ONE leg for every
+            cleat of the building (one detail per joint type).
+        the host member: uplift / suction (the cleat pulls the flange) J10.1 flange local bending (applies when W ≥
+            0.15 bf; × 0.5 within 10 tf of the member end); inward (the cleat pushes) J10.2 web local yielding (k = tf +
+            the flange-to-web fillet, lb = t_cleat; the near-end form within d) and J10.3 web crippling (near-end forms
+            within d / 2) — pyaisc360. The section at the cleat (tf, tw, d, bf: the smaller flange) from the member's
+            segments.
+A cleat whose reaction, grade, geometry or host is missing reads NOT EVALUATED with the missing items — never a pass.
+Claude's rules (VERIFIED False until the user confirms): the directional edges, the resultant against the smaller
+capacity, F_out as bolt tension and its sources, K = 2.1, the couple over t, the linear base-metal sum, the cleat grade =
+the host's.
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import asdict, dataclass
+
+from bimsteelauto_connections.bolts import bolt_shear_capacity, bolt_tension_capacity, get_grade
+from bimsteelauto_connections.welds import min_weld_size
+from pyaisc360 import chapter_j as J
+from pyaisc360.chapter_e import flexural_buckling_stress_E3
+
+from ..design.cfs_checks import COMBOS_ROOF, NST, STEEL_KN_M3, beam_line, building_lines
+from ..design.cfs_section import cfs_section
+from ..design.inputs import plate_strength
+from ..peb.secondary import cf_dims
+from .baseplates import PLATE_GRADE
+from .welds import FILLET_LEGS, base_metal, base_metal_tension, section_at, weld_metal, WeldSettings
+
+BANNER = "NOT FOR ISSUE — purlin / girt / eave-strut cleats (Phase 5 step 5a); Claude's rules VERIFIED False"
+NOT_EVALUATED = "NOT EVALUATED"
+DESIGNED = "DESIGNED"
+FAILS = "FAILS"
+E_STEEL = 200000.0
+HOLE_ALLOWANCE = 1.6                 # mm, AISC 360-16 B4.3b: net widths only
+IN, KSI, KIP = 25.4, 6.894757, 4.448222
+#: wall-line combinations for a cleat: the Phase 4 girt combinations (1.0 W in / out) + the girt's own weight and the wall
+#: sheeting out of the cleat plane (ASCE 7-16 §2.3.1: 1.4D; 1.2D + 1.0W; 0.9D + 1.0W)
+COMBOS_WALL_CLEAT = {"1.4D": {"D": 1.4}, "1.2D+1.0W inward": {"D": 1.2, "Win": 1.0}, "1.2D+1.0W outward": {"D": 1.2, "Wout": 1.0},
+                     "0.9D+1.0W inward": {"D": 0.9, "Win": 1.0}, "0.9D+1.0W outward": {"D": 0.9, "Wout": 1.0}}
+GRAVITY = ("D", "C", "Lr")
+VERIFIED = {"directional_edges": False, "resultant_vs_smaller_capacity": False, "f_out_as_bolt_tension": False,
+            "f_out_sources": False, "k_cleat_2_1": False, "couple_over_t": False, "linear_base_metal": False,
+            "cleat_grade_host": False}
+ASSUMPTIONS = (
+    "R along the bolt line, N through the bolt centroid: a concentric group (e = 0)",
+    "gravity / inward: the cleat's lower bolt is checked for tearout to the welded edge as if free; the web runs on into "
+    "the flange (its lc to the flange's inside face): both conservative",
+    "at a lap the two nested webs share the bolts; ONE web (the smaller edge distances) is checked for the whole force, "
+    "the bolts in one shear plane: conservative",
+    "the down-slope component of the roof gravity reaction is taken at the cleat as if there were no sag rods; a wall line's "
+    "own weight and sheeting act out of the cleat plane; both as bolt tension and cleat minor-axis bending",
+    "eave struts: the bracing's strut force (LRFD 1.0 W, × the combination's wind factor), both signs; purlins / girts: "
+    "no axial force (no drag in the model)",
+    "the cleat's steel = the host member's grade unless set (the model gives the cleat no grade)",
+)
+FIXES = {
+    "bolt": "M16 bolts (18 mm holes) or a 4-bolt cleat",
+    "cleat": "a thicker cleat (PL10) or a longer edge distance",
+    "web": "a thicker purlin / girt or a 4-bolt cleat",
+    "strut end": "holes farther from the eave strut's butt end (a longer end distance) or a 4-bolt cleat per piece",
+    "section": "a thicker / wider cleat",
+    "weld": "a thicker cleat (the base metal), or a larger fillet",
+    "host": "a stiffener under the cleat (flange / web) or a thicker flange",
+}
+
+
+@dataclass
+class CleatSettings:
+    """Every default the cleats use — editable per job, listed on each result."""
+    bolt_grade: str = "8.8"
+    threads: str = "N"                 # N = threads included in the shear plane (Phase 5 plan: 8.8 snug-tight, included)
+    cleat_grade: str | None = None     # None → the host member's grade (PLATE_GRADE)
+    K_cleat: float = 2.1               # the cleat as a fixed-free column (AISC Commentary Table C-A-7.1, recommended value)
+    electrode: str = "E70"
+    shop_min_leg: float = 5.0          # as step 4
+    flange_web_leg: float = 5.0        # the host's flange-to-web fillet for k = tf + leg (J10.2); step 4's shop minimum
+
+    def check(self) -> "CleatSettings":
+        if self.threads not in ("N", "X"):
+            raise ValueError("threads: N (included) or X (excluded)")
+        for k in ("K_cleat", "shop_min_leg", "flange_web_leg"):
+            v = getattr(self, k)
+            if not (isinstance(v, (int, float)) and v > 0):
+                raise ValueError(f"{k} must be > 0")
+        return self
+
+    @classmethod
+    def from_dict(cls, d: dict | None) -> "CleatSettings":
+        d = dict(d or {})
+        bad = set(d) - set(cls.__dataclass_fields__)
+        if bad:
+            raise ValueError(f"unknown cleat settings: {', '.join(sorted(bad))}")
+        return cls(**d).check()
+
+
+# ------------------------------------------------------------------------------------------------- unit boundary
+
+def _kN(r) -> float:
+    return r.available * KIP
+
+
+def hole_strength(d: float, lc: float, t: float, Fu: float) -> float:
+    """φRn of one bolt hole, kN: J3.10 bearing 2.4 d t Fu / tearout 1.2 lc t Fu, the smaller, φ 0.75 (pyaisc360)."""
+    if lc <= 0:
+        return 0.0
+    return _kN(J.bolt_hole_strength(d=d / IN, lc=lc / IN, t=t / IN, Fu=Fu / KSI))
+
+
+def block_shear(Agv: float, Anv: float, Ant: float, Fy: float, Fu: float) -> float:
+    """φRn, kN: J4.3 (Ubs 1), areas mm² (pyaisc360). A path the holes consume → 0."""
+    if Anv <= 0 or Ant <= 0:
+        return 0.0
+    a = IN * IN
+    return _kN(J.block_shear_strength(Fu=Fu / KSI, Anv=Anv / a, Ant=Ant / a, Fy=Fy / KSI, Agv=Agv / a, Ubs=1.0))
+
+
+def shear_yield_rupture(Agv: float, Anv: float, Fy: float, Fu: float) -> float:
+    """φRn, kN: J4.2 the smaller of 1.0 × 0.6 Fy Agv and 0.75 × 0.6 Fu Anv (pyaisc360)."""
+    if Anv <= 0:
+        return 0.0
+    a = IN * IN
+    return _kN(J.element_shear_strength(Fy=Fy / KSI, Agv=Agv / a, Fu=Fu / KSI, Anv=Anv / a))
+
+
+def tension_yield_rupture(Ag: float, An: float, Fy: float, Fu: float) -> float:
+    """φRn, kN: J4.1 the smaller of 0.9 Fy Ag and 0.75 Fu An (pyaisc360)."""
+    if An <= 0:
+        return 0.0
+    a = IN * IN
+    return _kN(J.element_tension_strength(Fy=Fy / KSI, Ag=Ag / a, Fu=Fu / KSI, Ae=An / a))
+
+
+def bolt_tension_with_shear(T: float, V: float, phiRt: float, phiRv: float) -> float:
+    """U of a bolt in tension T with shear V (kN): J3-3a in forces, φRnt' = min(φRt, 1.3 φRt − φRt V / φRv)."""
+    cap = min(phiRt, 1.3 * phiRt - phiRt * V / phiRv)
+    if T <= 0:
+        return 0.0
+    return T / cap if cap > 0 else math.inf
+
+
+def plate_moments(W: float, t: float, Lb: float, Fy: float) -> dict:
+    """A rectangular plate W wide, t thick, as a cantilever Lb long (AISC 360-16 F11, Cb 1, φ 0.9), kN·mm:
+    in-plane (bending about the axis normal to the plate): Mp = min(Fy t W² / 4, 1.6 Fy t W² / 6), LTB by Lb W / t²
+    (F11-2 / F11-3); out of plane (minor axis): Mp = min(Fy W t² / 4, 1.6 Fy W t² / 6), no LTB (F11.2(d))."""
+    E = E_STEEL
+    Zx, Sx = t * W * W / 4.0, t * W * W / 6.0
+    Mp = min(Fy * Zx, 1.6 * Fy * Sx)
+    My = Fy * Sx
+    lam = Lb * W / t ** 2
+    if lam <= 0.08 * E / Fy:
+        Mnx, rule = Mp, "F11-1"
+    elif lam <= 1.9 * E / Fy:
+        Mnx, rule = min((1.52 - 0.274 * lam * Fy / E) * My, Mp), "F11-2"
+    else:
+        Mnx, rule = min(1.9 * E / lam * Sx, Mp), "F11-3"
+    Zy, Sy = W * t * t / 4.0, W * t * t / 6.0
+    Mny = min(Fy * Zy, 1.6 * Fy * Sy)
+    return {"phiMx": 0.9 * Mnx / 1000.0, "phiMy": 0.9 * Mny / 1000.0, "rule_x": rule, "Lb_d_t2": lam}
+
+
+def plate_compression(W: float, t: float, Lc: float, Fy: float) -> float:
+    """φPn, kN: E3 flexural buckling of the plate about its minor axis, r = t / √12 (pyaisc360 E3-2 / E3-3), φ 0.9."""
+    r = t / math.sqrt(12.0)
+    Fcr, _ = flexural_buckling_stress_E3(Lc / r, E_STEEL / KSI, Fy / KSI)
+    return 0.9 * Fcr * KSI * W * t / 1000.0
+
+
+def h1_1(Pr: float, Pc: float, Mrx: float, Mcx: float, Mry: float, Mcy: float) -> float:
+    """AISC 360-16 H1-1a / H1-1b."""
+    p = Pr / Pc if Pc > 0 else (math.inf if Pr > 0 else 0.0)
+    m = (Mrx / Mcx if Mcx > 0 else math.inf if Mrx > 0 else 0.0) + (Mry / Mcy if Mcy > 0 else math.inf if Mry > 0 else 0.0)
+    return p + 8.0 / 9.0 * m if p >= 0.2 else p / 2.0 + m
+
+
+# ------------------------------------------------------------------------------------------------- reactions
+
+def line_reactions(line: dict, Ix: float) -> dict:
+    """{support: {case: R kN}} of one cold-formed line — the Phase 4 model (cfs_checks.check_line: laps at 2 EI, the same
+    beam solver), one load case at a time. R + = in the load's + direction (toward the frame: gravity / inward)."""
+    nodes, sup = line["nodes"], line["supports"]
+    laps = line.get("laps", [])
+    nsec = [2 if any(l0 - 1e-6 <= (nodes[i] + nodes[i + 1]) / 2 <= l1 + 1e-6 for l0, l1 in laps) else 1 for i in range(len(nodes) - 1)]
+    EI = [203395.3 * Ix * k for k in nsec]
+    out = {s: {} for s in sup}
+    for case, q in line["cases"].items():
+        if not all(math.isfinite(v) for v in q):
+            for s in sup:
+                out[s][case] = math.nan
+            continue
+        st = beam_line(nodes, sup, list(q), EI)
+        for s in sup:
+            k = nodes.index(s)
+            v_end = st[(k - 1) * NST + NST - 1][2] if k > 0 else 0.0
+            v_start = st[k * NST][2] if k < len(nodes) - 1 else 0.0
+            out[s][case] = (v_end - v_start) / 1000.0
+    return out
+
+
+def wall_dead_load(line: dict, li) -> list[float]:
+    """kN/m on a wall line, out of the cleat plane: the member's own weight + the wall sheeting × its tributary height."""
+    sw = cfs_section(line["profile"], 350.0)["props"]["A"] * 1e-6 * STEEL_KN_M3
+    q = li.wall_sheeting * line["trib"] / 1000.0 + sw
+    return [q] * (len(line["nodes"]) - 1)
+
+
+def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float) -> list[dict]:  # Rd: {"D": kN}
+    """The LRFD combinations at one support of one line: [{combo, R, F_out, N}] (kN). R from the line's own load cases;
+    F_out: roof — tan θ × the gravity part of R; wall — the wall dead load's reaction Rd (out of plane); N = ± P × the
+    combination's wind factor (eave struts)."""
+    out = []
+    combos = COMBOS_ROOF["LRFD"] if line["kind"] in ("purlin", "ridge_purlin", "eave_strut") else COMBOS_WALL_CLEAT
+    for name, fac in combos.items():
+        r = sum(f * R.get(c, 0.0) for c, f in fac.items() if c in R)
+        if line["kind"] in ("purlin", "ridge_purlin", "eave_strut"):
+            fo = tan_t * sum(f * R.get(c, 0.0) for c, f in fac.items() if c in GRAVITY)
+        else:
+            fo = fac.get("D", 0.0) * (Rd or {}).get("D", 0.0)
+        wf = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+        rev = line["kind"] == "eave_strut" and wf > 0      # both signs (the same list for every bay of the line)
+        for s in ((1.0, -1.0) if rev else (1.0,)):
+            out.append({"combo": name + (" (wind reversed)" if s < 0 else ""), "R": r, "F_out": fo, "N": s * P * wf})
+    return out
+
+
+# ------------------------------------------------------------------------------------------------- one cleat
+
+def _dir_lc_up(geom: dict, part: str, direction: float) -> list[float]:
+    """Clear distances lc of the bolts of one column along the cleat height (lower, upper), for a hole loaded toward
+    +up (direction > 0) or toward the flange (direction < 0)."""
+    d0, lo, hi, p = geom["d0"], geom["up_low"], geom["up_high"], geom["up_high"] - geom["up_low"]
+    if part == "cleat":
+        return [p - d0, geom["h"] - hi - d0 / 2] if direction > 0 else [lo - d0 / 2, p - d0]
+    H, tw = geom["H"], geom["t_web"]
+    return [p - d0, H - tw - hi - d0 / 2] if direction > 0 else [lo - tw - d0 / 2, p - d0]
+
+
+def _cleat_lc_along(geom: dict, along: float, direction: float) -> float:
+    """lc of a cleat hole loaded along the line (direction ±1): to the cleat's side edge or to another column's hole."""
+    d0, W = geom["d0"], geom["W"]
+    lc = W / 2 - direction * along - d0 / 2
+    for a in geom["columns"]:
+        if a != along and (a - along) * direction > 0:
+            lc = min(lc, abs(a - along) - d0)
+    return lc
+
+
+def check_piece(geom: dict, piece: dict, case: dict, mats: dict, bolts: dict) -> list[dict]:
+    """The checks of one piece's bolt column under one combination (piece: along, e_minus / e_plus = the web's distance
+    from its hole to its ends along the line, side = +1 / −1 the side of the cleat it lies on). Rows: (key, name, ref,
+    demand, capacity, U)."""
+    R, N, Fo = case["R"], case["N"], abs(case["F_out"])
+    nb = len(geom["rows"])
+    d, d0, tc, tw = geom["d"], geom["d0"], geom["t_cleat"], geom["t_web"]
+    hn = d0 + HOLE_ALLOWANCE
+    rows = []
+    V = math.hypot(R, N)
+    Vb, Tb = V / nb, Fo / nb
+    rows.append(("bolt", "bolt shear", "AISC 360-16 J3.6", Vb, bolts["phiRv"], Vb / bolts["phiRv"]))
+    rows.append(("bolt", "bolt tension + shear", "AISC 360-16 J3.7 (J3-3a)", Tb, None,
+                 bolt_tension_with_shear(Tb, Vb, bolts["phiRt"], bolts["phiRv"])))
+    # the load direction on the cleat: R + (toward the flange) = −up; N + (the piece in tension) pulls toward its side
+    up_dir = -1.0 if R > 0 else 1.0
+    al_dir = piece["side"] * (1.0 if N > 0 else -1.0)
+    for part, t, Fy, Fu in (("cleat", tc, *mats["cleat"]), ("web", tw, *mats["web"])):
+        caps = []
+        if abs(R) > 1e-9:
+            dr = up_dir if part == "cleat" else -up_dir
+            caps.append(sum(hole_strength(d, lc, t, Fu) for lc in _dir_lc_up(geom, part, dr)))
+        if abs(N) > 1e-9:
+            if part == "cleat":
+                lc = _cleat_lc_along(geom, piece["along"], al_dir)
+            else:
+                lc = (piece["e_plus"] if -al_dir > 0 else piece["e_minus"]) - d0 / 2
+            caps.append(nb * hole_strength(d, lc, t, Fu))
+        if caps:
+            c = min(caps)
+            key = part if part == "cleat" else ("strut end" if piece.get("butt") and abs(N) > 1e-9 and c == caps[-1] else "web")
+            rows.append((key, f"bearing / tearout - {part}", "AISC 360-16 J3.10", V, c, V / c if c > 0 else math.inf))
+    # block shear toward free edges
+    p = geom["up_high"] - geom["up_low"]
+    caps = []
+    if R < -1e-9:                                         # uplift: the cleat tears out through its top edge
+        Lv = geom["h"] - geom["up_low"]
+        et = geom["W"] / 2 - abs(piece["along"])
+        for a in geom["columns"]:
+            if a != piece["along"]:
+                et = min(et, abs(a - piece["along"]) / 2)
+        caps.append(block_shear(Lv * tc, (Lv - (nb - 0.5) * hn) * tc, (et - 0.5 * hn) * tc, *mats["cleat"]))
+    if abs(N) > 1e-9:
+        es = geom["W"] / 2 - al_dir * piece["along"]
+        if not any(a != piece["along"] and (a - piece["along"]) * al_dir > 0 for a in geom["columns"]):
+            etop = geom["h"] - geom["up_high"]
+            A = block_shear(2 * es * tc, 2 * (es - 0.5 * hn) * tc, (p - hn) * tc, *mats["cleat"])
+            B = block_shear(es * tc, (es - 0.5 * hn) * tc, (p + etop - 1.5 * hn) * tc, *mats["cleat"])
+            caps.append(min(A, B))
+    if caps:
+        c = min(caps)
+        rows.append(("cleat", "block shear - cleat", "AISC 360-16 J4.3", V, c, V / c if c > 0 else math.inf))
+    if abs(N) > 1e-9:
+        e = piece["e_plus"] if -al_dir > 0 else piece["e_minus"]
+        c = block_shear(2 * e * tw, 2 * (e - 0.5 * hn) * tw, (p - hn) * tw, *mats["web"])
+        rows.append(("strut end" if piece.get("butt") else "web", "block shear - web", "AISC 360-16 J4.3", abs(N), c,
+                     abs(N) / c if c > 0 else math.inf))
+    return rows
+
+
+def check_cleat_section(geom: dict, pieces: list[dict], cases: list[dict], mats: dict, st: CleatSettings) -> list[dict]:
+    """The cleat's own section rows under one combination (cases: one per piece, same combination)."""
+    tc, W, h = geom["t_cleat"], geom["W"], geom["h"]
+    Fy, Fu = mats["cleat"]
+    hn = geom["d0"] + HOLE_ALLOWANCE
+    ncol = len(geom["columns"])
+    R = sum(c["R"] for c in cases)
+    Fo = sum(abs(c["F_out"]) for c in cases)
+    Nnet = sum(c["N"] * p["side"] for c, p in zip(cases, pieces))
+    yc = (geom["up_low"] + geom["up_high"]) / 2
+    rows = []
+    m = plate_moments(W, tc, geom["up_high"], Fy)
+    Mx = abs(Nnet) * yc
+    My = Fo * yc + abs(R) * (tc + geom["t_web"]) / 2
+    if R < 0:
+        Pc, kind = 0.9 * Fy * W * tc / 1000.0, "tension"
+    else:
+        Pc, kind = plate_compression(W, tc, st.K_cleat * geom["up_high"], Fy), "compression"
+    rows.append(("section", f"cleat axial ({kind}) + bending at the flange", "AISC 360-16 H1-1, E3, F11", abs(R), Pc,
+                 h1_1(abs(R), Pc, Mx, m["phiMx"], My, m["phiMy"])))
+    if R < 0:
+        c = 0.75 * Fu * (W - ncol * hn) * tc / 1000.0
+        rows.append(("section", "cleat net tension at the bolt row", "AISC 360-16 J4.1(b)", -R, c, -R / c if c > 0 else math.inf))
+    if abs(Nnet) > 1e-9:
+        c = shear_yield_rupture(W * tc, (W - ncol * hn) * tc, Fy, Fu)
+        rows.append(("section", "cleat shear (N)", "AISC 360-16 J4.2", abs(Nnet), c, abs(Nnet) / c if c > 0 else math.inf))
+    if ncol > 1:
+        Nmax = max(abs(c["N"]) for c in cases)
+        if Nmax > 1e-9:
+            c = tension_yield_rupture(h * tc, (h - len(geom["rows"]) * hn) * tc, Fy, Fu)
+            rows.append(("section", "cleat between the columns (piece force)", "AISC 360-16 J4.1", Nmax, c, Nmax / c))
+    return rows
+
+
+def weld_flows(geom: dict, pieces: list[dict], cases: list[dict]) -> dict:
+    """Flows per mm per line (N/mm) of the two fillet lines along W under one combination."""
+    tc, W = geom["t_cleat"], geom["W"]
+    R = sum(c["R"] for c in cases)
+    Fo = sum(abs(c["F_out"]) for c in cases)
+    Nnet = sum(c["N"] * p["side"] for c, p in zip(cases, pieces))
+    yc = (geom["up_low"] + geom["up_high"]) / 2
+    Mout = Fo * yc + abs(R) * (tc + geom["t_web"]) / 2           # kN·mm
+    fz = (abs(R) / (2 * W) + 3 * abs(Nnet) * yc / W ** 2 + Mout / (tc * W)) * 1000.0
+    fy = Fo / (2 * W) * 1000.0
+    fx = abs(Nnet) / (2 * W) * 1000.0
+    return {"across": fz, "transverse": fy, "along": fx, "resultant": math.sqrt(fz * fz + fy * fy + fx * fx)}
+
+
+def weld_rows(f: dict, leg: float, geom: dict, cleat_grade: str, st: CleatSettings) -> list[tuple]:
+    ws = WeldSettings(electrode=st.electrode)
+    wm = weld_metal(leg, 0.0, ws, directional=False)
+    bt = base_metal_tension(geom["t_cleat"], cleat_grade, 2)
+    bs = base_metal(geom["t_cleat"], cleat_grade, 2)
+    return [("weld", f"weld metal ({leg:g} mm both sides, no directional increase)", "AISC 360-16 J2.4", f["resultant"], wm,
+             f["resultant"] / wm),
+            ("weld", "base metal of the cleat (2 lines): across / J4.1 + along / 0.45 Fu t", "AISC 360-16 J4.1, J4.2", None, None,
+             f["across"] / bt + math.hypot(f["transverse"], f["along"]) / bs)]
+
+
+def host_rows(host: dict, R: float, geom: dict, st: CleatSettings) -> list[tuple]:
+    """J10.1 (R < 0, the cleat pulls) / J10.2 + J10.3 (R > 0, the cleat pushes) on the host at the cleat."""
+    tf, tw, d, bf, Fy = host["tf"], host["tw"], host["d"], host["bf"], host["Fy"]
+    if R < 0:
+        if geom["W"] < 0.15 * bf:
+            return [("host", "flange local bending - not required (W < 0.15 bf)", "AISC 360-16 J10.1", -R, None, 0.0)]
+        near = host["end_distance"] < 10 * tf
+        c = _kN(J.flange_local_bending(Fyf=Fy / KSI, tf=tf / IN, near_member_end=near))
+        return [("host", "flange local bending" + (" (within 10 tf of the end: × 0.5)" if near else ""), "AISC 360-16 J10.1",
+                 -R, c, -R / c)]
+    if R <= 0:
+        return []
+    k = tf + st.flange_web_leg
+    lb = geom["t_cleat"]
+    c1 = _kN(J.web_local_yielding(Fyw=Fy / KSI, tw=tw / IN, k=k / IN, lb=lb / IN, near_member_end=host["end_distance"] <= d))
+    c2 = _kN(J.web_local_crippling(tw=tw / IN, tf=tf / IN, d=d / IN, lb=lb / IN, E=E_STEEL / KSI, Fyw=Fy / KSI,
+                                   near_member_end=host["end_distance"] < d / 2))
+    return [("host", "web local yielding", "AISC 360-16 J10.2", R, c1, R / c1),
+            ("host", "web local crippling", "AISC 360-16 J10.3", R, c2, R / c2)]
+
+
+def check_cleat(geom: dict, pieces: list[dict], combos: list[list[dict]], mats: dict, bolts: dict, host: dict, leg: float,
+                cleat_grade: str, st: CleatSettings) -> dict:
+    """Every check of one cleat over its combinations (combos: per combination, one case per piece). The worst U of each
+    check with its combination; status DESIGNED / FAILS (with the fixes)."""
+    worst: dict[str, dict] = {}
+    weld_need = 0.0
+    for cs in combos:
+        name = cs[0]["combo"]
+        rows = []
+        for p, c in zip(pieces, cs):
+            rows += check_piece(geom, p, c, mats, bolts)
+        rows += check_cleat_section(geom, pieces, cs, mats, st)
+        f = weld_flows(geom, pieces, cs)
+        weld_need = max(weld_need, f["resultant"])
+        rows += weld_rows(f, leg, geom, cleat_grade, st)
+        rows += host_rows(host, sum(c["R"] for c in cs), geom, st)
+        for key, nm, ref, dem, cap, U in rows:
+            w = worst.get(nm)
+            if w is None or U > w["U"]:
+                worst[nm] = {"name": nm, "ref": ref, "key": key, "combo": name, "U": U,
+                             "demand": None if dem is None else round(dem, 3), "capacity": None if cap is None else round(cap, 3)}
+    checks = sorted(worst.values(), key=lambda r: -r["U"])
+    for r in checks:
+        r["U"] = round(r["U"], 4) if math.isfinite(r["U"]) else math.inf
+    gov = checks[0]
+    bad = [r for r in checks if r["U"] > 1.0]
+    return {"status": FAILS if bad else DESIGNED, "governing": {k: gov[k] for k in ("name", "U", "combo")},
+            "checks": checks, "weld_flow_max": round(weld_need, 2),
+            "fixes": sorted({f"{r['name']}: {FIXES[r['key']]}" for r in bad})}
+
+
+def weld_leg(flow: float, t_thinner: float, st: CleatSettings) -> float | None:
+    """The smallest leg of FILLET_LEGS ≥ max(J2.4 by the thinner part, shop_min_leg) whose weld metal (no directional
+    increase) carries `flow` N/mm; None when even the largest fillet does not."""
+    ws = WeldSettings(electrode=st.electrode)
+    lo = max(min_weld_size(t_thinner), st.shop_min_leg)
+    for leg in FILLET_LEGS:
+        if leg >= lo - 1e-9 and weld_metal(leg, 0.0, ws, directional=False) + 1e-9 >= flow:
+            return leg
+    return None
+
+
+# ------------------------------------------------------------------------------------------------- the building
+
+def _host_at(m: dict, p: list[float]) -> dict | None:
+    """The host's section at the point nearest p: tf, tw, d, bf (the smaller flange), Fy, distance to the nearer end."""
+    sec = m.get("section") or {}
+    segs = sec.get("segments")
+    if not segs:
+        return None
+    a, b = m["start"], m["end"]
+    L = math.dist(a, b)
+    s = max(0.0, min(L, sum((p[i] - a[i]) * (b[i] - a[i]) for i in range(3)) / L))
+    run = 0.0
+    seg, f = segs[-1], 1.0
+    for g in segs:
+        if s <= run + g["length"] + 1e-6:
+            seg, f = g, (s - run) / g["length"]
+            break
+        run += g["length"]
+    x = section_at(seg, max(0.0, min(1.0, f)))
+    tf = min(x["tf_top"], x["tf_bot"])
+    bf = min(x["bf_top"], x["bf_bot"])
+    grade = PLATE_GRADE.get(seg.get("grade") or m.get("material"))
+    if grade is None:
+        return None
+    Fy, _ = get_grade(grade, tf)
+    return {"member": m["id"], "tf": tf, "tw": x["tw"], "d": x["d"], "bf": bf, "Fy": Fy, "grade": grade,
+            "end_distance": round(min(s, L - s), 1)}
+
+
+def _line_key(m: dict) -> str:
+    """The cleat's line name of a cold-formed member: its line, or a gable girt's G<end><z>."""
+    if m["role"] == "gable_girt":
+        return f"{m['id'][:2]}{m.get('z', m['start'][2]):g}"
+    return m.get("line", "")
+
+
+def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings | None = None) -> dict:
+    """Every cleat joint of a building_joints() result (CL k ↔ out["cleats"][k − 1]) → checked cleats."""
+    from ..analysis.bracing_system import longitudinal_bracing
+    from ..analysis.endwall_analysis import _geom, longitudinal_feed
+
+    st = (settings or CleatSettings()).check()
+    mem = {m["id"]: m for m in out["members"] if m.get("id")}
+    lines = building_lines(out, li)
+    tan_t = float(out["input"]["roof_slope"])
+    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+    struts = {}
+    if braces and out.get("braced_bays"):
+        bs = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))["sets"]["LRFD"]
+        struts = {j: v for j, v in bs["strut"]}
+    # cfs line id → (line, reactions, wall dead-load reactions); the members of each line by the cleat's line name
+    key_of = {}
+    for m in out["members"]:
+        if m["role"] in ("purlin", "ridge_purlin", "eave_strut", "girt", "gable_girt"):
+            cid = m["id"] if m["role"] == "eave_strut" else m["id"].split("-")[0] if m["role"] == "gable_girt" else m["line"]
+            key_of[cid] = _line_key(m)
+    by_key: dict[str, list] = {}
+    ixs = {}
+    for ln in lines:
+        if ln["profile"] not in ixs:
+            ixs[ln["profile"]] = cfs_section(ln["profile"], 350.0)["props"]["Ix"]     # geometry only (Fy-independent)
+        R = line_reactions(ln, ixs[ln["profile"]])
+        Rd = None
+        if ln["kind"] in ("girt", "gable_girt"):
+            Rd = line_reactions({**ln, "cases": {"D": wall_dead_load(ln, li)}}, ixs[ln["profile"]])
+        by_key.setdefault(key_of.get(ln["id"], ln["id"]), []).append((ln, R, Rd))
+    d_bolt = float(str(out.get("bolt", "M12"))[1:])
+    bolts = {"phiRv": bolt_shear_capacity(st.bolt_grade, d_bolt, threads=st.threads),
+             "phiRt": bolt_tension_capacity(st.bolt_grade, d_bolt)}
+    pending = []
+    res = []
+    for j in joints_result["joints"]:
+        if j["type"] != "cleat":
+            continue
+        c = out["cleats"][int(j["id"][2:]) - 1]
+        rec = {"joint": j["id"], "line": c["line"], "point": j["point"], "cleat": c["profile"], "status": NOT_EVALUATED}
+        missing = []
+        hosts = [x for x in j["members"] if "distance" in x]
+        host = _host_at(mem[hosts[0]["id"]], c["base"]) if hosts else None
+        if host is None:
+            missing.append("host member (or its section / grade)")
+        pcs = [mem[x["id"]] for x in j["members"] if "distance" not in x]
+        if not pcs:
+            missing.append("the cold-formed piece on the cleat")
+        try:
+            t_c, W = (float(v) for v in c["profile"][2:].split("x"))
+        except ValueError:
+            t_c = W = None
+            missing.append(f"cleat size from {c['profile']!r}")
+        mats = {}
+        if pcs:
+            dims = cf_dims(pcs[0]["profile"])
+            try:
+                ws_ = plate_strength(pcs[0].get("material", ""), dims["t"])
+                mats["web"] = (ws_["Fy"], ws_["Fu"])
+            except ValueError:
+                missing.append(f"web grade {pcs[0].get('material')!r} (not a known grade)")
+        cg = st.cleat_grade or (host or {}).get("grade")
+        if cg and t_c:
+            mats["cleat"] = get_grade(cg, t_c)
+        elif not missing:
+            missing.append("cleat grade")
+        found = by_key.get(c["line"], [])
+        sup_x = c["x"]
+        contrib = [(ln, R[s], None if Rd is None else Rd[s]) for ln, R, Rd in found
+                   for s in ln["supports"] if abs(s - sup_x) < 1.0]
+        if not contrib:
+            missing.append(f"support reaction of line {c['line']} at {sup_x:g}")
+        elif any(not math.isfinite(v) for _, R, _ in contrib for v in R.values()):
+            missing.append(f"line {c['line']}: a load case not evaluated (C&C wind)")
+        if missing:
+            res.append({**rec, "missing": missing})
+            continue
+        ups = sorted(h["up"] for h in c["holes"])
+        cols = sorted({h["along"] for h in c["holes"]})
+        geom = {"d": d_bolt, "d0": c["holes"][0]["d"], "t_cleat": t_c, "W": W, "h": c["height"], "up_low": ups[0],
+                "up_high": ups[-1], "rows": sorted(set(ups)), "columns": cols, "H": dims["H"], "t_web": dims["t"]}
+        axis = 0 if abs(c["width_dir"][0]) > 0.5 else 1
+        sgn = c["width_dir"][axis]
+        pieces, combos = [], None
+        for ln, R, Rd in contrib:
+            # the pieces this line puts on the cleat: an eave-strut bay = one piece; a continuous line = every piece there
+            # (a bay line of the eave strut is numbered by x; its piece is the one spanning the bay's middle)
+            mid_x = (ln["supports"][0] + ln["supports"][-1]) / 2
+            ps = [m for m in pcs if ln["kind"] != "eave_strut"
+                  or min(m["start"][axis], m["end"][axis]) < mid_x < max(m["start"][axis], m["end"][axis])]
+            if not ps:
+                continue
+            if ln["kind"] == "eave_strut":
+                m = ps[0]
+                mid = (m["start"][axis] + m["end"][axis]) / 2
+                side = 1.0 if (mid - c["base"][axis]) * sgn > 0 else -1.0
+                along = (max(cols) if side > 0 else min(cols)) if len(cols) > 1 else cols[0]
+                hx = c["base"][axis] + along * sgn
+                lo, hi = min(m["start"][axis], m["end"][axis]), max(m["start"][axis], m["end"][axis])
+                e_neg, e_pos = (hx - lo, hi - hx) if sgn > 0 else (hi - hx, hx - lo)
+                bay = int(ln["id"].rsplit("-", 1)[1])
+                pc = {"piece": m["id"], "along": along, "side": side, "e_minus": e_neg, "e_plus": e_pos,
+                      "butt": len(cols) > 1}
+                P = struts.get(bay, 0.0)
+            else:
+                hx = c["base"][axis] + cols[0] * sgn
+                ds = []
+                for m in ps:
+                    lo, hi = min(m["start"][axis], m["end"][axis]), max(m["start"][axis], m["end"][axis])
+                    ds.append((hx - lo, hi - hx) if sgn > 0 else (hi - hx, hx - lo))
+                pc = {"piece": "+".join(m["id"] for m in ps), "along": cols[0], "side": 1.0,
+                      "e_minus": min(x[0] for x in ds), "e_plus": min(x[1] for x in ds), "butt": False}
+                P = 0.0
+            pieces.append(pc)
+            cs = cleat_cases(ln, R, Rd, tan_t, P)
+            combos = [[x] for x in cs] if combos is None else [a + [x] for a, x in zip(combos, cs)]
+        if combos is None:
+            res.append({**rec, "missing": [f"the piece of line {c['line']} on the cleat"]})
+            continue
+        rec.update(geometry={k: geom[k] for k in ("t_cleat", "W", "h", "up_low", "up_high", "columns", "d0")},
+                   pieces=pieces, host=host, materials={"cleat": {"grade": cg, "Fy": mats["cleat"][0], "Fu": mats["cleat"][1]},
+                                                        "web": {"grade": pcs[0].get("material"), "t": dims["t"],
+                                                                "Fy": mats["web"][0], "Fu": mats["web"][1]}},
+                   cases=[{"combo": cs_[0]["combo"], "R": round(sum(x["R"] for x in cs_), 3),
+                           "F_out": round(sum(abs(x["F_out"]) for x in cs_), 3),
+                           "N": [round(x["N"], 3) for x in cs_]} for cs_ in combos])
+        pending.append((rec, geom, pieces, combos, mats, host, cg))
+        res.append(rec)
+    # one weld leg for every cleat (one detail per joint type)
+    need = 0.0
+    for rec, geom, pieces, combos, mats, host, cg in pending:
+        for cs in combos:
+            need = max(need, weld_flows(geom, pieces, cs)["resultant"])
+    t_thin = min([g["t_cleat"] for _, g, *_ in pending] + [h["tf"] for *_, h, _ in pending]) if pending else 8.0
+    leg = weld_leg(need, t_thin, st) if pending else None
+    for rec, geom, pieces, combos, mats, host, cg in pending:
+        r = check_cleat(geom, pieces, combos, mats, bolts, host, leg or FILLET_LEGS[-1], cg, st)
+        if leg is None:
+            r["status"] = FAILS
+            r["fixes"].append(f"weld: no fillet up to {FILLET_LEGS[-1]:g} mm carries {need:.0f} N/mm — {FIXES['weld']}")
+        rec.update(r)
+    counts: dict[str, int] = {}
+    for r in res:
+        counts[r["status"]] = counts.get(r["status"], 0) + 1
+    return {"banner": BANNER, "designed": False, "settings": asdict(st), "verified": dict(VERIFIED),
+            "assumptions": list(ASSUMPTIONS),
+            "detail": {"cleat": sorted({r["cleat"] for r in res}), "bolts": f"2 x M{d_bolt:g} {st.bolt_grade} per piece, snug-tight, "
+                       f"threads {'included' if st.threads == 'N' else 'excluded'}", "weld_leg": leg,
+                       "weld_flow_max": round(need, 2), "bolt_phiRv": round(bolts["phiRv"], 3), "bolt_phiRt": round(bolts["phiRt"], 3)},
+            "cleats": res, "counts": counts}
