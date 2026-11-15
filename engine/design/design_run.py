@@ -314,6 +314,7 @@ def check_building(b: BuildingInput, li, settings: DesignSettings, progress=lamb
     from .cfs_checks import cfs_checks
     from .secondary_checks import secondary_checks
     from .sizing import evaluate, explicit
+    from ..connections.longitudinal import members_not_evaluated
     settings.check()
     limits = ServiceLimits.from_dict(settings.limits)
     b, _ = resolve(b)
@@ -356,7 +357,9 @@ def check_building(b: BuildingInput, li, settings: DesignSettings, progress=lamb
     summary = {"weight": building_weight(out), "max_by_type": by_type, "frames": frames, "service": service,
                "not_evaluated": sum(1 for r in gov.values() if r["not_evaluated"]), "unverified_items": unverified,
                "unverified_rows": sum(1 for r in gov.values() if not r["verified"]),
-               "max_ratio": max((r["ratio"] for r in gov.values() if r["ratio"] is not None), default=None)}
+               "max_ratio": max((r["ratio"] for r in gov.values() if r["ratio"] is not None), default=None),
+               # open item 7 (user 2026-11-15): the brace axial forces in these members are not in the checks yet
+               "brace_axial_not_evaluated": members_not_evaluated(out)}
     return clean({"banner": BANNER, "settings": dataclasses.asdict(settings), "rows": rows, "governing_ids": sorted(gov),
                   "summary": summary, "calc": calc, "designed": False})
 

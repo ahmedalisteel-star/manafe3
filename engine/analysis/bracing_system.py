@@ -54,6 +54,8 @@ def longitudinal_bracing(geom, braces: list[dict], braced_bays: list[int], feed:
                    "strut": [[j + 1, round(k * v, 3)] for j, v in struts], "max_strut": round(k * max((abs(v) for _, v in struts), default=0.0), 3)}
     return {
         "pressure_kpa": feed["p_net_kpa"], "p_side_kpa": feed["p_side_kpa"], "governing": feed["governing"],
+        # open item 6: the governing force = minimum_scale × Case B alone; the §28.3.4 minimum alone = Case B × minimum_ratio
+        "minimum_scale": feed.get("minimum_scale"), "minimum_ratio": feed.get("minimum_ratio"),
         "eave_share": round(F_eave / (F_eave + F_base), 4),
         "braced_bays": [j + 1 for j in braced_bays],
         "roof_panel": {"width": bay, "depth": round(roof_d, 1), "cos": round(roof_bay.cos_theta, 5)},

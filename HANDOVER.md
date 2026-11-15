@@ -24,11 +24,11 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
 engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); step 4 (flange-to-web
 welds, the column-to-plate weld, the shear lug, the stiffener welds) APPROVED AS DONE by the user (2026-11-15, "Step 4 —
-what was built" below). Step 4 leaves OPEN: the 8 braced-bay bases of building 1 "PARTIAL - brace case NOT EVALUATED"
-(open item 6); the shear-lug breakout NOT EVALUATED (waiting for the user's ACI 318-19 17.11.3 page); the library's
-double-fillet base metal (open item 5 — CLOSED 2026-11-15, bimsteelauto 0.15.4). NEXT (user 2026-11-15), each with the
-user's decisions FIRST: (1) open item 6 — longitudinal wind on the frames (decisions asked, WAIT for the answers);
-(2) then step 5. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+what was built" below). Open item 5 CLOSED (bimsteelauto 0.15.4, 2026-11-15); open item 6 BUILT (2026-11-15:
+longitudinal pairing at the braced-bay bases, `engine/connections/longitudinal.py` — building 1's 8 braced-bay bases now
+DESIGNED, sizes unchanged) — WAIT for the user's review. Still open from step 4: the shear-lug breakout NOT EVALUATED
+(waiting for the user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the brace axial forces, before
+step 7). NEXT after the review: step 5 (decisions first). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -377,6 +377,9 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 | AISC DG 1 shear lug (step 4) | lug bending t ≥ √(4 Mu / (0.9 Fy B)), Mu = Vu (G + h/2); the lug weld: shear + the moment as a couple over t | DG 1 2nd ed. (the lug section) | VERIFIED False |
 | Step 4 rules by Claude | local-load spread lb = t_cleat + 5k; the end zone develops 0.9 × 0.6 Fy tw; the stiffener corner clip 20 mm (setting); weak-axis base shear = the wall brace's T cos α; J4.1 for plates pulled across a weld; stiffener thickness for its flange contact; grout 50 mm (setting) | the user's call | VERIFIED False |
 | J4.1 for welds loaded across their axis (step 4; library 0.15.4 `base_mode="tension"`) | a plate pulled across a double fillet (a stiffener into a flange or an end plate, a diagonal end): its limit is J4.1 min(0.9 Fy t, 0.75 Fu t), shared by the two lines — Claude's reading, not the user's shear rule | AISC 360-16 J2.4 / J4.1 | VERIFIED False |
+| ASCE 7-16 Ch. 28 envelope limits (open item 6) | low-rise: mean roof height h ≤ 60 ft (18 m) and h ≤ the least horizontal dimension (§26.2 / §28.1.2), from memory; not met → the longitudinal pairing NOT EVALUATED | the printed §26.2 definition and §28.1.2 | VERIFIED False |
+| Fig. 28.3-1 torsional-case exception (open item 6) | "one-story buildings with h ≤ 30 ft (9.1 m), buildings two stories or less framed with light-frame construction, and buildings two stories or less designed with flexible diaphragms need not be designed for the torsional load cases" — from memory; Manafe3 uses one-story h ≤ 9.144 m or a stated flexible diaphragm (the user wrote 9 m) | the printed Fig. 28.3-1 note | VERIFIED False |
+| Longitudinal pairing rule (open item 6) | Case B brace force × the combination's wind factor with the frame reaction of the same combination; the §28.3.4 minimum family with dead load only | the user's decision; the physics by Claude | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
@@ -1318,11 +1321,29 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    0.9 Fy bf tf, web tension zone 0.9 Fy tw Lt; the end-plate stiffener already used it): the base-metal row of such a
    weld reads "develops plate (by definition)", U is the weld metal's. Building 1 weld sizes unchanged (end plates 8 / 5
    mm, stiffener welds as before, flange-to-web 5 mm, base 5 mm).
-6. **Phase 3 gap — longitudinal wind** (user 2026-11-12): the frame-line analysis has NO longitudinal-wind (wind parallel
-   to the ridge) combinations; they often govern uplift on the end frames and the braced frames. The bracing analysis is
-   one longitudinal case of its own, so a braced-bay base cannot pair the brace force with a frame reaction of the same
-   combination (step 4: "PARTIAL - brace case NOT EVALUATED"). Fix it BEFORE step 5 as its own step — ask the user the
-   decisions first (load cases, Cp for wind on the end wall / along the roof, the combinations, which members re-checked).
+6. **Longitudinal wind — BUILT 2026-11-15** (awaiting the user's review). Finding: the frame lines already carry ASCE 7-16
+   Load Case B (WB+ / WB−, Fig. 28.3-1's longitudinal case); the bracing is Case B zones 5 / 6 scaled to the §28.3.4
+   minimum when that governs. What was missing was the PAIRING. User decisions (1a–7a + additions):
+   - `engine/connections/longitudinal.py`: every LRFD combination with WB± pairs the frame reaction (Ry, Rx) with the
+     Case B brace force alone × its wind factor (1.0 / 0.5); the minimum family 0.9D / 1.2D + 1.0 W_min pairs the minimum
+     brace force with the DEAD-LOAD reaction only (never a WB uplift). The bracing result now carries `minimum_scale` and
+     `minimum_ratio` (endwall_analysis.longitudinal_feed) to split them.
+   - Printed per base / building: the Ch. 28 limits (h ≤ 18 m and h ≤ the least plan dimension — else the pairing is NOT
+     EVALUATED) and the torsional-case exception (one-story h ≤ 30 ft / 9.1 m, or a stated flexible diaphragm — else
+     torsion NOT EVALUATED and the base stays PARTIAL).
+   - Base plates / anchors (`building_bases(..., analysis=)`, the anchors take √(Vs² + Vw²)) and the base welds take the
+     pairs; a braced-bay base is DESIGNED only when every pair is evaluated and passes.
+   - Building 1 (h 6600 mm, limits met, torsion exempt; brace T 21.075 = 1.11743 × Case B 18.861): worst uplift frame line
+     1 / 5 base A 0.9D + 1.0WB+: 22.302 + 13.224 = 35.526 kN (base B 27.925); frame line 2 / 4 base A 44.341 (B 35.307);
+     minimum family at 0.9D: 1.197 kN. Old → new at the 8 braced-bay bases: plate 12 mm 370 × 250 → unchanged, rods M20
+     → unchanged (anchor concrete still NOT EVALUATED: no pedestal input), weld 5 mm → unchanged; base weld status
+     "PARTIAL - brace case NOT EVALUATED" → "DESIGNED"; base plate status unchanged ("PLATE DESIGNED - ANCHORS NOT
+     EVALUATED").
+   - Tests: `engine/tests/test_longitudinal.py` (hand values, negative controls: the minimum never paired with a WB
+     uplift; h > 18 m → NOT EVALUATED; h above the least plan dimension; torsion not exempt); `test_welds.py` building 1.
+7. **Phase 4 member-check gap** (user 2026-11-15) — fix BEFORE step 7: the braced-bay columns (axial force from the wall
+   bracing) and the eave struts (strut forces) are not checked under the brace axial forces. Shown as NOT EVALUATED on the
+   connection results (`longitudinal.members_not_evaluated`) and in the design run summary (`brace_axial_not_evaluated`).
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

@@ -20,8 +20,7 @@ directional increase is allowed). S355JR in the library: Fy 355, Fu 490 MPa up t
                 uplift 100: 57.92; strong 65 on the web: 69.27 → 90.29; weak 20 on the flanges: 25.38 → 63.24;
                 web 5 mm: base metal 661.5 governs, U 0.1365; flanges: 63.24 / 766.74 = 0.0825; uplift 1200 → 695.09 > 661.5
                 → FAILS; tp 55 > 50 → NOT EVALUATED
-    BRACE       T 21.075 kN, 6000 × 5900 bay: T cos α = 15.027, T sin α = 14.777; frame Ry 30 (compression) in the SAME
-                combination → Pu = 30 − 14.777 = 15.223
+    BRACE       the braced-bay pairs: engine/tests/test_longitudinal.py (open item 6); here only building 1 end to end
     LUG         f'c 25, B 200, h 100: φVbrg = 0.65 × 1.7 × 25 × 200 × 100 = 552.5 kN; Vu 65: Mu = 65 (50 + 50) = 6.5 kN·m,
                 t ≥ √(4 × 6.5e6 / (0.9 × 355 × 200)) = 20.17 → 22; weld: 65 000 / 400 = 162.5, 6.5e6 / (22 × 200) = 1477.27
                 → 1486.18 → 10 mm (1533.48), U 0.9692; Ψ tension Pu −40, 4 × M20 4.6 (Nsa 400 × 245 = 98 kN): 0.8980;
@@ -59,7 +58,7 @@ import pytest
 from engine.connections import welds as W
 from engine.connections.welds import (CJP, WeldSettings, base_metal, base_weld, body_weld, column_stiffener_welds,
                                       diagonal_welds, doubler_welds, end_zone_weld, endplate_stiffener_welds,
-                                      flange_web_member, flange_web_q, lug_bearing_factor, lug_needed, pair_brace_with_frame,
+                                      flange_web_member, flange_web_q, lug_bearing_factor, lug_needed,
                                       shear_lug, spread_length, weld_metal)
 
 ST = WeldSettings()
@@ -148,18 +147,6 @@ def test_base_weld_by_hand():
     assert big["status"] == "NOT EVALUATED" and "M2.6" in big["missing"][0] and "leg" not in big
     f = base_weld(COL, 20.0, [{"name": "u", "Pu": -1200.0, "V_strong": 0.0, "V_weak": 0.0}], "S355JR", ST)
     assert f["status"] == "FAILS" and f["cases"][0]["web"] == pytest.approx(695.09, abs=0.01) and "thicker plate" in f["why"]
-
-
-def test_brace_pairing_same_combination_only():
-    cos_a, sin_a = 6000 / math.hypot(6000, 5900), 5900 / math.hypot(6000, 5900)
-    r = pair_brace_with_frame({"C1": 21.075, "C2": 10.0}, {"C1": 30.0, "C3": -50.0}, cos_a, sin_a)
-    assert len(r["cases"]) == 1 and r["unmatched"] == ["C2"] and "status" not in r
-    c = r["cases"][0]
-    assert c["combo"] == "C1" and c["V_weak"] == pytest.approx(15.027, abs=1e-3) and c["Pu"] == pytest.approx(15.223, abs=1e-3)
-    # negative control: the largest frame uplift (C3, −50) is never paired with a brace force from another combination
-    assert all(x["Pu"] > -50.0 for x in r["cases"])
-    none = pair_brace_with_frame({"LRFD: bracing": 21.075}, {"LRFD: 0.9D+1.0WA+L": -24.5}, cos_a, sin_a)
-    assert none["cases"] == [] and none["status"] == "NOT EVALUATED" and "same combination" in none["why"]
 
 
 def test_shear_lug_by_hand():
@@ -306,7 +293,7 @@ def test_sized_building_1_welds():
             assert dg["weld"]["ends"]["leg"] == 5.0 and dg["weld"]["corner_axial"] == pytest.approx(dV / dg["cos_theta"], abs=0.1)
         else:
             assert (t["t"], t["weld"]["to_flange"]["leg"], t["weld"]["to_web"]["leg"]) == (12.0, 5.0, 5.0)
-    bs = building_bases(jr, out, BaseSettings(concrete="C25/30"))
+    bs = building_bases(jr, out, BaseSettings(concrete="C25/30"), analysis=an)
     r = W.building_welds(jr, out, an, bs, base_settings=BaseSettings(concrete="C25/30"), li=li)
     json.dumps(r, allow_nan=True)
     assert r["banner"].startswith("NOT FOR ISSUE") and r["concrete_fc"] == 25.0 and W.BUTT_SPLICE_NOTE in r["notes"]
@@ -325,13 +312,24 @@ def test_sized_building_1_welds():
             assert g["q"] == pytest.approx(q, abs=0.01) and g["flow"] >= g["q"] - 1e-6
             assert g["lb"] == 83.0 and s["weld"]["sides"].startswith("one side") and s["weld"]["leg"] == 5.0
         assert m["end_zones"] and all(z["weld"]["sides"] == "both sides" for z in m["end_zones"])
-    braced = [b for b in r["bases"] if b.get("brace_case")]
-    assert len(braced) == 8 and all(b["status"] == "PARTIAL - brace case NOT EVALUATED" for b in braced)
+    # open item 6: the 8 braced-bay bases now take the longitudinal pairs and are DESIGNED (sizes unchanged: 5 mm)
+    braced = [b for b in r["bases"] if b.get("longitudinal")]
+    assert len(braced) == 8 and all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in braced)
+    worst = {b["joint"]: min(c["Pu"] for c in b["longitudinal"]["cases"]) for b in braced}
+    assert worst["F1-BA"] == pytest.approx(-35.526, abs=0.01) and worst["F5-BA"] == pytest.approx(-35.526, abs=0.01)
+    assert worst["F2-BA"] == pytest.approx(-44.341, abs=0.01) and worst["F4-BA"] == pytest.approx(-44.341, abs=0.01)
     for b in braced:
-        bc = b["brace_case"]
-        assert bc["status"] == "NOT EVALUATED" and bc["cases"] == []
-        assert bc["V_weak"] == pytest.approx(bc["T"] * bc["cos_a"], abs=1e-3) and bc["T_sin_a"] == pytest.approx(bc["T"] * bc["sin_a"], abs=1e-3)
-    assert all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in r["bases"] if not b.get("brace_case"))
+        lon = b["longitudinal"]
+        assert lon["status"] == "EVALUATED" and lon["limits"]["ok"] and lon["torsion"]["status"] == "EXEMPT"
+        assert {c["family"] for c in lon["cases"]} == {"Case B", "minimum"} and len(lon["cases"]) == 8
+        assert all(any(c["combo"] == bc.get("combo") for bc in b["cases"]) for c in lon["cases"])     # in the weld cases
+    assert all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in r["bases"] if not b.get("longitudinal"))
+    rec = r["longitudinal"]
+    assert rec["brace_forces"]["T_caseB"] == pytest.approx(18.861, abs=1e-3) and rec["brace_forces"]["T_minimum"] == pytest.approx(21.075, abs=1e-3)
+    assert len(rec["members_not_evaluated"]) == 16 and bs["longitudinal"]["limits"]["h"] == 6600.0
+    plates = {x["joint"]: x for x in bs["bases"]}
+    for j in worst:                                       # base plates and rods unchanged by the longitudinal pairs
+        assert (plates[j]["t"], plates[j]["rod"]["label"]) == (12.0, "M20") and plates[j]["longitudinal"]["status"] == "EVALUATED"
     assert not any("shear_lug" in b for b in r["bases"])                       # anchors not failing (no pedestal given)
 
 

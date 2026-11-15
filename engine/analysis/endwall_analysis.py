@@ -148,7 +148,10 @@ def longitudinal_feed(out: dict, li) -> dict:
         directions[f"from {ww}"] = {"F_eave": wt + lt, "windward_top": wt, "leeward_top": lt,
                                     "F_base": abs(side_p["windward"]) * walls[ww]["base_m2"] + abs(side_p["leeward"]) * walls[lw]["base_m2"]}
     gov = max(directions, key=lambda d: directions[d]["F_eave"])
+    # Manafe3 open item 6 (2026-11-15): F_minimum / F_computed of the end-wall projection — the minimum family's own scale
+    ratio = (minimum.F_minimum / minimum.F_computed) if minimum is not None and minimum.F_computed > 0 else 1.0
     return {"p_side_kpa": {s: round(v, 5) for s, v in side_p.items()}, "p_net_kpa": round(p_net, 5), "minimum_scale": round(k, 5),
+            "minimum_ratio": round(ratio, 5),
             "minimum": None if minimum is None else {"governs": bool(minimum.governs)},
             "walls": walls, "directions": directions, "governing": gov, "F_eave": directions[gov]["F_eave"], "F_base": directions[gov]["F_base"]}
 

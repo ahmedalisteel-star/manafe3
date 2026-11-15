@@ -403,8 +403,10 @@ def _steel_ok_row(a: dict) -> bool:
     return all(m["U"] <= 1.0 for m in a["modes"] if "steel" in m["mode"].lower())
 
 
-def design_base(j: dict, sec: dict, frame_grade: str, st: BaseSettings) -> dict:
-    """One base joint (from step 1, with forces) → the designed plate and rods, or NOT EVALUATED / FAILS with the reason."""
+def design_base(j: dict, sec: dict, frame_grade: str, st: BaseSettings, extra_cases: list[dict] | None = None) -> dict:
+    """One base joint (from step 1, with forces) → the designed plate and rods, or NOT EVALUATED / FAILS with the reason.
+    extra_cases (open item 6): the braced-bay pairs {name, combo, Pu, Vu} — Vu the vector sum of the strong- and weak-axis
+    shears (the anchors take both)."""
     role = "frame" if j["type"] == "base" else "wind"
     out = {"joint": j["id"], "type": j["type"], "member": j["members"][0]["id"], "section": sec, "settings": asdict(st),
            "anchor_type": ANCHOR_TYPE, "notes": [WASHER_NOTE]}
@@ -416,7 +418,7 @@ def design_base(j: dict, sec: dict, frame_grade: str, st: BaseSettings) -> dict:
     if pg is None:
         return {**out, "status": "NOT EVALUATED",
                 "missing": [f"plate grade {frame_grade!r} is not in bimsteelauto_connections ({', '.join(PLATE_GRADE)})"]}
-    cases = _cases(j)
+    cases = _cases(j) + list(extra_cases or [])
     tries = []
     for d_rod in st.rods(role):
         r = _try(sec, cases, d_rod, st, pg, role)
@@ -463,8 +465,11 @@ def column_section(m: dict) -> dict:
             "tf": max(s["tf_top"], s["tf_bot"]), "tw": s["tw"]}
 
 
-def building_bases(joints_result: dict, out: dict, settings: BaseSettings | None = None) -> dict:
-    """Every base joint of a building_joints() result → designed base plates."""
+def building_bases(joints_result: dict, out: dict, settings: BaseSettings | None = None, analysis: dict | None = None,
+                   flexible_diaphragm: bool | None = None) -> dict:
+    """Every base joint of a building_joints() result → designed base plates. analysis (open item 6): the braced-bay
+    bases also take the longitudinal pairs (frame reaction + the wall brace of the same combination)."""
+    from .longitudinal import braced_base, building_record
     st = (settings or BaseSettings()).check()
     mem = {m["id"]: m for m in out["members"] if m.get("id")}
     rows = []
@@ -472,11 +477,21 @@ def building_bases(joints_result: dict, out: dict, settings: BaseSettings | None
         if j["type"] not in ("base", "wind_column_base"):
             continue
         m = mem[j["members"][0]["id"]]
-        rows.append(design_base(j, column_section(m), m.get("material", "S355"), st))
+        lon = braced_base(j, m, out, analysis, flexible_diaphragm) if analysis is not None else None
+        extra = [{"name": c["name"], "combo": c["combo"], "Pu": c["Pu"], "Vu": round(math.hypot(c["V_strong"], c["V_weak"]), 3),
+                  "Mu": 0.0} for c in (lon or {}).get("cases", [])]
+        r = design_base(j, column_section(m), m.get("material", "S355"), st, extra)
+        if lon is not None:
+            r["longitudinal"] = lon
+            if lon["status"] != "EVALUATED" and r["status"] not in ("NOT EVALUATED", "FAILS"):
+                r["status"] = "PARTIAL - brace case NOT EVALUATED"
+                r.setdefault("missing", []).append(lon["why"])
+        rows.append(r)
     counts: dict[str, int] = {}
     for r in rows:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "bases": rows, "counts": counts,
+            **({"longitudinal": building_record(out, analysis, flexible_diaphragm)} if analysis is not None else {}),
             "anchor_type": ANCHOR_TYPE, "warnings": list(joints_result.get("warnings", [])), "notes": [WASHER_NOTE],
             "open_flags": sorted([f"engine.connections.baseplates.{k}" for k, v in VERIFIED.items() if not v]
                                  + [f"bimsteelauto_connections.anchors.GRADE_SOURCES[{k!r}]" for k, v in GRADE_SOURCES.items()

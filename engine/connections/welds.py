@@ -27,8 +27,9 @@ Manafe3 here (the user's decisions 2026-11-12, HANDOVER "Step 4 decisions"; Clau
                          plates up to 50 mm — unverified); a plate over 50 mm → NOT EVALUATED. Strong-axis shear on the web
                          welds, weak-axis shear (bracing reactions) on the flange welds, uplift shared by the whole weld
                          length; elastic, vector sum, NO directional increase.
-    brace_base_cases     the wall-brace force at a braced-bay base: weak-axis shear T cos α and uplift = frame reaction +
-                         T sin α from the SAME combination only (never the maximum of one with the maximum of another)
+    braced-bay bases     engine/connections/longitudinal.py (open item 6): the frame reaction and the wall brace (T cos α
+                         across, T sin α up) of the SAME combination — Load Case B with its own brace force, and the
+                         §28.3.4 minimum family with dead load only; DESIGNED only when all are evaluated, else PARTIAL
     shear_lug            only when the anchors fail in shear / breakout and shear_fix = "lug" (default "hairpins"): a flat
                          plate; ACI 318-19 17.11.2 bearing φ 0.65 × 1.7 f'c Aef Ψ (VERIFIED False); the 17.11.3 breakout NOT
                          EVALUATED until the user sends the printed text (never a pass); DG 1 plate bending t ≥ √(4 Mu /
@@ -382,24 +383,6 @@ def base_weld(sec: dict, tp: float | None, cases: list[dict], grade: str, st: We
     return res
 
 
-def pair_brace_with_frame(brace_by_combo: dict, frame_by_combo: dict, cos_a: float, sin_a: float) -> dict:
-    """Braced-bay base: weak-axis shear T cos α and uplift = the frame's uplift + T sin α, from the SAME combination
-    only (user 2026-11-12). frame_by_combo: {combo: Ry (kN, + compression)}; brace_by_combo: {combo: T (kN)}."""
-    cases = []
-    for combo, T in brace_by_combo.items():
-        if combo not in frame_by_combo:
-            continue
-        Ry = frame_by_combo[combo]
-        cases.append({"name": "brace + frame, same combination", "combo": combo, "T_brace": T,
-                      "V_weak": round(T * cos_a, 3), "Pu": round(Ry - T * sin_a, 3), "V_strong": 0.0})
-    unmatched = sorted(set(brace_by_combo) - set(frame_by_combo))
-    out = {"cases": cases, "unmatched": unmatched}
-    if not cases:
-        out["status"] = NOT_EVALUATED
-        out["why"] = ("no frame reaction from the same combination as the brace force (" + ", ".join(unmatched) + ")")
-    return out
-
-
 # --------------------------------------------------------------------------------------------------- shear lug
 
 def lug_bearing_factor(Pu: float, n_anchors: int, Nsa: float, Abp: float, fc: float) -> float:
@@ -560,10 +543,12 @@ def _frame_result(an: dict, x: float) -> tuple[dict | None, str | None]:
 
 
 def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result: dict | None = None,
-                   settings: WeldSettings | None = None, base_settings=None, li=None) -> dict:
+                   settings: WeldSettings | None = None, base_settings=None, li=None,
+                   flexible_diaphragm: bool | None = None) -> dict:
     """The step 4 welds over a building: flange-to-web of every frame column and rafter, the column-to-base-plate weld of
     every base (with the braced-bay brace case), the shear lug where selected and needed."""
     from .baseplates import BaseSettings, column_section, design_base     # local: avoid an import cycle
+    from .longitudinal import braced_base, building_record
     st = (settings or WeldSettings()).check()
     bst = base_settings or BaseSettings()
     mem = {m["id"]: m for m in out["members"] if m.get("id")}
@@ -666,7 +651,6 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
     # bases
     base_rows = []
     by_joint = {b["joint"]: b for b in (bases_result or {}).get("bases", [])}
-    braces = [o for o in others if o.get("role") == "wall_brace"]
     for j in joints_result["joints"]:
         if j["type"] not in ("base", "wind_column_base"):
             continue
@@ -696,33 +680,15 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
                               "Pu": -F["uplift"], "V_strong": F["V_out_of_plane"], "V_weak": 0.0})
         tp = None if b is None else b.get("t")
         res = base_weld(sec, tp, cases, grade, st)
-        # braced bay: the wall brace landing at this base
-        bx, by = j["point"][0], j["point"][1]
-        mine = [o for o in braces if abs(min(o["start"][2], o["end"][2])) < 1.0 and j["type"] == "base"
-                and abs((o["start"] if o["start"][2] < o["end"][2] else o["end"])[0] - bx) < 1.0
-                and o.get("side") == m.get("side")]
-        if mine:
-            o = mine[0]
-            lo, hi = (o["start"], o["end"]) if o["start"][2] < o["end"][2] else (o["end"], o["start"])
-            Lb = math.dist(lo, hi)
-            cos_a, sin_a = abs(hi[0] - lo[0]) / Lb, abs(hi[2] - lo[2]) / Lb
-            br = analysis.get("bracing", {}).get("sets", {}).get("LRFD", {})
-            brace_by = {} if br.get("wall_diagonal") is None else {"LRFD: bracing (1.0W, longitudinal)": br["wall_diagonal"]}
-            fres, _ = _frame_result(analysis, bx)
-            node = "BA" if m.get("side") == "A" else "BB"
-            frame_by = {} if fres is None else {n: r["reactions"][node][1] for n, r in fres["results"].items()
-                                                if r.get("set") == "LRFD" and node in r.get("reactions", {})}
-            pb = pair_brace_with_frame(brace_by, frame_by, cos_a, sin_a)
-            pb.update(T=br.get("wall_diagonal"), cos_a=round(cos_a, 5), sin_a=round(sin_a, 5),
-                      V_weak=None if br.get("wall_diagonal") is None else round(br["wall_diagonal"] * cos_a, 3),
-                      T_sin_a=None if br.get("wall_diagonal") is None else round(br["wall_diagonal"] * sin_a, 3),
-                      brace=o.get("id"))
-            if pb["cases"]:
-                res = base_weld(sec, tp, cases + pb["cases"], grade, st)
-            res["brace_case"] = pb
-            if pb.get("status") == NOT_EVALUATED and res.get("status") == "DESIGNED":
+        # braced bay (open item 6): the frame reaction + the wall brace of the SAME combination (longitudinal.py)
+        lon = braced_base(j, m, out, analysis, flexible_diaphragm)
+        if lon is not None:
+            if lon["cases"]:
+                res = base_weld(sec, tp, cases + lon["cases"], grade, st)
+            res["longitudinal"] = lon
+            if lon["status"] != "EVALUATED" and res.get("status") == "DESIGNED":
                 res["status"] = PARTIAL
-                res.setdefault("missing", []).append(pb["why"])
+                res.setdefault("missing", []).append(lon["why"])
         row.update(res)
         # shear lug
         if b is not None and lug_needed(b):
@@ -745,6 +711,7 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
     for r in base_rows:
         counts["bases"][r["status"]] = counts["bases"].get(r["status"], 0) + 1
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "concrete_fc": bst.fc, "flange_web": fw_rows,
+            "longitudinal": building_record(out, analysis, flexible_diaphragm),
             "bases": base_rows, "counts": counts, "notes": notes,
             "open_flags": sorted(f"engine.connections.welds.{k}" for k, v in VERIFIED.items() if not v)}
 
