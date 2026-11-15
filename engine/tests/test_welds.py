@@ -26,13 +26,25 @@ directional increase is allowed). S355JR in the library: Fy 355, Fu 490 MPa up t
                 t ≥ √(4 × 6.5e6 / (0.9 × 355 × 200)) = 20.17 → 22; weld: 65 000 / 400 = 162.5, 6.5e6 / (22 × 200) = 1477.27
                 → 1486.18 → 10 mm (1533.48), U 0.9692; Ψ tension Pu −40, 4 × M20 4.6 (Nsa 400 × 245 = 98 kN): 0.8980;
                 compression Pu 100 on 400 × 300: 1.1333; Vu 2000 > 0.65 × 1.7 × 25 × 200 × 300 = 1657.5 → FAILS
-    STIFFENERS  interior knee: Rst 601.4 + diagonal 153.9 = 755.3, each 377.65 kN; contact ts ≥ 377 650 / (0.9 × 355 × 40)
-                = 29.55; to the flange 377 650 / 2 / 40 = 4720.62 per line: a fillet would need 20.52 mm → CJP (base metal
-                0.45 × 355 × 30 = 4792.5, U 0.985); to the web (244.6 − 10 − 20 = 214.6) 879.89 → 6 mm, U 0.9563
-                end knee: Rst 319.98, each 159.99: contact 12.52 → 15; flange 1999.88 → 10 mm (2300.22), U 0.8694; web
-                372.76 → 5 mm (minimum)
-    DIAGONAL    612.3 × 355 = 217.37 kN, each 108.68, per end line 905.69 → 5 mm (1150.11), U 0.7875; As 2000 on t 30:
+    STIFFENERS  (review 2026-11-12) bs = floor5((200 − 6)/2 − 5) = 90; the load path at building 1's interior knee
+                (Puf 701.25, Rst 601.41, φVpanel 562.67): F = max(Rst, ΔV 138.58) = 601.41; the flange puts 701.25 − 601.41
+                = 99.84 straight into the web; the stiffener web welds 562.67 − 99.84 = 462.83; the corner 138.58;
+                contact 300.705 kN across 70 mm: ts ≥ 13.45 → 15; to the flange 300 705 / 2 / 70 = 2147.89 per line →
+                10 mm (2300.22; base 0.45 × 355 × 15 = 2396.25), U 0.9338; FULL DEPTH (user 2026-11-15): web weld
+                489.2 − 2 × 10 − 2 × 20 = 429.2: 462 830 / 4 / 429.2 = 269.59 → 5 mm, U 0.3516; the 6 mm column web, both
+                faces: 462 830 / 429.2 = 1078.36 ≤ min(0.6 × 355 × 6 = 1278, 0.45 × 490 × 6 = 1323), U 0.8438
+                end knee (F 319.98, all to the web): flange 1142.79 → 5 mm, U 0.9936; web 745.53, U 0.5834
+                negative control, the half-depth option (214.6): 539.18 per line (U 0.7032); the web 2156.71 → U 1.6876
+                FAILS "doubler or thicker web" (a 16 mm web: 3408, U 0.6328); end knee 1491.05 → U 1.1667 FAILS
+                CJP control: F 1200 on ts 30: 4285.71 per line, a fillet would need 18.63 → CJP (base 4792.5)
+    DIAGONAL    612.3 × 355 = 217.37 kN, bs 90: per end line 603.81 → 5 mm, U 0.525; the corner 138.58 / 0.7084 = 195.62
+                < 217.37; a corner of 400 kN governs: 1111.11 per line → 5 mm, U 0.9661; As 2000 on t 30, bs 60:
                 2958.33 per line → a fillet would need 12.86 → CJP
+    WIND COLUMN BU 300 × 6, 150 × 8 (d 316, Q 184 800, I 70 431 200), L 6000, w 4.6564 kN/m: end V = 13.9692 → q 36.65;
+                gable girts at 1250 mm: P = 5.8205 kN over lb = 8 + 5 (8 + 5) = 73 → 79.73; √(36.65² + 79.73²) = 87.75 at
+                the ends (M 0); mid-height: M 20.9538, flange brace 2 % × 20.9538 / 0.308 = 1.3606 kN → 18.64, with the
+                girt 81.88 < 87.75
+    END RAFTER  y → x along the member: x = |y − y_start| √1.01 (6000 → 6029.93); V 50 kN on 200 × 10 / 475 × 6 → 83.96
     DOUBLER     138.56 / 489.2 = 283.24 → 5 mm; 1100 kN → 2248.57, needs 14.66 → CJP (base 0.45 × 490 × 12 = 2646)
     EP STIFF.   ts 12: into the plate 0.45 × 355 × 12 = 1917 per line → 10 mm (base metal governs, U 1.0); along the flange
                 0.3 × 355 × 12 = 1278 → 10 mm (base 1323, U 0.966); ts 20: 3195 per line, needs 13.89 → CJP
@@ -171,30 +183,74 @@ def test_shear_lug_by_hand():
 
 
 def test_column_stiffener_welds_by_hand():
-    # Building 1 interior knee: Rst 601.4 + the diagonal's horizontal part 153.9; ts 30 (the contact needs 29.55)
-    r = column_stiffener_welds(601.4, 153.9, 60, 30, 489.2 / 2 - 10, 10, 6, "S355JR", ST)
-    assert r["force_pair"] == pytest.approx(755.3) and r["force_each"] == pytest.approx(377.65)
-    fl, wb = r["to_flange"], r["to_web"]
-    assert fl["flow"] == pytest.approx(4720.62, abs=0.01) and fl["type"] == CJP and "12 mm" in fl["why"]
-    assert fl["base_metal"] == pytest.approx(4792.5) and fl["U"] == pytest.approx(0.985, abs=1e-3)
-    assert r["length_web"] == 214.6 and wb["flow"] == pytest.approx(879.89, abs=0.01) and wb["leg"] == 6.0
-    assert wb["U"] == pytest.approx(0.9563, abs=1e-4) and r["status"] == "DESIGNED"
-    # negative control: the end knee (Rst 319.98, no diagonal) stays a fillet — 10 mm to the flange, 5 mm to the web
-    e = column_stiffener_welds(319.98, 0.0, 60, 15, 489.2 / 2 - 10, 10, 6, "S355JR", ST)
-    assert e["to_flange"]["flow"] == pytest.approx(1999.88, abs=0.01) and e["to_flange"]["leg"] == 10.0
-    assert e["to_flange"]["U"] == pytest.approx(0.8694, abs=1e-4)
-    assert e["to_web"]["flow"] == pytest.approx(372.76, abs=0.01) and e["to_web"]["leg"] == 5.0
+    # Building 1 interior knee, bs 90, ts 15, FULL DEPTH (469.2 − 2 × 20 = 429.2): F 601.41 across the flange, 462.83
+    # into the web: 462 830 / 4 / 429.2 = 269.59 per line → 5 mm (U 0.3516); the web 1078.36 / 1278 = 0.8438 → designed
+    f = column_stiffener_welds(601.41, 462.83, 90, 15, 469.2, 10, 6, "S355JR", ST)
+    assert f["length_web"] == 429.2 and f["to_web"]["flow"] == pytest.approx(269.59, abs=0.01) and f["to_web"]["leg"] == 5.0
+    assert f["to_web"]["U"] == pytest.approx(0.3516, abs=1e-4) and f["web_base_metal"]["flow_total"] == pytest.approx(1078.36, abs=0.01)
+    assert f["web_base_metal"]["U"] == pytest.approx(0.8438, abs=1e-4) and f["status"] == "DESIGNED"
+    fe = column_stiffener_welds(319.98, 319.98, 90, 12, 469.2, 10, 6, "S355JR", ST)              # end knee: 745.53, U 0.5834
+    assert fe["web_base_metal"]["flow_total"] == pytest.approx(745.53, abs=0.01) and fe["web_base_metal"]["U"] == pytest.approx(0.5834, abs=1e-4)
+    assert fe["to_web"]["flow"] == pytest.approx(186.38, abs=0.01) and fe["status"] == "DESIGNED"
+    # negative control, the HALF-DEPTH option (234.6 − 20 = 214.6, one clip): the same forces FAIL the 6 mm web
+    r = column_stiffener_welds(601.41, 462.83, 90, 15, 489.2 / 2 - 10, 10, 6, "S355JR", ST, clips=1)
+    fl, wb, wbm = r["to_flange"], r["to_web"], r["web_base_metal"]
+    assert r["length_flange"] == 70 and r["length_web"] == 214.6
+    assert fl["flow"] == pytest.approx(2147.89, abs=0.01) and fl["leg"] == 10.0 and fl["U"] == pytest.approx(0.9338, abs=1e-4)
+    assert fl["base_metal"] == pytest.approx(2396.25)
+    assert wb["flow"] == pytest.approx(539.18, abs=0.01) and wb["leg"] == 5.0 and wb["U"] == pytest.approx(0.7032, abs=1e-4)
+    # the 6 mm column web under the welds on both faces: FAILS, fix "doubler or thicker web"
+    assert wbm["flow_total"] == pytest.approx(2156.71, abs=0.01) and wbm["capacity"] == pytest.approx(1278.0)
+    assert (wbm["yield"], wbm["rupture"]) == pytest.approx((1278.0, 1323.0)) and wbm["U"] == pytest.approx(1.6876, abs=1e-4)
+    assert r["status"] == "FAILS" and r["fixes"] == ["doubler or thicker web"] and "both faces" in r["why"]
+    # negative control: a 16 mm web takes it (3408 N/mm, U 0.6328)
+    r16 = column_stiffener_welds(601.41, 462.83, 90, 15, 489.2 / 2 - 10, 10, 16, "S355JR", ST, clips=1)
+    assert r16["status"] == "DESIGNED" and r16["web_base_metal"]["U"] == pytest.approx(0.6328, abs=1e-4)
+    # the end knee: 5 mm to the flange, the web still FAILS (1491.05 > 1278)
+    e = column_stiffener_welds(319.98, 319.98, 90, 12, 489.2 / 2 - 10, 10, 6, "S355JR", ST, clips=1)
+    assert e["to_flange"]["flow"] == pytest.approx(1142.79, abs=0.01) and e["to_flange"]["leg"] == 5.0
+    assert e["to_flange"]["U"] == pytest.approx(0.9936, abs=1e-4)
+    assert e["web_base_metal"]["U"] == pytest.approx(1.1667, abs=1e-4) and e["status"] == "FAILS"
+    # negative control to CJP: 1200 kN on a 30 mm stiffener — a fillet would need 18.63 mm
+    c = column_stiffener_welds(1200.0, 0.0, 90, 30, 469.2, 10, 16, "S355JR", ST)
+    assert c["to_flange"]["flow"] == pytest.approx(4285.71, abs=0.01) and c["to_flange"]["type"] == CJP and c["status"] == "DESIGNED"
     # no force: the minimum legs (J2.4 / shop_min_leg), never zero
-    z = column_stiffener_welds(0.0, 0.0, 60, 12, 234.6, 10, 6, "S355JR", ST)
+    z = column_stiffener_welds(0.0, 0.0, 90, 12, 469.2, 10, 6, "S355JR", ST)
     assert z["to_flange"]["leg"] == 5.0 == z["to_web"]["leg"] and z["to_flange"]["sized_by"] == "minimum"
-    # a 16 mm stiffener cannot take the interior-knee force across 40 mm: FAILS, never a pass
-    assert column_stiffener_welds(601.4, 153.9, 60, 16, 234.6, 10, 6, "S355JR", ST)["status"] == "FAILS"
+
+
+def test_wind_column_and_end_rafter_flange_web_by_hand():
+    L, w = 6000.0, 4.6564
+    rows = [(x, w * (L / 2 - x) / 1000.0, w * x * (L - x) / 2e6) for x in [L * k / 20 for k in range(21)]]
+    m = {"id": "WF1", "role": "wind_column", "section": {"segments": [{"length": L, "hw_start": 300.0, "hw_end": 300.0,
+         "tw": 6.0, "bf_top": 150.0, "tf_top": 8.0, "bf_bot": 150.0, "tf_bot": 8.0}]}}
+    local = {"t_cleat": 8.0, "spacing": 1250.0, "flange_braces": True}
+    r = flange_web_member(m, [("LRFD C&C inward", rows)], "S355JR", ST, local, [])
+    g = r["segments"][0]["governing"]
+    assert g["q"] == pytest.approx(36.65, abs=0.01) and g["lb"] == 73.0 and g["P_local"] == pytest.approx(5.8205, abs=1e-3)
+    assert g["p_local"] == pytest.approx(79.73, abs=0.01) and g["flow"] == pytest.approx(87.75, abs=0.01) and g["x"] in (0.0, L)
+    assert r["segments"][0]["weld"]["leg"] == 5.0 and r["status"] == "DESIGNED" and r["end_zones"] == []
+    assert W._spacing([0.0, 1250.0, 2500.0, 3750.0, 5000.0]) == 1250.0
+    # end-wall rafter A (y 0 → 12000): the side-B stations are left out, x = y √1.01
+    ef = {"results": {"LRFD: c": {"set": "LRFD", "rafter_stations": [[0.0, 0, 50.0, 0.0], [6000.0, 0, 20.0, 30.0],
+                                                                     [12000.0, 0, -10.0, 0.0], [18000.0, 0, 99.0, 0.0]]},
+                      "ASD: c": {"set": "ASD", "rafter_stations": [[0.0, 0, 999.0, 0.0]]}}}
+    er = {"id": "EFRA", "role": "end_rafter", "start": [0.0, 0.0, 6000.0], "end": [0.0, 12000.0, 7200.0],
+          "section": {"segments": [{"length": 12000.0 * math.sqrt(1.01), "hw_start": 475.0, "hw_end": 475.0, "tw": 6.0,
+                                    "bf_top": 200.0, "tf_top": 10.0, "bf_bot": 200.0, "tf_bot": 10.0}]}}
+    st_ = W.end_rafter_stations(ef, er, math.sqrt(1.01))
+    assert [c for c, _ in st_] == ["LRFD: c"] and [round(x, 2) for x, _, _ in st_[0][1]] == [0.0, 6029.93, 12059.85]
+    rr = flange_web_member(er, st_, "S355JR", ST, {"t_cleat": 8.0, "spacing": None, "flange_braces": False}, [])
+    assert rr["segments"][0]["governing"]["flow"] == pytest.approx(83.96, abs=0.01)      # V 50, not the side-B 99
 
 
 def test_diagonal_doubler_endplate_stiffener_welds_by_hand():
-    d = diagonal_welds(612.3, 355.0, 60, 12, 10, "S355JR", ST)
-    assert d["force_pair"] == pytest.approx(217.37, abs=0.01) and d["ends"]["flow"] == pytest.approx(905.69, abs=0.01)
-    assert d["ends"]["leg"] == 5.0 and d["ends"]["U"] == pytest.approx(0.7875, abs=1e-4) and d["status"] == "DESIGNED"
+    d = diagonal_welds(612.3, 355.0, 90, 12, 10, "S355JR", ST, corner_axial=195.62)
+    assert d["force_pair"] == pytest.approx(217.37, abs=0.01) and d["ends"]["flow"] == pytest.approx(603.81, abs=0.01)
+    assert d["ends"]["leg"] == 5.0 and d["ends"]["U"] == pytest.approx(0.525, abs=1e-4) and d["status"] == "DESIGNED"
+    k = diagonal_welds(612.3, 355.0, 90, 12, 10, "S355JR", ST, corner_axial=400.0)              # the corner governs
+    assert k["force_pair"] == 400.0 and k["ends"]["flow"] == pytest.approx(1111.11, abs=0.01)
+    assert k["ends"]["U"] == pytest.approx(0.9661, abs=1e-4)
     dc = diagonal_welds(2000.0, 355.0, 60, 30, 20, "S355JR", ST)
     assert dc["ends"]["flow"] == pytest.approx(2958.33, abs=0.01) and dc["ends"]["type"] == CJP
     db = doubler_welds(138.56, 489.2, 12, 10, "S355JR", ST)
@@ -231,20 +287,34 @@ def test_sized_building_1_welds():
         cs = x["column_side"]
         t, p = cs["transverse_stiffeners"], cs["panel_zone"]
         dg = p.get("diagonal_stiffener")
-        F = t["Rst"] + ((p["Vu"] - p["phiVpanel"]) / 0.9 if dg else 0.0)                       # As_req Fy cos θ = ΔV / φ
-        assert t["weld"]["force_pair"] == pytest.approx(F, abs=0.05) and t["weld"]["status"] == "DESIGNED"
-        need = F / 2 * 1000 / (0.9 * 355 * (t["bs"] - 20))
-        assert t["t"] == min(s for s in (12.0, 15.0, 16.0, 18.0, 20.0, 22.0, 25.0, 30.0) if s >= max(need, t["bs"] / 16, 5.0))
+        dV = p["Vu"] - p["phiVpanel"] if dg else 0.0
+        F = max(t["Rst"], dV)
+        Fw = min(F, p["phiVpanel"] - (p["Vu"] - F))
+        assert t["bs"] == 90.0 and t["load_path"]["F_pair"] == pytest.approx(F, abs=0.02)
+        assert t["load_path"]["F_web"] == pytest.approx(Fw, abs=0.03) and t["load_path"]["F_corner"] == pytest.approx(F - Fw, abs=0.03)
+        need = F / 2 * 1000 / (0.9 * 355 * 70)
+        assert t["t"] == min(s for s in (12.0, 15.0, 16.0, 18.0, 20.0) if s >= max(need, 90 / 16, 5.0))
+        wbm = t["weld"]["web_base_metal"]
+        assert t["length"] == 469.2 and wbm["flow_total"] == pytest.approx(Fw * 1000 / 429.2, abs=0.1) and wbm["ok"]
+        assert x["status"] == "DESIGNED" and wbm["U"] == pytest.approx(Fw * 1000 / 429.2 / 1278.0, abs=1e-3)
         if dg:
-            assert t["t"] == 30.0 and t["weld"]["to_flange"]["type"] == CJP and t["weld"]["to_web"]["leg"] == 6.0
-            assert dg["weld"]["ends"]["leg"] == 5.0
+            assert (t["t"], t["weld"]["to_flange"]["leg"], t["weld"]["to_web"]["leg"]) == (15.0, 10.0, 5.0)
+            assert dg["weld"]["ends"]["leg"] == 5.0 and dg["weld"]["corner_axial"] == pytest.approx(dV / dg["cos_theta"], abs=0.1)
+        else:
+            assert (t["t"], t["weld"]["to_flange"]["leg"], t["weld"]["to_web"]["leg"]) == (12.0, 5.0, 5.0)
     bs = building_bases(jr, out, BaseSettings(concrete="C25/30"))
-    r = W.building_welds(jr, out, an, bs, base_settings=BaseSettings(concrete="C25/30"))
+    r = W.building_welds(jr, out, an, bs, base_settings=BaseSettings(concrete="C25/30"), li=li)
     json.dumps(r, allow_nan=True)
     assert r["banner"].startswith("NOT FOR ISSUE") and r["concrete_fc"] == 25.0 and W.BUTT_SPLICE_NOTE in r["notes"]
     assert r["settings"] == {k: getattr(ST, k) for k in WeldSettings.__dataclass_fields__}
-    assert r["counts"]["flange_web"] == {"DESIGNED": 20}
-    for m in r["flange_web"]:
+    assert r["counts"]["flange_web"] == {"DESIGNED": 26}                                       # 20 frame + 6 wind columns
+    wcs = [m for m in r["flange_web"] if m["role"] == "wind_column"]
+    assert len(wcs) == 6 and all(m["local_loads"]["carried_by"] == "gable girts" and not m["end_zones"] for m in wcs)
+    for m in wcs:
+        g = m["segments"][0]["governing"]
+        assert g["q"] == pytest.approx(flange_web_q({"hw": 300.0, "tw": 6.0, "bf_top": 150.0, "tf_top": 8.0, "bf_bot": 150.0,
+                                                     "tf_bot": 8.0}, g["V"])["q"], abs=0.01) and g["lb"] == 73.0
+    for m in (m for m in r["flange_web"] if m["role"] != "wind_column"):
         for s in m["segments"]:
             g = s["governing"]
             q = flange_web_q(_sec_from(g), g["V"])["q"]
@@ -252,7 +322,7 @@ def test_sized_building_1_welds():
             assert g["lb"] == 83.0 and s["weld"]["sides"].startswith("one side") and s["weld"]["leg"] == 5.0
         assert m["end_zones"] and all(z["weld"]["sides"] == "both sides" for z in m["end_zones"])
     braced = [b for b in r["bases"] if b.get("brace_case")]
-    assert len(braced) == 8 and all(b["status"] == "DESIGNED - BRACE CASE NOT EVALUATED" for b in braced)
+    assert len(braced) == 8 and all(b["status"] == "PARTIAL - brace case NOT EVALUATED" for b in braced)
     for b in braced:
         bc = b["brace_case"]
         assert bc["status"] == "NOT EVALUATED" and bc["cases"] == []

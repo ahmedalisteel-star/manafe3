@@ -75,8 +75,11 @@ ST = EndPlateSettings()
 RS = {"d": 424.0, "tw": 6.0, "bf_top": 250.0, "tf_top": 12.0, "bf_bot": 250.0, "tf_bot": 12.0}
 COS = 1 / math.sqrt(1.01)
 KNEE_RS = {"d": 495.0, "tw": 6.0, "bf_top": 200.0, "tf_top": 10.0, "bf_bot": 200.0, "tf_bot": 10.0}
-KNEE_COL = {"d": 489.2, "tw": 6.0, "tf": 10.0, "bf": 200.0, "Pr": 90.0, "Py": 2000.0}
-HEAVY_COL = {"d": 489.2, "tw": 12.0, "tf": 20.0, "bf": 250.0, "Pr": 90.0, "Py": 4000.0}   # the column side is not under test
+# the end-plate tests use a 16 mm column web (its base metal takes the stiffener welds); the J10 / stiffener hand tests use
+# building 1's 6 mm web (COL6), whose base metal FAILS under the stiffener web welds (step 4 review, user 2026-11-12)
+KNEE_COL = {"d": 489.2, "tw": 16.0, "tf": 10.0, "bf": 200.0, "Pr": 90.0, "Py": 2000.0}
+COL6 = {"d": 489.2, "tw": 6.0, "tf": 10.0, "bf": 200.0, "Pr": 90.0, "Py": 2000.0}
+HEAVY_COL = {"d": 489.2, "tw": 20.0, "tf": 30.0, "bf": 250.0, "Pr": 90.0, "Py": 6000.0}   # the column side is not under test
 NEG, POS, FLUSH = "-M (top flange in tension)", "+M (bottom flange in tension)", "-M (top flange in tension, flush)"
 SEC = {"d": 400.0, "tf_t": 10.0, "tf_c": 10.0, "bf": 200.0, "tw": 6.0}
 
@@ -281,7 +284,7 @@ def test_dg16_mark_only_while_unverified(monkeypatch):
 
 
 def test_column_side_J10_and_stiffeners_by_hand():
-    def cs(Puf, col=KNEE_COL, st=ST):
+    def cs(Puf, col=COL6, st=ST):
         return column_side(Puf * 0.49, 500.0, 10.0, 490.0, 46.0, col, "S355JR", st)       # Puf = Mu / (500 − 10)
     a = cs(90.0)
     ch = {c["check"][:5]: c for c in a["checks"]}
@@ -292,30 +295,62 @@ def test_column_side_J10_and_stiffeners_by_hand():
     assert ch["J10.5"]["applicable"] is False and ch["J10.4"]["applicable"] is False and "phiRn" not in ch["J10.4"]
     t = a["transverse_stiffeners"]
     assert a["ok"] and t["Rst"] == 0.0 and t["As_req"] == 0.0 and t["sized_by"].startswith("J10.8")
-    assert (t["bs"], t["t_req"], t["t"], t["length"]) == (60, 5.0, 12.0, 244.6) and "diagonal_stiffener" not in a["panel_zone"]
+    # bs = floor5((200 − 6)/2 − 5) = floor5(92) = 90; the J10.8 minimum 90 + 3 = 93 ≥ 200/3 = 66.7 is a check only;
+    # ts ≥ max(10/2, 90/16 = 5.625) → 12; FULL DEPTH between the flanges: 489.2 − 2 × 10 = 469.2 (user 2026-11-15)
+    assert (t["bs"], t["t_req"], t["t"], t["length"]) == (90, 5.62, 12.0, 469.2) and "diagonal_stiffener" not in a["panel_zone"]
+    assert t["depth"] == "full" and t["weld"]["length_web"] == 429.2                          # 469.2 − 2 × 20 (a clip each end)
+    assert t["J10_8_width"] == {"rule": "bs + tw/2 >= bf/3 (J10.8, Claude's reading)", "value": 93.0, "required": 66.7, "ok": True}
+    assert t["load_path"]["F_pair"] == 0.0 and t["weld"]["to_flange"]["leg"] == 5.0 and t["weld"]["status"] == "DESIGNED"
     # negative control: J10.1 fails at 120 kN → the stiffener force is from J10.1–3 only (20.16, not 120 − 41.89 = 78.11)
     b = cs(120.0)["transverse_stiffeners"]
     assert b["Rst"] == pytest.approx(20.16, abs=0.01) and b["As_req"] == pytest.approx(63.1, abs=0.1)
     assert b["sized_by"].startswith("J10.7") and b["t"] == 12.0
+    # web share 20.16 kN over 429.2 mm: 46.97 N/mm ≤ min(0.6 × 355 × 6, 0.45 × 490 × 6) = 1278
+    assert b["weld"]["web_base_metal"]["flow_total"] == pytest.approx(46.97, abs=0.02) and b["weld"]["web_base_metal"]["ok"]
+    # an end knee (Puf 420, no diagonal): F = Rst = 320.16, all into the web: 320 160 / 429.2 = 745.95 ≤ 1278 (U 0.5837)
+    e = cs(420.0)
+    assert e["ok"] is True and e["transverse_stiffeners"]["weld"]["web_base_metal"]["U"] == pytest.approx(0.5837, abs=1e-4)
+    # negative control, the half-depth option (214.6 mm): 320 160 / 214.6 = 1491.9 > 1278 → FAILS
+    eh = cs(420.0, st=EndPlateSettings(stiffener_depth="half"))
+    assert eh["ok"] is False and eh["fixes"] == ["doubler or thicker web"] and "half depth" in eh["transverse_stiffeners"]["note"]
+    assert eh["transverse_stiffeners"]["weld"]["web_base_metal"]["flow_total"] == pytest.approx(1491.9, abs=0.1)
     c = cs(700.0)
     assert c["transverse_stiffeners"]["Rst"] == pytest.approx(600.16, abs=0.01)
-    # J10.7 alone: ts >= 1878.4 / 120 = 15.65; step 4: each stiffener carries (600.16 + 137.32 / 0.9 = 152.58) / 2 =
-    # 376.37 kN across bs − clip = 40 mm: ts >= 376 370 / (0.9 × 355 × 40) = 29.45 → 30 (see test_welds.py)
-    assert c["transverse_stiffeners"]["t_contact"] == pytest.approx(29.45, abs=0.01) and c["transverse_stiffeners"]["t"] == 30.0
+    # load path: F = max(Rst 600.16, ΔV 137.32) = 600.16; the flange puts 700 − 600.16 = 99.84 straight into the web, so
+    # the stiffener web welds carry 562.68 − 99.84 = 462.84 and the corner 600.16 − 462.84 = 137.32 (= ΔV, the diagonal);
+    # contact: 300.08 kN across 90 − 20 = 70 mm: ts ≥ 300 080 / (0.9 × 355 × 70) = 13.42 → 15 (J10.7 alone 1878.4/180 = 10.4)
+    lp = c["transverse_stiffeners"]["load_path"]
+    assert (lp["F_pair"], lp["F_web"], lp["F_corner"]) == pytest.approx((600.16, 462.84, 137.32), abs=0.02)
+    assert c["transverse_stiffeners"]["t_contact"] == pytest.approx(13.42, abs=0.01) and c["transverse_stiffeners"]["t"] == 15.0
+    # full depth: 462 840 / 429.2 = 1078.38 N/mm ≤ 1278 (U 0.8438) → designed; the web welds 269.6 per line → 5 mm
+    wbm = c["transverse_stiffeners"]["weld"]["web_base_metal"]
+    assert wbm["flow_total"] == pytest.approx(1078.38, abs=0.05) and wbm["U"] == pytest.approx(0.8438, abs=1e-4) and c["ok"]
+    assert c["transverse_stiffeners"]["weld"]["to_web"]["flow"] == pytest.approx(269.6, abs=0.02)
+    assert c["transverse_stiffeners"]["weld"]["to_web"]["leg"] == 5.0 and "fixes" not in c
+    # negative control, the half-depth option: 462 840 / 214.6 = 2156.8 > 1278 → FAILS, "doubler or thicker web"
+    ch_ = cs(700.0, st=EndPlateSettings(stiffener_depth="half"))
+    assert ch_["transverse_stiffeners"]["weld"]["web_base_metal"]["flow_total"] == pytest.approx(2156.8, abs=0.1)
+    assert ch_["ok"] is False and ch_["fixes"] == ["doubler or thicker web"]
     p = c["panel_zone"]
     assert p["phi_J10_6"] == pytest.approx(562.68, abs=0.01) and p["phi_G2_1"] == pytest.approx(562.68, abs=0.01)
     assert p["G2_1"]["kv"] == pytest.approx(9.585, abs=1e-3) and p["G2_1"]["Cv1"] == 1.0 and p["U"] == pytest.approx(1.2441, abs=1e-4)
     dg = p["diagonal_stiffener"]
     assert dg["cos_theta"] == pytest.approx(0.7065, abs=1e-4) and dg["As_req"] == pytest.approx(608.3, abs=0.1)
-    assert (dg["pair_bs"], dg["t"]) == (60, 12.0) and "doubler" not in p and dg["weld"]["status"] == "DESIGNED"
+    assert (dg["pair_bs"], dg["t"]) == (90, 12.0) and "doubler" not in p and dg["weld"]["status"] == "DESIGNED"
+    # the corner: 137.32 / 0.7065 = 194.36 kN along the diagonal < As_req Fy = 608.3 × 355 = 215.95 (governs)
+    assert dg["weld"]["corner_axial"] == pytest.approx(194.36, abs=0.05) and dg["weld"]["force_pair"] == pytest.approx(215.95, abs=0.02)
     # the doubler option: td = 1.46 → 12 mm stock; negative control: a 16 mm web needs neither
     d = cs(700.0, st=EndPlateSettings(panel_zone="doubler"))["panel_zone"]
     assert d["doubler"]["td_req"] == pytest.approx(1.46, abs=0.01) and d["doubler"]["t"] == 12.0 and "diagonal_stiffener" not in d
     assert d["doubler"]["weld"]["status"] == "DESIGNED"
+    # with the doubler the panel takes Vu: all of F = 600.16 into web + doubler (6 + 12) over 429.2 mm, ≤ 0.6 × 355 × 18 = 3834
+    dd = cs(700.0, st=EndPlateSettings(panel_zone="doubler"))
+    assert dd["ok"] and dd["transverse_stiffeners"]["weld"]["web_base_metal"]["capacity"] == pytest.approx(3834.0)
     thick = cs(700.0, col={"d": 489.2, "tw": 16.0, "tf": 20.0, "bf": 250.0, "Pr": 90.0, "Py": 5000.0})["panel_zone"]
     assert thick["phiVpanel"] == pytest.approx(1500.47, abs=0.01) and "diagonal_stiffener" not in thick and "doubler" not in thick
-    # no stock plate for the stiffener → not ok (never a silent pass)
-    assert cs(700.0, st=EndPlateSettings(plate_stock=(12.0, 15.0)))["ok"] is False
+    # a 16 mm web takes the stiffener welds (3408 N/mm); no stock plate for the stiffener → not ok (never a silent pass)
+    assert cs(700.0, col=KNEE_COL)["ok"] is True
+    assert cs(700.0, col=KNEE_COL, st=EndPlateSettings(plate_stock=(12.0,)))["ok"] is False
 
 
 def test_clearances_by_hand():
@@ -362,7 +397,7 @@ def test_defaults_bolt_minimum_plate_width_gauge_stiffener():
 
 
 def test_knee_one_layout_both_signs_and_column_side():
-    col = {"d": 489.2, "tw": 6.0, "tf": 10.0, "bf": 200.0, "Pr": 90.0, "Py": 2000.0}
+    col = KNEE_COL
     rs = {"d": 495.0, "tw": 6.0, "bf_top": 200.0, "tf_top": 10.0, "bf_bot": 200.0, "tf_bot": 10.0}
     j = _joint(Mneg=341.8, Mpos=217.7, cap=197.5, Ptens=(61.8, 217.7), Vu=217.0, kind="knee")
     r = design_joint(j, rs, 1 / math.sqrt(1.01), "S355", ST, col)
@@ -377,9 +412,9 @@ def test_knee_one_layout_both_signs_and_column_side():
     p = cs["panel_zone"]
     a, h = p["G2_1"]["a"], p["G2_1"]["h"]
     kv = 5 + 5 / (a / h) ** 2
-    cv1 = min(1.0, 1.10 * math.sqrt(kv * 200000 / 355) / (h / 6.0))
+    cv1 = min(1.0, 1.10 * math.sqrt(kv * 200000 / 355) / (h / col["tw"]))
     assert p["G2_1"]["kv"] == pytest.approx(kv, abs=1e-3) and p["G2_1"]["Cv1"] == pytest.approx(cv1, abs=1e-4)
-    assert p["phi_G2_1"] == pytest.approx(0.9 * 0.6 * 355 * 489.2 * 6.0 * cv1 / 1000, rel=1e-3)
+    assert p["phi_G2_1"] == pytest.approx(0.9 * 0.6 * 355 * 489.2 * col["tw"] * cv1 / 1000, rel=1e-3)
     if "diagonal_stiffener" in p:
         dg = p["diagonal_stiffener"]
         assert dg["cos_theta"] == pytest.approx(489.2 / math.hypot(489.2, a), abs=1e-4)
@@ -405,7 +440,7 @@ def test_ridge_flush_top_and_grade_escalation():
 def test_not_evaluated_and_settings():
     assert design_joint(_joint(status="NOT EVALUATED"), RS, 1.0, "S355", ST)["status"] == "NOT EVALUATED"
     assert design_joint(_joint(), RS, 1.0, "S690", ST)["status"] == "NOT EVALUATED"
-    for bad in ({"configs": ["5E"]}, {"panel_zone": "x"}, {"bolt_sizes": [18]}, {"electrode": "E90"}, {"nope": 1}):
+    for bad in ({"configs": ["5E"]}, {"panel_zone": "x"}, {"stiffener_depth": "third"}, {"bolt_sizes": [18]}, {"electrode": "E90"}, {"nope": 1}):
         with pytest.raises(ValueError):
             EndPlateSettings.from_dict(bad)
 
@@ -424,7 +459,7 @@ def test_sized_building_1_end_plates_one_per_type():
     jr = building_joints(b0, li, analysis=analyse_building(b, li), out=out)
     r = building_endplates(jr, out)
     json.dumps(r, allow_nan=False)
-    assert r["counts"] == {"DESIGNED": 25} and r["banner"].startswith("NOT FOR ISSUE")
+    assert r["counts"] == {"DESIGNED": 25} and r["banner"].startswith("NOT FOR ISSUE")      # full-depth knee stiffeners
     assert r["settings"] == {k: getattr(ST, k) for k in EndPlateSettings.__dataclass_fields__}    # every default listed
     flush = [x["joint"] for x in r["joints"] if x["type"] != "knee"]
     assert flush and r["not_for_issue"] == {DG16_MARK: flush} and any(n.startswith(DG16_MARK) for n in r["notes"])
@@ -439,6 +474,9 @@ def test_sized_building_1_end_plates_one_per_type():
         assert rows[0]["bolt"]["d"] == p["db"] and rows[0]["t"] == p["t"] and p["db"] >= 20
     knees = [x for x in r["joints"] if x["type"] == "knee"]
     assert all("transverse_stiffeners" in x["column_side"] for x in knees)                        # at every knee
+    for x in knees:
+        t = x["column_side"]["transverse_stiffeners"]
+        assert t["depth"] == "full" and t["length"] == 469.2 and t["weld"]["web_base_metal"]["ok"]
     js = {j["id"]: j for j in jr["joints"]}
     for x in r["joints"]:                                                                           # concurrent pairs from step 1
         for sg, d in x["demands"].items():

@@ -24,8 +24,9 @@ Everything NOT FOR ISSUE: analysis only, no member design.
 forces), 2 and 2b (base plates, anchors, anchor reinforcement) and 3 (knee / ridge / splice end plates) done in the
 engine (2026-11-12); step 3 with its follow-ups APPROVED AS DONE by the user (2026-11-12); step 4 (flange-to-web
 welds, the column-to-plate weld, the shear lug, the stiffener welds) BUILT in the engine (2026-11-12, "Step 4 — what was
-built" below) — WAIT for the user's review / approval; right after step 4: bimsteelauto 0.15.4 (the shared base metal of
-double fillets, open item 5). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+built" below), first review fixes done (2026-11-12) — NOT approved yet, WAIT for the user's review; then, BEFORE step 5:
+the Phase 3 gap "longitudinal wind" as its own step (open item 6 — ask the user the decisions first); right after step 4:
+bimsteelauto 0.15.4 (the shared base metal of double fillets, open item 5). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -324,20 +325,35 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 - Flange-to-web: per station and per LRFD combination q = VQ/I + the local loads of the SAME combination (purlins on
   rafters, girts on columns: w × spacing, w = |dV/dx|; flange braces 2 % of |M|/(d − tf)), spread over lb = t_cleat + 5k
   (83 mm in building 1), vector sum, applied at every station (conservative); one leg per segment; end zones of one depth
-  at every knee / ridge / splice, both sides, developing 0.9 × 0.6 Fy tw. Columns and rafters of the frame lines only
-  (wind columns and end-wall rafters: not yet — stated by their absence, to add with step 5).
+  at every knee / ridge / splice, both sides, developing 0.9 × 0.6 Fy tw. Frame columns and rafters, WIND COLUMNS (the
+  forces of their member check: C&C 1.0 W simple beam, gable girts, flange braces) and END-WALL RAFTERS (the end-rafter
+  frame's LRFD rafter stations; end zones at the end-rafter ridge / splices).
 - Base weld: the cases of step 2 (compression, uplift, shear; wind columns paired conservatively as in step 2); braced
   bays: the wall-brace force T cos α (weak axis) and T sin α (uplift), paired ONLY with the frame reaction of the same
   combination — in building 1 the bracing is one longitudinal-wind case and the frame lines have only transverse wind, so
-  the 8 braced-bay bases read "DESIGNED - BRACE CASE NOT EVALUATED" with the reason.
+  the 8 braced-bay bases read "PARTIAL - brace case NOT EVALUATED" (never DESIGNED) with the reason.
 - Shear lug only with `shear_fix = "lug"` and failing anchors (building 1: no pedestal → anchors not evaluated → no lug);
   f'c from the base-plate settings; the 17.11.3 breakout NOT EVALUATED (U = inf) until the user sends the page.
-- Column transverse stiffeners: the welds AND the stiffener thickness carry (Rst + ΔV / φ) / 2 per stiffener across the
-  flange contact bs − clip (J4.1) — building 1 interior knees: **stiffeners 60 × 30** (was 16), CJP to the flanges, 6 mm
-  to the web; end knees 60 × 15 (was 12), 10 mm fillets to the flanges, 5 mm to the web. Diagonals 5 mm end welds.
+- Column transverse stiffeners (after the user's review, 2026-11-12): width bs = floor5((bf − tw)/2 − 5) (90 mm for
+  bf 200, tw 6; the J10.8 minimum bs + tw/2 ≥ bf/3 is a check only), also in the step 3 sizing. Load path (Claude's
+  equilibrium, replacing "Rst + the diagonal's horizontal part", which counted the diagonal twice): the pair carries
+  F = max(Rst, ΔV) across its flange contact (thickness, flange welds); of Puf, Puf − F goes from the column flange
+  straight into the web, so the stiffener web welds carry F_web = min(F, φVpanel − (Puf − F)) (with a doubler the panel
+  takes Vu) and the corner F − F_web goes into the diagonal (its end welds sized for max(As_req Fy, corner / cos θ)); the
+  COLUMN WEB under the stiffener web welds on both faces: min(1.0 × 0.6 Fy tw, 0.75 × 0.6 Fu tw) per mm → FAILS "doubler
+  or thicker web". Knee stiffeners are FULL DEPTH between the column flanges (web weld d − 2 tf − 2 clip; user
+  2026-11-15: they bound the panel zone and the diagonal runs corner to corner); setting `stiffener_depth = "half"` (the
+  J10.8 half-depth minimum) is kept only as an option for non-knee stiffeners with no diagonal.
+- When only the column side fails, the knee result shows the FIRST end-plate layout that passes everything else (not the
+  last layout tried) — Claude's decision, accepted by the user 2026-11-15.
+- **Building 1 knees (full-depth stiffeners): all 10 DESIGNED.** Interior knees: stiffeners 90 × 15 × 469.2, 10 mm
+  fillets to the flanges, 5 mm to the web; F 601.41, F_web 462.82, corner 138.59 → the 6 mm web 1078.3 N/mm, U 0.844;
+  diagonal pair 12 mm, 5 mm end welds. End knees: 90 × 12 × 469.2, 5 / 5 mm; the web 745.5 N/mm, U 0.583. (Half depth
+  would have failed: 2156.7 and 1491.1 > 1278 — kept as the negative control.)
 - End-plate stiffeners (4ES / 8ES): double fillets developing the DESIGN strength (0.9 Fy ts into the plate, 0.6 Fy ts
   along the flange), CJP above 12 mm.
-- Building 1: end plates 25 DESIGNED; flange-to-web 20 members one-sided 5 mm (largest U 0.31); base welds 5 mm.
+- Building 1: end plates 25 DESIGNED; flange-to-web 26 members (20 frame + 6 wind columns) one-sided 5 mm (largest
+  U 0.31); base welds 5 mm; 8 braced-bay bases PARTIAL (open item 6).
 - Tests `test_welds.py` (10, hand values in its docstring); the step 3 tests updated where the welds replaced
   "NOT EVALUATED" and where the stiffener now sizes for its contact (`test_endplates.py`).
 
@@ -357,6 +373,8 @@ welds hooked into `endplates.column_side` / `endplate_stiffener`. NOT FOR ISSUE.
 | ACI 318-19 17.11 shear lug (step 4) | 17.11.2 bearing φ 0.65 × 1.7 f'c Aef Ψbrg (Ψ: 1 + Pu/(n Nsa) ≤ 1 tension, 1 + 4Pu/(Abp f'c) ≤ 2 compression); 17.11.3 breakout NOT EVALUATED | the printed 17.11.2 / 17.11.3 and Fig. R17.11.3.1 (the user sends them) | VERIFIED False |
 | AISC DG 1 shear lug (step 4) | lug bending t ≥ √(4 Mu / (0.9 Fy B)), Mu = Vu (G + h/2); the lug weld: shear + the moment as a couple over t | DG 1 2nd ed. (the lug section) | VERIFIED False |
 | Step 4 rules by Claude | local-load spread lb = t_cleat + 5k; the end zone develops 0.9 × 0.6 Fy tw; the stiffener corner clip 20 mm (setting); weak-axis base shear = the wall brace's T cos α; J4.1 for plates pulled across a weld; stiffener thickness for its flange contact; grout 50 mm (setting) | the user's call | VERIFIED False |
+| J4.1 for welds loaded across their axis (step 4) | a plate pulled across a double fillet (a stiffener into a flange or an end plate, a diagonal end): its limit is J4.1 min(0.9 Fy t, 0.75 Fu t), shared by the two lines — Claude's reading, not the user's shear rule | AISC 360-16 J2.4 / J4.1 | VERIFIED False |
+| Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule, in Manafe3); the library `size_fillet_weld` still credits the full t to each line | bimsteelauto 0.15.4 right after step 4 (open item 5) | open |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
 | bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
@@ -1292,6 +1310,11 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 5. bimsteelauto 0.15.4 (right after step 4, user 2026-11-12): `size_fillet_weld` credits the full base-metal thickness to
    EACH weld line; for a double fillet straddling one plate the lines share it (0.45 Fu t / 2 per line). Manafe3 checks it
    itself in `engine/connections/welds.py`; the step 3 web weld passes either way (web shear 199.4 kN per line ≥ 108.5).
+6. **Phase 3 gap — longitudinal wind** (user 2026-11-12): the frame-line analysis has NO longitudinal-wind (wind parallel
+   to the ridge) combinations; they often govern uplift on the end frames and the braced frames. The bracing analysis is
+   one longitudinal case of its own, so a braced-bay base cannot pair the brace force with a frame reaction of the same
+   combination (step 4: "PARTIAL - brace case NOT EVALUATED"). Fix it BEFORE step 5 as its own step — ask the user the
+   decisions first (load cases, Cp for wind on the end wall / along the roof, the combinations, which members re-checked).
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

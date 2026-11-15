@@ -102,6 +102,9 @@ class EndPlateSettings:
     wrench_allowance: float = 5.0        # mm beyond the nut's corner radius (socket wall)
     tension_zone_extra: float = 2.0      # × d beyond the innermost tension row: web weld developing the web yield
     panel_zone: str = "diagonal"         # or "doubler"
+    # knee column stiffeners FULL DEPTH between the column flanges: they bound the panel zone and the diagonal runs corner
+    # to corner (user 2026-11-15); "half" (the J10.8 half-depth minimum) is an option for non-knee stiffeners with no diagonal
+    stiffener_depth: str = "full"
     k_weld_assumed: float = 6.0          # column flange-to-web weld leg in k = tf + w, until step 4
     one_per_type: bool = True
 
@@ -115,6 +118,8 @@ class EndPlateSettings:
             raise ValueError("a bolt size with no standard hole / edge distance listed")
         if self.electrode not in ELECTRODES:
             raise ValueError("electrode E60 / E70 / E80")
+        if self.stiffener_depth not in ("full", "half"):
+            raise ValueError("stiffener_depth: full / half")
         if self.panel_zone not in ("diagonal", "doubler"):
             raise ValueError("panel_zone: diagonal / doubler")
         return self
@@ -418,8 +423,11 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
     sized up for Rst = Puf − min φRn(J10.1–3) when one fails (J10.7: Ast = Rst / (φ Fy)). Panel zone: φVpanel =
     min(J10.6, φ 0.6 Fy dc tw Cv1 — G2.1 with kv from a = the stiffener spacing (the lever), h = dc − 2 tf); Vu = Puf;
     a shortfall → diagonal stiffener As = (Vu − φVpanel) / (φ Fy cos θ), cos θ = dc / √(dc² + a²) (or a doubler
-    td = (Vu − φVpanel) / (φ 0.6 Fy dc)). Welds (step 4, welds.py): the transverse stiffeners to the flanges and the web
-    for Rst + the horizontal part of the diagonal force; the diagonal for As_req Fy; the doubler for its required shear."""
+    td = (Vu − φVpanel) / (φ 0.6 Fy dc)). Stiffener width bs = floor5((bf − tw)/2 − 5) (J10.8 minimum as a check).
+    Welds (step 4, welds.py) along the load path: the pair carries F = max(Rst, ΔV) across its flange contact (thickness
+    and flange welds); its web welds only the share the panel takes, φVpanel − (Puf − F), with the column web base metal
+    checked for both faces (1.0 × 0.6 Fy tw, 0.75 × 0.6 Fu tw); the rest goes from the corner into the diagonal (its end
+    welds for max(As_req Fy, the corner force)); the doubler for its required shear."""
     ws = (ws or WeldSettings()).check()
     cs = check_column_side(Mu=Mu, d_beam=rafter_d, tf_beam=rafter_tf, col_grade=pg, d_col=col["d"], tw_col=col["tw"],
                            tf_col=col["tf"], k_col=col["tf"] + st.k_weld_assumed, h_col=col["d"] - 2 * col["tf"], lb=lb,
@@ -440,17 +448,21 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
     rows.append({"check": "J10.4 web sidesway buckling", "applicable": False,
                  "note": "the flange-level transverse stiffeners restrain the flanges"})
     tw, bf, d, tf = col["tw"], col["bf"], col["d"], col["tf"]
-    Fy, _ = get_grade(pg, tw)
+    Fy, Fu = get_grade(pg, tw)
     Fy_st = get_grade(pg, 12.0)[0]
-    bs = math.floor(min(max(bf / 3 - tw / 2, 50.0), (bf - tw) / 2) / 5) * 5
+    # Manafe3 step 4 review (user 2026-11-12): near-full width bs = floor5((bf − tw)/2 − 5); the J10.8 minimum
+    # bs + tw/2 ≥ bf/3 is a check only
+    bs = math.floor(((bf - tw) / 2 - 5.0) / 5.0 + 1e-9) * 5.0
+    j108 = {"rule": "bs + tw/2 >= bf/3 (J10.8, Claude's reading)", "value": round(bs + tw / 2, 1), "required": round(bf / 3, 1),
+            "ok": bool(bs + tw / 2 + 1e-9 >= bf / 3)}
     need, Rst, As = max(rafter_tf / 2, bs / 16), 0.0, 0.0
     if any(u > 1.0 for _, _, u in local):
         Rst = Puf - min(c for _, c, _ in local)
         As = Rst * 1000.0 / (PHI_STIFF * Fy_st)
         need = max(need, As / (2 * bs))
-    ts = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= need), None)
-    trans = {"detail": "standard: a pair at both rafter flange levels", "bs": bs, "t": ts, "t_req": round(need, 2),
-             "length": round(d / 2, 1), "Rst": round(Rst, 2), "As_req": round(As, 1),
+    trans = {"detail": "standard: a pair at both rafter flange levels", "bs": bs, "width_rule": "floor5((bf - tw)/2 - 5)",
+             "J10_8_width": j108, "depth": st.stiffener_depth,
+             "length": round(d - 2 * tf if st.stiffener_depth == "full" else d / 2 - tf, 1), "Rst": round(Rst, 2), "As_req": round(As, 1),
              "sized_by": "J10.7 force (a J10.1-J10.3 check fails)" if Rst > 0 else "J10.8 dimensions only (minimum)"}
     a, h = lever, d - 2 * tf
     kv = _g.kv_coefficient(a / h)
@@ -461,7 +473,7 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
              "G2_1": {"a": round(a, 1), "h": round(h, 1), "a_over_h": round(a / h, 3), "kv": round(kv, 3), "Cv1": round(cv1, 4),
                       "phi": phi},
              "phiVpanel": round(phiV, 2), "U": round(Puf / phiV, 4)}
-    F_diag_h = 0.0
+    dV, cos_t, t_web, doubler_t = 0.0, None, tw, 0.0
     if Puf > phiV:
         dV = Puf - phiV
         if st.panel_zone == "diagonal":
@@ -472,35 +484,56 @@ def column_side(Mu: float, rafter_d: float, rafter_tf: float, lever: float, lb: 
                                            "phiVpanel": round(phiV, 2), "phi": PHI_STIFF, "Fy": Fy_st,
                                            "cos_theta": round(cos_t, 4), "theta_deg": round(math.degrees(math.acos(cos_t)), 2),
                                            "As_req": round(Areq, 1), "pair_bs": bs, "t": tsd}
-            if tsd is not None:
-                panel["diagonal_stiffener"]["weld"] = diagonal_welds(Areq, Fy_st, bs, tsd, tf, pg, ws)
-                F_diag_h = Areq * Fy_st * cos_t / 1000.0
         else:
             td_req = dV * 1000.0 / (PHI_STIFF * 0.6 * Fy * d)
             tdd = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= td_req), None)
             panel["doubler"] = {"formula": "td = (Vu - phiVpanel) / (phi 0.6 Fy dc)", "td_req": round(td_req, 2), "t": tdd}
             if tdd is not None:
                 panel["doubler"]["weld"] = doubler_welds(dV, d, tdd, tf, pg, ws)
-    # Manafe3 step 4 (2026-11-12): each stiffener must carry (Rst + the diagonal's horizontal part) / 2 in tension across
-    # its flange contact bs − clip (J4.1, φ 0.9) — the force its welds are sized for (user answer 10); thicker from stock
-    Fc = Rst + F_diag_h
-    if ts is not None and Fc > 0 and bs > ws.stiffener_clip:
+                doubler_t = tdd
+    # Load path (user review 2026-11-12; Claude's equilibrium): of Puf at a stiffener level, Puf − Rst goes from the column
+    # flange straight into the web; the stiffener pair carries F = max(Rst, ΔV) (with a diagonal it must deliver ΔV at
+    # the corner); its web welds put into the web only what the panel can still take, φVpanel − (Puf − F) (with a doubler
+    # the panel takes Vu); the rest goes from the stiffener corner into the diagonal.
+    dg = panel.get("diagonal_stiffener")
+    F = max(Rst, dV if dg else 0.0)
+    cap_panel = Puf if "doubler" in panel else phiV
+    F_web = min(F, max(0.0, cap_panel - (Puf - F)))
+    F_corner = F - F_web
+    ts = None
+    if F > 0 and bs > ws.stiffener_clip:
         def contact_need(t):
-            return Fc / 2 * 1000.0 / (PHI_STIFF * get_grade(pg, t)[0] * (bs - ws.stiffener_clip))
-        if ts + 1e-9 < contact_need(ts):
-            ts2 = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= max(need, contact_need(t))), None)
-            trans.update(t=ts2, t_req=round(max(need, contact_need(ts2 or max(st.plate_stock))), 2),
-                         t_contact=round(contact_need(ts2 or max(st.plate_stock)), 2),
-                         sized_by=trans["sized_by"] + "; the flange contact bs - clip carries (Rst + diagonal horizontal) / 2")
-            ts = ts2
+            return F / 2 * 1000.0 / (PHI_STIFF * get_grade(pg, t)[0] * (bs - ws.stiffener_clip))
+        ts = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= max(need, contact_need(t))), None)
+        trans["t_contact"] = round(contact_need(ts or max(st.plate_stock)), 2)
+        if ts is not None and contact_need(ts) > need:
+            trans["sized_by"] += "; the flange contact bs - clip carries F / 2 (J4.1)"
+        need = max(need, contact_need(ts or max(st.plate_stock)))
+    else:
+        ts = next((t for t in sorted(st.plate_stock) if t + 1e-9 >= need), None)
+    trans.update(t=ts, t_req=round(need, 2), load_path={"F_pair": round(F, 2), "F_web": round(F_web, 2),
+                                                        "F_corner": round(F_corner, 2), "panel_capacity": round(cap_panel, 2),
+                                                        "flange_direct": round(Puf - F, 2)})
     if ts is not None:
-        trans["weld"] = column_stiffener_welds(Rst, F_diag_h, bs, ts, d / 2 - tf, tf, tw, pg, ws)
+        full = st.stiffener_depth == "full"
+        trans["weld"] = column_stiffener_welds(F, F_web, bs, ts, d - 2 * tf if full else d / 2 - tf, tf, tw + doubler_t, pg,
+                                               ws, web_note="column web + doubler" if doubler_t else "column web",
+                                               clips=2 if full else 1)
+        if not full:
+            trans["note"] = ("half depth: the J10.8 minimum, an option for non-knee stiffeners with no diagonal — "
+                             "inconsistent with a diagonal (the panel-zone boundary)")
+    if dg is not None and dg["t"] is not None:
+        dg["weld"] = diagonal_welds(dg["As_req"], Fy_st, bs, dg["t"], tf, pg, ws,
+                                    corner_axial=F_corner / cos_t if F_corner > 0 else 0.0)
     welds = [trans.get("weld")] + [v.get("weld") for k, v in panel.items() if k in ("diagonal_stiffener", "doubler")]
     welds_ok = all(w["status"] == "DESIGNED" for w in welds if w)
     ok = ts is not None and welds_ok and all(v.get("t") is not None for k, v in panel.items()
                                              if k in ("diagonal_stiffener", "doubler"))
+    fixes = []
+    if trans.get("weld", {}).get("web_base_metal", {}).get("ok") is False:
+        fixes.append("doubler or thicker web")
     return {"Puf": round(Puf, 2), "checks": rows, "transverse_stiffeners": trans, "panel_zone": panel, "ok": ok,
-            "near_member_end": True, "k_note": f"k = tf + {st.k_weld_assumed:g} mm (assumed flange-to-web weld, step 4)"}
+            **({"fixes": fixes} if fixes else {}), "near_member_end": True, "k_note": f"k = tf + {st.k_weld_assumed:g} mm (assumed flange-to-web weld, step 4)"}
 
 
 # --------------------------------------------------------------------------------------------------------- one joint
@@ -525,7 +558,7 @@ def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings
     Vu = j["design"]["Vu"]["value"]
     grades = [fixed["grade"]] if "grade" in fixed else st.grades()
     sizes = [fixed["db"]] if "db" in fixed else [d for d in st.bolt_sizes if d >= st.bolt_min_main - 1e-9]
-    last = None
+    last = col_only = None
     for gb in grades:
         for cfg in st.configs:
             for db in sizes:
@@ -534,10 +567,19 @@ def design_joint(j: dict, rs: dict, cos: float, grade: str, st: EndPlateSettings
                              "+M": _side(cfg, secs["+M"], db, gb, pg, dem["+M"]["Mu_eq"], st)}
                     r = _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed, ws)
                     last = r
+                    # Manafe3 step 4: the column side does not depend on the end-plate layout — keep the first layout
+                    # whose only failures are column-side ones, and report it (not the last layout tried)
+                    if col_only is None and r.get("failed_checks") and all(c.startswith("column side")
+                                                                           for c in r["failed_checks"]):
+                        col_only = r
                     if r["ok"]:
                         if gb != st.bolt_grade:
                             r["grade_note"] = f"{st.bolt_grade} failed up to M{max(sizes):g} in every configuration: {gb} used"
                         return {**out, **r, "status": "DESIGNED"}
+    if col_only is not None:
+        return {**out, **col_only, "status": "FAILS",
+                "fixes": col_only["column_side"].get("fixes")
+                or ["a stiffer column at the knee (stiffener / doubler / web) — the end plate itself passes"]}
     return {**out, **last, "status": "FAILS",
             "fixes": ["a deeper plate (more rows / 8ES), a thicker plate, or bigger bolts / grade 10.9"]
             + (["the flush (top) side: four-bolt flush, a deeper rafter at the joint, or bigger bolts"] if j["type"] != "knee" else [])}
@@ -590,7 +632,12 @@ def _evaluate(j, sides, cfg, db, gb, pg, rs, cos, col, Vu, dem, lever, st, fixed
         lb = rs["tf_top"] / cos + 2 * fw["leg"] + 2 * t
         res["column_side"] = column_side(Mu, psec["d"], tf_max / cos, lever, lb, col, pg, st, ws)
         if not res["column_side"]["ok"]:
-            bad.append("column side: no stock plate for a stiffener / doubler, or a stiffener weld fails")
+            cs_ = res["column_side"]
+            whys = [w["why"] for w in [cs_["transverse_stiffeners"].get("weld")] +
+                    [v.get("weld") for k, v in cs_["panel_zone"].items() if k in ("diagonal_stiffener", "doubler")]
+                    if w and w.get("status") != "DESIGNED" and w.get("why")]
+            bad.append("column side: " + ("; ".join(whys) if whys else "no stock plate for a stiffener / doubler, or a "
+                                                                        "stiffener weld fails"))
     res["ok"] = not bad
     if bad:
         res["failed_checks"] = bad

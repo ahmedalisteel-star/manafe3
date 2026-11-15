@@ -33,9 +33,12 @@ Manafe3 here (the user's decisions 2026-11-12, HANDOVER "Step 4 decisions"; Clau
                          EVALUATED until the user sends the printed text (never a pass); DG 1 plate bending t ≥ √(4 Mu /
                          (φ Fy B)), Mu = Vu (G + h/2), and the lug weld (shear + the moment as a couple over t), VERIFIED
                          False; the anchors then take tension only.
-    column_stiffener_welds   to the flanges AND the web for the force they carry: Rst + the horizontal part of the
-                         diagonal force As Fy cos θ; never below J2.4 / shop_min_leg; CJP only above 12 mm
-    diagonal_welds       As_req Fy, the end welds across bs (double fillet, θ 90°); along the web: the minimum leg
+    column_stiffener_welds   the pair carries F = max(Rst, ΔV) across its flange contact (welds θ 90°); its web welds
+                         carry only the share the web panel takes, φVpanel − (Puf − F); the column web base metal for the
+                         welds on both faces: min(1.0 × 0.6 Fy tw, 0.75 × 0.6 Fu tw) per mm (user review 2026-11-12) →
+                         FAILS "doubler or thicker web"; never below J2.4 / shop_min_leg; CJP only above 12 mm
+    diagonal_welds       the corner: max(As_req Fy, the stiffener's corner force / cos θ), end welds across bs (double
+                         fillet, θ 90°); along the web: the minimum leg
     doubler_welds        the doubler's REQUIRED shear (Vu − φVpanel): flow (Vu − φVpanel) / dc along each flange edge
     endplate_stiffener_welds  double fillets developing the stiffener's design strength: 0.9 Fy ts to the end plate
                          (J4.1, θ 90°), 0.6 Fy ts to the beam flange (J4.2, θ 0°); CJP above 12 mm. AISC 358 is reference only (non-seismic frames, user 2026-11-12).
@@ -65,7 +68,8 @@ BEARING_NOTE = ("compression by bearing on the base plate; base plate <= 50 mm, 
                 "TO CONFIRM)")
 VERIFIED = {"shared_base_metal": False, "local_load_spread": False, "one_side_max_leg": False, "end_zone_web_shear": False,
             "base_bearing_M2_6_J1_4": False, "aci_17_11_lug_bearing": False, "dg1_lug": False, "stiffener_clip": False,
-            "weak_axis_from_brace": False}
+            "weak_axis_from_brace": False, "j4_1_transverse_welds": False, "stiffener_corner_load_path": False}
+PARTIAL = "PARTIAL - brace case NOT EVALUATED"
 NOT_EVALUATED = "NOT EVALUATED"
 
 
@@ -460,32 +464,52 @@ def anchor_Nsa(base: dict) -> float | None:
 
 # ---------------------------------------------------------------------------------------------- stiffener welds
 
-def column_stiffener_welds(Rst: float, F_diag_h: float, bs: float, ts: float, length: float, tf_col: float,
-                           tw_col: float, grade: str, st: WeldSettings) -> dict:
-    """Column transverse stiffener pair at one rafter-flange level, welded to the column flange and web for the force
-    the pair carries: F = Rst + the horizontal part of the diagonal force (kN, the pair); each stiffener F / 2 with a
-    double fillet (both faces of the stiffener) — to the flange across bs − clip (θ 90°), to the web along the stiffener
-    length − clip (θ 0°). Never below J2.4 / shop_min_leg; CJP above 12 mm."""
-    F = Rst + F_diag_h
-    each = F / 2.0
-    Lfl, Lwb = bs - st.stiffener_clip, length - st.stiffener_clip
+def web_base_metal(flow_total: float, t_web: float, grade: str) -> dict:
+    """The column web under the stiffener web welds on BOTH faces, per unit length, total for both faces (user review
+    2026-11-12): φRn = min(1.0 × 0.6 Fy tw (J4.2 shear yielding), 0.75 × 0.6 Fu tw (J4.2 shear rupture)), N/mm."""
+    Fy, Fu = get_grade(grade, t_web)
+    y, r = 1.0 * 0.6 * Fy * t_web, 0.75 * 0.6 * Fu * t_web
+    cap = min(y, r)
+    return {"flow_total": round(flow_total, 2), "yield": round(y, 2), "rupture": round(r, 2), "capacity": round(cap, 2),
+            "t": t_web, "U": round(flow_total / cap, 4), "ok": bool(flow_total <= cap + 1e-9)}
+
+
+def column_stiffener_welds(F_pair: float, F_web: float, bs: float, ts: float, length: float, tf_col: float,
+                           t_web: float, grade: str, st: WeldSettings, web_note: str = "column web",
+                           clips: int = 2) -> dict:
+    """Column transverse stiffener pair at one rafter-flange level (both faces of the column web). F_pair (kN) crosses the
+    flange contact: each stiffener F_pair / 2 with a double fillet (both faces of the stiffener) across bs − clip (θ 90°,
+    J4.1 on the stiffener); F_web (kN, the share the web panel takes) goes through the web welds along length − clip
+    (θ 0°; length = the stiffener plate, d − 2 tf at full depth with a clip at both ends — clips 2 — or d/2 − tf at half
+    depth — clips 1), and the column web takes it from both faces: web_base_metal. Never below J2.4 / shop_min_leg; CJP above 12 mm."""
+    Lfl, Lwb = bs - st.stiffener_clip, length - clips * st.stiffener_clip      # full depth: a clip at both flanges
     if Lfl <= 0 or Lwb <= 0:
         return {"status": "FAILS", "why": f"the clip {st.stiffener_clip:g} mm leaves no weld length"}
-    fl = size_line(each * 1000.0 / 2.0 / Lfl, 90.0, ts, min(ts, tf_col), grade, st, lines_sharing=2, mode="tension")
-    wb = size_line(each * 1000.0 / 2.0 / Lwb, 0.0, ts, min(ts, tw_col), grade, st, lines_sharing=2)
-    ok = fl["ok"] and wb["ok"]
-    return {"force_pair": round(F, 2), "Rst": round(Rst, 2), "F_diagonal_horizontal": round(F_diag_h, 2),
-            "force_each": round(each, 2), "length_flange": Lfl, "length_web": round(Lwb, 1), "to_flange": fl, "to_web": wb,
-            "status": "DESIGNED" if ok else "FAILS", "basis": "Rst + the horizontal part of the diagonal force"}
+    fl = size_line(F_pair / 2.0 * 1000.0 / 2.0 / Lfl, 90.0, ts, min(ts, tf_col), grade, st, lines_sharing=2, mode="tension")
+    wb = size_line(F_web / 2.0 * 1000.0 / 2.0 / Lwb, 0.0, ts, min(ts, t_web), grade, st, lines_sharing=2)
+    wbm = {**web_base_metal(F_web * 1000.0 / Lwb, t_web, grade), "plate": web_note}
+    ok = fl["ok"] and wb["ok"] and wbm["ok"]
+    out = {"force_pair": round(F_pair, 2), "force_web": round(F_web, 2), "force_each": round(F_pair / 2.0, 2),
+           "length_flange": Lfl, "length_web": round(Lwb, 1), "to_flange": fl, "to_web": wb, "web_base_metal": wbm,
+           "status": "DESIGNED" if ok else "FAILS",
+           "basis": "the pair carries F = max(Rst, the diagonal's dV) across the flange; its web welds only the panel's share"}
+    if not wbm["ok"]:
+        out["why"] = (f"{web_note} base metal: {wbm['flow_total']:.1f} > {wbm['capacity']:.1f} N/mm (both faces)")
+        out["fixes"] = ["doubler or thicker web"]
+    return out
 
 
-def diagonal_welds(As_req: float, Fy: float, bs: float, t_d: float, t_other: float, grade: str, st: WeldSettings) -> dict:
-    """Diagonal stiffener pair: force As_req Fy; each plate's end welded across bs with a double fillet (θ 90°) at each
-    end; along the web the minimum leg (continuity)."""
-    F = As_req * Fy / 1000.0
+def diagonal_welds(As_req: float, Fy: float, bs: float, t_d: float, t_other: float, grade: str, st: WeldSettings,
+                   corner_axial: float = 0.0) -> dict:
+    """Diagonal stiffener pair: its end welds (the corner at the stiffener and the column flange) across bs, a double
+    fillet each plate (θ 90°), for max(As_req Fy, the corner force from the transverse stiffener along the diagonal,
+    corner_axial = F_corner / cos θ) (kN, the pair); along the web the minimum leg (continuity)."""
+    F_as = As_req * Fy / 1000.0
+    F = max(F_as, corner_axial)
     each = F / 2.0
     end = size_line(each * 1000.0 / 2.0 / bs, 90.0, t_d, min(t_d, t_other), grade, st, lines_sharing=2, mode="tension")
-    return {"force_pair": round(F, 2), "force_each": round(each, 2), "ends": end,
+    return {"force_pair": round(F, 2), "force_As_Fy": round(F_as, 2), "corner_axial": round(corner_axial, 2),
+            "force_each": round(each, 2), "ends": end,
             "web": {"leg": max(min_weld_size(t_d), st.shop_min_leg), "sized_by": "minimum (continuity)"},
             "status": "DESIGNED" if end["ok"] else "FAILS"}
 
@@ -527,7 +551,7 @@ def _frame_result(an: dict, x: float) -> tuple[dict | None, str | None]:
 
 
 def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result: dict | None = None,
-                   settings: WeldSettings | None = None, base_settings=None) -> dict:
+                   settings: WeldSettings | None = None, base_settings=None, li=None) -> dict:
     """The step 4 welds over a building: flange-to-web of every frame column and rafter, the column-to-base-plate weld of
     every base (with the braced-bay brace case), the shear lug where selected and needed."""
     from .baseplates import BaseSettings, column_section, design_base     # local: avoid an import cycle
@@ -582,6 +606,53 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
                     zones.append({"joint": j["id"], "at": _along(m, j["point"])})
         zones = [dict(t) for t in {(z["joint"], round(z["at"], 1)): z for z in zones}.values()]
         stations = _member_stations(fres, mid_src)
+        fw_rows.append(flange_web_member(m, stations, _plate_grade(m), st, local, zones))
+    # wind columns (the forces of their member check: C&C 1.0 W simple beam, both directions) and end-wall rafters
+    efs = {e["end"]: e for e in analysis.get("end_frames", [])}
+    wcs = [m for m in out["members"] if m.get("role") == "wind_column" and m.get("section")]
+    if wcs:
+        inputs = {}
+        why = None
+        if li is None:
+            why = "the loads input (li) is needed for the wind-column forces"
+        else:
+            from ..design.secondary_checks import wind_column_inputs
+            try:
+                inputs = {row["id"]: (row, inp) for row, inp in wind_column_inputs(out, li, efs)}
+            except Exception as exc:                                     # stated, never a silent pass
+                why = f"wind-column forces: {exc}"
+        for m in wcs:
+            if m["id"] not in inputs:
+                fw_rows.append({"member": m["id"], "role": m["role"], "status": NOT_EVALUATED,
+                                "missing": [why or "no wind-column forces for this member"]})
+                continue
+            row, inp = inputs[m["id"]]
+            stations = [(combo, [(f.station, f.Vy, f.Mz) for f in sts]) for combo, sts in inp.forces.items()]
+            local = {"t_cleat": t_cleat or 0.0, "spacing": _spacing([0.0, *row["girts"]]) if t_cleat else None,
+                     "carried_by": "gable girts", "flange_braces": bool(row["flange_braces"] and t_cleat),
+                     "rule": "as the frame members; forces: the wind column's member check (C&C 1.0 W, simple beam)"}
+            fw_rows.append(flange_web_member(m, stations, _plate_grade(m), st, local, []))
+    er_joints = [j for j in joints_result["joints"] if j["type"] in ("end_rafter_ridge", "end_rafter_splice")]
+    for m in out["members"]:
+        if m.get("role") != "end_rafter" or not m.get("section"):
+            continue
+        end = "first" if m["id"][1] == "F" else "last"
+        ef = efs.get(end)
+        if ef is None:
+            fw_rows.append({"member": m["id"], "role": m["role"], "status": NOT_EVALUATED,
+                            "missing": [f"no end-rafter frame analysis for the {end} end wall"]})
+            continue
+        stations = end_rafter_stations(ef, m, k_slope)
+        side = m["id"][-1]
+        ys = [o["start"][1] for o in others if o.get("role") in ("purlin", "eave_strut") and o.get("side") == side]
+        sp = _spacing(ys)
+        fbs = any(o.get("role") == "flange_brace" and str(o.get("host", "")).startswith("end rafter")
+                  and abs(o["start"][0] - m["start"][0]) < 1.0 for o in others)
+        local = {"t_cleat": t_cleat or 0.0, "spacing": (sp * k_slope if sp else None) if t_cleat else None,
+                 "carried_by": "purlins", "flange_braces": bool(fbs and t_cleat),
+                 "rule": "as the frame rafters; forces: the end-rafter frame (LRFD rafter stations)"}
+        zones = [{"joint": j["id"], "at": _along(m, j["point"])} for j in er_joints
+                 if any(jm["id"] == m["id"] for jm in j["members"])]
         fw_rows.append(flange_web_member(m, stations, _plate_grade(m), st, local, zones))
     # bases
     base_rows = []
@@ -641,7 +712,7 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
                 res = base_weld(sec, tp, cases + pb["cases"], grade, st)
             res["brace_case"] = pb
             if pb.get("status") == NOT_EVALUATED and res.get("status") == "DESIGNED":
-                res["status"] = "DESIGNED - BRACE CASE NOT EVALUATED"
+                res["status"] = PARTIAL
                 res.setdefault("missing", []).append(pb["why"])
         row.update(res)
         # shear lug
@@ -667,6 +738,21 @@ def building_welds(joints_result: dict, out: dict, analysis: dict, bases_result:
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "concrete_fc": bst.fc, "flange_web": fw_rows,
             "bases": base_rows, "counts": counts, "notes": notes,
             "open_flags": sorted(f"engine.connections.welds.{k}" for k, v in VERIFIED.items() if not v)}
+
+
+def end_rafter_stations(ef: dict, m: dict, k_slope: float) -> list:
+    """[(combo, [(x along the member, V, M), ...])] of one end-wall rafter (A or B) from the end-rafter frame's LRFD
+    rafter stations [y, P, V, M] (y across the building): the stations within the member's y range, x = |y − y_start| ×
+    √(1 + slope²)."""
+    y0, y1 = m["start"][1], m["end"][1]
+    lo, hi = min(y0, y1), max(y0, y1)
+    out = []
+    for combo, r in ef["results"].items():
+        if r.get("set") != "LRFD" or not r.get("rafter_stations"):
+            continue
+        rows = sorted((abs(y - y0) * k_slope, V, M) for y, _P, V, M in r["rafter_stations"] if lo - 1.0 <= y <= hi + 1.0)
+        out.append((combo, rows))
+    return out
 
 
 def _plate_grade(m: dict) -> str:
