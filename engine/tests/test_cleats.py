@@ -14,22 +14,23 @@ Geometry = building 1's purlin cleat: PL8 × 100 × 180, holes 14 mm at 45 / 155
                 cleat bearing (toward the top edge): upper lc = 180 − 155 − 7 = 18 → min(1.2 × 18 × 8 × 490 = 84 672,
                   2.4 × 12 × 8 × 490 = 112 896) = 84 672 N; lower lc = 110 − 14 = 96 → 112 896; φ Σ = 0.75 × 197 568
                   = 148.176 kN → U 0.067488
-                web bearing (toward the bottom flange): lower lc = 45 − 2 − 7 = 36 → min(1.2 × 36 × 2 × 420 = 36 288,
-                  2.4 × 12 × 2 × 420 = 24 192) = 24 192; upper the same → φ Σ = 0.75 × 48 384 = 36.288 kN → U 0.27557
+                web bearing (toward the bottom flange) — AISI S100-16 J3 (step 5c retrofit, VERIFIED False): d/t = 6 → C 3.0,
+                  mf 0.75: φ 0.60 × 3 × 0.75 × 12 × 2 × 420 = 13.608 kN; edge shear φ 0.70 (Fu/Fy 1.2) × 2 × e × 420 with
+                  e = lc + 7: lower e 43 → 25.284, upper e 103 → 60.564; Σ min = 27.216 kN → U 0.367431
                 cleat block shear: Lv = 180 − 45 = 135, Agv 1080, Anv = (135 − 1.5 × 15.6) 8 = 892.8,
                   Ant = (50 − 7.8) 8 = 337.6: min(0.6 × 490 × 892.8 + 490 × 337.6 = 427 907.2,
                   0.6 × 355 × 1080 + 490 × 337.6 = 395 464) × 0.75 = 296.598 kN → U 0.033716
     GRAVITY     R +10: cleat lower lc = 45 − 7 = 38 → min(1.2 × 38 × 8 × 490 = 178 752, 112 896) = 112 896; upper 112 896
                   → 169.344 kN, U 0.059051; no block shear (no free edge toward the flange)
     STRUT END   the + side piece of an interior eave-strut cleat (columns at ±25), its butt end 20 mm from its hole:
-                N +20 (tension): web lc = 20 − 7 = 13 → min(1.2 × 13 × 2 × 420 = 13 104, 24 192) = 13 104 per bolt,
-                  both bolts edge bolts: 0.75 × 2 × 13 104 = 19.656 kN → U 1.01750 → FAILS ("strut end")
+                N +20 (tension): web e = 20 (the hole centre to the butt end) → AISI min(13.608, 0.70 × 2 × 20 × 420 =
+                  11.760) per bolt, both bolts edge bolts: 23.520 kN → U 0.85034; N +25 → U 1.06293 → FAILS ("strut end")
                 cleat lc = 50 − 25 − 7 = 18 → 84 672 per bolt → 127.008 kN → U 0.15747
                 web block shear: Agv = 2 × 20 × 2 = 80, Anv = 2 (20 − 7.8) 2 = 48.8, Ant = (110 − 15.6) 2 = 188.8:
                   min(0.6 × 420 × 48.8 + 420 × 188.8 = 91 593.6, 0.6 × 350 × 80 + 79 296 = 96 096) × 0.75 = 68.6952 kN
                   → U 0.29114
                 N −20 (compression, NEGATIVE CONTROL: the same force the other way passes): the web bears into its
-                  long side (lc 5970 − 7 → bearing 24 192); the cleat toward the other column lc = 50 − 14 = 36 →
+                  long side (e 5970 → AISI bearing 2 × 13.608 = 27.216); the cleat toward the other column lc = 50 − 14 = 36 →
                   min(1.2 × 36 × 8 × 490 = 169 344, 112 896) → 169.344 kN
     SECTION     R +10, F_out 1: Lc = 2.1 × 155 = 325.5, r = 8 / √12 = 2.30940, Lc/r = 140.946, Fe = π² 200 000 / 140.946²
                 = 99.362 MPa, Fy / Fe = 3.5728 > 2.25 → Fcr = 0.877 × 99.362 = 87.140, φPn = 0.9 × 87.140 × 800 = 62.741 kN;
@@ -82,6 +83,15 @@ def test_bolt_strengths_and_j3_7():
     assert C.bolt_tension_with_shear(0.0, 15.0, 50.894, 30.536) == 0.0
 
 
+def test_aisi_bearing_longhand():
+    assert C.aisi_bearing_C(12, 2) == 3.0 and C.aisi_bearing_C(12, 0.8) == pytest.approx(2.5) and C.aisi_bearing_C(24, 1.0) == 1.8
+    assert C.aisi_bolt_bearing(12, 2, 43, 350, 420) == pytest.approx(13.608)
+    assert C.aisi_bolt_bearing(12, 2, 43, 350, 420, mf=1.0) == pytest.approx(18.144)
+    assert C.aisi_bolt_bearing(12, 2, 20, 350, 420) == pytest.approx(11.76)
+    assert C.aisi_bolt_bearing(12, 2, 20, 400, 420) == pytest.approx(0.60 * 2 * 20 * 420 / 1000)     # Fu/Fy 1.05 < 1.08
+    assert C.web_hole(12, 14, 36, 6.0, 355, 490, 0.75) == pytest.approx(C.hole_strength(12, 36, 6.0, 490))   # ≥ 4.76: AISC
+
+
 def test_primitives_longhand():
     assert C.hole_strength(12, 18, 8, 490) == pytest.approx(0.75 * 84.672, rel=5e-4)
     assert C.hole_strength(12, 96, 8, 490) == pytest.approx(0.75 * 112.896, rel=5e-4)
@@ -100,8 +110,8 @@ def test_uplift_piece_hand_values():
     r = _rows(C.check_piece(GEOM, PURLIN, {"R": -10.0, "N": 0.0, "F_out": 0.0}, MATS, BOLTS))
     assert r["bolt shear"][5] == pytest.approx(0.16374, abs=1e-4)
     assert r["bearing / tearout - cleat"][4] == pytest.approx(148.176, rel=5e-4)
-    assert r["bearing / tearout - web"][4] == pytest.approx(36.288, rel=5e-4)
-    assert r["bearing / tearout - web"][5] == pytest.approx(0.27557, rel=5e-4)
+    assert r["bearing / tearout - web"][4] == pytest.approx(27.216, rel=1e-6)
+    assert r["bearing / tearout - web"][5] == pytest.approx(0.367431, rel=1e-5) and "AISI" in r["bearing / tearout - web"][2]
     assert r["block shear - cleat"][4] == pytest.approx(296.598, rel=5e-4)
     assert "block shear - web" not in r                                             # the web runs on: no free edge
 
@@ -115,15 +125,16 @@ def test_gravity_piece_hand_values():
 def test_strut_butt_end_tension_fails_compression_passes():
     rt = _rows(C.check_piece(GEOM2, STRUT, {"R": 0.0, "N": 20.0, "F_out": 0.0}, MATS, BOLTS))
     web = rt["bearing / tearout - web"]
-    assert web[0] == "strut end" and web[4] == pytest.approx(19.656, rel=5e-4) and web[5] == pytest.approx(1.0175, rel=5e-4)
+    assert web[0] == "strut end" and web[4] == pytest.approx(23.52, rel=1e-6) and web[5] == pytest.approx(0.85034, rel=1e-5)
     assert rt["bearing / tearout - cleat"][4] == pytest.approx(127.008, rel=5e-4)
     assert rt["block shear - web"][4] == pytest.approx(68.6952, rel=5e-4)
     rc = _rows(C.check_piece(GEOM2, STRUT, {"R": 0.0, "N": -20.0, "F_out": 0.0}, MATS, BOLTS))
-    assert rc["bearing / tearout - web"][4] == pytest.approx(0.75 * 2 * 24.192, rel=5e-4)
+    assert rc["bearing / tearout - web"][4] == pytest.approx(27.216, rel=1e-6)
     assert rc["bearing / tearout - cleat"][4] == pytest.approx(169.344, rel=5e-4)
     assert "block shear - cleat" not in rc                                          # pushed toward the other column
     # the whole cleat: FAILS with the strut-end fix
-    out = C.check_cleat(GEOM2, [STRUT], [[{"combo": "W", "R": 0.0, "N": 20.0, "F_out": 0.0}]], MATS, BOLTS, HOST, 5.0, "S355JR", ST)
+    out = C.check_cleat(GEOM2, [STRUT], [[{"combo": "W", "R": 0.0, "N": 25.0, "F_out": 0.0}]], MATS, BOLTS, HOST, 5.0, "S355JR", ST)
+    assert out["checks"][0]["U"] == pytest.approx(1.06293, abs=1e-4)
     assert out["status"] == C.FAILS and out["governing"]["name"] == "bearing / tearout - web"
     assert any("butt end" in f for f in out["fixes"])
 

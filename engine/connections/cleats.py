@@ -28,7 +28,9 @@ Checks (worst over every combination; U = demand / capacity; φ by AISC 360-16 L
     per piece (its own bolts):
         bolt shear J3.6 (bimsteelauto bolt_shear_capacity, threads included) and bolt tension with shear J3.7 (J3-3a:
             φRnt' = 1.3 φRnt − φRnt V / φRnv ≤ φRnt)
-        bearing / tearout J3.10 (pyaisc360 bolt_hole_strength, deformation considered) on the CLEAT and on the purlin WEB,
+        bearing / tearout on the CLEAT (AISC J3.10, pyaisc360 bolt_hole_strength, deformation considered) and on the purlin
+            WEB — AISI S100-16 J3.3.1 / J3.1 for sheet under 4.76 mm (step 5c retrofit, user 2026-11-15; transcribed from
+            memory, VERIFIED False, open item 9.2: C by d/t, mf 0.75 without washers under head and nut),
             the group = the sum of its bolts, each with its own clear distance lc IN THE DIRECTION OF ITS FORCE: the cleat
             is loaded in the direction of the load, the web the opposite way. Gravity: cleat lower bolt to the flange
             (conservative: the welded edge counted as a free one), web upper bolt to the top flange (the web runs on
@@ -107,7 +109,8 @@ ASSUMPTIONS = (
     "the down-slope component of the roof gravity reaction is taken at the cleat as if there were no sag rods; a wall line's "
     "own weight and sheeting act out of the cleat plane; both as bolt tension and cleat minor-axis bending",
     "eave struts: the bracing's strut force (LRFD 1.0 W, × the combination's wind factor), both signs; purlins / girts: "
-    "no axial force (no drag in the model)",
+    "no axial force (no drag in the model) except, at a flange-braced frame (step 5c), the flange-brace force (the largest "
+    "over the frame's combinations, both signs, added to every combination: an envelope)",
     "the cleat's steel = the host member's grade unless set (the model gives the cleat no grade)",
 )
 FIXES = {
@@ -131,6 +134,7 @@ class CleatSettings:
     electrode: str = "E70"
     shop_min_leg: float = 5.0          # as step 4
     flange_web_leg: float = 5.0        # the host's flange-to-web fillet for k = tf + leg (J10.2); step 4's shop minimum
+    web_washers: bool = False          # washers under head AND nut on the cold-formed web: AISI mf 1.00 (else 0.75)
 
     def check(self) -> "CleatSettings":
         if self.threads not in ("N", "X"):
@@ -161,6 +165,37 @@ def hole_strength(d: float, lc: float, t: float, Fu: float) -> float:
     if lc <= 0:
         return 0.0
     return _kN(J.bolt_hole_strength(d=d / IN, lc=lc / IN, t=t / IN, Fu=Fu / KSI))
+
+
+#: AISI S100-16 J3 (bolted connections of sheet < 3/16 in = 4.76 mm) — TRANSCRIBED FROM MEMORY (user 2026-11-15, step 5c
+#: decision 7b), VERIFIED False until the user confirms the printed J3.1 / J3.3.1 and Tables J3.3.1-1 / -2 (open item 9.2):
+#:   J3.3.1 bearing without hole deformation: Pn = C mf d t Fu, φ 0.60; C (Table J3.3.1-1): d/t < 10 → 3.0;
+#:     10 ≤ d/t ≤ 22 → 4 − 0.1 d/t; d/t > 22 → 1.8; mf (Table J3.3.1-2): single shear / outside sheets of double shear
+#:     with washers under head AND nut 1.00, without (or one washer) 0.75, inside sheet of double shear 1.33
+#:   J3.1 shear along the edge (end / spacing): Pn = t e Fu, e = in the line of force from the hole centre to the end of the
+#:     part or the edge of the adjacent hole; φ 0.70 when Fu / Fy ≥ 1.08, else 0.60
+AISI_T_MAX = 4.76
+AISI_VERIFIED = False
+
+
+def aisi_bearing_C(d: float, t: float) -> float:
+    r = d / t
+    return 3.0 if r < 10.0 else (4.0 - 0.1 * r if r <= 22.0 else 1.8)
+
+
+def aisi_bolt_bearing(d: float, t: float, e: float, Fy: float, Fu: float, mf: float = 0.75) -> float:
+    """φPn of one bolt in a thin sheet, kN: the smaller of AISI S100-16 J3.3.1 bearing (φ 0.60 C mf d t Fu) and J3.1 edge /
+    spacing shear (φ t e Fu, φ 0.70 / 0.60 by Fu / Fy) — VERIFIED False (from memory)."""
+    if e <= 0:
+        return 0.0
+    brg = 0.60 * aisi_bearing_C(d, t) * mf * d * t * Fu / 1000.0
+    edge = (0.70 if Fu / Fy >= 1.08 else 0.60) * t * e * Fu / 1000.0
+    return min(brg, edge)
+
+
+def web_hole(d: float, d0: float, lc: float, t: float, Fy: float, Fu: float, mf: float) -> float:
+    """One bolt in the cold-formed web: AISI S100-16 J3 when t < 4.76 mm (e = lc + d0 / 2), else AISC J3.10."""
+    return aisi_bolt_bearing(d, t, lc + d0 / 2, Fy, Fu, mf) if t < AISI_T_MAX else hole_strength(d, lc, t, Fu)
 
 
 def block_shear(Agv: float, Anv: float, Ant: float, Fy: float, Fu: float) -> float:
@@ -260,7 +295,7 @@ def wall_dead_load(line: dict, li) -> list[float]:
     return [q] * (len(line["nodes"]) - 1)
 
 
-def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float) -> list[dict]:  # Rd: {"D": kN}
+def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float, N_brace: float = 0.0) -> list[dict]:  # Rd: {"D": kN}
     """The LRFD combinations at one support of one line: [{combo, R, F_out, N}] (kN). R from the line's own load cases;
     F_out: roof — tan θ × the gravity part of R; wall — the wall dead load's reaction Rd (out of plane); N = ± P × the
     combination's wind factor (eave struts)."""
@@ -276,6 +311,9 @@ def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float) ->
         rev = line["kind"] == "eave_strut" and wf > 0      # both signs (the same list for every bay of the line)
         for s in ((1.0, -1.0) if rev else (1.0,)):
             out.append({"combo": name + (" (wind reversed)" if s < 0 else ""), "R": r, "F_out": fo, "N": s * P * wf})
+        if N_brace and not rev:                             # step 5c: the flange-brace force, envelope, both signs
+            out[-1] = {**out[-1], "combo": name + " + flange brace", "N": N_brace}
+            out.append({**out[-1], "combo": name + " - flange brace", "N": -N_brace})
     return out
 
 
@@ -322,17 +360,19 @@ def check_piece(geom: dict, piece: dict, case: dict, mats: dict, bolts: dict) ->
         caps = []
         if abs(R) > 1e-9:
             dr = up_dir if part == "cleat" else -up_dir
-            caps.append(sum(hole_strength(d, lc, t, Fu) for lc in _dir_lc_up(geom, part, dr)))
+            caps.append(sum(hole_strength(d, lc, t, Fu) if part == "cleat" else web_hole(d, d0, lc, t, Fy, Fu, mats.get("mf", 0.75))
+                            for lc in _dir_lc_up(geom, part, dr)))
         if abs(N) > 1e-9:
             if part == "cleat":
                 lc = _cleat_lc_along(geom, piece["along"], al_dir)
             else:
                 lc = (piece["e_plus"] if -al_dir > 0 else piece["e_minus"]) - d0 / 2
-            caps.append(nb * hole_strength(d, lc, t, Fu))
+            caps.append(nb * (hole_strength(d, lc, t, Fu) if part == "cleat" else web_hole(d, d0, lc, t, Fy, Fu, mats.get("mf", 0.75))))
         if caps:
             c = min(caps)
             key = part if part == "cleat" else ("strut end" if piece.get("butt") and abs(N) > 1e-9 and c == caps[-1] else "web")
-            rows.append((key, f"bearing / tearout - {part}", "AISC 360-16 J3.10", V, c, V / c if c > 0 else math.inf))
+            ref = "AISI S100-16 J3.3.1 / J3.1 (VERIFIED False)" if part == "web" and t < AISI_T_MAX else "AISC 360-16 J3.10"
+            rows.append((key, f"bearing / tearout - {part}", ref, V, c, V / c if c > 0 else math.inf))
     # block shear toward free edges
     p = geom["up_high"] - geom["up_low"]
     caps = []
@@ -519,7 +559,8 @@ def _line_key(m: dict) -> str:
     return m.get("line", "")
 
 
-def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings | None = None) -> dict:
+def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings | None = None,
+                    flange_brace_N: dict | None = None) -> dict:
     """Every cleat joint of a building_joints() result (CL k ↔ out["cleats"][k − 1]) → checked cleats."""
     from ..analysis.bracing_system import longitudinal_bracing
     from ..analysis.endwall_analysis import _geom, longitudinal_feed
@@ -572,7 +613,7 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
         except ValueError:
             t_c = W = None
             missing.append(f"cleat size from {c['profile']!r}")
-        mats = {}
+        mats = {"mf": 1.0 if st.web_washers else 0.75}
         if pcs:
             dims = cf_dims(pcs[0]["profile"])
             try:
@@ -623,6 +664,7 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
                 pc = {"piece": m["id"], "along": along, "side": side, "e_minus": e_neg, "e_plus": e_pos,
                       "butt": len(cols) > 1}
                 P = struts.get(bay, 0.0)
+                Nb = 0.0
             else:
                 hx = c["base"][axis] + cols[0] * sgn
                 ds = []
@@ -632,8 +674,11 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
                 pc = {"piece": "+".join(m["id"] for m in ps), "along": cols[0], "side": 1.0,
                       "e_minus": min(x[0] for x in ds), "e_plus": min(x[1] for x in ds), "butt": False}
                 P = 0.0
+                Nb = (flange_brace_N or {}).get((c["line"], round(sup_x)), 0.0)
+                if Nb:
+                    pc["flange_brace_N"] = round(Nb, 3)
             pieces.append(pc)
-            cs = cleat_cases(ln, R, Rd, tan_t, P)
+            cs = cleat_cases(ln, R, Rd, tan_t, P, 0.0 if ln["kind"] == "eave_strut" else Nb)
             combos = [[x] for x in cs] if combos is None else [a + [x] for a, x in zip(combos, cs)]
         if combos is None:
             res.append({**rec, "missing": [f"the piece of line {c['line']} on the cleat"]})
