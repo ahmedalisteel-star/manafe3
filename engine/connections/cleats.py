@@ -533,6 +533,11 @@ def check_cleat(geom: dict, pieces: list[dict], combos: list[list[dict]], mats: 
             g = gauge_for(geom["t_web"], r["U"], geom["d"])
             options.append(f"{r['name']} (U {r['U']:.3f}): a heavier purlin / girt gauge in that bay, t ≥ {g['t_req']:.2f} mm"
                            + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)") + "; or a 4-bolt cleat")
+        elif r["key"] == "weld":
+            if r["name"].startswith("weld metal"):        # weld metal ∝ leg: the 8 mm fillet a PL10 cleat allows
+                options.append(f"{r['name']} (U {r['U']:.3f}): a PL10 cleat (J2.2b max 8 mm) → U {r['U'] * leg / 8.0:.3f} at 8 mm")
+            else:                                          # the cleat's base metal ∝ t
+                options.append(f"{r['name']} (U {r['U']:.3f}): a PL10 cleat → U {r['U'] * geom['t_cleat'] / 10.0:.3f}")
         else:
             options.append(f"{r['name']} (U {r['U']:.3f}): {FIXES[r['key']]}")
     return {"status": (FAILS_AISI if aisi_only(bad) else FAILS) if bad else DESIGNED, "fix_options": options,
@@ -727,26 +732,28 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
         for cs in combos:
             need = max(need, weld_flows(geom, pieces, cs)["resultant"])
     t_thin = min([g["t_cleat"] for _, g, *_ in pending] + [h["tf"] for *_, h, _ in pending]) if pending else 8.0
-    leg = weld_leg(need, t_thin, st) if pending else None
+    sized = weld_leg(need, t_thin, st) if pending else None
+    # the leg is CAPPED at the AISC J2.2b maximum for the cleat (t − 2 mm for t ≥ 6, else t — user 2026-11-16); a cleat
+    # needing more shows its weld rows FAIL with the fix option "PL10 cleat (max 8 mm)"
+    tc_min = min((g["t_cleat"] for _, g, *_ in pending), default=8.0)
+    cap = tc_min if tc_min < 6.0 else tc_min - 2.0
+    leg = min(x for x in (sized, cap) if x is not None) if pending else None
     for rec, geom, pieces, combos, mats, host, cg in pending:
-        r = check_cleat(geom, pieces, combos, mats, bolts, host, leg or FILLET_LEGS[-1], cg, st)
-        if leg is None:
-            r["status"] = FAILS
-            r["fixes"].append(f"weld: no fillet up to {FILLET_LEGS[-1]:g} mm carries {need:.0f} N/mm — {FIXES['weld']}")
+        r = check_cleat(geom, pieces, combos, mats, bolts, host, leg, cg, st)
         rec.update(r)
     # AISC 360-16 J2.2b maximum fillet ALONG AN EDGE: t for t < 6 mm, t − 2 mm for t ≥ 6 mm (user 2026-11-15: report it)
     j22b = None
     if pending and leg:
-        tc_ = min(g["t_cleat"] for _, g, *_ in pending)
-        mx = tc_ if tc_ < 6.0 else tc_ - 2.0
+        tc_ = tc_min
+        mx = cap
         ws_ = WeldSettings(electrode=st.electrode)
         cap_mx = weld_metal(mx, 0.0, ws_, directional=False)
         over = sorted(rec["joint"] for rec, geom, pieces, combos, *_ in pending
                       if max(weld_flows(geom, pieces, cs)["resultant"] for cs in combos) > cap_mx + 1e-9)
-        j22b = {"t_cleat": tc_, "max_leg": mx, "leg": leg, "fits": leg <= mx + 1e-9,
+        j22b = {"t_cleat": tc_, "max_leg": mx, "leg": leg, "sized_leg": sized, "capped": sized is None or sized > mx,
                 "cleats_needing_more_than_max": over,
-                "note": ("J2.2b limits fillets placed along the EDGE of a part (lap joints); the cleat weld is a T-joint on the "
-                         "cleat's faces at its end — reported as the user asked (2026-11-15)")}
+                "note": ("the leg is capped at the J2.2b maximum (user 2026-11-16); J2.2b is written for fillets along the "
+                         "EDGE of a part (lap joints) — the cleat weld is a T-joint on the cleat's faces")}
     counts: dict[str, int] = {}
     for r in res:
         counts[r["status"]] = counts.get(r["status"], 0) + 1

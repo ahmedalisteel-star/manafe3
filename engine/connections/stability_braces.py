@@ -91,6 +91,8 @@ class StabilitySettings:
     bolts_per_end: int = 1               # the model gives no count; E5 wants ≥ 2 (flagged)
     end_distance: float = 25.0           # bolt to the angle's end, mm (setting, VERIFIED False)
     gauge: float = 28.0                  # bolt gauge line from the heel in the connected leg, mm (setting, VERIFIED False)
+    merge_tol: float = 150.0             # brace points closer than this to a member end / another point merge (user 2026-11-16)
+    gauge_L60: float = 35.0              # bolt gauge for the L60x6 fix option, mm (setting, VERIFIED False)
     slip: float = 2.0                    # one-time bolt slip = the hole clearance (M12 in a 14 mm hole), mm — an added
                                          # initial imperfection: Prb × (1 + slip / Δo), Δo = Lbr / 500 (user 2026-11-15)
     web_washers: bool = False            # AISI mf: 1.00 with washers under head and nut, else 0.75
@@ -220,16 +222,36 @@ def cd_factors(points: list[float], rows: list[tuple]) -> dict:
     return cd
 
 
-def lbr_short_of(points: list[float], ends: tuple[float, float]) -> dict:
-    """{s: the SHORTER adjacent segment} — the slip imperfection's Δo = this / 500 (user 2026-11-15)."""
+def _segments(points: list[float], ends: tuple[float, float], tol: float = 0.0) -> dict:
+    """{s: [the adjacent segments]} over the brace points and the member's ends; a neighbour closer than tol MERGES with s
+    (user 2026-11-16: 150 mm) — the segment beyond it is used instead; with no neighbour beyond tol on a side, that side
+    has no segment."""
     ps = sorted(set([ends[0], ends[1]] + list(points)))
-    return {s: min(s - ps[max(0, ps.index(s) - 1)], ps[min(len(ps) - 1, ps.index(s) + 1)] - s) for s in points}
+    out = {}
+    for s in points:
+        lefts = [p for p in ps if p < s - max(tol, 1e-9)]
+        rights = [p for p in ps if p > s + max(tol, 1e-9)]
+        segs = ([s - max(lefts)] if lefts else []) + ([min(rights) - s] if rights else [])
+        out[s] = segs or [max(s - ends[0], ends[1] - s)]
+    return out
 
 
-def lbr_of(points: list[float], ends: tuple[float, float]) -> dict:
+def merged_points(points: list[float], ends: tuple[float, float], tol: float) -> list[dict]:
+    """The geometry warnings (for the step 7 clash check): brace points within tol of a member end or another point."""
+    ps = sorted(set([ends[0], ends[1]] + list(points)))
+    return [{"s": round(s, 1), "near": round(p, 1), "distance": round(abs(p - s), 1),
+             "with": "member end" if p in ends else "brace point"}
+            for s in points for p in ps if p != s and abs(p - s) < tol and (p in ends or p > s)]
+
+
+def lbr_short_of(points: list[float], ends: tuple[float, float], tol: float = 0.0) -> dict:
+    """{s: the SHORTER adjacent segment} — the slip imperfection's Δo = this / 500 (user 2026-11-15 / -16)."""
+    return {s: min(v) for s, v in _segments(points, ends, tol).items()}
+
+
+def lbr_of(points: list[float], ends: tuple[float, float], tol: float = 0.0) -> dict:
     """{s: the longer adjacent segment} over the brace points and the member's ends."""
-    ps = sorted(set([ends[0], ends[1]] + list(points)))
-    return {s: max(s - ps[max(0, ps.index(s) - 1)], ps[min(len(ps) - 1, ps.index(s) + 1)] - s) for s in points}
+    return {s: max(v) for s, v in _segments(points, ends, tol).items()}
 
 
 def _interp(rows: list[tuple], s: float) -> float:
@@ -388,7 +410,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
     for (h, p), ms in groups.items():
         host = _host_of(ms[0], mem, out)
         by_host.setdefault(host["id"] if host else h, []).append((p, ms, host))
-    points, N_map = [], {}
+    points, N_map, geometry_warnings = [], {}, []
     for hid, pts in by_host.items():
         host = pts[0][2]
         if host is None:
@@ -400,8 +422,11 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
         sv = {p: sum((p[i] - host["start"][i]) * a[i] for i in range(3)) for p, _, _ in pts}
         mrows = _moment_rows(host, analysis, wc_inputs)
         brace_s = sorted(sv.values())
-        lbr = lbr_of(brace_s, (0.0, L))                  # βbr: the longer adjacent segment (App. 6 Lbr)
-        lsh = lbr_short_of(brace_s, (0.0, L))           # the slip imperfection: the shorter one (user 2026-11-15)
+        lbr = lbr_of(brace_s, (0.0, L), st.merge_tol)    # βbr: the longer adjacent segment (App. 6 Lbr)
+        lsh = lbr_short_of(brace_s, (0.0, L), st.merge_tol)   # the slip imperfection: the shorter one (user 2026-11-15)
+        for w in merged_points(brace_s, (0.0, L), st.merge_tol):
+            geometry_warnings.append({"host": hid, **w, "note": f"brace point within {st.merge_tol:g} mm — merged; check "
+                                      "the detail for clashes in step 7"})
         for p, ms, _ in pts:
             s = sv[p]
             rec = {"point": list(p), "host": hid, "host_role": host["role"], "s": round(s, 1), "braces": [x["id"] for x in ms],
@@ -447,7 +472,12 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                     worst = {**dm, "combo": combo, "Mr": Mr, "Cd": cd[s]}
             amp = slip_factor(st.slip, lsh[s])
             Prb_amp = worst["Prb"] * amp
-            P = Prb_amp / (len(ms) * cos_a)              # every brace check takes the amplified force
+            # the split between the braces at the point by their relative axial stiffness A cos²α / L (user 2026-11-16):
+            # a pair of equal braces = half each (one in tension, one in compression — both checks run on each brace);
+            # one brace (an end frame) = the full force
+            kk = [ang["A"] * cos_a ** 2 / m_["length"] for m_ in ms]
+            shares = [k_ / sum(kk) for k_ in kk]
+            P = Prb_amp * max(shares) / cos_a            # every brace check takes the amplified force
             # the springs (step 5c review): the brace's line must lie in the secondary's web plane (no web bending)
             ub = [(b0["end"][i] - b0["start"][i]) / Lb_ for i in range(3)]
             if sec_line["role"] in ("girt", "gable_girt"):
@@ -504,12 +534,19 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             status, fixes = _status(checks, notes)
             fix_options = []                          # options only (user 2026-11-15) — the model is not changed
             for c in checks:
+                if c["U"] > 1.0 and c["key"] == "brace" and "H2" in c["name"]:
+                    e5 = angle_compression(bb, tb, Lb_, gb["Fy"])
+                    big = angle_eccentric(60.0, 6.0, Lb_, plate_strength(b0.get("material", ""), 6.0)["Fy"], P, st.gauge_L60)
+                    fix_options.append(f"2 bolts per end: E5 compression U {P / e5['phiPn']:.3f}")
+                    fix_options.append(f"L60x6 (gauge {st.gauge_L60:g} mm, 1 bolt): H2 compression U {big['U']:.3f}")
                 if c["U"] > 1.0 and c["key"] == "web":
                     g = gauge_for(dims["t"], c["U"], d_bolt)
                     fix_options.append(f"2 bolts per end: web bearing U {c['U'] / 2:.3f} (E5 then applies instead of H2)")
                     fix_options.append(f"a heavier {sec_line['role'].replace('_', ' ')} gauge in that bay: t ≥ {g['t_req']:.2f} mm"
                                        + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)"))
-            rec["fix_options"] = fix_options
+            rec["fix_options"] = list(dict.fromkeys(fix_options))
+            rec["split"] = {"n": len(ms), "shares": [round(x, 4) for x in shares],
+                            "rule": "by relative axial stiffness A cos²α / L; a pair: one tension, one compression"}
             rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
                        demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(ho, 1),
                                "Lbr": round(lbr[s], 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
@@ -594,5 +631,5 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             c[r["status"]] = c.get(r["status"], 0) + 1
         counts[grp] = c
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "verified": dict(VERIFIED),
-            "flange_braces": points, "sag_rods": sag, "ridge_ties": ties, "sag_forces": sf, "counts": counts,
+            "geometry_warnings": geometry_warnings, "flange_braces": points, "sag_rods": sag, "ridge_ties": ties, "sag_forces": sf, "counts": counts,
             "cleats": after, "cleats_changed": changed, "flange_brace_N": {f"{k[0]}@{k[1]}": round(v, 3) for k, v in N_map.items()}}
