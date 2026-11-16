@@ -27,7 +27,8 @@ The user's decisions (2026-11-15, step 5c: 1a–6a, 7b, 8a (as corrected), 9a, 1
                     web plane — the model's geometry is checked, else NOT EVALUATED); the cleat; the purlin / girt axially
                     to the nearest braced-bay frame line (gable girts: to the wall end), E A / L.
         slip        (user 2026-11-15) the hole clearance is a ONE-TIME slip, not a spring: an added initial imperfection,
-                    the required brace force × (1 + slip / Δo), Δo = Lbr / 500, slip 2 mm (setting) — applied to every
+                    the required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment at the brace
+                    point / 500 (user 2026-11-15; βbr keeps the longer, Lbr), slip 2 mm (setting) — applied to every
                     brace force check (H2, bolts, bearing) and to the force into the cleat; the stiffness is unchanged.
         bolts       M12 8.8 per end (bolts_per_end), threads included: shear J3.6; bearing on the 5 mm leg AISC J3.10 (lc =
                     end_distance − d0 / 2); on the 2 mm purlin / girt web AISI S100-16 J3.3.1 / J3.1 (VERIFIED False), e
@@ -64,7 +65,8 @@ from ..design.cfs_section import cfs_section
 from ..design.inputs import plate_strength
 from ..peb.bracing import INTO_SECONDARY
 from ..peb.secondary import cf_dims
-from .cleats import IN, KSI, _host_at, _line_key, aisi_bolt_bearing, building_cleats, hole_strength, line_reactions
+from .cleats import (FAILS_AISI, IN, KSI, _host_at, _line_key, aisi_bolt_bearing, aisi_only, building_cleats, gauge_for,
+                     hole_strength, line_reactions)
 
 BANNER = "NOT FOR ISSUE — flange braces, sag rods, ridge ties (Phase 5 step 5c); Claude's rules and AISI J3 VERIFIED False"
 DESIGNED, FAILS, NOT_EVALUATED, PARTIAL = "DESIGNED", "FAILS", "NOT EVALUATED", "PARTIAL"
@@ -218,6 +220,12 @@ def cd_factors(points: list[float], rows: list[tuple]) -> dict:
     return cd
 
 
+def lbr_short_of(points: list[float], ends: tuple[float, float]) -> dict:
+    """{s: the SHORTER adjacent segment} — the slip imperfection's Δo = this / 500 (user 2026-11-15)."""
+    ps = sorted(set([ends[0], ends[1]] + list(points)))
+    return {s: min(s - ps[max(0, ps.index(s) - 1)], ps[min(len(ps) - 1, ps.index(s) + 1)] - s) for s in points}
+
+
 def lbr_of(points: list[float], ends: tuple[float, float]) -> dict:
     """{s: the longer adjacent segment} over the brace points and the member's ends."""
     ps = sorted(set([ends[0], ends[1]] + list(points)))
@@ -348,7 +356,8 @@ def _row(r):
 
 def _status(checks, notes):
     bad = [c for c in checks if c["U"] > 1.0]
-    return (FAILS if bad else PARTIAL if notes else DESIGNED), sorted({f"{c['name']}: {FIXES[c['key']]}" for c in bad})
+    st = (FAILS_AISI if aisi_only(bad) else FAILS) if bad else (PARTIAL if notes else DESIGNED)
+    return st, sorted({f"{c['name']}: {FIXES[c['key']]}" for c in bad})
 
 
 def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li, settings: StabilitySettings | None = None,
@@ -391,7 +400,8 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
         sv = {p: sum((p[i] - host["start"][i]) * a[i] for i in range(3)) for p, _, _ in pts}
         mrows = _moment_rows(host, analysis, wc_inputs)
         brace_s = sorted(sv.values())
-        lbr = lbr_of(brace_s, (0.0, L))
+        lbr = lbr_of(brace_s, (0.0, L))                  # βbr: the longer adjacent segment (App. 6 Lbr)
+        lsh = lbr_short_of(brace_s, (0.0, L))           # the slip imperfection: the shorter one (user 2026-11-15)
         for p, ms, _ in pts:
             s = sv[p]
             rec = {"point": list(p), "host": hid, "host_role": host["role"], "s": round(s, 1), "braces": [x["id"] for x in ms],
@@ -435,7 +445,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 dm = point_demand(Mr, cd[s], ho, lbr[s], st.brace_fraction)
                 if worst is None or dm["Prb"] > worst["Prb"]:
                     worst = {**dm, "combo": combo, "Mr": Mr, "Cd": cd[s]}
-            amp = slip_factor(st.slip, lbr[s])
+            amp = slip_factor(st.slip, lsh[s])
             Prb_amp = worst["Prb"] * amp
             P = Prb_amp / (len(ms) * cos_a)              # every brace check takes the amplified force
             # the springs (step 5c review): the brace's line must lie in the secondary's web plane (no web bending)
@@ -492,12 +502,19 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 rows_.append(("brace", "slender leg (E7) — NOT EVALUATED", "AISC 360-16 E7", 1.0, 0.0, math.inf))
             checks = sorted((_row(r) for r in rows_), key=lambda r: -r["U"])
             status, fixes = _status(checks, notes)
-            if status == PARTIAL:
-                status = PARTIAL
+            fix_options = []                          # options only (user 2026-11-15) — the model is not changed
+            for c in checks:
+                if c["U"] > 1.0 and c["key"] == "web":
+                    g = gauge_for(dims["t"], c["U"], d_bolt)
+                    fix_options.append(f"2 bolts per end: web bearing U {c['U'] / 2:.3f} (E5 then applies instead of H2)")
+                    fix_options.append(f"a heavier {sec_line['role'].replace('_', ' ')} gauge in that bay: t ≥ {g['t_req']:.2f} mm"
+                                       + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)"))
+            rec["fix_options"] = fix_options
             rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
                        demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(ho, 1),
                                "Lbr": round(lbr[s], 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
-                               "slip_mm": st.slip, "delta_o": round(lbr[s] / 500.0, 3), "slip_factor": round(amp, 4),
+                               "slip_mm": st.slip, "L_short": round(lsh[s], 1), "delta_o": round(lsh[s] / 500.0, 3),
+                               "slip_factor": round(amp, 4),
                                "Prb_amplified": round(Prb_amp, 3), "P_brace": round(P, 3), "cos_alpha": round(cos_a, 4)},
                        stiffness={**{kk: (round(v, 3) if math.isfinite(v) else "rigid") for kk, v in k.items()},
                                   "purlin_axial_length": round(Lp, 1) if math.isfinite(Lp) else None,

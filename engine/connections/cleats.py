@@ -89,6 +89,26 @@ BANNER = "NOT FOR ISSUE — purlin / girt / eave-strut cleats (Phase 5 step 5a);
 NOT_EVALUATED = "NOT EVALUATED"
 DESIGNED = "DESIGNED"
 FAILS = "FAILS"
+#: a failure that rests only on the AISI J3 thin-web bearing typed from memory (user 2026-11-15) — until the printed page
+#: is checked (open item 9.2)
+FAILS_AISI = "FAILS (AISI J3.3 unverified, item 9.2)"
+#: cold-formed gauges offered in the fix options (typical supplier thicknesses, mm) — options only, the model is not changed
+CF_GAUGES = (1.5, 1.8, 2.0, 2.3, 2.5, 3.0, 3.2)
+
+
+def aisi_only(bad: list[dict]) -> bool:
+    """Every failing row is an AISI S100 J3 thin-web bearing row."""
+    return bool(bad) and all(str(r.get("ref", "")).startswith("AISI") for r in bad)
+
+
+def gauge_for(t: float, U: float, d: float) -> dict:
+    """The thinnest gauge of CF_GAUGES that brings an AISI J3 web-bearing U to ≤ 1: the strength is linear in t while
+    d / t < 10 (C = 3.0) — t_req = t × U."""
+    t_req = t * U
+    g = next((x for x in CF_GAUGES if x + 1e-9 >= t_req), None)
+    if g is not None and d / g >= 10.0:
+        g = None
+    return {"t_req": round(t_req, 3), "gauge": g}
 E_STEEL = 200000.0
 HOLE_ALLOWANCE = 1.6                 # mm, AISC 360-16 B4.3b: net widths only
 IN, KSI, KIP = 25.4, 6.894757, 4.448222
@@ -507,7 +527,16 @@ def check_cleat(geom: dict, pieces: list[dict], combos: list[list[dict]], mats: 
         r["U"] = round(r["U"], 4) if math.isfinite(r["U"]) else math.inf
     gov = checks[0]
     bad = [r for r in checks if r["U"] > 1.0]
-    return {"status": FAILS if bad else DESIGNED, "governing": {k: gov[k] for k in ("name", "U", "combo")},
+    options = []
+    for r in bad:
+        if str(r.get("ref", "")).startswith("AISI"):
+            g = gauge_for(geom["t_web"], r["U"], geom["d"])
+            options.append(f"{r['name']} (U {r['U']:.3f}): a heavier purlin / girt gauge in that bay, t ≥ {g['t_req']:.2f} mm"
+                           + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)") + "; or a 4-bolt cleat")
+        else:
+            options.append(f"{r['name']} (U {r['U']:.3f}): {FIXES[r['key']]}")
+    return {"status": (FAILS_AISI if aisi_only(bad) else FAILS) if bad else DESIGNED, "fix_options": options,
+            "governing": {k: gov[k] for k in ("name", "U", "combo")},
             "checks": checks, "weld_flow_max": round(weld_need, 2),
             "fixes": sorted({f"{r['name']}: {FIXES[r['key']]}" for r in bad})}
 
@@ -705,11 +734,24 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
             r["status"] = FAILS
             r["fixes"].append(f"weld: no fillet up to {FILLET_LEGS[-1]:g} mm carries {need:.0f} N/mm — {FIXES['weld']}")
         rec.update(r)
+    # AISC 360-16 J2.2b maximum fillet ALONG AN EDGE: t for t < 6 mm, t − 2 mm for t ≥ 6 mm (user 2026-11-15: report it)
+    j22b = None
+    if pending and leg:
+        tc_ = min(g["t_cleat"] for _, g, *_ in pending)
+        mx = tc_ if tc_ < 6.0 else tc_ - 2.0
+        ws_ = WeldSettings(electrode=st.electrode)
+        cap_mx = weld_metal(mx, 0.0, ws_, directional=False)
+        over = sorted(rec["joint"] for rec, geom, pieces, combos, *_ in pending
+                      if max(weld_flows(geom, pieces, cs)["resultant"] for cs in combos) > cap_mx + 1e-9)
+        j22b = {"t_cleat": tc_, "max_leg": mx, "leg": leg, "fits": leg <= mx + 1e-9,
+                "cleats_needing_more_than_max": over,
+                "note": ("J2.2b limits fillets placed along the EDGE of a part (lap joints); the cleat weld is a T-joint on the "
+                         "cleat's faces at its end — reported as the user asked (2026-11-15)")}
     counts: dict[str, int] = {}
     for r in res:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
     return {"banner": BANNER, "designed": False, "settings": asdict(st), "verified": dict(VERIFIED),
-            "assumptions": list(ASSUMPTIONS),
+            "assumptions": list(ASSUMPTIONS), "weld_j2_2b": j22b,
             "detail": {"cleat": sorted({r["cleat"] for r in res}), "bolts": f"2 x M{d_bolt:g} {st.bolt_grade} per piece, snug-tight, "
                        f"threads {'included' if st.threads == 'N' else 'excluded'}", "weld_leg": leg,
                        "weld_flow_max": round(need, 2), "bolt_phiRv": round(bolts["phiRv"], 3), "bolt_phiRt": round(bolts["phiRt"], 3)},

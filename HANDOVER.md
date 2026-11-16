@@ -469,20 +469,44 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
   control test: a pinned base's zero moment is no inflection point (Cd 1). (4) Second review: the bolt hole clearance is a
   ONE-TIME slip, not a spring (the first revision's secant spring Prb / (slip / cos α) = 12.143 / (4 / 0.7071) = 2.15
   kN/mm at F3-RA — 4 mm = 2 ends × 2 mm — is removed): it is an added initial imperfection, the App. 6 required brace force
-  × (1 + slip / Δo), Δo = Lbr / 500, slip = the hole clearance (2 mm for M12 in a 14 mm hole, setting `slip`). Claude
-  applies the amplified force to EVERY check of that force (H2, bolt shear, bearing on the leg and the web) and to the
-  force into the cleats — the user asked for H2; the rest follows the same physical force (the user's call).
+  × (1 + slip / Δo), Δo = Lbr / 500, slip = the hole clearance (2 mm for M12 in a 14 mm hole, setting `slip`); applied
+  to EVERY check that carries the brace force (H2, bolt shear, bearing on the leg and the web) and to the force into the
+  cleats — the USER'S DECISION (2026-11-15, third review). Δo uses the braced member's own inner flange (never the brace
+  length or a purlin span) and, since the fourth review (user 2026-11-16), the SHORTER adjacent unbraced segment at the
+  brace point (`lbr_short_of`; βbr keeps the longer, Lbr): rafters 688.6 (first purlin, factor 2.45) / 1185.9 (1.84);
+  columns 1250 (1.8) / 1000 (2.0). DEGENERATE CASE for the user: the wind columns WF1 / WF3 / WL1 / WL3 (6268 mm) have a
+  flange brace at 6250 mm, 18.4 mm below the top (a brace point) → Δo 0.037 mm, factor 55.5 (Prb 0.018 → 1.02 kN; harmless
+  here, U small) — a rule for near-coincident brace points is the user's call (none invented).
+  (5) Third review: a failure resting ONLY on the AISI J3 thin-web bearing reads "FAILS (AISI J3.3 unverified, item 9.2)"
+  until the user checks the printed page; each failing point lists fix OPTIONS only (no model change): 2 bolts per end
+  (then E5 applies) or a heavier purlin / girt gauge in that bay (t_req = t × U, AISI bearing linear in t while d/t < 10;
+  gauges 1.5 … 3.2 mm); the one-size cleat weld is checked against J2.2b (max t − 2 mm for t ≥ 6 along an edge).
 - Sag rods / ridge ties: `sag_forces` (per side and row, per gravity combination: the line reactions at the rows, the
   accumulated pieces, the tie); checks per row / side on the most loaded piece.
-- Building 1 (after the second review): **68 flange-brace points (116 braces): 24 FAIL, 44 PARTIAL.** Stiffness worst
-  U 0.361 (F3-CA top girt: β_req 6.92 vs 19.17 kN/mm; braces 131.5, web rigid, cleat 400, purlin axial 23.8 = 6 m to the
-  braced bay). Slip factor 1.8 at Lbr 1250 (Δo 2.5 mm) to 1.12 at 8502. H2 compression worst 0.789 (F1-CA end frame, one
-  brace, P 17.36 kN), H2 tension 0.670, bolt shear 0.57, leg bearing 0.46, net-leg tension 0.27. **The 24 failures are all
-  the bearing on the 2 mm purlin / girt web (AISI J3, worst U 1.276)** at the amplified force (8 rafter singles, 6 rafter
-  pairs, 6 column pairs, 4 column singles). With slip 0 (negative control): all 68 PARTIAL, as before the review. **Sag rods 8 rows×sides DESIGNED**
+- Building 1 (after the fourth review, Δo from the shorter segment): **68 flange-brace points (116 braces): 38 FAIL (34
+  "FAILS (AISI J3.3 unverified, item 9.2)" + 4 FAILS), 30 PARTIAL.** Worst U: web bearing (AISI) 1.625 (F1/F5 rafter first
+  purlin, one brace, factor 2.45); H2 compression 1.012 (the same 4 end-frame first-purlin points — these are the 4 plain
+  FAILS: H2 is AISC, not AISI), H2 tension 0.853, bolt shear 0.72, leg bearing 0.58, net-leg tension 0.35; stiffness 0.361
+  (unchanged: the slip is not a spring). Fix options per point (no model change): 2 bolts per end (web U 0.51–0.81; E5
+  then applies) or a heavier gauge in that bay (t_req 2.04–3.25 mm: 2.3 / 2.5 / 3.0 / 3.2 mm; the F1/F5 first purlin needs
+  3.25 mm — beyond the gauge list). Previous runs: Δo from the longer segment 24 FAIL / 44 PARTIAL; slip 0 all 68 PARTIAL. **Sag rods 8 rows×sides DESIGNED**
   (80 pieces; worst piece RA9–RA10 6.68 kN, threads U 0.223); **ridge ties 4 DESIGNED** (7.12 kN, U 0.238).
-- Cleats re-run with the (amplified) flange-brace force: **192 DESIGNED, 4 FAIL** (CL7 / CL9 on RA1, CL62 / CL64 on RB1:
-  the purlin-web bearing (AISI) U 1.054 at N 22.38 kN); the one cleat weld 5 → **8 mm**. Before the slip amplification
+- Cleats re-run with the (amplified) flange-brace force (fourth review): **184 DESIGNED, 12 FAIL** — 2 "FAILS (AISI J3.3
+  unverified, item 9.2)" (CL18 RA3, CL73 RB3: web bearing 1.010 only) and 10 FAILS with an AISC row too: CL7 / CL9 / CL62 /
+  CL64 (the first purlin RA1 / RB1 at frames 2 and 4): web bearing (AISI) 1.277, cleat base metal (J4.1 across +
+  0.45 Fu t along, 2 lines) 1.170, cleat compression + bending (AISC H1-1) 1.141; CL8 / CL63: web 1.208, base metal 1.103;
+  CL17 / CL19 / CL72 / CL74 (RA3 / RB3): web 1.091, cleat compression + bending 1.050. At the third review (Δo from the
+  longer segment) the 4 failing cleats CL7 / CL9 / CL62 / CL64 failed on the web bearing 1.054 AND the cleat compression
+  + bending (AISC H1-1, verified primitives) 1.031 — hence plain FAILS, not the AISI label. Options: a heavier purlin gauge
+  in that bay or a 4-bolt cleat (web); a PL10 cleat (section, base metal). The one cleat weld 5 → **10 mm**, which does
+  NOT fit AISC J2.2b for the PL8 cleat (max 6 mm along an edge; 22 cleats need more than 6 mm). Note: J2.2b is written
+  for fillets along a part's EDGE (lap joints); this is a T-joint on the cleat's faces — reported as asked.
+- Phase 4 question (user 2026-11-16, no fix): the rafter check DOES use the long inner-flange segment under wind uplift —
+  inner-flange brace points 705.9 / 1894.2 / 3086.8 mm along the analysis chain (11 572.7 mm), the last segment 3086.8 →
+  the ridge end = 8485.9 mm (8501.9 in the 5c model coordinates). Uplift (0.9D + 1.0W combinations) U: interior frames
+  2–4 **0.697** (0.9D + 1.0WA±, LTB 0.686 by DG 25, γ_LTB 1.622, Lb,eq 6938 mm); end frames 1 / 5 0.406 (0.9D + 1.0WB+).
+  The rafter's overall governing U 0.829 (interior) / 0.436 (end) is under 1.2D + 1.6Lr. The ridge end counts as an
+  inner-flange brace (Phase 4's rule: design-member ends are braces); the model has no flange brace at the ridge — noted. Before the slip amplification
   (slip 0): 196 DESIGNED, worst 0.889, weld 6 mm. The AISI retrofit alone: the worst purlin-web bearing 0.49 → 0.66 (CL7).
 - Tests `test_stability_braces.py` (10; the angle by two rectangles, H2 longhand, the slip factor and H2 at 1.8 × the
   force; negative controls: slip 0 → the old force and results, no analysis → NOT EVALUATED, a pinned base → Cd 1, H2 far
@@ -517,7 +541,7 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
 | Brace-end rules (step 5b) | T split by the angle to the web; web punching φ 0.75 × 0.6 Fu π D tw; J7 for the washer bearing; Fnv = 0.45 Fu (threaded part, threads included, Table J3.2, from memory); the net-section envelope (brace components added to every combination); the base hole 150 mm above the plate; a member end counted as a free edge | Claude's rules — the user's call; Table J3.2 from the printed AISC | VERIFIED False |
 | AISI S100-16 J3 thin-sheet bearing (step 5c, open item 9.2) | J3.3.1 Pn = C mf d t Fu, φ 0.60; C: d/t < 10 → 3.0, 10–22 → 4 − 0.1 d/t, > 22 → 1.8; mf: washers under head and nut 1.00, without / one 0.75, inside sheet of double shear 1.33; J3.1 Pn = t e Fu, φ 0.70 (Fu/Fy ≥ 1.08) / 0.60; for sheet < 4.76 mm — TRANSCRIBED FROM MEMORY | the printed AISI S100-16 J3.1, J3.3.1, Tables J3.3.1-1 / -2 | VERIFIED False |
 | Flange-brace rules (step 5c) | the springs in series: braces, web local bending none when the brace lies in the web plane, cleat in-plane bending, purlin / girt axial E A / L to the nearest braced-bay frame line (the transfer into the bracing node not a spring); 1 bolt per end → H2 eccentric (gauge 28 mm at the contact face, Lc = L about rz, B1, F10); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
-| Bolt slip as an added imperfection (step 5c, user 2026-11-15) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = Lbr / 500 — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
+| Bolt slip as an added imperfection (step 5c, user 2026-11-15 / -16) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment of the braced member / 500 (degenerate when a brace point nearly coincides with a member end: wind-column tops 18.4 mm → × 55.5) — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
 | Sag rods / ridge ties (step 5c) | the down-slope component on a weak-axis continuous beam over the frames and the sag-rod rows, accumulated up the slope with no eave-strut credit; tie = slope total × cos θ; plate washer 40 × 40 × 4 (user default); pull-through φ 0.75 × 0.6 Fu × 4 side × t | Claude's method; the washer from the supplier | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
@@ -1328,6 +1352,11 @@ first positions, end walls, braced bays, lap, bolts, sections, openings) → **M
 (generated members replaced, your own kept). **Output › Plates** / **Punch** download the plate list / C-Z punch list. Click a member: its segments are edited in
 the Properties panel; any catalog beam/column has **Make built-up…**. **Output › Plate list** downloads the plate cut list.
 After pulling new engine code, restart `python manafe3.py` (the engine does not reload itself).
+
+**Workflow — test speed rule (user 2026-11-15):** while iterating, run ONLY the affected test files
+(`.venv\Scripts\python.exe -m pytest -q engine/tests/test_<x>.py`). Run the full suite file by file
+(`tools/run-tests-by-file.py`), then `npm test`, only ONCE, right before a commit. If a code change is coming while a
+suite is running, STOP the suite first instead of waiting for it.
 
 ## Architecture (decided)
 

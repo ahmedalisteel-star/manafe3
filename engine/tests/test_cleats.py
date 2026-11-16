@@ -92,6 +92,15 @@ def test_aisi_bearing_longhand():
     assert C.web_hole(12, 14, 36, 6.0, 355, 490, 0.75) == pytest.approx(C.hole_strength(12, 36, 6.0, 490))   # ≥ 4.76: AISC
 
 
+def test_aisi_label_and_gauges():
+    assert C.gauge_for(2.0, 1.276, 12.0) == {"t_req": 2.552, "gauge": 3.0}
+    assert C.gauge_for(2.0, 1.019, 12.0) == {"t_req": 2.038, "gauge": 2.3}
+    assert C.gauge_for(1.0, 1.4, 16.0)["gauge"] is None                          # 1.5 mm: d/t 10.7 ≥ 10, C no longer 3.0
+    aisi = {"ref": "AISI S100-16 J3.3.1 / J3.1 (VERIFIED False)"}
+    assc = {"ref": "AISC 360-16 H1-1, E3, F11"}
+    assert C.aisi_only([aisi]) and not C.aisi_only([aisi, assc]) and not C.aisi_only([])   # NEGATIVE CONTROL: mixed → FAILS
+
+
 def test_primitives_longhand():
     assert C.hole_strength(12, 18, 8, 490) == pytest.approx(0.75 * 84.672, rel=5e-4)
     assert C.hole_strength(12, 96, 8, 490) == pytest.approx(0.75 * 112.896, rel=5e-4)
@@ -135,7 +144,8 @@ def test_strut_butt_end_tension_fails_compression_passes():
     # the whole cleat: FAILS with the strut-end fix
     out = C.check_cleat(GEOM2, [STRUT], [[{"combo": "W", "R": 0.0, "N": 25.0, "F_out": 0.0}]], MATS, BOLTS, HOST, 5.0, "S355JR", ST)
     assert out["checks"][0]["U"] == pytest.approx(1.06293, abs=1e-4)
-    assert out["status"] == C.FAILS and out["governing"]["name"] == "bearing / tearout - web"
+    assert out["status"] == C.FAILS_AISI and out["governing"]["name"] == "bearing / tearout - web"   # only the AISI row fails
+    assert "t ≥ 2.13 mm → 2.3 mm" in out["fix_options"][0]                         # 2 × 1.0629 = 2.126
     assert any("butt end" in f for f in out["fixes"])
 
 

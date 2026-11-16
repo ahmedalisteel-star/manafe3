@@ -16,7 +16,8 @@ written out longhand below (the angle by two rectangles and parallel axes, NOT t
                   (0.75 × 1500 × 400) = 4444.4 N/mm = 4.4444 kN/mm
     Cd            M (0, 0) (1000, 10) (2000, −10) (3000, 0): one inflection at 1500 (the zero end moments are not); brace
                   points 1000 / 1400 / 2500 → 1400 gets Cd 2
-    Lbr           points 1000, 3000 on a 6000 member: 1000 → max(1000, 2000) = 2000; 3000 → max(2000, 3000) = 3000
+    Lbr           points 1000, 3000 on a 6000 member: 1000 → max(1000, 2000) = 2000; 3000 → max(2000, 3000) = 3000;
+                  the shorter (slip Δo): 1000 → 1000, 3000 → 2000
     H2 (1 bolt)   L50×5, L 700, Fy 355, P 10 kN on the gauge line g 28 at the contact face: (dx, dy) = (13.657895,
                   −14.342105); e_w = 28 / √2 = 19.798990, e_z = 0.684211 / √2 = 0.483810; Iw = 112 502.74 + 66 611.84 =
                   179 114.58; the farthest corners c_w = 50 / √2 = 35.35534 (a toe), c_z = 14.342105 √2 = 20.28280 (the heel): Sz = 1297.991,
@@ -96,6 +97,8 @@ def test_inflections_cd_lbr():
     assert S.cd_factors([3750.0, 5000.0], pinned) == {3750.0: 1.0, 5000.0: 1.0}
     assert S.cd_factors([1000.0, 1400.0, 2500.0], rows) == {1000.0: 1.0, 1400.0: 2.0, 2500.0: 1.0}
     assert S.lbr_of([1000.0, 3000.0], (0.0, 6000.0)) == {1000.0: 2000.0, 3000.0: 3000.0}
+    # the slip imperfection's Δo uses the SHORTER adjacent segment (user 2026-11-16): 1000 → 1000, 3000 → 2000
+    assert S.lbr_short_of([1000.0, 3000.0], (0.0, 6000.0)) == {1000.0: 1000.0, 3000.0: 2000.0}
 
 
 def test_rod_rows():
@@ -166,21 +169,38 @@ def test_building_1_step_5c():
     b, _ = resolve(_sized()[0])
     an = analyse_building(b, li)
     r = S.building_stability_braces(jr, out, an, li)
-    assert r["counts"]["flange_braces"] == {"FAILS": 24, "PARTIAL": 44}                  # the 2 mm web bearing at 1.8 × Prb
+    assert r["counts"]["flange_braces"] == {S.FAILS_AISI: 34, "FAILS": 4, "PARTIAL": 30}  # Δo from the shorter segment
+    for x in (x for x in r["flange_braces"] if x["status"] == S.FAILS_AISI):
+        Uw = next(c["U"] for c in x["checks"] if c["key"] == "web")
+        assert x["fix_options"][0] == f"2 bolts per end: web bearing U {Uw / 2:.3f} (E5 then applies instead of H2)"
+        assert "gauge in that bay: t ≥" in x["fix_options"][1]
+        assert x["demand"]["slip_factor"] == pytest.approx(1 + 2.0 / (x["demand"]["L_short"] / 500), rel=5e-3)
+    plain = [x for x in r["flange_braces"] if x["status"] == "FAILS"]               # the end-frame first purlin: H2 > 1 too
+    assert len(plain) == 4 and all(any(c["U"] > 1 and "H2" in c["name"] for c in x["checks"]) for x in plain)
     assert sum(x["n"] for x in r["flange_braces"]) == 116
     assert all(S.FRAME_END_NOTE in x["notes"] and any("E5 does not apply" in n for n in x["notes"]) for x in r["flange_braces"])
     assert not any(c["name"].startswith("flange brace compression (E5") for x in r["flange_braces"] for c in x["checks"])
     worst = lambda name: max(next(c["U"] for c in x["checks"] if c["name"] == name) for x in r["flange_braces"])
-    assert worst("bearing on the purlin / girt web") == pytest.approx(1.2759, abs=2e-3)
-    assert worst("flange brace compression on the gauge line (1 bolt: H2, eccentric both axes)") == pytest.approx(0.7885, abs=2e-3)
+    assert worst("bearing on the purlin / girt web") == pytest.approx(1.6247, abs=2e-3)
+    assert worst("flange brace compression on the gauge line (1 bolt: H2, eccentric both axes)") == pytest.approx(1.0121, abs=2e-3)
     assert worst("brace stiffness βbr (App. 6.3.2a) vs every spring in series") == pytest.approx(0.3609, abs=2e-3)
     assert all(x["stiffness"]["web_normal_cos"] < 1e-6 and x["demand"]["slip_mm"] == 2.0 for x in r["flange_braces"])
     for x in r["flange_braces"]:
         dm = x["demand"]
-        assert dm["slip_factor"] == pytest.approx(1 + 2.0 / (dm["Lbr"] / 500), abs=1e-4)
-        assert dm["Prb_amplified"] == pytest.approx(dm["Prb"] * dm["slip_factor"], abs=2e-3)
-    assert r["cleats"]["counts"] == {"DESIGNED": 192, "FAILS": 4} and r["cleats"]["detail"]["weld_leg"] == 8.0
-    assert max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(1.0535, abs=2e-3)
+        assert dm["slip_factor"] == pytest.approx(1 + 2.0 / (dm["L_short"] / 500), rel=5e-3)   # L_short printed to 0.1 mm
+        assert dm["L_short"] <= dm["Lbr"] + 1e-6
+        assert dm["Prb_amplified"] == pytest.approx(dm["Prb"] * dm["slip_factor"], abs=2e-3 + 5e-4 * dm["slip_factor"])
+    # a cleat reads FAILS (AISI ...) only when every failing row is the AISI web bearing
+    assert r["cleats"]["counts"] == {"DESIGNED": 184, "FAILS": 10, S.FAILS_AISI: 2} and r["cleats"]["detail"]["weld_leg"] == 10.0
+    for x in r["cleats"]["cleats"]:
+        bad = [c for c in x["checks"] if c["U"] > 1] if "checks" in x else []
+        if x["status"] == "FAILS":
+            assert any(not c["ref"].startswith("AISI") for c in bad)
+        elif x["status"] == S.FAILS_AISI:
+            assert bad and all(c["ref"].startswith("AISI") for c in bad)
+    j = r["cleats"]["weld_j2_2b"]
+    assert (j["t_cleat"], j["max_leg"], j["leg"], j["fits"]) == (8.0, 6.0, 10.0, False) and len(j["cleats_needing_more_than_max"]) == 22
+    assert max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(1.277, abs=2e-3)
     # NEGATIVE CONTROL: slip 0 gives the old forces (all PARTIAL, the cleats 196 DESIGNED with a 6 mm weld)
     r0 = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(slip=0.0))
     assert r0["counts"]["flange_braces"] == {"PARTIAL": 68} and r0["cleats"]["counts"] == {"DESIGNED": 196}
