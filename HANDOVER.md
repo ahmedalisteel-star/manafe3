@@ -32,8 +32,9 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
 2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
 5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) APPROVED
-AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). NEXT: step 7 — PLAN ONLY, no
-code until the user answers its decisions (user 2026-11-17). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). Step 7 plan ANSWERED (user
+2026-11-17, "Step 7 — decisions" below). NEXT: open item 7 as its own step — PLAN AND DECISIONS FIRST, no code; then
+7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -72,7 +73,7 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | **done** (engine; approved by the user 2026-11-15) — `engine/connections/welds.py`, `test_welds.py`; open: braced-bay bases PARTIAL (item 6), lug breakout (ACI 17.11.3), library base metal (item 5) |
 | 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | **done** (engine; 5a accepted for now, 5b accepted, 5c / 5c-fix approved, 5d approved 2026-11-17) — `cleats.py`, `brace_ends.py`, `stability_braces.py`, `eave_transfer.py`; open items 9, 10, 12, 13, 14 |
 | 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | **merged into 5d** (user 2026-11-17): slot lengths designed in the engine; the slot hole type in the model / NC / IFC comes with step 7 |
-| 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
+| 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | planned (user decisions 2026-11-17, "Step 7 — decisions"); open item 7 first |
 | 8 | PEB > "Connections..." in the browser: Check, Design, Apply as one undo step, calc sheets, NOT FOR ISSUE | |
 | 9 | R1 regression, HANDOVER, end-work | |
 
@@ -592,6 +593,35 @@ alone; 3a; 4a own line; 5a; 6a; 7a; 8a) and of 2026-11-17 (step 6 slots).
   8 the knee F_x shared by all 8 bolts; 9 the column-top lever 100 mm; H1-1 on the column top and the 7a flange; C 0.661.
   TO CONFIRM accepted with the approval (2026-11-17): the slot basis (collateral included in the movement after bolting),
   the 70 mm bolt pitch for M16. No 5d item is left TO CONFIRM.
+
+**Step 7 — decisions (user 2026-11-17).** Step 7 only converts Manafe3 connection results into DetailCraft parts and reuses
+DetailCraft's MTO (marks.js BOM, nest.js, platelist / punchlist), NC (nc1.js), IFC, clash (clash.js) and drawings
+(drawings.js, shop.js); no new MTO / drawing / clash modules. NC for tapered built-up members = DSTV plate files for the
+webs (code B, the real outline) and the flange strips (PL) — confirmed. Results with FAIL, NOT EVALUATED or open items
+still create parts, marked NOT FOR ISSUE.
+1. a — open item 7 FIRST, as its own step (braced-bay columns and eave struts under the brace axial forces, member checks);
+   STOP and ask if any section size changes. Base plates get the concrete anchor checks flagged NOT EVALUATED until the
+   user gives the item 8 pedestal input.
+2. a — frame-joint parts (end plates, stiffeners, cleats, clips, cap plates) as generated plate members attached to their
+   assemblies (an `attach` hook in build.js: attachTo + weld rows); base plates as DetailCraft's own `baseplate`
+   connection with the engine's parameters (the anchor bolt plan comes with it). Geometry from the engine
+   (`engine/connections/parts.py`, `POST /peb/connections`); the browser only converts.
+3. a — a `slot` field on holes, read by the existing model / NC / IFC / drawing code through small hooks; the DSTV slot
+   syntax VERIFIED False until checked against the DSTV document.
+4. a — the flange-brace frame-side clip is modelled, welded to the inner flange; checks J2.4 weld, J3.10 bearing, J4.3
+   block shear; a point is DESIGNED only when all pass AND it has no clash.
+5. a — bolts for every engine-designed joint and for the existing purlin / girt / cleat holes (complete BOM bolt list);
+   the bolt-length rule TO CONFIRM.
+6. a — each part carries its joint's status and open-item flags; a sheet showing such a part gets a forced NOT FOR ISSUE
+   in the title block and cannot be set to "For fabrication"; the flag also goes to an NC header text line and an IFC
+   property.
+7. a — the autopilot skips generated (PEB) members (one-line hook); its proposals never compete with the engine's designs.
+8. a — step 7 = converter, hooks and tests (applied through the agent tool / tests); the PEB › Connections… button and the
+   single undo step in step 8.
+- **7f added (user):** extend shop.js to built-up tapered members — the web plate outline, the flange strips, holes and
+  slots, weld symbols, the NOT FOR ISSUE marking (an existing module extended: within the no-new-drawing-code rule).
+- **Order:** open item 7 fix, then 7a (engine part specs), 7b (converter), 7c (hooks: built-up holes, attach, slot, NOT FOR
+  ISSUE), 7d (clash closure: the flange-brace points and the geometry warnings), 7e (tests, building 1), 7f (shop.js).
 
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
