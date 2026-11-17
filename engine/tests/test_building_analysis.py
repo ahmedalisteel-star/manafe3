@@ -73,8 +73,11 @@ def test_building_dedup_and_labels(whole):
     r = whole
     assert r["banner"].startswith("NOT FOR ISSUE") and r["designed"] is False
     same = {f["line"]: f["same_as"] for f in r["frames"]}
-    assert same == {"2": "2", "3": "2", "4": "2", "5": "5"}              # line 1 is an end-rafter wall; 5 has half the tributary
-    assert [f for f in r["frames"] if f["line"] == "3"][0].get("result") is None
+    # line 1 is an end-rafter wall; 5 has half the tributary; open item 7 (2026-11-17): line 3 carries no brace loads (braced
+    # bays 1 and 4) → its own solve; lines 2 / 4 have the same role-named brace cases → one solve (before: 3 → 2 as well)
+    assert same == {"2": "2", "3": "3", "4": "2", "5": "5"}
+    assert [f for f in r["frames"] if f["line"] == "4"][0].get("result") is None
+    assert [f for f in r["frames"] if f["line"] == "4"][0]["brace"]["cases"]["BRA"]["direction"] == "-x"   # its own record
     std = [f for f in r["frames"] if f["line"] == "2"][0]["result"]["staad"]
     assert std.startswith("STAAD PLANE") and "NOT FOR ISSUE" in std and std.rstrip().endswith("FINISH")
     assert len(r["end_frames"]) == 1 and r["end_frames"][0]["end"] == "first"

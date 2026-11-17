@@ -5,7 +5,8 @@
     MEMBER PROPERTY: a built-up member as TAPERED f1..f7 = depth at start, web t, depth at end, top flange b, t, bottom
       flange b, t (m) — the technical reference's order; rigid knee / ridge arms as a stiff PRISMATIC (AX, IZ)
     SUPPORTS: PINNED (or FIXED)
-    one primary LOAD per case (D, C, Lr, the wind cases); member loads:
+    one primary LOAD per case (D, C, Lr, the wind cases; the brace cases BRA / BRB / BRminA / BRminB of open item 7 as
+      CON GX / GY point loads, x from the member start in m); member loads:
       GLOBAL_Y → UNI GY −w (TRAP GY for a taper's self-weight); GLOBAL_Y_PROJECTED → UNI PY −w; GLOBAL_X → UNI GX w;
       NORMAL (roof pressure, + onto the top face) → UNI Y −w (local y up on a rafter)
     LOAD COMBINATION per LRFD / ASD combination, then PERFORM ANALYSIS (FIRST ORDER: compare with Manafe3's first-order
@@ -61,6 +62,13 @@ def staad_frame(info, fl, *, title: str = "Manafe3 frame", base: str = "pinned")
                 out.append(f"{m} UNI Y {_f(-w)}")
             else:
                 raise ValueError(f"no STAAD mapping for {d}")
+        for c, mk, x, fx, fy in getattr(fl, "points", ()):           # open item 7: brace point loads (kN, global, x in m)
+            if c != case:
+                continue
+            if fx:
+                out.append(f"{mid[mk]} CON GX {_f(fx)} {_f(x / 1000)}")
+            if fy:
+                out.append(f"{mid[mk]} CON GY {_f(fy)} {_f(x / 1000)}")
     for k, (name, factors, s) in enumerate(fl.combinations, 101):
         out.append(f"LOAD COMBINATION {k} {name[:70]}")
         out.append(" ".join(f"{cid[c]} {_f(f)}" for c, f in factors.items() if c in cid))

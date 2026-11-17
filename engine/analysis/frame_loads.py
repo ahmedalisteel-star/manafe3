@@ -54,6 +54,8 @@ class FrameLoads:
     tributary_m: float
     Lr: object
     wind: object
+    points: tuple = ()            # open item 7: (case, mark, x along the member mm, Fx kN (+X), Fy kN (+up)) point loads
+    brace: dict | None = None     # open item 7: this line's brace record (engine/analysis/brace_axial.py), or None
 
 
 @dataclass(frozen=True)
@@ -105,7 +107,48 @@ def combinations(li: LoadsInput, wind_cases: tuple[str, ...], extra: tuple[str, 
     return tuple(out)
 
 
-def frame_loads(info, frame_index: int, li: LoadsInput, roof_secondary_kpa: float = 0.0, wall_secondary_kpa: float = 0.0) -> FrameLoads:
+def brace_points(info, line: dict) -> list[tuple]:
+    """Open item 7: the line's brace record → point loads on the analysis members (kN, global components)."""
+    lay = {m.mark: m for m in info.layout.members}
+    pts = []
+    for p in line["points"]:
+        if p["kind"] == "column":
+            m = lay["C" + p["side"]]
+            (xi, yi), (xj, yj) = m.i_point, m.j_point
+            t = min(max((p["z"] - yi) / (yj - yi), 0.0), 1.0)          # above the column's top node: at the top node
+            pts.append((p["case"], m.mark, round(t * m.length, 6), 0.0, -p["dP"]))
+        else:
+            cands = [m for mk, m in lay.items() if info.roles.get(mk) == "rafter " + p["side"]]
+            m = next((m for m in cands if min(m.i_point[0], m.j_point[0]) - 1e-6 <= p["y"] <= max(m.i_point[0], m.j_point[0]) + 1e-6), None)
+            if m is None:
+                raise ValueError(f"roof-X node y {p['y']} is not on rafter {p['side']}")
+            (xi, yi), (xj, yj) = m.i_point, m.j_point                  # i → j runs toward the ridge
+            t = (p["y"] - xi) / (xj - xi)
+            ux, uy = (xj - xi) / m.length, (yj - yi) / m.length
+            pts.append((p["case"], m.mark, round(t * m.length, 6), p["dN"] * ux, p["dN"] * uy))
+    return pts
+
+
+def brace_combinations(combos: tuple, line: dict) -> list[tuple[str, dict, str]]:
+    """Every LRFD combination with WB± once more per direction (+ BRA / BRB at its wind factor), and the minimum family."""
+    have = {p["case"] for p in line["points"]}
+    out = []
+    for name, f, s in combos:
+        wf = f.get("WB+", f.get("WB-"))
+        if s != "LRFD" or wf is None:
+            continue
+        for lab in ("A", "B"):
+            if "BR" + lab in have:
+                out.append((f"{name} + {wf:g}BR{lab}", {**f, "BR" + lab: wf}, "LRFD"))
+    for lab in ("A", "B"):
+        if "BRmin" + lab in have:
+            for d in (0.9, 1.2):
+                out.append((f"LRFD: {d:g}D + 1.0BRmin{lab} (§28.3.4 minimum brace force, dead load only)", {"D": d, "BRmin" + lab: 1.0}, "LRFD"))
+    return out
+
+
+def frame_loads(info, frame_index: int, li: LoadsInput, roof_secondary_kpa: float = 0.0, wall_secondary_kpa: float = 0.0,
+                brace: dict | None = None) -> FrameLoads:
     lay = info.layout
     geom = lay.geometry
     trib = tributary_width(geom, frame_index)                     # m
@@ -157,5 +200,13 @@ def frame_loads(info, frame_index: int, li: LoadsInput, roof_secondary_kpa: floa
     order = ["WA+L", "WA-L", "WA+R", "WA-R", "WB+", "WB-"]                # a fixed order for tables and the CSV
     names = sorted(names, key=order.index)
     cases = ("D", "C", "Lr", *names)
-    return FrameLoads(loads=tuple(loads), cases=cases, combinations=combinations(li, tuple(names)), tributary_m=trib, Lr=lr, wind=wind)
+    combos = combinations(li, tuple(names))
+    points: tuple = ()
+    if brace and brace.get("points"):                                    # open item 7
+        points = tuple(brace_points(info, brace))
+        have = [c for c in ("BRA", "BRB", "BRminA", "BRminB") if any(p[0] == c for p in points)]
+        cases = (*cases, *have)
+        combos = (*combos, *brace_combinations(combos, brace))
+    return FrameLoads(loads=tuple(loads), cases=cases, combinations=combos, tributary_m=trib, Lr=lr, wind=wind,
+                      points=points, brace=brace if points else None)
 

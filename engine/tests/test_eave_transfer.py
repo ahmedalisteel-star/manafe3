@@ -77,19 +77,24 @@ def test_building_1_eave_and_wind_column_tops():
     jr = building_joints(b0, li, analysis=an, out=out)
     ep = building_endplates(jr, out)
     r = E.building_eave_transfer(b, jr, out, an, ep)
-    assert r["banner"].startswith("NOT FOR ISSUE") and r["counts"] == {"eave": {"DESIGNED": 6, "FAILS": 2}, "wind_column_tops": {"DESIGNED": 6}}
+    # open item 7 (accepted 2026-11-17): the roof-X chord axial in the braced-bay rafters → frames 2 / 4 side B fail too
+    # (0.9887 → 1.0074, open item 13); the old counts (6 / 2) with brace_axial off are asserted below
+    assert r["banner"].startswith("NOT FOR ISSUE") and r["counts"] == {"eave": {"DESIGNED": 4, "FAILS": 4}, "wind_column_tops": {"DESIGNED": 6}}
     bf = r["brace_forces_roof"]
     assert bf["T_minimum"] == pytest.approx(21.128, abs=1e-3)                        # the minimum governs the roof diagonal
     for x in r["eave"]:
         assert x["F_x_minimum"] == pytest.approx(bf["T_minimum"] * x["u_x"], abs=2e-3)
         names = {c["name"] for c in x["checks"]}
         assert any(n.startswith("column top (own line, not item 7)") for n in names)  # its own line (4a)
-        if x["frame_x"] in (6000, 18000) and x["side"] == "A":                      # interior braced-bay frames, side A
+        if x["frame_x"] in (6000, 18000):                                          # interior braced-bay frames, both sides
             assert x["status"] == E.FAILS and x["governing"]["name"].startswith("top flange alone") and E.SUGGEST in x["suggestion"]
         else:
             assert x["status"] == E.DESIGNED and x["suggestion"] is None
     worst = max(r["eave"], key=lambda x: x["governing"]["U"])
-    assert worst["governing"]["U"] == pytest.approx(1.0465, abs=2e-3)               # H1-1 as written (was 1.0641 linear)
+    # H1-1 as written (was 1.0641 linear); 1.0465 before open item 7, 1.0662 with the roof-X chord axial
+    assert worst["governing"]["U"] == pytest.approx(1.0662, abs=2e-3)
+    sideB = [x for x in r["eave"] if x["frame_x"] in (6000, 18000) and x["side"] == "B"]
+    assert all(x["governing"]["U"] == pytest.approx(1.0074, abs=2e-3) for x in sideB)
     w = {x["wind_column"]: x for x in r["wind_column_tops"]}
     # slots from the movement after bolting (5d review): 77 / 136 mm; beyond 2.5 d → "long slot with plate washer" (open item 14)
     assert w["WF1"]["slot"]["length"] == 77 and w["WF2"]["slot"]["length"] == 136 and w["WF1"]["slot"]["exceeds_long_slot"]
@@ -104,12 +109,17 @@ def test_building_1_eave_and_wind_column_tops():
     assert w["WF2"]["flange"]["at_brace"] and w["WF1"]["flange"]["at_brace"] and w["WF1"]["flange"]["M_lat"] == 0.0
     # NEGATIVE CONTROL: the 5d brace setting off → the bottom flange spans 3060.5 → 11 362.4 again, U 0.9393 (H1-1, wind
     # combinations; the old linear / full-envelope rule gave 1.011) — accepted by the user 2026-11-17
+    # (brace_axial off too: open item 7's chord axial is not part of this control)
     import dataclasses as _dc
-    b_off, _ = resolve(_dc.replace(b0, wc_top_flange_braces=False))
+    b_off, _ = resolve(_dc.replace(b0, wc_top_flange_braces=False, brace_axial=False))
     out_off = peb_building(b_off)
     an_off = analyse_building(b_off, li)
-    jr_off = building_joints(_dc.replace(b0, wc_top_flange_braces=False), li, analysis=an_off, out=out_off)
-    w_off = {x["wind_column"]: x for x in E.building_eave_transfer(b_off, jr_off, out_off, an_off, building_endplates(jr_off, out_off))["wind_column_tops"]}
+    jr_off = building_joints(_dc.replace(b0, wc_top_flange_braces=False, brace_axial=False), li, analysis=an_off, out=out_off)
+    r_off = E.building_eave_transfer(b_off, jr_off, out_off, an_off, building_endplates(jr_off, out_off))
+    w_off = {x["wind_column"]: x for x in r_off["wind_column_tops"]}
+    # NEGATIVE CONTROL (open item 7): the brace axial off → the eave counts before it, 6 DESIGNED / 2 FAILS, worst 1.0465
+    assert r_off["counts"]["eave"] == {"DESIGNED": 6, "FAILS": 2}
+    assert max(x["governing"]["U"] for x in r_off["eave"]) == pytest.approx(1.0465, abs=2e-3)
     f1 = w_off["WF1"]["flange"]
     assert not f1["at_brace"] and any(n.startswith("FLAG: no flange brace") for n in w_off["WF1"]["notes"])
     a_, b_ = f1["u_wind_column"] - f1["left"], f1["right"] - f1["u_wind_column"]

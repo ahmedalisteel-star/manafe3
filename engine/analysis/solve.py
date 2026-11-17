@@ -121,8 +121,29 @@ def strength_combinations(info, fl) -> list[tuple[str, dict, str]]:
     return out
 
 
-def _solve(layout, loads, combos, p_delta):
-    fa = FrameAnalysis(layout)
+class _FrameAnalysisWithPoints(FrameAnalysis):
+    """bimsteelauto's FrameAnalysis + point loads on members (open item 7: the brace forces). Not a change to bimsteelauto:
+    a subclass that adds PyNite member point loads (global FX / FY, N) after its own line loads, on the solver slice that
+    holds the point."""
+
+    def __init__(self, layout, points=()):
+        super().__init__(layout)
+        self._points = tuple(points)
+
+    def _apply_loads(self, model) -> None:
+        super()._apply_loads(model)
+        for case, mark, x, fx, fy in self._points:
+            segs = self._segments[mark]
+            mem, x0, x1 = next(((m, a, b) for m, a, b in segs if a - 1e-6 <= x <= b + 1e-6), segs[-1])
+            xl = min(max(x - x0, 0.0), x1 - x0)
+            if fx:
+                model.add_member_pt_load(mem, "FX", fx * 1000.0, xl, case=case)
+            if fy:
+                model.add_member_pt_load(mem, "FY", fy * 1000.0, xl, case=case)
+
+
+def _solve(layout, loads, combos, p_delta, points=()):
+    fa = _FrameAnalysisWithPoints(layout, points)
     for ld in loads:
         fa.add_line_load(ld.case, ld.member_mark, ld.w, ld.direction, w_end=ld.w_end)
     for name, factors in combos:
@@ -162,7 +183,7 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
     for n, f, s in fl.combinations:
         if not (dam and s == "LRFD"):
             sets[n] = s
-    env_s = _solve(lay, fl.loads, service, p_delta)
+    env_s = _solve(lay, fl.loads, service, p_delta, fl.points)
     for c, _ in service:
         envs[c] = env_s
     strength = strength_combinations(info, fl) if dam else []
@@ -171,12 +192,12 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
     if strength:
         ratio = NOTIONAL
         env_r = _solve(strength_layout(lay), list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
-                       [(n, f) for n, f, _ in strength], p_delta)
+                       [(n, f) for n, f, _ in strength], p_delta, fl.points)
         tau = _tau_check(info, env_r, [n for n, _, _ in strength], fy)
         if tau.get("checked") and not tau["ok"]:
             ratio = NOTIONAL + NOTIONAL_TAU                                   # C2.3(c)
             env_r = _solve(strength_layout(lay), list(fl.loads) + notional_loads(info, fl, ratio * ALPHA_LRFD),
-                           [(n, f) for n, f, _ in strength], p_delta)
+                           [(n, f) for n, f, _ in strength], p_delta, fl.points)
             tau["route"] = "C2.3(c): τb = 1 with an additional notional load 0.001·α·Yi"
         for n, _, s in strength:
             sets[n] = s
@@ -229,5 +250,7 @@ def analyse_frame_line(info, fl, *, p_delta: bool = True, label: str = "", dam: 
         "wind": {"qh": round(fl.wind.qh, 5), "Kz": round(fl.wind.Kz, 5), "a_mm": round(fl.wind.end_zone_a, 1), "GCpi": list(fl.wind.GCpi)},
         "loads": [{"case": ld.case, "mark": ld.member_mark, "w": round(ld.w, 4), "w_end": None if ld.w_end is None else round(ld.w_end, 4),
                    "direction": ld.direction.name, "origin": ld.origin} for ld in fl.loads],
+        "point_loads": [{"case": c, "mark": mk, "x": round(x, 1), "Fx": round(fx, 4), "Fy": round(fy, 4)} for c, mk, x, fx, fy in fl.points],
+        "brace": fl.brace,
         "designed": False,
     }

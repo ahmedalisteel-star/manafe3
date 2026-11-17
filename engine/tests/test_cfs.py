@@ -239,8 +239,12 @@ def test_whole_building_step6():
     assert r["max_ratio"] == max(allr) and r["max_ratio"] > 1.0
     assert max(x["ratio"] for x in r["eave_struts"]) > 1.0 and max(x["ratio"] for x in r["purlins"]) > 1.0
     assert max(x["ratio"] for x in r["girts"]) < 1.0                    # girts never had sag rods: unchanged (0.94)
+    # open item 7 (accepted 2026-11-17): the strut axial (roof-X node purlins, eave struts) does not depend on the uplift
+    # method → above 1 by the R-factor too (open item 15); without it (brace_axial off, the old control) below 1 as before
     rr = cfs_checks(BuildingInput(**B1), LI, uplift_method="r_factor")
-    assert rr["uplift_method"] == "r_factor" and 0.5 < rr["max_ratio"] < 1.0
+    assert rr["uplift_method"] == "r_factor" and rr["max_ratio"] > 1.0
+    r0 = cfs_checks(BuildingInput(**B1, brace_axial=False), LI, uplift_method="r_factor")
+    assert 0.5 < r0["max_ratio"] < 1.0
     p1 = next(x for x in r["purlins"] if x["id"] == "RA1")
     # a = 2400 (bimsteelauto end_zone_width); per span: the end spans reach into the gable strips
     assert p1["zones"] == ["3", "2", "2", "3"]                         # s 1186: the eave strip — corners at the gable ends

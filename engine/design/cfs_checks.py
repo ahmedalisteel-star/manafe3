@@ -76,6 +76,7 @@ from bimsteelauto.loads.wind import envelope_pressures
 
 from ..analysis.endwall_analysis import _geom, longitudinal_feed
 from ..analysis.bracing_system import longitudinal_bracing
+from ..analysis.brace_axial import PANEL_BRACE, brace_loads
 from ..peb.building import BuildingInput, peb_building, resolve
 from .cfs_section import KSI, Mcre, Pcre, cfs_section
 from .inputs import plate_strength
@@ -302,8 +303,14 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
     use_r = uplift_method == "r_factor" and rf is not None and rf["applicable_from_model"] and Mnlo is not None
     worst = None
     defl = None
-    ax = axial_capacity(sd, max(b - a for a, b in zip(sup, sup[1:]))) if line.get("P") else None
-    Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / max(b - a for a, b in zip(sup, sup[1:])) ** 2 if line.get("P") else None
+    has_P = bool(line.get("P") or line.get("P_by_combo"))
+    ax = axial_capacity(sd, max(b - a for a, b in zip(sup, sup[1:]))) if has_P else None
+    Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / max(b - a for a, b in zip(sup, sup[1:])) ** 2 if has_P else None
+    pz = line.get("P_zones") or []            # open item 7: a purlin strut at the roof-X nodes, only inside its braced bay
+    if pz and ax is None:
+        Lz = max(z[1] - z[0] for z in pz)
+        ax = axial_capacity(sd, Lz)
+        Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / Lz ** 2
     for setname, cs in combos.items():
         for cname, fac in cs.items():
             q = [sum(f * line["cases"].get(c, [0.0] * (len(nodes) - 1))[i] for c, f in fac.items()) for i in range(len(nodes) - 1)]
@@ -322,15 +329,19 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
                         defl = {**_row(f"Deflection ({'2 × cantilever' if cant else 'span'} / {deflection_limit:g})", "Serviceability (user limit, ASD)", dmax, lim, "mm",
                                        f"{cname}, span {L:.0f} mm, gross Ix"), "combo": cname}
                 continue
-            Pk = 0.0
+            Pk_line = 0.0
+            wfac = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
             if line.get("P"):
-                Pk = line["P"] * max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+                Pk_line = line["P"] * wfac
+            if line.get("P_by_combo"):            # open item 7, 1c: already factored, per combination
+                Pk_line = max(Pk_line, line["P_by_combo"].get(cname, 0.0))
             xs_ = np.array([s[0] for s in st])
             Ms_ = np.array([abs(s[1]) for s in st])
             cbs = {}
             uplift = "Wout" in fac
             bp = br_up if uplift else br
             for si, (x, M, V, _) in enumerate(st):
+                Pk = Pk_line if not pz else next((z[2] for z in pz if z[0] - 1e-6 <= x <= z[1] + 1e-6), 0.0) * wfac
                 ne = nsec[si // NST]
                 k = next((j for j in range(len(bp) - 1) if bp[j] - 1e-6 <= x <= bp[j + 1] + 1e-6), None)
                 Lb = bp[k + 1] - bp[k] if k is not None else None
@@ -354,7 +365,8 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
                     B1 = 1.0 / (1.0 - Pk * 1e3 / Pex) if Pk * 1e3 < Pex else math.inf
                     r_int = (Pk * 1e3 / ax["phiPn"] if ax["phiPn"] > 0 else math.inf) + (B1 * abs(M) / fc["phiMn"] if fc["phiMn"] > 0 else math.inf)
                     rows.append({**_row("Axial + bending (H1.2, B1 · M)", "AISI S100-16 H1.2, App. 1 (DSM)", r_int, 1.0, "-",
-                                        f"P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN (Pcre at the bay), B1 {B1:.3f}")})
+                                        f"P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN (Pcre at the bay), B1 {B1:.3f}"
+                                        + (" — roof-X strut (open item 7)" if pz else ""))})
                 rows.append(_row("Flexure (DSM)", "AISI S100-16 App. 1 1.2.2 (F)", abs(M) / 1e6, fc["phiMn"] / 1e6, "kN·m",
                                  ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}"
                                   + (" (uplift: braced at supports / flange braces only)" if uplift else ""))
@@ -493,6 +505,7 @@ def building_lines(out: dict, li) -> list[dict]:
                 lines.append(_roof_line(f"{k}" + (f"-{frames.index(x0) + 1}" if role == "eave_strut" else ""), role, sd_prof, ps[0].get("material", "S350GD"),
                                         nodes, sups, [x for x in rows if x0 < x < x1] + [nodes[0], nodes[-1]] + sups, trib, ys, c, theta, span, Lb_, a, wind, li))
                 lines[-1]["laps"] = laps
+                lines[-1]["y"], lines[-1]["side"], lines[-1]["cos"] = y, side, c
     # ---- side-wall girts
     walls = pieces({"girt"}, lambda m: m["line"])
     for side in "AB":
@@ -588,6 +601,41 @@ def _wall_line(lid, role, profile, grade, nodes, sups, braces, trib, corner, the
             "loads": {"W_in": [round(v, 4) for v in win], "W_out": [round(v, 4) for v in wout]}, "combos": COMBOS_WALL}
 
 
+_PR_MEMO: dict = {}
+
+
+def _column_Pr(b: BuildingInput, li, out: dict, lines: list, side: str) -> dict:
+    """Open item 7, 1c: sum of the frame columns' largest compression Pr (kN, DAM, LRFD) at the given 1-based frame lines on
+    one side, per roof combination of COMBOS_ROOF["LRFD"]: the frame combinations with the same D, Lr and wind factors
+    (any wind case, the brace combinations included; the largest)."""
+    from ..analysis.building_analysis import _line_setup
+    from ..analysis.secondary_weight import secondary_kpa
+    from ..analysis.solve import analyse_frame_line
+    br, _ = resolve(b)
+    tot = {cn: 0.0 for cn in COMBOS_ROOF["LRFD"]}
+    for ln in lines:
+        key = (repr(br), repr(li), ln)
+        if key not in _PR_MEMO:
+            info, fl, fy = _line_setup(br, li, ln - 1, secondary_kpa(out), 0.10, with_fy=True)
+            _PR_MEMO[key] = analyse_frame_line(info, fl, fy=fy, label=f"Frame line {ln} (strut Pr)")
+            if len(_PR_MEMO) > 16:
+                _PR_MEMO.pop(next(iter(_PR_MEMO)))
+        res = _PR_MEMO[key]
+        for cn, cf in COMBOS_ROOF["LRFD"].items():
+            want = (cf.get("D", 0.0), cf.get("Lr", 0.0), max(cf.get("Win", 0.0), cf.get("Wout", 0.0)))
+            best = 0.0
+            for name, r in res["results"].items():
+                if r.get("set") != "LRFD":
+                    continue
+                f = res["factors"].get(name, {})
+                w = max((v for k, v in f.items() if k.startswith("W")), default=0.0)
+                if (f.get("D", 0.0), f.get("Lr", 0.0), w) != want:
+                    continue
+                best = max(best, max((st[1] for st in r["members"]["C" + side]), default=0.0))
+            tot[cn] += best
+    return tot
+
+
 def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: ServiceLimits | None = None, out: dict | None = None,
                uplift_method: str = "strict") -> dict:
     """Step 6 for a building: every purlin, girt, gable-girt and eave-strut line. uplift_method "strict" (default) or
@@ -602,9 +650,13 @@ def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: Se
     tied, untied = tied_rows(out)
     braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
     struts = {}
+    bl = None
     if braces and out.get("braced_bays"):
-        bs = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))["sets"]["LRFD"]
+        bsr = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
+        bs = bsr["sets"]["LRFD"]
         struts = {j: abs(v) for j, v in bs["strut"]}
+        if getattr(b, "brace_axial", True) and out["input"].get("brace_axial", True):
+            bl = brace_loads(out, bsr)                    # open item 7 (user 2026-11-17, decisions 1a, 3a, 4a)
     res = {"purlins": [], "eave_struts": [], "girts": [], "gable_girts": []}
     cache = {}
     for ln in lines:
@@ -614,10 +666,30 @@ def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: Se
         if ln["kind"] == "eave_strut":
             bay = int(ln["id"].rsplit("-", 1)[1])
             ln["P"] = struts.get(bay, 0.0)
+            e = (bl or {}).get("struts", {}).get("eave", {}).get(bay)
+            if e and e.get("between"):
+                pr = _column_Pr(b, li, out, e["panel_lines"], ln["id"][1])
+                ln["P_by_combo"] = {cn: max(ln["P"] * max(f.get("Win", 0.0), f.get("Wout", 0.0)), PANEL_BRACE * pr.get(cn, 0.0))
+                                    for cn, f in COMBOS_ROOF["LRFD"].items()}
+                ln["P_rule"], ln["P_panel"] = e["rule"], {"lines": e["panel_lines"], "sum_Pr": pr}
+            elif e:
+                ln["P"], ln["P_rule"] = max(ln["P"], e["P"]), e["rule"]
+        elif ln["kind"] in ("purlin", "ridge_purlin") and bl:
+            pz = [(z["x0"], z["x1"], z["P"]) for z in bl["struts"]["purlin_nodes"] if z["side"] == ln.get("side")
+                  and any(abs(ln["y"] - y) / ln["cos"] < bl["struts"]["node_tol"] for y in z["node_ys"])]
+            if pz:
+                ln["P_zones"] = pz
         ln["rfactor"] = r_factor(ln, cache[key], tied_ok=bool(tied) and not untied)
         r = check_line(ln, cache[key], ln["combos"], limits.purlin, uplift_method)
+        if ln.get("P_zones"):
+            r["P_strut_zones"] = [{"x0": a, "x1": b_, "P_kN": p} for a, b_, p in ln["P_zones"]]
         if ln["kind"] == "eave_strut":
             r["P_strut_kN"] = ln.get("P", 0.0)
+            if ln.get("P_rule"):
+                r["P_strut_rule"] = ln["P_rule"]
+            if ln.get("P_by_combo"):
+                r["P_strut_by_combo"] = {k: round(v, 4) for k, v in ln["P_by_combo"].items()}
+                r["P_panel"] = ln["P_panel"]
         res[{"purlin": "purlins", "ridge_purlin": "purlins", "eave_strut": "eave_struts", "girt": "girts", "gable_girt": "gable_girts"}[ln["kind"]]].append(r)
     allr = [r["ratio"] for v in res.values() for r in v]
     sections = {f"{k[0]} {k[1]}": {kk: vv for kk, vv in v.items() if not kk.startswith("_")} for k, v in cache.items()}

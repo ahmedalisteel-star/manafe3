@@ -316,28 +316,39 @@ def test_sized_building_1_welds():
     braced = [b for b in r["bases"] if b.get("longitudinal")]
     assert len(braced) == 8 and all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in braced)
     worst = {b["joint"]: min(c["Pu"] for c in b["longitudinal"]["cases"]) for b in braced}
-    # −35.526 before the ridge flange braces (open item 11, 2026-11-16): their dead load lowers the uplift to −35.509
-    assert worst["F1-BA"] == pytest.approx(-35.509, abs=0.005) and worst["F5-BA"] == pytest.approx(-35.509, abs=0.005)
-    # −44.341 before the ridge braces, −44.309 with them, −44.301 with the wind-column-top braces too (their dead load)
-    assert worst["F2-BA"] == pytest.approx(-44.301, abs=0.005) and worst["F4-BA"] == pytest.approx(-44.301, abs=0.005)
-    # NEGATIVE CONTROL: the ridge flange braces off → the old uplifts −35.526 / −44.341
+    # −35.526 before the ridge flange braces (open item 11, 2026-11-16), −35.509 with them; open item 7 (2026-11-17, accepted
+    # by the user): the brace combinations of the direction in which this base's diagonal is the tension one carry the
+    # roof-X chord's vertical share as well → −38.289 (governing 0.9D + 1.0WB+ with BRB)
+    assert worst["F1-BA"] == pytest.approx(-38.289, abs=0.005) and worst["F5-BA"] == pytest.approx(-38.289, abs=0.005)
+    # −44.341 before the ridge braces, −44.309 with them, −44.301 with the wind-column-top braces too; −47.088 with open item 7
+    assert worst["F2-BA"] == pytest.approx(-47.088, abs=0.005) and worst["F4-BA"] == pytest.approx(-47.088, abs=0.005)
+    gov = min(next(b for b in braced if b["joint"] == "F2-BA")["longitudinal"]["cases"], key=lambda c: c["Pu"])
+    assert gov["combo"].endswith("+ 1BRB") and gov["T_brace"] == pytest.approx(18.860, abs=2e-3)       # the same T as the columns
+    # NEGATIVE CONTROL: the ridge flange braces, the wind-column-top braces and the brace axial (open item 7) off → the old
+    # uplifts −35.526 / −44.341
     import dataclasses as _dc
-    b_off, _ = resolve(_dc.replace(b0, ridge_flange_braces=False, wc_top_flange_braces=False))
+    b_off, _ = resolve(_dc.replace(b0, ridge_flange_braces=False, wc_top_flange_braces=False, brace_axial=False))
     out_off = peb_building(b_off)
     an_off = analyse_building(b_off, li)
-    bs_off = building_bases(building_joints(_dc.replace(b0, ridge_flange_braces=False, wc_top_flange_braces=False), li, analysis=an_off, out=out_off),
+    bs_off = building_bases(building_joints(_dc.replace(b0, ridge_flange_braces=False, wc_top_flange_braces=False, brace_axial=False), li, analysis=an_off, out=out_off),
                             out_off, BaseSettings(concrete="C25/30"), analysis=an_off)
     w_off = {x["joint"]: min(c["Pu"] for c in x["longitudinal"]["cases"]) for x in bs_off["bases"] if x.get("longitudinal")}
     assert w_off["F1-BA"] == pytest.approx(-35.526, abs=0.005) and w_off["F2-BA"] == pytest.approx(-44.341, abs=0.005)
+    # the 6 LRFD WB combinations + 0.9D / 1.2D + BRmin (gravity only → the DAM solves each with ±N: 4), in the one direction
+    # this base's diagonal pulls
+    N_BR_PAIRS = 6 + 4
     for b in braced:
         lon = b["longitudinal"]
         assert lon["status"] == "EVALUATED" and lon["limits"]["ok"] and lon["torsion"]["status"] == "EXEMPT"
-        assert {c["family"] for c in lon["cases"]} == {"Case B", "minimum"} and len(lon["cases"]) == 8
+        # 6 frame-alone Case B + 2 minimum (open item 6) + the brace combinations of this base's tension direction (open item 7)
+        assert {c["family"] for c in lon["cases"]} == {"Case B", "minimum"} and len(lon["cases"]) == 8 + N_BR_PAIRS
+        assert len([c for c in lon["cases"] if c.get("direction")]) == N_BR_PAIRS
         assert all(any(c["combo"] == bc.get("combo") for bc in b["cases"]) for c in lon["cases"])     # in the weld cases
     assert all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in r["bases"] if not b.get("longitudinal"))
     rec = r["longitudinal"]
     assert rec["brace_forces"]["T_caseB"] == pytest.approx(18.861, abs=1e-3) and rec["brace_forces"]["T_minimum"] == pytest.approx(21.075, abs=1e-3)
-    assert len(rec["members_not_evaluated"]) == 16 and bs["longitudinal"]["limits"]["h"] == 6600.0
+    # open item 7 built: 16 rows (8 braced-bay columns + 8 eave struts) before; none with brace_axial on (no end-rafter wall)
+    assert rec["members_not_evaluated"] == [] and bs["longitudinal"]["limits"]["h"] == 6600.0
     plates = {x["joint"]: x for x in bs["bases"]}
     for j in worst:                                       # base plates and rods unchanged by the longitudinal pairs
         assert (plates[j]["t"], plates[j]["rod"]["label"]) == (12.0, "M20") and plates[j]["longitudinal"]["status"] == "EVALUATED"

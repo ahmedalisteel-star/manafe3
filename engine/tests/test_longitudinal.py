@@ -106,6 +106,15 @@ def test_torsion_exception():
 
 
 def test_members_not_evaluated():
-    rows = members_not_evaluated(_out())
+    # open item 7 built (2026-11-17): with the setting on (default) the braced-bay columns and the eave struts are checked
+    assert members_not_evaluated(_out()) == []
+    # NEGATIVE CONTROL: the setting off → the old rows, NOT EVALUATED
+    o = _out()
+    o["input"]["brace_axial"] = False
+    rows = members_not_evaluated(o)
     assert [(r["member"], r["role"]) for r in rows] == [("F1-CA", "braced-bay column"), ("RA0-1", "eave strut")]
     assert all("NOT EVALUATED" in r["status"] and "open item 7" in r["status"] for r in rows)
+    # an end-rafter wall's column under a wall brace stays NOT EVALUATED (no main frame on that line to load)
+    o = _out()
+    o["end_walls"] = [{"end": "first", "kind": "rafter", "x_frame": 0.0}]
+    assert [(r["member"], r["role"]) for r in members_not_evaluated(o)] == [("F1-CA", "braced-bay column")]

@@ -124,7 +124,11 @@ def test_check_building_1():
     assert {"column", "rafter", "wind column", "end rafter", "purlin", "girt", "eave strut", "gable girt"} <= kinds
     assert {row["code"] for row in r["rows"]} == {"AISC", "ECP", "AISI"}
     s = r["summary"]
-    assert s["weight"]["t"] > 10 and s["max_ratio"] < 1.0 and s["unverified_rows"] > 0 and s["unverified_items"]
+    # max_ratio was < 1.0 before open item 7; the strut axial in the roof-X purlins / eave struts takes it above 1 (2.10,
+    # accepted 2026-11-17, open item 15)
+    assert s["weight"]["t"] > 10 and s["max_ratio"] > 1.0 and s["unverified_rows"] > 0 and s["unverified_items"]
+    assert s["max_ratio"] == pytest.approx(2.1035, abs=2e-3)
+    assert s["max_by_type"]["eave strut"]["max_ratio"] > 1.0 or s["max_by_type"]["purlin"]["max_ratio"] > 1.0
     purl = next(row for row in r["rows"] if row["kind"] == "purlin")
     assert purl["uplift_method"] in ("r_factor", "strict") and purl["strict_ratio"] is not None
     assert any(k.endswith("|ECP") for k in r["calc"]) and all(r["calc"][k]["checks"] for k in r["calc"])

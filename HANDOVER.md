@@ -33,8 +33,8 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
 5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) APPROVED
 AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). Step 7 plan ANSWERED (user
-2026-11-17, "Step 7 — decisions" below). NEXT: open item 7 as its own step — PLAN AND DECISIONS FIRST, no code; then
-7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
+"Open items" 7). NEXT: open item 15 — report and plan only, no code until the user answers; then 7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -650,6 +650,7 @@ still create parts, marked NOT FOR ISSUE.
 | Flange-brace rules (step 5c) | the springs in series: braces, web local bending none when the brace lies in the web plane, cleat in-plane bending, purlin / girt axial E A / L to the nearest braced-bay frame line (the transfer into the bracing node not a spring); 1 bolt per end → H2 eccentric (gauge 28 mm at the contact face, Lc = L about rz, B1, F10); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
 | Bolt slip as an added imperfection (step 5c, user 2026-11-15 / -16) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment of the braced member / 500; brace points within 150 mm (setting) of an end / another point merge (the next segment used); L60×6 gauge 35 mm for the fix option — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
 | AISC F6 / G6 minor axis (step 5d) | φMny: Mp = min(Fy Zy, 1.6 Fy Sy), flange local buckling λ = bf / 2tf, λp 0.38 √(E/Fy), λr 1.0 √(E/Fy), F6-2 linear, F6-3 Fcr = 0.69 E / λ²; φVny = 0.9 × 0.6 Fy Σ bf tf (Cv2 = 1) — from memory | the printed AISC 360-16 F6 / G6 | VERIFIED False |
+| Open item 7 rules (Claude / user, 2026-11-17) | the roof-X chord force V × s / b (constant shear, the panel's larger end, loads at the ridge); the column ΔP at the diagonal's top clamped to the top node; every node purlin (ridge and eave node included, 150 mm tolerance) takes V; the eave strut in a braced bay = the wall-panel shear; between two braced bays max(drag, App. 6 panel bracing 0.005 × ΣPr of the columns strictly between, same combination) (user 1c); BR combinations on LRFD only, no notional twin | the user's call | VERIFIED False |
 | Step 5d rules (Claude / user) | the top flange alone (user); the rafter-end H1 add-on; the knee F_x share; the wind-column clip model, its minor-axis bending with the 100 mm offset; the slot rule; the bottom-flange span between the flange-brace points with the envelope axial | the user's call (TO CONFIRM batch) | VERIFIED False |
 | Brace groups (step 5c, user 2026-11-17) | flange-brace points closer than 500 mm on the same flange form one group (the ridge-purlin braces either side of the ridge); the rafter's ridge end is never a brace point in 5c; one App. 6 force per group shared by relative axial stiffness; Δo / Lbr from the real segments outside the group; a flange end within 150 mm merges | the user's call (engineering judgement) | VERIFIED False |
 | Knee as an inner-flange brace (step 5c-fix, user 2026-11-16) | the knee (column top / rafter start) braces the inner flange only when flange braces exist on the rafter's first purlin AND the column's first girt within 1500 mm of the corner (KNEE_TOL); otherwise the inner-flange LTB at the knee is NOT EVALUATED — engineering judgement | the user's call / a reference on knee bracing | VERIFIED False |
@@ -1639,9 +1640,39 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
      Sizes set by the minimums: plate 12 mm = the palette minimum (t_req at most 9.63); rods M20 = `rod_min_frame` (steel U
      at most 0.53); the 300 mm embedment minimum is NOT applied (no pedestal → no embedment chosen; the concrete modes
      are not evaluated).
-7. **Phase 4 member-check gap** (user 2026-11-15) — fix BEFORE step 7: the braced-bay columns (axial force from the wall
-   bracing) and the eave struts (strut forces) are not checked under the brace axial forces. Shown as NOT EVALUATED on the
-   connection results (`longitudinal.members_not_evaluated`) and in the design run summary (`brace_axial_not_evaluated`).
+7. **BUILT (2026-11-17), values accepted by the user** — Phase 4 member-check gap: the bracing's axial forces. User decisions
+   (2026-11-17): 1a (+ the roof-X chord axial in the braced-bay rafters, H1-1 with the frame forces in the same combination;
+   the purlin struts at the roof-X nodes, AISI H1.2), 2a (in the frame analysis), 3a, 4 → 1c (below), 5a, 6a (sizing loop
+   sees it; a size change stops). `engine/analysis/brace_axial.py`, setting `brace_axial` (BuildingInput + API, on).
+   - Forces: open item 6's split (one T for the columns and the bases): T 21.075 = 1.11743 × T_caseB 18.860; ΔP = T sin α
+     (building 1: 13.224 kN Case B, 14.777 minimum); roof X V = per_braced_bay / 2 = 15.027 (13.448 Case B) per slope.
+   - Columns: a point load at the tension diagonal's top end (clamped to the column's top node); wind along +x loads the
+     higher-x column of each braced bay. A lower end at the base goes into the anchors (item 6); a lower end above the base
+     would be an upward point load on that column (coded). In building 1 the opposite column takes NO shaft tension.
+   - Rafters (chords of the roof truss, eave node to eave node, loaded at the ridge — bimsteelauto's constant shear): N at
+     a roof-X node = V × s / b, the panel's larger end (conservative), zero from the knee to the eave node; +x compresses the
+     lower-x chord. Applied as point loads ALONG the rafter in the frame analysis (so the member checks, the joints, ECP,
+     the bases and STAAD all see it); building 1 N at the ridge 23.92 kN (Case B). The chords' slope gives a small vertical.
+   - Load cases per line BRA (the direction loading this line's columns) / BRB (the other) / BRminA / BRminB; LRFD only:
+     each WB combination once more per direction at its wind factor; 0.9D / 1.2D + 1.0 BRmin (dead load only). Point loads
+     through a Manafe3 subclass of bimsteelauto's FrameAnalysis (`solve._FrameAnalysisWithPoints`; bimsteelauto unchanged).
+     Lines 2 / 4 still one solve (role-named cases); line 3 now its own solve (no brace loads: unchanged — control).
+   - Item 6 bases (user check 2026-11-17): the same T and α; a base is paired with −T sin α only in the brace combinations
+     of the direction in which ITS diagonal is the tension one (each line's own record — line 4 reuses line 2's solve with
+     mirrored directions), never in its own column's direction (no double count); the chord's vertical share was missed by
+     the first build and is now in (uplift F1/F5-BA −35.509 → −38.289, BB −27.905 → −30.644; F2/F4-BA −44.301 → −47.088, BB
+     −35.267 → −38.002 kN; plates, rods, statuses unchanged).
+   - Eave struts: in a braced bay the wall-panel shear per side (15.027); BETWEEN two braced bays (user 1c): max(the
+     longitudinal force through the bay (bimsteelauto's drag, 0 there), App. 6 panel bracing 0.005 × ΣPr of the columns it
+     braces (the frame columns on that side at the lines strictly between the braced bays), same D / Lr / wind factors) —
+     never 0, never NOT EVALUATED. Purlins at the roof-X nodes (within 150 mm along the slope) take V inside the braced bay.
+   - Building 1 (old → new, accepted 2026-11-17): interior columns 0.8942 → 0.8963, end columns 0.4712 → 0.4718, rafters
+     unchanged (0.8293 / 0.4365), sizes unchanged (test_sizing); end plates ≤ +0.019 (F2-R 0.711 → 0.724); 5d eave 6 / 2 →
+     4 DESIGNED / 4 FAILS (frames 2 / 4 side A 1.0465 → 1.0662, side B 0.9887 → 1.0074: open item 13); brace ends worst
+     0.9732 → 0.976; purlins RA1 / RA5 / RA10 1.78 / 1.63 / 1.08 → 3.26 / 3.10 / 2.52; eave struts bays 1 / 4 2.13 → 3.18
+     (both already failing before: open item 15). Old values asserted with `brace_axial` off.
+   - Tests: `test_brace_axial.py` (hand values, statics of the frame line, item 6 pairing, the 1c rule; negative controls:
+     setting off, line 3, no Case B split).
 8. **Pedestal / footing input** (user 2026-11-15) — fix BEFORE step 7, the user's decisions first: with no pedestal input
    EVERY base of a building (building 1: all 16 — 10 frame bases and 6 wind-column bases) reads "PLATE DESIGNED - ANCHORS
    NOT EVALUATED": only the rod steel is checked, the ACI 318-19 Ch. 17 concrete modes (breakout, pullout, side-face
@@ -1707,10 +1738,16 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
      −44.309 kN (the braces' dead load; the old values asserted with the setting off). Sizes unchanged (test_sizing).
 13. **Braced-bay lowest roof-brace node** (user 2026-11-17, step 5d): at the interior braced-bay frames 2 and 4 (side A)
    the eave transfer fails the top flange alone (U 1.047); options: move the roof brace's lowest node to the eave strut, or
-   add an eave-panel brace — the user's decision later (report only until then).
+   add an eave-panel brace — the user's decision later (report only until then). With open item 7 (2026-11-17): side A
+   1.0662 and side B 1.0074 (was 0.9887) — both sides added by the user.
 14. **Wind-column slots beyond the AISC long slot** (user 2026-11-17, step 5d): the ridge wind columns need 136 mm, the
    quarter-span ones 76–77 mm, against 2.5 d = 40 mm (M16). Alternatives in the report: a sliding bracket with slots in
    both plates (each about half), or a stiffer end-frame rafter — the user's decision later.
+15. **Cold-formed purlin / eave-strut failures** (user 2026-11-17) — investigate BEFORE step 7: the purlin struts (1.78)
+   and the eave struts (2.13) already failed in the committed results, unrealistic for standard Z purlins. Report which
+   check governs each and how φPn is computed; propose AISI S100-16 I6.2.3 (the C1 C2 C3 method) for the axial strength
+   of a Z with one flange through-fastened to the sheeting, VERIFIED False until the user checks the page. Plan and
+   numbers only, no code until the user answers.
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
    judgement (App. 6 commentary); the default bolt count at the first purlin is decided after the user verifies J3.3.

@@ -102,14 +102,44 @@ def wind_factor(factors: dict) -> float | None:
     return None
 
 
-def paired_cases(fres: dict, node: str, forces: dict, cos_a: float, sin_a: float) -> list[dict]:
-    """Every LRFD combination with WB± (Case B brace force × its wind factor) + the minimum family (dead load only)."""
+def _br_direction(fres: dict, fac: dict) -> str | None:
+    """Open item 7: the wind direction ("+x" / "-x") of a frame combination with a brace case, else None. Reads THIS
+    line's own brace record (`own_brace`, put there by the caller): a line solved as "same_as" another may have its wind
+    directions mirrored (the case roles BRA / BRB match, the directions need not)."""
+    cases = (fres.get("own_brace") or fres.get("brace") or {}).get("cases", {})
+    for k in fac:
+        if k.startswith("BR") and k in cases:
+            return cases[k]["direction"]
+    return None
+
+
+def paired_cases(fres: dict, node: str, forces: dict, cos_a: float, sin_a: float, direction: int | None = None) -> list[dict]:
+    """Every LRFD combination with WB± (Case B brace force × its wind factor) + the minimum family (dead load only).
+    Open item 7: a frame combination that carries the brace loads (BRA / BRB, BRminA / BRminB: the top-end column's ΔP and
+    the roof-X chord forces, in ONE wind direction) is paired with −T sin α only when THIS base's diagonal is the tension
+    one in that direction (`direction` = +1: tension for wind along +x); otherwise its frame reaction stands alone
+    (it is in the frame reactions the base plates read). The frame-alone combinations stay paired as before."""
     out = []
     for name, r in fres["results"].items():
         if r.get("set") != "LRFD":
             continue
-        f = wind_factor(fres.get("factors", {}).get(name, {}))
-        if f is None or node not in r.get("reactions", {}):
+        fac = fres.get("factors", {}).get(name, {})
+        if node not in r.get("reactions", {}):
+            continue
+        d = _br_direction(fres, fac)
+        if d is not None:
+            if direction is None or (1 if d == "+x" else -1) != direction:
+                continue
+            fam = "minimum" if any(k.startswith("BRmin") for k in fac) else "Case B"
+            f = 1.0 if fam == "minimum" else wind_factor(fac)
+            T = forces["T_minimum"] if fam == "minimum" else forces["T_caseB"] * f
+            Rx, Ry = float(r["reactions"][node][0]), float(r["reactions"][node][1])
+            out.append({"name": f"{fam} + its brace force, frame with the brace loads ({d})", "combo": name, "family": fam,
+                        "wind_factor": f, "T_brace": round(T, 3), "Ry_frame": round(Ry, 3), "Pu": round(Ry - T * sin_a, 3),
+                        "V_strong": round(abs(Rx), 3), "V_weak": round(T * cos_a, 3), "direction": d})
+            continue
+        f = wind_factor(fac)
+        if f is None:
             continue
         Rx, Ry = float(r["reactions"][node][0]), float(r["reactions"][node][1])
         T = forces["T_caseB"] * f
@@ -136,7 +166,8 @@ def landing_brace(j: dict, col: dict, out: dict) -> dict | None:
         lo, hi = (o["start"], o["end"]) if o["start"][2] < o["end"][2] else (o["end"], o["start"])
         if abs(lo[2]) < 1.0 and abs(lo[0] - bx) < 1.0:
             L = math.dist(lo, hi)
-            return {"id": o.get("id"), "cos_a": abs(hi[0] - lo[0]) / L, "sin_a": abs(hi[2] - lo[2]) / L, "length": round(L, 1)}
+            return {"id": o.get("id"), "cos_a": abs(hi[0] - lo[0]) / L, "sin_a": abs(hi[2] - lo[2]) / L, "length": round(L, 1),
+                    "direction": 1 if hi[0] > lo[0] else -1}
     return None
 
 
@@ -158,11 +189,14 @@ def braced_base(j: dict, col: dict, out: dict, analysis: dict, flexible_diaphrag
     if forces is None:
         why.append("the bracing result has no Case B / minimum split (re-run the analysis)")
     fres = _frame_result(analysis, j["point"][0])
+    own = next((f.get("brace") for f in analysis.get("frames", []) if abs(f["x"] - j["point"][0]) < 1.0), None)
+    if fres is not None and own is not None:
+        fres = {**fres, "own_brace": own}
     if fres is None:
         why.append("no frame-line analysis for this base")
     if not why:
         node = "BA" if col.get("side") == "A" else "BB"
-        rec["cases"] = paired_cases(fres, node, forces, br["cos_a"], br["sin_a"])
+        rec["cases"] = paired_cases(fres, node, forces, br["cos_a"], br["sin_a"], br["direction"])
         if not any(c["family"] == "Case B" for c in rec["cases"]):
             why.append("the frame line has no Load Case B combination")
     if rec["torsion"]["status"] != "EXEMPT":
@@ -174,17 +208,32 @@ def braced_base(j: dict, col: dict, out: dict, analysis: dict, flexible_diaphrag
 
 
 def members_not_evaluated(out: dict) -> list[dict]:
-    """Open item 7: the members the brace axial forces load that the Phase 4 checks do not yet include."""
+    """Open item 7 (built 2026-11-17): what the brace axial forces load and the checks still do not include —
+    with the setting `brace_axial` off, every braced-bay column and eave strut (as before); with it on, only an end-rafter
+    wall's columns under a wall brace and its end rafter as a roof-X chord (no main frame on that line to load); the eave
+    struts between two braced bays take the user's 1c rule (design/cfs_checks.py)."""
     rows = []
+    on = out.get("input", {}).get("brace_axial", True)
+    rafter_xs = set()
+    for ew in out.get("end_walls", []):
+        if ew.get("kind") == "rafter":
+            rafter_xs.add(float(ew.get("x_frame", 0.0)))
     for o in out["members"]:
         if o.get("role") == "column" and any(abs(o["start"][0] - b["start"][0]) < 1.0 or abs(o["start"][0] - b["end"][0]) < 1.0
-                                             for b in out["members"] if b.get("role") == "wall_brace"
-                                             and b.get("side") == o.get("side")):
-            rows.append({"member": o["id"], "role": "braced-bay column", "check": "axial force from the wall bracing",
-                         "status": f"{NOT_EVALUATED} (HANDOVER open item 7)"})
+                                                             for b in out["members"] if b.get("role") == "wall_brace"
+                                                             and b.get("side") == o.get("side")):
+            if not on or any(abs(o["start"][0] - x) < 1.0 for x in rafter_xs):
+                rows.append({"member": o["id"], "role": "braced-bay column", "check": "axial force from the wall bracing",
+                             "status": f"{NOT_EVALUATED} (HANDOVER open item 7" + ("" if not on else ": end-rafter wall column") + ")"})
+        elif on and o.get("role") == "end_rafter" and any(abs(o["start"][0] - x) < 1.0 for x in rafter_xs) and any(
+                b.get("role") == "roof_brace" and any(abs(p[0] - o["start"][0]) < 1.0 for p in (b["start"], b["end"]))
+                for b in out["members"]):
+            rows.append({"member": o["id"], "role": "end rafter (roof-X chord)", "check": "chord axial force from the roof bracing",
+                         "status": f"{NOT_EVALUATED} (HANDOVER open item 7: end-rafter wall, no main frame on that line)"})
         elif o.get("role") == "eave_strut":
-            rows.append({"member": o.get("id"), "role": "eave strut", "check": "strut force from the bracing",
-                         "status": f"{NOT_EVALUATED} (HANDOVER open item 7)"})
+            if not on:
+                rows.append({"member": o.get("id"), "role": "eave strut", "check": "strut force from the bracing",
+                             "status": f"{NOT_EVALUATED} (HANDOVER open item 7)"})
     return rows
 
 

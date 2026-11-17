@@ -192,6 +192,7 @@ class BuildingRequest(BaseModel):
     wc_braces_last: int = Field(2, ge=0, le=10, description="the same, last end wall")
     ridge_flange_braces: bool = Field(True, description="rafter flange braces at the ridge purlin, both sides (open item 11)")
     wc_top_flange_braces: bool = Field(True, description="end-frame rafter flange braces at the wind-column tops (step 5d)")
+    brace_axial: bool = Field(True, description="the bracing's axial forces in the frame lines and the struts (open item 7)")
     wind_column: SectionOverrideIn | None = Field(None, description="wind columns' built-up section (Design… sizes it); default the placeholder")
     end_rafter: SectionOverrideIn | None = Field(None, description="end rafters' built-up section; default the main rafter's")
 
@@ -219,6 +220,7 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset,
         wc_braces_first=req.wc_braces_first, wc_braces_last=req.wc_braces_last, ridge_flange_braces=req.ridge_flange_braces,
         wc_top_flange_braces=req.wc_top_flange_braces,
+        brace_axial=req.brace_axial,
         wind_column=req.wind_column.model_dump() if req.wind_column else None, end_rafter=req.end_rafter.model_dump() if req.end_rafter else None)
 
 

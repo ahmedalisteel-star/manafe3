@@ -54,6 +54,7 @@ class BuildingInput:
     wc_braces_last: int = 2                 # the first / last frame line; 0 = none (user, 2026-11-09)
     ridge_flange_braces: bool = True        # rafter flange braces at the ridge purlin, both sides (user 2026-11-16, item 11)
     wc_top_flange_braces: bool = True       # end-frame rafter flange braces at the wind-column tops (user 2026-11-17, 5d)
+    brace_axial: bool = True                # open item 7: the bracing's axial forces in the frame lines and struts (user 2026-11-17)
     wind_column: dict | None = None         # Phase 4 step 9: the wind columns' section {hw, tw, bf, tf}; None = the placeholder
     end_rafter: dict | None = None          # the end rafters' section {hw, tw, bf, tf}; None = the main rafter's
 
@@ -197,6 +198,7 @@ def peb_building(b: BuildingInput) -> dict:
                   "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset,
                   "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last,
                   "ridge_flange_braces": b.ridge_flange_braces, "wc_top_flange_braces": b.wc_top_flange_braces,
+                  "brace_axial": b.brace_axial,
                   "wind_column": b.wind_column, "end_rafter": b.end_rafter},
         # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
         # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)

@@ -22,6 +22,7 @@ from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from ..design.inputs import section_strength
 from ..design.serviceability import ServiceLimits, frame_serviceability
+from .brace_axial import brace_loads
 from .bracing_system import longitudinal_bracing
 from .endwall_analysis import _geom, end_rafter_frame, longitudinal_feed, wind_columns
 from .frame_loads import frame_loads
@@ -34,12 +35,36 @@ TAPER_STEP = 0.10
 BANNER = "NOT FOR ISSUE — analysis only, members not designed (Phase 4)"
 
 
+_BRACE_MEMO: dict = {}
+
+
+def building_brace_loads(b: BuildingInput, li: LoadsInput) -> dict | None:
+    """Open item 7: the brace loads of a building (memoised per building and loads; None with the setting off or no
+    bracing). The bracing result does not depend on the frame sizes, only on the geometry and the end walls."""
+    if not getattr(b, "brace_axial", True):
+        return None
+    key = (repr(b), repr(li))
+    if key not in _BRACE_MEMO:
+        out = peb_building(b)
+        braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+        if not braces or not out.get("braced_bays"):
+            _BRACE_MEMO[key] = None
+        else:
+            bs = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
+            _BRACE_MEMO[key] = brace_loads(out, bs)
+        if len(_BRACE_MEMO) > 64:
+            _BRACE_MEMO.pop(next(iter(_BRACE_MEMO)))
+    return _BRACE_MEMO[key]
+
+
 def _line_setup(b: BuildingInput, li: LoadsInput, i: int, sec: dict, step: float, with_fy: bool = False):
     b, _ = resolve(b)                                   # the steel span and the list of bays (field fixes 6, 7)
     sizes = b.sizes
     ms = builtup_frame_members(b.span, b.eave_height, b.roof_slope, b.frame_xs()[i], str(i + 1), sizes)
     info = frame_line_model(ms, b.span, b.eave_height, b.roof_slope, b.bay_list(), base=li.base, max_taper_step=step)
-    fl = frame_loads(info, i, li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"])
+    bl = building_brace_loads(b, li)
+    fl = frame_loads(info, i, li, roof_secondary_kpa=sec["roof_kpa"], wall_secondary_kpa=sec["wall_kpa"],
+                     brace=(bl or {}).get("lines", {}).get(i))
     return (info, fl, fy_by_mark(ms)) if with_fy else (info, fl)
 
 
@@ -65,7 +90,9 @@ def _solve_line(args):
 
 
 def _signature(fl) -> tuple:
-    return tuple((ld.case, ld.member_mark, round(ld.w, 9), ld.direction.name, None if ld.w_end is None else round(ld.w_end, 9)) for ld in fl.loads)
+    return (tuple((ld.case, ld.member_mark, round(ld.w, 9), ld.direction.name, None if ld.w_end is None else round(ld.w_end, 9)) for ld in fl.loads)
+            + tuple((c, mk, round(x, 6), round(fx, 9), round(fy, 9)) for c, mk, x, fx, fy in fl.points)
+            + tuple(n for n, _, _ in fl.combinations))
 
 
 def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None,
@@ -94,6 +121,9 @@ def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, 
     frames = []
     for i in lines:
         f = {"line": str(i + 1), "x": b.frame_xs()[i], "kind": "frame", "same_as": str(same_as[i] + 1)}
+        bl = building_brace_loads(b, li)
+        if bl and i in bl.get("lines", {}):
+            f["brace"] = bl["lines"][i]                  # open item 7: this line's OWN brace record (directions)
         if same_as[i] == i:
             f["result"] = solved[i]
             f["serviceability"] = frame_serviceability(solved[i], b.span, limits)   # Phase 4 step 4

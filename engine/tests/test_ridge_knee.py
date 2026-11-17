@@ -54,17 +54,21 @@ def test_building_1_ridge_on_off():
     from engine.tests.test_joints import _sized
     b0, li = _sized()
     res = {}
-    for on in (True, False):
-        # the wind-column-top braces (step 5d) off with the ridge braces in the negative control: the old end-frame values
-        b, _ = resolve(dataclasses.replace(b0, ridge_flange_braces=on, wc_top_flange_braces=on))
+    # (ridge braces, brace axial): on / the exact old negative control (the wind-column-top braces (5d) and the brace axial
+    # (open item 7) off with the ridge braces) / ridge braces off with the brace axial on
+    for key, (on, ax) in {True: (True, True), False: (False, False), "ax": (False, True)}.items():
+        b, _ = resolve(dataclasses.replace(b0, ridge_flange_braces=on, wc_top_flange_braces=on, brace_axial=ax))
         out = peb_building(b)
         an = analyse_building(b, li)
         f = {x["line"]: x for x in an["frames"]}
         for i, line in ((1, "2"), (0, "1")):
             ms, info = _frame_info(b, i, base=an["input"].get("base", "pinned"))
             r = F.check_frame_line(info, f[line]["result"], out, b.frame_xs()[i], F.strengths_by_mark(ms), compare=False)
-            res[(on, line)] = {m["name"]: m for m in r["members"]}
+            res[(key, line)] = {m["name"]: m for m in r["members"]}
     on2, off2, on1, off1 = res[(True, "2")], res[(False, "2")], res[(True, "1")], res[(False, "1")]
+    # open item 7 (accepted 2026-11-17): ridge braces off WITH the brace axial: the end rafter's across-ridge check carries
+    # the roof-X chord axial → 0.8405 (0.6832 without it, the control below)
+    assert res[("ax", "1")]["rafter A"]["ratio"] == pytest.approx(0.8405, abs=2e-3)
     assert on2["rafter A"]["across_ridge"]["ridge_braced"] and on2["rafter A"]["ratio"] == pytest.approx(0.8292, abs=5e-4)
     assert on1["rafter A"]["ratio"] == pytest.approx(0.4364, abs=5e-4)
     assert all(m["knee"]["braced"] for m in on2.values() if "knee" in m)

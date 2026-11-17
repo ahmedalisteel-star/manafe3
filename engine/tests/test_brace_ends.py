@@ -174,7 +174,8 @@ def test_building_1_brace_ends_with_analysis():
     assert r["counts"] == {"DESIGNED": 48}
     worst = max(r["brace_ends"], key=lambda x: x["governing"]["U"])
     assert worst["role"] == "wall_brace" and worst["governing"]["name"].startswith("member net section")
-    assert worst["governing"]["U"] == pytest.approx(0.9732, abs=2e-3)
+    # 0.9732 before open item 7: the column's axial now includes the wall diagonal's ΔP (net section at the brace hole)
+    assert worst["governing"]["U"] == pytest.approx(0.976, abs=2e-3)
     roof = [x for x in r["brace_ends"] if x["role"] == "roof_brace"]
     assert all(x["T"] == pytest.approx(21.128, abs=1e-3) for x in roof)
     # the hole at a wall brace is at the column's mid-depth (the net centroid): the brace adds no moment there
