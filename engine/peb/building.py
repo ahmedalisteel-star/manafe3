@@ -52,6 +52,7 @@ class BuildingInput:
     grid_inset: float = 0.0                 # span_ref "grid": from a grid line in to the columns' outer face, mm
     wc_braces_first: int = 2                # wind-column flange braces at every n-th gable girt (from the top), end wall at
     wc_braces_last: int = 2                 # the first / last frame line; 0 = none (user, 2026-11-09)
+    ridge_flange_braces: bool = True        # rafter flange braces at the ridge purlin, both sides (user 2026-11-16, item 11)
     wind_column: dict | None = None         # Phase 4 step 9: the wind columns' section {hw, tw, bf, tf}; None = the placeholder
     end_rafter: dict | None = None          # the end rafters' section {hw, tw, bf, tf}; None = the main rafter's
 
@@ -139,7 +140,8 @@ def peb_building(b: BuildingInput) -> dict:
     lines = secondary_lines(SecondaryInput(span=b.span, eave_height=b.eave_height, roof_slope=b.roof_slope, length=L,
                                            roof_a=b.roof_a, roof_b=b.roof_b, wall_a=b.wall_a, wall_b=b.wall_b, sections=b.sections))
     bi = BracingInput(span=b.span, eave_height=b.eave_height, roof_slope=b.roof_slope, frames=frames, sizes=z,
-                      braced_bays=braced, brace_type=b.brace_type, ridge_tie=b.ridge_tie)
+                      braced_bays=braced, brace_type=b.brace_type, ridge_tie=b.ridge_tie,
+                      ridge_flange_braces=b.ridge_flange_braces)
     rods = sag_rods(lines, bi)
     overhang = z.bf / 2 + cf_dims(b.sections.girt)["H"]     # to the end-wall girt line
     sec = secondary_members(lines, frames, end_overhang=overhang, bolt=b.bolt, fixed_lap=b.fixed_lap, extra_holes=rods["holes"])
@@ -189,6 +191,7 @@ def peb_building(b: BuildingInput) -> dict:
         "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays,
                   "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset,
                   "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last,
+                  "ridge_flange_braces": b.ridge_flange_braces,
                   "wind_column": b.wind_column, "end_rafter": b.end_rafter},
         # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
         # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)

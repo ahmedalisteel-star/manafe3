@@ -30,9 +30,8 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 (pedestal / footing input for the ACI concrete anchor checks), both before step 7. Step 5 decisions ANSWERED (2026-11-15,
 "Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); step 5b
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
-2026-11-15 and revised after two reviews (H2 for 1-bolt braces; the springs in series; the bolt slip as an added
-imperfection, not a spring) — AWAITING THE USER'S APPROVAL, NOT DONE; step 5d decisions ANSWERED (2026-11-15) — start 5d
-only after the user approves 5c. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
+5c-fix (open item 11) BUILT 2026-11-16 — WAIT for the user's approval; then 5d (decisions answered 2026-11-15). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -449,7 +448,7 @@ force by Claude's method (Phase 4 has none): the down-slope component on a weak-
 the rows, accumulated up the slope, no eave-strut credit; ridge tie = the slope total × cos θ; 9a rods J3.6 / D2 and the
 washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (setting, VERIFIED False); 10a statuses as 5a.
 
-**Step 5c — what was built (2026-11-15; revised after the user's review the same day; AWAITING APPROVAL, NOT DONE):** `engine/connections/stability_braces.py`
+**Step 5c — what was built (2026-11-15 / -16; APPROVED AS DONE by the user 2026-11-16):** `engine/connections/stability_braces.py`
 (`building_stability_braces`, `StabilitySettings`); `cleats.py` gains the AISI J3 web bearing (`aisi_bolt_bearing`,
 `web_hole`; sheet < 4.76 mm; mf 0.75 unless `web_washers`) and the flange-brace axial N (`flange_brace_N`). NOT FOR ISSUE.
 - Flange braces: grouped by brace point (host, frame-side end); Mr from the frame line's LRFD moments at the point (M < 0 =
@@ -558,6 +557,8 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
 | AISI S100-16 J3 thin-sheet bearing (step 5c, open item 9.2) | J3.3.1 Pn = C mf d t Fu, φ 0.60; C: d/t < 10 → 3.0, 10–22 → 4 − 0.1 d/t, > 22 → 1.8; mf: washers under head and nut 1.00, without / one 0.75, inside sheet of double shear 1.33; J3.1 Pn = t e Fu, φ 0.70 (Fu/Fy ≥ 1.08) / 0.60; for sheet < 4.76 mm — TRANSCRIBED FROM MEMORY | the printed AISI S100-16 J3.1, J3.3.1, Tables J3.3.1-1 / -2 | VERIFIED False |
 | Flange-brace rules (step 5c) | the springs in series: braces, web local bending none when the brace lies in the web plane, cleat in-plane bending, purlin / girt axial E A / L to the nearest braced-bay frame line (the transfer into the bracing node not a spring); 1 bolt per end → H2 eccentric (gauge 28 mm at the contact face, Lc = L about rz, B1, F10); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
 | Bolt slip as an added imperfection (step 5c, user 2026-11-15 / -16) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment of the braced member / 500; brace points within 150 mm (setting) of an end / another point merge (the next segment used); L60×6 gauge 35 mm for the fix option — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
+| Brace groups (step 5c, user 2026-11-17) | flange-brace points closer than 500 mm on the same flange form one group (the ridge-purlin braces either side of the ridge); the rafter's ridge end is never a brace point in 5c; one App. 6 force per group shared by relative axial stiffness; Δo / Lbr from the real segments outside the group; a flange end within 150 mm merges | the user's call (engineering judgement) | VERIFIED False |
+| Knee as an inner-flange brace (step 5c-fix, user 2026-11-16) | the knee (column top / rafter start) braces the inner flange only when flange braces exist on the rafter's first purlin AND the column's first girt within 1500 mm of the corner (KNEE_TOL); otherwise the inner-flange LTB at the knee is NOT EVALUATED — engineering judgement | the user's call / a reference on knee bracing | VERIFIED False |
 | Sag rods / ridge ties (step 5c) | the down-slope component on a weak-axis continuous beam over the frames and the sag-rod rows, accumulated up the slope with no eave-strut credit; tie = slope total × cos θ; plate washer 40 × 40 × 4 (user default); pull-through φ 0.75 × 0.6 Fu × 4 side × t | Claude's method; the washer from the supplier | VERIFIED False |
 | Stiffener-to-diagonal corner load path (step 4) | F = max(Rst, ΔV); the web welds carry min(F, φVpanel − (Puf − F)); the corner F − F_web into the diagonal; the column web takes the web welds from both faces | the user's call (statics by Claude) | VERIFIED False |
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
@@ -1560,6 +1561,51 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    bimsteelauto `check_gusset` and the angle's shear lag U from AISC 360-16 D3 Table D3.1 with the actual bolt count
    (replacing the U = 0.6 placeholder of `secondary_checks.U_ANGLE`). Until then an angle brace end reads NOT EVALUATED with
    this reason.
+11. **CLOSED by step 5c-fix (2026-11-16)** — Phase 4 "member ends are braces" is unconservative at the ridge: the ridge splice is not an
+   inner-flange brace; with the ridge unbraced the interior rafters' uplift U is 1.439 (0.697 with the ridge counted as a
+   brace). Step 5c-fix (user 2026-11-16): (a) Phase 4 — a member end braces the inner flange only where a support or a
+   modelled flange brace exists, the ridge splice is not a brace; (b) the generator puts flange braces at the ridge purlin,
+   both sides (setting `ridge_flange_braces`, on by default); (c) rerun Phase 4 and 5c for building 1. STATUS: (b) built
+   (engine + API; not in the browser UI — ask first). (a) First attempt (the halves as one member for EVERY limit state)
+   took DG 25's in-plane buckling over the whole 23 m pair (γ_e 25.2 → 6.07: 0.829 → 0.916, an artifact) — stopped; the
+   user's decisions (2026-11-16) built instead:
+   - RIDGE: braced when a flange brace sits at the ridge purlin on both sides (or within 150 mm of the ridge) → the
+     half-rafter checks stand; with no ridge brace the combined member gives the inner-flange FLEXURE only (P = 0, every
+     combination), combined by H1 with the half's own axial term (a < 0.2 → a/2 + f, else a + 8/9 f) — never its in-plane
+     buckling (`ridge_braced`, `across_ridge_ltb`, row["across_ridge"]).
+   - KNEE: braces the inner flange only with flange braces within 1500 mm of the corner on BOTH the rafter (first purlin)
+     and the column (first girt) (`knee_braced`, KNEE_TOL setting; engineering judgement, Unverified sources); otherwise the
+     inner-flange LTB at the knee is NOT EVALUATED — the row gets status "NOT EVALUATED" (internally ratio inf; the JSON /
+     design-run rows give None and design-ui.js prints "NOT EVALUATED"), never a number.
+   - Building 1 (stop-rule check): ridge braces ON (default) — interior rafters 0.8288 → 0.8292, end 0.4362 → 0.4364,
+     columns 0.8937 → 0.8941 / 0.4709 → 0.4711 (the 16 added braces' dead load; no U moves more than 0.0004; sizes: the
+     full suite's sizing test unchanged); knee qualifies (rafter 705.9 mm, column 797.5 mm below the top). OFF (negative
+     control): interior 1.4387 (flexure across 1.4272, segment 3086.8 → 20 058.6), end 0.6832.
+   - Counts: building 1 (sized fixture) flange braces 116 → 132, members 412 → 428; `test_building`'s plain B1 108 → 124
+     and 404 → 420 (8 fewer wind-column braces in B1: its outer wind columns are 6164 mm, below the 6250 mm girt row; the
+     sized fixture's are 6268 mm); the end-rafter variant + 14 (no main frame at line 1: frames 2–4 pairs 12 + frame 5's
+     two inward braces). Changed test values (old kept as the setting-off negative control): test_bracing rafter braces
+     48 → 64 (lines + RA10); test_building composition flange braces 108 → 124, members / ids 404 → 420, end-rafter
+     variant 402 → 416; test_design_inputs rafter inner-flange points 3 → 4 (+ 11 081.1). New `test_ridge_knee.py` (3).
+   - 5c with the ridge braces (user 2026-11-17): a first run kept the rafter's ridge end as a brace point in 5c → the
+     ridge-purlin brace 200 mm from it got a slip factor 6.0 → the 10 new points FAILED (AISI web 1.381 / 1.483) and the
+     ridge-purlin cleats went DESIGNED → FAILS (0.446 → 1.225) — stopped. The user's rule instead (engineering judgement,
+     Unverified sources): brace points closer than `group_tol` (500 mm) on the same flange form ONE GROUP (the rafters of a
+     frame are one inner flange, knee A → ridge → knee B; the ridge end is NEVER a brace point in 5c): one App. 6 demand
+     per group (the largest Mr of its points per combination, the largest Cd, the smallest ho), shared by ALL its braces by
+     relative axial stiffness (interior ridge groups 4 braces → 0.25 each, end frames 2 → 0.5); Lbr / Δo from the real
+     segments OUTSIDE the group (`brace_groups`); the 150 mm merge to a member end stays (wind-column tops); the group's
+     stiffness = its points' spring paths in parallel; each point's cleat gets its braces' share.
+   - Building 1, ridge braces on (vs the committed 5c): the 10 ridge-purlin points PARTIAL — web U 0.129 (single) / 0.139
+     (pair) (factor-6.0 run: 1.381 / 1.483 FAILS); outside segments 8301.9 both sides, factor 1.120; ridge-purlin cleats
+     CL52 / 54 / 107 / 109 0.446 → 0.456, CL53 / 108 0.347 → 0.365, CL51 / 55 / 106 / 110 0.165 → 0.173 (all DESIGNED);
+     every other point / cleat ≤ +0.0013 (the rafter's 3060 point stiffness 0.0503 → 0.0516). Counts: flange-brace points
+     68 → 78 (34 FAILS (AISI) + 4 FAILS + 40 PARTIAL; braces 116 → 132); cleats 174 DESIGNED / 22 FAIL (unchanged), weld
+     6 mm (capped), J2.2b over-max 22. Base uplift (test_welds): F1 / F5-BA −35.526 → −35.509, F2 / F4-BA −44.341 →
+     −44.309 kN (the braces' dead load; the old values asserted with the setting off). Sizes unchanged (test_sizing).
+12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
+   points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
+   judgement (App. 6 commentary); the default bolt count at the first purlin is decided after the user verifies J3.3.
 
 (Settled 2026-11-05: private peb files stay private; `packaging` merged into bimsteelauto `main`. 2026-11-10: the repo is
 public and all of it Apache-2.0.)

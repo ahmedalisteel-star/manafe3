@@ -21,6 +21,7 @@ Flange braces (L50x5, pairs):
       girt 5 000: depth = 300 + 500 × 5/6 + 24 = 740.667; inner flange y = 734.667; run 784.667
 """
 
+import dataclasses
 import math
 
 import pytest
@@ -123,11 +124,15 @@ def test_flange_braces():
     out = flange_braces(LINES, INP)
     roof = [m for m in out if m["host"].startswith("rafter")]
     col = [m for m in out if m["host"].startswith("column")]
-    # rafters: 3 interior frames × 2 sides × 3 positions × a pair = 36, + the 2 end frames' inward braces 2 × 2 × 3 = 12
-    assert len(roof) == 48 and len(col) == 32
+    # rafters: 3 interior frames × 2 sides × 4 positions (3 over the haunch + the RIDGE PURLIN, open item 11, user
+    # 2026-11-16) × a pair = 48, + the 2 end frames' inward braces 2 × 2 × 4 = 16 → 64 (was 48 before the ridge braces)
+    assert len(roof) == 64 and len(col) == 32
     ends = [m for m in roof if m["start"][0] in (FR[0], FR[-1])]
-    assert len(ends) == 12 and all(FR[0] <= m["end"][0] <= FR[-1] for m in ends)              # every end brace points inside
-    assert {m["line"] for m in roof if m["host"] == "rafter A"} == {"RA1", "RA2", "RA3"}
+    assert len(ends) == 16 and all(FR[0] <= m["end"][0] <= FR[-1] for m in ends)              # every end brace points inside
+    assert {m["line"] for m in roof if m["host"] == "rafter A"} == {"RA1", "RA2", "RA3", "RA10"}
+    # NEGATIVE CONTROL: the setting off gives the old set (48, three lines)
+    off = [m for m in flange_braces(LINES, dataclasses.replace(INP, ridge_flange_braces=False)) if m["host"].startswith("rafter")]
+    assert len(off) == 48 and {m["line"] for m in off if m["host"] == "rafter A"} == {"RA1", "RA2", "RA3"}
     b = [m for m in roof if m["line"] == "RA1" and m["start"][0] == 6000]
     assert len(b) == 2 and sorted(m["end"][0] for m in b) == [pytest.approx(6000 - 808.354, abs=1e-3), pytest.approx(6808.354, abs=1e-3)]
     assert b[0]["length"] == pytest.approx(1143.185, abs=1e-3)

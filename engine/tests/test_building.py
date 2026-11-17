@@ -39,11 +39,15 @@ def test_building_1_composition():
     r = roles(out)
     assert r["column"] + r["rafter"] == 20
     assert r["purlin"] + r["ridge_purlin"] == 80 and r["eave_strut"] == 8 and r["girt"] == 32
-    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 80 + 28   # + wind-column braces (2026-11-09)
+    # + wind-column braces (2026-11-09); + 16 rafter braces at the ridge purlin (open item 11, 2026-11-16): 80 + 16 + 28
+    assert r["sag_rod"] == 80 and r["ridge_tie"] == 4 and r["cap_plate"] == 6 and r["roof_brace"] == 16 and r["wall_brace"] == 8 and r["flange_brace"] == 80 + 16 + 28
     assert r["wind_column"] == 6 and r["gable_girt"] == 36
-    assert len(out["members"]) == 376 + 28 and len(out["cleats"]) == 196
+    assert len(out["members"]) == 376 + 28 + 16 and len(out["cleats"]) == 196
+    # NEGATIVE CONTROL: the ridge braces off gives the old counts
+    off = peb_building(BuildingInput(**B1, ridge_flange_braces=False))
+    assert roles(off)["flange_brace"] == 80 + 28 and len(off["members"]) == 376 + 28
     assert out["braced_bays"] == [1, 4] and out["designed"] is False
-    assert len({m["id"] for m in out["members"]}) == 376 + 28 and all(m["gen"] == "peb" for m in out["members"])
+    assert len({m["id"] for m in out["members"]}) == 376 + 28 + 16 and all(m["gen"] == "peb" for m in out["members"])   # + 16 ridge braces
     for m in out["members"]:
         if "section" in m:
             BuiltUpMember.from_dicts(m["section"]["segments"])
@@ -74,7 +78,9 @@ def test_end_rafter_variant_openings_and_options():
     assert any(h["d"] == 18 for m in out["members"] for h in m.get("holes", []))
     assert out["braced_bays"] == [2]
     base = peb_building(BuildingInput(**B1, end_first="rafter"))
-    assert len(base["members"]) == 370 + 32   # 362 + the end-wall X (2) + the last end frame's 6 inward rafter flange braces;
+    # + 14 ridge-purlin braces (open item 11): 3 interior frames × 2 sides × a pair + the last end frame's 2 inward
+    assert len(peb_building(BuildingInput(**B1, end_first="rafter", ridge_flange_braces=False))["members"]) == 370 + 32
+    assert len(base["members"]) == 370 + 32 + 14   # 362 + the end-wall X (2) + the last end frame's 6 inward rafter flange braces;
     # + wind-column flange braces: the end-rafter wall 18 (corners 2 + 2, inward only — the girt stops at −200; WF2, WF4 4 each,
     # WF3 6), the main-frame wall 14
     strap = peb_building(BuildingInput(**B1, ridge_tie="strap"))

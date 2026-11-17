@@ -50,6 +50,7 @@ class BracingInput:
     ridge_tie: str = "rod"                # across the apex between the two ridge purlins: "rod" (the sag rod) or "strap"
     ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (CONFIRMED by the user)
     flange_brace: str = "L50x5"
+    ridge_flange_braces: bool = True        # flange braces at the ridge purlin too, both sides (user 2026-11-16, open item 11)
 
 
 def _r(v: float) -> float:
@@ -215,8 +216,9 @@ def flange_braces(lines: dict, inp: BracingInput) -> list[dict]:
         purl = sorted([m for m in lines["roof"] if m["side"] == side and m["role"] != "eave_strut"], key=lambda m: m["s"])
         zone = [m for m in purl if s0 < m["s"] <= s0 + z.haunch_length]
         nxt = [m for m in purl if m["s"] > s0 + z.haunch_length][:1]
+        ridge = [m for m in purl if m["role"] == "ridge_purlin" and m not in zone + nxt][:1] if inp.ridge_flange_braces else []
         for xf in inp.frames:                                # every frame line (end frames: user, 2026-11-08)
-            for m in zone + nxt:
+            for m in zone + nxt + ridge:
                 d = rafter_depth(m["s"], inp)
                 low = _pt(side, m["s"], -(d - z.tf / 2), slope, span, eave)
                 high = _pt(side, m["s"], INTO_SECONDARY, slope, span, eave)

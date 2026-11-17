@@ -316,8 +316,18 @@ def test_sized_building_1_welds():
     braced = [b for b in r["bases"] if b.get("longitudinal")]
     assert len(braced) == 8 and all(b["status"] == "DESIGNED" and b["leg"] == 5.0 for b in braced)
     worst = {b["joint"]: min(c["Pu"] for c in b["longitudinal"]["cases"]) for b in braced}
-    assert worst["F1-BA"] == pytest.approx(-35.526, abs=0.01) and worst["F5-BA"] == pytest.approx(-35.526, abs=0.01)
-    assert worst["F2-BA"] == pytest.approx(-44.341, abs=0.01) and worst["F4-BA"] == pytest.approx(-44.341, abs=0.01)
+    # −35.526 before the ridge flange braces (open item 11, 2026-11-16): their dead load lowers the uplift to −35.509
+    assert worst["F1-BA"] == pytest.approx(-35.509, abs=0.005) and worst["F5-BA"] == pytest.approx(-35.509, abs=0.005)
+    assert worst["F2-BA"] == pytest.approx(-44.309, abs=0.005) and worst["F4-BA"] == pytest.approx(-44.309, abs=0.005)   # −44.341 before the ridge braces
+    # NEGATIVE CONTROL: the ridge flange braces off → the old uplifts −35.526 / −44.341
+    import dataclasses as _dc
+    b_off, _ = resolve(_dc.replace(b0, ridge_flange_braces=False))
+    out_off = peb_building(b_off)
+    an_off = analyse_building(b_off, li)
+    bs_off = building_bases(building_joints(_dc.replace(b0, ridge_flange_braces=False), li, analysis=an_off, out=out_off),
+                            out_off, BaseSettings(concrete="C25/30"), analysis=an_off)
+    w_off = {x["joint"]: min(c["Pu"] for c in x["longitudinal"]["cases"]) for x in bs_off["bases"] if x.get("longitudinal")}
+    assert w_off["F1-BA"] == pytest.approx(-35.526, abs=0.005) and w_off["F2-BA"] == pytest.approx(-44.341, abs=0.005)
     for b in braced:
         lon = b["longitudinal"]
         assert lon["status"] == "EVALUATED" and lon["limits"]["ok"] and lon["torsion"]["status"] == "EXEMPT"

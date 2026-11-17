@@ -98,6 +98,32 @@ def test_slip_as_imperfection():
     assert d["Prb"] == pytest.approx(10.0) and d["beta"] == pytest.approx(4.4444, abs=1e-4)
 
 
+def test_brace_groups_ridge():
+    """The ridge group (user 2026-11-17): building 1's rafter flange knee A → ridge → knee B, each half 11 562.3 mm (the 5c
+    model), flange-brace points at 688.6 / 1874.6 / 3060.4 / 11 362.3 on each half; side B maps to u = 23 124.6 − s.
+    The ridge-purlin points 11 362.3 and 11 762.3 are 400 mm apart (< 500) → ONE group; outside it: 11 362.3 − 3060.4 =
+    8301.9 on the left, (23 124.6 − 3060.4) − 11 762.3 = 8301.9 on the right → Lbr = Lsh = 8301.9; slip factor 1 + 2 /
+    (8301.9 / 500) = 1.120454. NEGATIVE CONTROLS: group distance 0 → the two points stand alone, the shorter segment is
+    the 400 mm between them → factor 3.5; and the OLD half-rafter rule (the ridge end a brace point) → 11 562.3 − 11 362.3
+    = 200 mm → factor 6.0."""
+    half, sA = 11562.3, [688.6, 1874.6, 3060.4, 11362.3]
+    us = sA + [2 * half - x for x in sA]
+    g = S.brace_groups(us, (0.0, 2 * half), 500.0, 150.0)
+    ridge = next(x for x in g if len(x["members"]) == 2)
+    assert sorted(us[i] for i in ridge["members"]) == [pytest.approx(11362.3), pytest.approx(11762.3)]
+    assert ridge["Lbr"] == pytest.approx(8301.9) and ridge["Lsh"] == pytest.approx(8301.9)
+    assert S.slip_factor(2.0, ridge["Lsh"]) == pytest.approx(1.120454, abs=1e-6)
+    assert len(g) == 7 and all(len(x["members"]) == 1 for x in g if x is not ridge)
+    alone = S.brace_groups(us, (0.0, 2 * half), 0.0, 150.0)
+    p = next(x for x in alone if abs(us[x["members"][0]] - 11362.3) < 0.01)
+    assert p["Lsh"] == pytest.approx(400.0) and S.slip_factor(2.0, p["Lsh"]) == pytest.approx(3.5)
+    old = S.lbr_short_of(sA, (0.0, half))[11362.3]
+    assert old == pytest.approx(200.0) and S.slip_factor(2.0, old) == pytest.approx(6.0)
+    # a flange end within 150 mm merges (the wind-column top 18.4 mm): only the segment below counts
+    wc = S.brace_groups([1250.0, 3750.0, 6250.0], (0.0, 6268.4), 500.0, 150.0)
+    assert wc[-1]["Lsh"] == wc[-1]["Lbr"] == pytest.approx(2500.0) and wc[-1]["near_end"] == [6268.4]
+
+
 def test_inflections_cd_lbr():
     rows = [(0.0, 0.0), (1000.0, 10.0), (2000.0, -10.0), (3000.0, 0.0)]
     assert S.inflections(rows) == [1500.0]
@@ -186,7 +212,12 @@ def test_building_1_step_5c():
     b, _ = resolve(_sized()[0])
     an = analyse_building(b, li)
     r = S.building_stability_braces(jr, out, an, li)
-    assert r["counts"]["flange_braces"] == {S.FAILS_AISI: 34, "FAILS": 4, "PARTIAL": 30}  # Δo from the shorter segment
+    # + the 10 ridge-purlin points (open item 11), each ridge pair one group (2026-11-17): PARTIAL, web U 0.129 / 0.139
+    assert r["counts"]["flange_braces"] == {S.FAILS_AISI: 34, "FAILS": 4, "PARTIAL": 40}
+    rp = [x for x in r["flange_braces"] if x["s"] > 11000 and x["host_role"] == "rafter"]
+    assert len(rp) == 10 and all(x["status"] == "PARTIAL" and x["demand"]["L_short"] == pytest.approx(8301.9, abs=0.2)
+                                 and x["demand"]["slip_factor"] == pytest.approx(1.1205, abs=1e-3) for x in rp)
+    assert sorted({x["split"]["group_braces"] for x in rp}) == [2, 4]                 # end frames 2, interior 4
     for x in (x for x in r["flange_braces"] if x["status"] == S.FAILS_AISI):
         Uw = next(c["U"] for c in x["checks"] if c["key"] == "web")
         assert x["fix_options"][0] == f"2 bolts per end: web bearing U {Uw / 2:.3f} (E5 then applies instead of H2)"
@@ -199,13 +230,14 @@ def test_building_1_step_5c():
         assert f"2 bolts per end: E5 compression U {P / S.angle_compression(50.0, 5.0, L, 355.0)['phiPn']:.3f}" in x["fix_options"]
         assert f"L60x6 (gauge 35 mm, 1 bolt): H2 compression U {S.angle_eccentric(60.0, 6.0, L, 355.0, P, 35.0)['U']:.3f}" in x["fix_options"]
     # the pair split (user 2026-11-16): equal braces half each, an end-frame single brace the full force
-    assert sorted({tuple(x["split"]["shares"]) for x in r["flange_braces"]}) == [(0.5, 0.5), (1.0,)]
-    assert sum(1 for x in r["flange_braces"] if x["split"]["n"] == 1) == 20
+    # the ridge groups share by stiffness over all their braces: interior 4 → 0.25 each, end frames 2 → 0.5 each
+    assert sorted({tuple(x["split"]["shares"]) for x in r["flange_braces"]}) == [(0.25, 0.25), (0.5,), (0.5, 0.5), (1.0,)]
+    assert sum(1 for x in r["flange_braces"] if x["split"]["n"] == 1) == 20 + 4
     # brace points within 150 mm of a member end merge — the wind-column tops (geometry warnings for step 7)
     assert sorted(w["host"] for w in r["geometry_warnings"]) == ["WF1", "WF3", "WL1", "WL3"]
     top = max(r["flange_braces"], key=lambda x: x["demand"]["slip_factor"])        # WF2 / WL2: 618 mm below the top, no merge
     assert top["demand"]["slip_factor"] == pytest.approx(1 + 2 / (618.4 / 500), abs=1e-3) and top["host"] in ("WF2", "WL2")
-    assert sum(x["n"] for x in r["flange_braces"]) == 116
+    assert sum(x["n"] for x in r["flange_braces"]) == 116 + 16
     assert all(S.FRAME_END_NOTE in x["notes"] and any("E5 does not apply" in n for n in x["notes"]) for x in r["flange_braces"])
     assert not any(c["name"].startswith("flange brace compression (E5") for x in r["flange_braces"] for c in x["checks"])
     worst = lambda name: max(next(c["U"] for c in x["checks"] if c["name"] == name) for x in r["flange_braces"])
@@ -235,7 +267,7 @@ def test_building_1_step_5c():
     assert max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(1.3998, abs=2e-3)
     # NEGATIVE CONTROL: slip 0 gives the old forces (all PARTIAL, the cleats 196 DESIGNED with a 6 mm weld)
     r0 = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(slip=0.0))
-    assert r0["counts"]["flange_braces"] == {"PARTIAL": 68} and r0["cleats"]["counts"] == {"DESIGNED": 196}
+    assert r0["counts"]["flange_braces"] == {"PARTIAL": 78} and r0["cleats"]["counts"] == {"DESIGNED": 196}
     assert r0["cleats"]["detail"]["weld_leg"] == 6.0 and not r0["cleats"]["weld_j2_2b"]["capped"]
     assert all(x["fixes"] for x in r["flange_braces"] if x["status"] == S.FAILS)
     # 2 bolts per end: E5 instead of H2 (and the H2 rows gone)

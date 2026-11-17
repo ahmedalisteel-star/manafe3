@@ -103,7 +103,11 @@ def test_restraints_from_the_model():
     # on the rafter chain); bottom flange: the three flange braces over the haunch (+ the next purlin)
     lines_a = {m["line"] for m in out["members"] if m["role"] in ("purlin", "ridge_purlin") and m["side"] == "A"}
     assert len(r["rafter A"]["top"]) == len(lines_a) == 10
-    assert len(r["rafter A"]["bottom"]) == 3 and r["rafter A"]["bottom"] == r["rafter B"]["bottom"]
+    # + the ridge-purlin flange brace (open item 11, 2026-11-16): 4 (was 3; the setting off gives 3 — below)
+    assert len(r["rafter A"]["bottom"]) == 4 and r["rafter A"]["bottom"] == r["rafter B"]["bottom"]
+    assert r["rafter A"]["bottom"][-1] == pytest.approx(11081.1, abs=0.1)
+    off = restraints(peb_building(BuildingInput(**B1, ridge_flange_braces=False)), info, 12000.0)
+    assert off["rafter A"]["bottom"] == r["rafter A"]["bottom"][:3]                 # NEGATIVE CONTROL: the old three
     assert all(0 < s < r["rafter A"]["length"] for s in r["rafter A"]["top"])
     # END frame lines: inward flange braces at the SAME positions as the interior frames (user, 2026-11-08)
     r1 = restraints(out, line(0), 0.0)

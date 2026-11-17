@@ -91,7 +91,8 @@ class StabilitySettings:
     bolts_per_end: int = 1               # the model gives no count; E5 wants ≥ 2 (flagged)
     end_distance: float = 25.0           # bolt to the angle's end, mm (setting, VERIFIED False)
     gauge: float = 28.0                  # bolt gauge line from the heel in the connected leg, mm (setting, VERIFIED False)
-    merge_tol: float = 150.0             # brace points closer than this to a member end / another point merge (user 2026-11-16)
+    merge_tol: float = 150.0             # a brace point this close to a member (flange) END merges with it (user 2026-11-16)
+    group_tol: float = 500.0             # brace points closer than this on the same flange form one group (user 2026-11-17)
     gauge_L60: float = 35.0              # bolt gauge for the L60x6 fix option, mm (setting, VERIFIED False)
     slip: float = 2.0                    # one-time bolt slip = the hole clearance (M12 in a 14 mm hole), mm — an added
                                          # initial imperfection: Prb × (1 + slip / Δo), Δo = Lbr / 500 (user 2026-11-15)
@@ -382,6 +383,113 @@ def _status(checks, notes):
     return st, sorted({f"{c['name']}: {FIXES[c['key']]}" for c in bad})
 
 
+def brace_groups(us: list[float], ends: tuple[float, float], group_tol: float, merge_tol: float) -> list[dict]:
+    """Brace GROUPS on one flange (user 2026-11-17, engineering judgement): points closer than group_tol form one group;
+    for each group the unbraced segments OUTSIDE it — to the nearest point of another group or to a flange end (an end
+    within merge_tol of the group merges: the side then has no segment) — give Lbr (the longer) and Lsh (the shorter, for
+    the slip's Δo). us: the points' coordinates along the flange (the rafters: knee A → ridge → knee B, the ridge never a
+    point). Returns [{"members": [indices into us], "Lbr", "Lsh", "near_end"}]."""
+    order = sorted(range(len(us)), key=lambda i: us[i])
+    grp, cur = [], [order[0]] if order else []
+    for i in order[1:]:
+        if us[i] - us[cur[-1]] < group_tol:
+            cur.append(i)
+        else:
+            grp.append(cur)
+            cur = [i]
+    if cur:
+        grp.append(cur)
+    res = []
+    for g in grp:
+        u0, u1 = us[g[0]], us[g[-1]]
+        others = [us[i] for h in grp if h is not g for i in h]
+        lefts = [x for x in others + [ends[0]] if x < u0 - merge_tol]
+        rights = [x for x in others + [ends[1]] if x > u1 + merge_tol]
+        segs = ([u0 - max(lefts)] if lefts else []) + ([min(rights) - u1] if rights else [])
+        if not segs:
+            segs = [max(u0 - ends[0], ends[1] - u1)]
+        near = [e for e in ends if min(abs(e - u0), abs(e - u1)) < merge_tol]
+        res.append({"members": g, "Lbr": max(segs), "Lsh": min(segs), "near_end": near})
+    return res
+
+
+def _flange_point_checks(q: dict, shares: list, worst: dict, amp: float, Prb_amp: float, Lbr_g: float, Lsh_g: float,
+                         k_group: float, gid: str, n_points: int, n_braces: int, st, d_bolt: float, d0: float, phiRv: float,
+                         mf: float, points: list, N_map: dict) -> None:
+    """The checks of one brace point from its group's demand (pass 2 of building_stability_braces)."""
+    rec, b0, gb, bb, tb, Lb_, cos_a = q["rec"], q["b0"], q["gb"], q["bb"], q["tb"], q["Lb"], q["cos_a"]
+    sec_line, ck, k = q["sec_line"], q["ck"], q["k"]
+    P = Prb_amp * max(shares) / cos_a                     # every brace check takes the amplified force
+    comp = angle_compression(bb, tb, Lb_, gb["Fy"])
+    ten = angle_tension(bb, tb, d0, gb["Fy"], gb["Fu"])
+    dims = cf_dims(sec_line["profile"])
+    web_g = plate_strength(sec_line.get("material", ""), dims["t"])
+    e_web = (INTO_SECONDARY - dims["t"]) / math.sin(math.radians(45.0))
+    nb = st.bolts_per_end
+    if nb >= 2:
+        brace_rows = [("brace", "flange brace compression (E5(a), E3)", "AISC 360-16 E5, E3", P, comp["phiPn"], P / comp["phiPn"], worst["combo"])]
+        ecc = None
+    else:                                                 # 1 bolt per end: E5 does not apply (user 2026-11-15) → H2 eccentric
+        ecc = {"compression": angle_eccentric(bb, tb, Lb_, gb["Fy"], P, st.gauge),
+               "tension": angle_eccentric(bb, tb, Lb_, gb["Fy"], -P, st.gauge)}
+        brace_rows = [("brace", f"flange brace {kk_} on the gauge line (1 bolt: H2, eccentric both axes)",
+                       "AISC 360-16 H2-1, E3, F10", P, P / v["U"] if v["U"] > 0 else math.inf, v["U"], worst["combo"])
+                      for kk_, v in ecc.items()]
+    rows_ = brace_rows + [
+        ("brace", "flange brace tension (connected leg net)", "AISC 360-16 D2", P, ten, P / ten, worst["combo"]),
+        ("stiffness", "brace stiffness βbr (App. 6.3.2a) vs every spring in series", "AISC 360-16 A-6-8; Claude's springs",
+         worst["beta"], k_group, worst["beta"] / k_group, worst["combo"]),
+        ("bolt", "bolt shear (per end)", "AISC 360-16 J3.6", P, nb * phiRv, P / (nb * phiRv)),
+        ("bolt", "bearing on the angle leg", "AISC 360-16 J3.10", P, nb * hole_strength(d_bolt, st.end_distance - d0 / 2, tb, gb["Fu"]), None),
+        ("web", "bearing on the purlin / girt web", "AISI S100-16 J3.3.1 / J3.1 (VERIFIED False)", P,
+         nb * aisi_bolt_bearing(d_bolt, dims["t"], e_web, web_g["Fy"], web_g["Fu"], mf), None)]
+    rows_ = [r if r[5] is not None else (*r[:5], r[3] / r[4] if r[4] > 0 else math.inf) for r in rows_]
+    notes = [FRAME_END_NOTE]
+    if nb < 2:
+        notes.append(f"{nb} bolt per end (setting bolts_per_end): E5 does not apply — H2 eccentric axial, gauge {st.gauge:g} mm")
+    if q["web_normal_cos"] > 0.01:
+        rows_.append(("stiffness", "web local bending spring — NOT EVALUATED (the brace is not in the web plane)",
+                      "Claude's springs", q["web_normal_cos"], 0.0, math.inf))
+    if comp["slender_leg"]:
+        rows_.append(("brace", "slender leg (E7) — NOT EVALUATED", "AISC 360-16 E7", 1.0, 0.0, math.inf))
+    checks = sorted((_row(r) for r in rows_), key=lambda r: -r["U"])
+    status, fixes = _status(checks, notes)
+    fix_options = []                                      # options only (user 2026-11-15) — the model is not changed
+    for c in checks:
+        if c["U"] > 1.0 and c["key"] == "brace" and "H2" in c["name"]:
+            e5 = angle_compression(bb, tb, Lb_, gb["Fy"])
+            big = angle_eccentric(60.0, 6.0, Lb_, plate_strength(b0.get("material", ""), 6.0)["Fy"], P, st.gauge_L60)
+            fix_options.append(f"2 bolts per end: E5 compression U {P / e5['phiPn']:.3f}")
+            fix_options.append(f"L60x6 (gauge {st.gauge_L60:g} mm, 1 bolt): H2 compression U {big['U']:.3f}")
+        if c["U"] > 1.0 and c["key"] == "web":
+            g = gauge_for(dims["t"], c["U"], d_bolt)
+            fix_options.append(f"2 bolts per end: web bearing U {c['U'] / 2:.3f} (E5 then applies instead of H2)")
+            fix_options.append(f"a heavier {sec_line['role'].replace('_', ' ')} gauge in that bay: t ≥ {g['t_req']:.2f} mm"
+                               + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)"))
+    rec["fix_options"] = list(dict.fromkeys(fix_options))
+    rec["split"] = {"n": len(q["ms"]), "shares": [round(x, 4) for x in shares], "group": gid, "group_points": n_points,
+                    "group_braces": n_braces,
+                    "rule": "the group's force shared by relative axial stiffness A cos²α / L over all its braces; a pair: "
+                            "one tension, one compression"}
+    rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
+               demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(q["ho"], 1),
+                       "Lbr": round(Lbr_g, 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
+                       "slip_mm": st.slip, "L_short": round(Lsh_g, 1), "delta_o": round(Lsh_g / 500.0, 3),
+                       "slip_factor": round(amp, 4), "Prb_amplified": round(Prb_amp, 3), "P_brace": round(P, 3),
+                       "cos_alpha": round(cos_a, 4)},
+               stiffness={**{kk_: (round(v, 3) if math.isfinite(v) else "rigid") for kk_, v in k.items()},
+                          "group_system": round(k_group, 3),
+                          "purlin_axial_length": round(q["Lp"], 1) if math.isfinite(q["Lp"]) else None,
+                          "web_normal_cos": round(q["web_normal_cos"], 5)},
+               angle=({"method": "E5(a)", "Lc_r": round(comp["Lc_r"], 2), "phiPn": round(comp["phiPn"], 3)} if ecc is None else
+                      {"method": "H2 eccentric (1 bolt)", **{kk_: {x: (round(y, 4) if isinstance(y, float) else y) for x, y in v.items()
+                                                               if x != "terms"} for kk_, v in ecc.items()}}),
+               cleat=f"{ck['line']} at {ck['x']:g}")
+    key = (ck["line"], round(ck["x"]))
+    N_map[key] = max(N_map.get(key, 0.0), Prb_amp * sum(shares))   # this point's share of the group force into its cleat
+    points.append(rec)
+
+
 def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li, settings: StabilitySettings | None = None,
                               cleat_settings=None) -> dict:
     """Step 5c over a building: flange-brace points, sag-rod pieces, ridge ties, and the 5a cleats re-run with the
@@ -411,6 +519,9 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
         host = _host_of(ms[0], mem, out)
         by_host.setdefault(host["id"] if host else h, []).append((p, ms, host))
     points, N_map, geometry_warnings = [], {}, []
+    # ---- pass 1: every brace point with its own data; its FLANGE (the rafters of one frame form one inner flange, knee A
+    # → ridge → knee B, the ridge never a brace point — user 2026-11-17) and its coordinate u along that flange
+    pts_all = []
     for hid, pts in by_host.items():
         host = pts[0][2]
         if host is None:
@@ -422,11 +533,15 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
         sv = {p: sum((p[i] - host["start"][i]) * a[i] for i in range(3)) for p, _, _ in pts}
         mrows = _moment_rows(host, analysis, wc_inputs)
         brace_s = sorted(sv.values())
-        lbr = lbr_of(brace_s, (0.0, L), st.merge_tol)    # βbr: the longer adjacent segment (App. 6 Lbr)
-        lsh = lbr_short_of(brace_s, (0.0, L), st.merge_tol)   # the slip imperfection: the shorter one (user 2026-11-15)
-        for w in merged_points(brace_s, (0.0, L), st.merge_tol):
-            geometry_warnings.append({"host": hid, **w, "note": f"brace point within {st.merge_tol:g} mm — merged; check "
-                                      "the detail for clashes in step 7"})
+        if host["role"] == "rafter":
+            other = next((m_ for m_ in out["members"] if m_.get("role") == "rafter" and m_.get("side") != host.get("side")
+                          and abs(m_["start"][0] - host["start"][0]) < 1.0), None)
+            Lo = math.dist(other["start"], other["end"]) if other else 0.0
+            LA, LB = (L, Lo) if host.get("side") == "A" else (Lo, L)
+            fkey, fends = ("rafters", round(host["start"][0])), (0.0, LA + LB)
+            to_u = (lambda s_, L_=L: s_) if host.get("side") == "A" else (lambda s_, LA_=LA, L_=L: LA_ + (L_ - s_))
+        else:
+            fkey, fends, to_u = ("member", hid), (0.0, L), (lambda s_: s_)
         for p, ms, _ in pts:
             s = sv[p]
             rec = {"point": list(p), "host": hid, "host_role": host["role"], "s": round(s, 1), "braces": [x["id"] for x in ms],
@@ -436,7 +551,6 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 points.append({**rec, "missing": ["the host's moments (analysis) or section"]})
                 continue
             sec = hs["sec"]
-            ho = sec["d"] - (sec["tf_top"] + sec["tf_bot"]) / 2
             b0 = ms[0]
             mm = re.fullmatch(r"L(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)", b0["profile"])
             Lb_ = b0["length"]
@@ -459,25 +573,8 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 continue
             bb, tb = float(mm[1]), float(mm[2])
             tc, W = (float(v) for v in ck["profile"][2:].split("x"))
-            ups = sorted(h["up"] for h in ck["holes"])
-            y_c = (ups[0] + ups[-1]) / 2
+            ups = sorted(h_["up"] for h_ in ck["holes"])
             ang = angle_props(bb, tb)
-            worst = None
-            for combo, rows in mrows.items():
-                cd = cd_factors(brace_s, rows)
-                M = float(_interp(rows, s))
-                Mr = abs(M) if host["role"] == "wind_column" else max(0.0, -M)
-                dm = point_demand(Mr, cd[s], ho, lbr[s], st.brace_fraction)
-                if worst is None or dm["Prb"] > worst["Prb"]:
-                    worst = {**dm, "combo": combo, "Mr": Mr, "Cd": cd[s]}
-            amp = slip_factor(st.slip, lsh[s])
-            Prb_amp = worst["Prb"] * amp
-            # the split between the braces at the point by their relative axial stiffness A cos²α / L (user 2026-11-16):
-            # a pair of equal braces = half each (one in tension, one in compression — both checks run on each brace);
-            # one brace (an end frame) = the full force
-            kk = [ang["A"] * cos_a ** 2 / m_["length"] for m_ in ms]
-            shares = [k_ / sum(kk) for k_ in kk]
-            P = Prb_amp * max(shares) / cos_a            # every brace check takes the amplified force
             # the springs (step 5c review): the brace's line must lie in the secondary's web plane (no web bending)
             ub = [(b0["end"][i] - b0["start"][i]) / Lb_ for i in range(3)]
             if sec_line["role"] in ("girt", "gable_girt"):
@@ -486,83 +583,58 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                 sl = float(out["input"]["roof_slope"]) * (-1.0 if sec_line["side"] == "A" else 1.0)
                 nr = [0.0, sl / math.hypot(sl, 1.0), 1.0 / math.hypot(sl, 1.0)]
                 n_web = [0.0, -nr[2], nr[1]]
-            web_normal_cos = abs(sum(a_ * b_ for a_, b_ in zip(ub, n_web)))
             if host["role"] == "wind_column":
-                ys_ = [0.0, float(out["input"]["span"])]
-                Lp = min(abs(p[1] - y) for y in ys_)
+                Lp = min(abs(p[1] - y) for y in (0.0, float(out["input"]["span"])))
             else:
                 xs_ = sorted(g["at"] for g in out["grids"]["x"])
                 bnd = [xs_[j - 1] for j in out.get("braced_bays", [])] + [xs_[j] for j in out.get("braced_bays", [])]
                 Lp = min((abs(p[0] - x) for x in bnd), default=math.inf)
             Ap = cfs_section(sec_line["profile"], 350.0)["props"]["A"]
             k_sec = math.inf if Lp < 1.0 else E_STEEL * Ap / Lp / 1000.0
-            k = stiffness_provided(len(ms), ang["A"], Lb_, cos_a, tc, W, y_c, k_sec)
-            comp = angle_compression(bb, tb, Lb_, gb["Fy"])
-            ten = angle_tension(bb, tb, d0, gb["Fy"], gb["Fu"])
-            dims = cf_dims(sec_line["profile"])
-            web_g = plate_strength(sec_line.get("material", ""), dims["t"])
-            e_web = (INTO_SECONDARY - dims["t"]) / math.sin(math.radians(45.0))
-            nb = st.bolts_per_end
-            if nb >= 2:
-                brace_rows = [("brace", "flange brace compression (E5(a), E3)", "AISC 360-16 E5, E3", P, comp["phiPn"], P / comp["phiPn"], worst["combo"])]
-                ecc = None
-            else:                                   # 1 bolt per end: E5 does not apply (user 2026-11-15) → H2 eccentric
-                ecc = {"compression": angle_eccentric(bb, tb, Lb_, gb["Fy"], P, st.gauge),
-                       "tension": angle_eccentric(bb, tb, Lb_, gb["Fy"], -P, st.gauge)}
-                brace_rows = [("brace", f"flange brace {kk} on the gauge line (1 bolt: H2, eccentric both axes)",
-                               "AISC 360-16 H2-1, E3, F10", P, P / v["U"] if v["U"] > 0 else math.inf, v["U"], worst["combo"])
-                              for kk, v in ecc.items()]
-            rows_ = brace_rows + [
-                     ("brace", "flange brace tension (connected leg net)", "AISC 360-16 D2", P, ten, P / ten, worst["combo"]),
-                     ("stiffness", "brace stiffness βbr (App. 6.3.2a) vs every spring in series", "AISC 360-16 A-6-8; Claude's springs",
-                      worst["beta"], k["system"], worst["beta"] / k["system"], worst["combo"]),
-                     ("bolt", "bolt shear (per end)", "AISC 360-16 J3.6", P, nb * phiRv, P / (nb * phiRv)),
-                     ("bolt", "bearing on the angle leg", "AISC 360-16 J3.10", P,
-                      nb * hole_strength(d_bolt, st.end_distance - d0 / 2, tb, gb["Fu"]), None),
-                     ("web", "bearing on the purlin / girt web", "AISI S100-16 J3.3.1 / J3.1 (VERIFIED False)", P,
-                      nb * aisi_bolt_bearing(d_bolt, dims["t"], e_web, web_g["Fy"], web_g["Fu"], mf), None)]
-            rows_ = [r if r[5] is not None else (*r[:5], r[3] / r[4] if r[4] > 0 else math.inf) for r in rows_]
-            notes = [FRAME_END_NOTE]
-            if nb < 2:
-                notes.append(f"{nb} bolt per end (setting bolts_per_end): E5 does not apply — H2 eccentric axial, gauge {st.gauge:g} mm")
-            if web_normal_cos > 0.01:
-                rows_.append(("stiffness", "web local bending spring — NOT EVALUATED (the brace is not in the web plane)",
-                              "Claude's springs", web_normal_cos, 0.0, math.inf))
-            if comp["slender_leg"]:
-                rows_.append(("brace", "slender leg (E7) — NOT EVALUATED", "AISC 360-16 E7", 1.0, 0.0, math.inf))
-            checks = sorted((_row(r) for r in rows_), key=lambda r: -r["U"])
-            status, fixes = _status(checks, notes)
-            fix_options = []                          # options only (user 2026-11-15) — the model is not changed
-            for c in checks:
-                if c["U"] > 1.0 and c["key"] == "brace" and "H2" in c["name"]:
-                    e5 = angle_compression(bb, tb, Lb_, gb["Fy"])
-                    big = angle_eccentric(60.0, 6.0, Lb_, plate_strength(b0.get("material", ""), 6.0)["Fy"], P, st.gauge_L60)
-                    fix_options.append(f"2 bolts per end: E5 compression U {P / e5['phiPn']:.3f}")
-                    fix_options.append(f"L60x6 (gauge {st.gauge_L60:g} mm, 1 bolt): H2 compression U {big['U']:.3f}")
-                if c["U"] > 1.0 and c["key"] == "web":
-                    g = gauge_for(dims["t"], c["U"], d_bolt)
-                    fix_options.append(f"2 bolts per end: web bearing U {c['U'] / 2:.3f} (E5 then applies instead of H2)")
-                    fix_options.append(f"a heavier {sec_line['role'].replace('_', ' ')} gauge in that bay: t ≥ {g['t_req']:.2f} mm"
-                                       + (f" → {g['gauge']:g} mm" if g["gauge"] else " (beyond the gauge list)"))
-            rec["fix_options"] = list(dict.fromkeys(fix_options))
-            rec["split"] = {"n": len(ms), "shares": [round(x, 4) for x in shares],
-                            "rule": "by relative axial stiffness A cos²α / L; a pair: one tension, one compression"}
-            rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
-                       demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(ho, 1),
-                               "Lbr": round(lbr[s], 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
-                               "slip_mm": st.slip, "L_short": round(lsh[s], 1), "delta_o": round(lsh[s] / 500.0, 3),
-                               "slip_factor": round(amp, 4),
-                               "Prb_amplified": round(Prb_amp, 3), "P_brace": round(P, 3), "cos_alpha": round(cos_a, 4)},
-                       stiffness={**{kk: (round(v, 3) if math.isfinite(v) else "rigid") for kk, v in k.items()},
-                                  "purlin_axial_length": round(Lp, 1) if math.isfinite(Lp) else None,
-                                  "web_normal_cos": round(web_normal_cos, 5)},
-                       angle=({"method": "E5(a)", "Lc_r": round(comp["Lc_r"], 2), "phiPn": round(comp["phiPn"], 3)} if ecc is None else
-                              {"method": "H2 eccentric (1 bolt)", **{kk: {x: (round(y, 4) if isinstance(y, float) else y) for x, y in v.items()
-                                                                       if x != "terms"} for kk, v in ecc.items()}}),
-                       cleat=f"{ck['line']} at {ck['x']:g}")
-            key = (ck["line"], round(ck["x"]))
-            N_map[key] = max(N_map.get(key, 0.0), Prb_amp)
-            points.append(rec)
+            pts_all.append({"rec": rec, "p": p, "s": s, "u": to_u(s), "fkey": fkey, "fends": fends, "host": host, "hid": hid,
+                            "mrows": mrows, "brace_s": brace_s, "ms": ms, "b0": b0, "Lb": Lb_, "cos_a": cos_a, "sec_line": sec_line,
+                            "ck": ck, "gb": gb, "bb": bb, "tb": tb, "ang": ang, "ho": sec["d"] - (sec["tf_top"] + sec["tf_bot"]) / 2,
+                            "k": stiffness_provided(len(ms), ang["A"], Lb_, cos_a, tc, W, (ups[0] + ups[-1]) / 2, k_sec),
+                            "Lp": Lp, "web_normal_cos": abs(sum(a_ * b_ for a_, b_ in zip(ub, n_web)))})
+    # ---- pass 2: brace GROUPS — points closer than group_tol (500 mm) on the same flange (user 2026-11-17, engineering
+    # judgement): one App. 6 demand per group, shared by all its braces by relative axial stiffness; Lbr and Δo from the
+    # real unbraced segments OUTSIDE the group; a flange END within merge_tol (150 mm) merges (the segment beyond is used)
+    by_flange: dict = {}
+    for q in pts_all:
+        by_flange.setdefault(q["fkey"], []).append(q)
+    for fkey, qs in by_flange.items():
+        ends = qs[0]["fends"]
+        for gi, G in enumerate(brace_groups([q["u"] for q in qs], ends, st.group_tol, st.merge_tol)):
+            g = [qs[i] for i in G["members"]]
+            Lbr_g, Lsh_g = G["Lbr"], G["Lsh"]
+            for e_ in G["near_end"]:
+                geometry_warnings.append({"host": g[0]["hid"], "s": round(g[0]["s"], 1), "near": round(e_, 1),
+                                          "distance": round(min(abs(e_ - g[0]["u"]), abs(e_ - g[-1]["u"])), 1),
+                                          "with": "member end", "note": f"brace point within {st.merge_tol:g} mm — merged; "
+                                                                        "check the detail for clashes in step 7"})
+            worst = None
+            for combo in g[0]["mrows"]:
+                Mr_g, Cd_g = 0.0, 1.0
+                for q in g:
+                    rows = q["mrows"].get(combo)
+                    if rows is None:
+                        continue
+                    M = float(_interp(rows, q["s"]))
+                    Mr_g = max(Mr_g, abs(M) if q["host"]["role"] == "wind_column" else max(0.0, -M))
+                    Cd_g = max(Cd_g, cd_factors(q["brace_s"], rows)[q["s"]])
+                dm = point_demand(Mr_g, Cd_g, min(q["ho"] for q in g), Lbr_g, st.brace_fraction)
+                if worst is None or dm["Prb"] > worst["Prb"]:
+                    worst = {**dm, "combo": combo, "Mr": Mr_g, "Cd": Cd_g}
+            amp = slip_factor(st.slip, Lsh_g)
+            Prb_amp = worst["Prb"] * amp
+            kk = {(id(q), i): q["ang"]["A"] * q["cos_a"] ** 2 / m_["length"] for q in g for i, m_ in enumerate(q["ms"])}
+            ktot = sum(kk.values())
+            k_group = sum(q["k"]["system"] for q in g)       # the points' spring paths in parallel
+            gid = f"{fkey[0]}:{fkey[1]}:{gi + 1}"
+            for q in g:
+                shares = [kk[(id(q), i)] / ktot for i in range(len(q["ms"]))]
+                _flange_point_checks(q, shares, worst, amp, Prb_amp, Lbr_g, Lsh_g, k_group, gid, len(g),
+                                     sum(len(x["ms"]) for x in g), st, d_bolt, d0, phiRv, mf, points, N_map)
     # sag rods and ridge ties
     sf = sag_forces(out, li)
     rods = [m for m in out["members"] if m["role"] in ("sag_rod", "ridge_tie")]
