@@ -106,12 +106,16 @@ def test_restraints_from_the_model():
     # + the ridge-purlin flange brace (open item 11, 2026-11-16): 4 (was 3; the setting off gives 3 — below)
     assert len(r["rafter A"]["bottom"]) == 4 and r["rafter A"]["bottom"] == r["rafter B"]["bottom"]
     assert r["rafter A"]["bottom"][-1] == pytest.approx(11081.1, abs=0.1)
-    off = restraints(peb_building(BuildingInput(**B1, ridge_flange_braces=False)), info, 12000.0)
+    off = restraints(peb_building(BuildingInput(**B1, ridge_flange_braces=False, wc_top_flange_braces=False)), info, 12000.0)
     assert off["rafter A"]["bottom"] == r["rafter A"]["bottom"][:3]                 # NEGATIVE CONTROL: the old three
     assert all(0 < s < r["rafter A"]["length"] for s in r["rafter A"]["top"])
     # END frame lines: inward flange braces at the SAME positions as the interior frames (user, 2026-11-08)
     r1 = restraints(out, line(0), 0.0)
-    assert r1["rafter A"]["bottom"] == r["rafter A"]["bottom"] and len(r1["rafter A"]["top"]) == 10
+    # + the brace at the purlin nearest the quarter-span wind column (5151.2; step 5d, 2026-11-17) on the END frame only
+    extra = [v for v in r1["rafter A"]["bottom"] if v not in r["rafter A"]["bottom"]]
+    assert extra == [pytest.approx(5151.2, abs=0.1)] and len(r1["rafter A"]["bottom"]) == 5 and len(r1["rafter A"]["top"]) == 10
+    r1_off = restraints(peb_building(BuildingInput(**B1, wc_top_flange_braces=False)), line(0), 0.0)
+    assert r1_off["rafter A"]["bottom"] == r["rafter A"]["bottom"]                  # NEGATIVE CONTROL: the old equality
     # negative control: a building with an end-RAFTER wall at line 1 has no main frame there, so no frame braces either
     o2 = peb_building(BuildingInput(**B1, end_first="rafter"))
     assert not any(m["role"] == "flange_brace" and abs(m["start"][0]) < 1 for m in o2["members"])

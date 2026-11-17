@@ -55,7 +55,8 @@ def test_building_1_ridge_on_off():
     b0, li = _sized()
     res = {}
     for on in (True, False):
-        b, _ = resolve(dataclasses.replace(b0, ridge_flange_braces=on))
+        # the wind-column-top braces (step 5d) off with the ridge braces in the negative control: the old end-frame values
+        b, _ = resolve(dataclasses.replace(b0, ridge_flange_braces=on, wc_top_flange_braces=on))
         out = peb_building(b)
         an = analyse_building(b, li)
         f = {x["line"]: x for x in an["frames"]}

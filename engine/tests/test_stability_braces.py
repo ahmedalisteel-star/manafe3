@@ -213,10 +213,20 @@ def test_building_1_step_5c():
     an = analyse_building(b, li)
     r = S.building_stability_braces(jr, out, an, li)
     # + the 10 ridge-purlin points (open item 11), each ridge pair one group (2026-11-17): PARTIAL, web U 0.129 / 0.139
-    assert r["counts"]["flange_braces"] == {S.FAILS_AISI: 34, "FAILS": 4, "PARTIAL": 40}
+    # + the 4 end-frame points at the wind-column tops (step 5d, 2026-11-17): they shorten the end frames' 3060 mm points'
+    # segment (web 1.278 → 0.639: 34 → 30 AISI failures — accepted by the user; the old values with the setting off below)
+    assert r["counts"]["flange_braces"] == {S.FAILS_AISI: 30, "FAILS": 4, "PARTIAL": 48}
+    e3060 = [x for x in r["flange_braces"] if x["host"] in ("F1-RA", "F1-RB", "F5-RA", "F5-RB") and abs(x["s"] - 3060.4) < 1]
+    assert len(e3060) == 4 and all(next(c["U"] for c in x["checks"] if c["key"] == "web") == pytest.approx(0.6393, abs=2e-3) for x in e3060)
+    ch = {c["joint"]: c for c in r["cleats_changed"]}
+    assert all(ch[j]["U_after"] == pytest.approx(0.3575, abs=2e-3) for j in ("CL16", "CL20", "CL71", "CL75"))
     rp = [x for x in r["flange_braces"] if x["s"] > 11000 and x["host_role"] == "rafter"]
-    assert len(rp) == 10 and all(x["status"] == "PARTIAL" and x["demand"]["L_short"] == pytest.approx(8301.9, abs=0.2)
-                                 and x["demand"]["slip_factor"] == pytest.approx(1.1205, abs=1e-3) for x in rp)
+    # interior frames: the outside segments 8301.9 both sides (factor 1.1205); end frames: the wind-column-top brace at
+    # 5432.4 is the neighbour → 11 362.3 − 5432.4 = 5929.9 (step 5d)
+    assert len(rp) == 10 and all(x["status"] == "PARTIAL" for x in rp)
+    for x in rp:
+        Ls = 5929.9 if x["host"][:2] in ("F1", "F5") else 8301.9
+        assert x["demand"]["L_short"] == pytest.approx(Ls, abs=0.2) and x["demand"]["slip_factor"] == pytest.approx(1 + 2 / (Ls / 500), abs=1e-3)
     assert sorted({x["split"]["group_braces"] for x in rp}) == [2, 4]                 # end frames 2, interior 4
     for x in (x for x in r["flange_braces"] if x["status"] == S.FAILS_AISI):
         Uw = next(c["U"] for c in x["checks"] if c["key"] == "web")
@@ -232,12 +242,12 @@ def test_building_1_step_5c():
     # the pair split (user 2026-11-16): equal braces half each, an end-frame single brace the full force
     # the ridge groups share by stiffness over all their braces: interior 4 → 0.25 each, end frames 2 → 0.5 each
     assert sorted({tuple(x["split"]["shares"]) for x in r["flange_braces"]}) == [(0.25, 0.25), (0.5,), (0.5, 0.5), (1.0,)]
-    assert sum(1 for x in r["flange_braces"] if x["split"]["n"] == 1) == 20 + 4
+    assert sum(1 for x in r["flange_braces"] if x["split"]["n"] == 1) == 20 + 4 + 4
     # brace points within 150 mm of a member end merge — the wind-column tops (geometry warnings for step 7)
     assert sorted(w["host"] for w in r["geometry_warnings"]) == ["WF1", "WF3", "WL1", "WL3"]
     top = max(r["flange_braces"], key=lambda x: x["demand"]["slip_factor"])        # WF2 / WL2: 618 mm below the top, no merge
     assert top["demand"]["slip_factor"] == pytest.approx(1 + 2 / (618.4 / 500), abs=1e-3) and top["host"] in ("WF2", "WL2")
-    assert sum(x["n"] for x in r["flange_braces"]) == 116 + 16
+    assert sum(x["n"] for x in r["flange_braces"]) == 116 + 16 + 4
     assert all(S.FRAME_END_NOTE in x["notes"] and any("E5 does not apply" in n for n in x["notes"]) for x in r["flange_braces"])
     assert not any(c["name"].startswith("flange brace compression (E5") for x in r["flange_braces"] for c in x["checks"])
     worst = lambda name: max(next(c["U"] for c in x["checks"] if c["name"] == name) for x in r["flange_braces"])
@@ -267,7 +277,17 @@ def test_building_1_step_5c():
     assert max(x["U_after"] for x in r["cleats_changed"]) == pytest.approx(1.3998, abs=2e-3)
     # NEGATIVE CONTROL: slip 0 gives the old forces (all PARTIAL, the cleats 196 DESIGNED with a 6 mm weld)
     r0 = S.building_stability_braces(jr, out, an, li, S.StabilitySettings(slip=0.0))
-    assert r0["counts"]["flange_braces"] == {"PARTIAL": 78} and r0["cleats"]["counts"] == {"DESIGNED": 196}
+    assert r0["counts"]["flange_braces"] == {"PARTIAL": 82} and r0["cleats"]["counts"] == {"DESIGNED": 196}
+    # NEGATIVE CONTROL for the 5d brace setting: off → the old end-frame values 1.278 and 0.560
+    import dataclasses as _dc
+    from engine.peb.building import peb_building as _pb
+    b_off, _ = resolve(_dc.replace(_sized()[0], wc_top_flange_braces=False))
+    out_off = _pb(b_off)
+    from engine.connections.joints import joint_list as _jl
+    r_off = S.building_stability_braces({"joints": _jl(b_off, out_off)}, out_off, analyse_building(b_off, li), li)
+    old = [x for x in r_off["flange_braces"] if x["host"] == "F1-RA" and abs(x["s"] - 3060.4) < 1][0]
+    assert next(c["U"] for c in old["checks"] if c["key"] == "web") == pytest.approx(1.2784, abs=2e-3)
+    assert next(x for x in r_off["cleats"]["cleats"] if x["joint"] == "CL16")["governing"]["U"] == pytest.approx(0.5604, abs=2e-3)
     assert r0["cleats"]["detail"]["weld_leg"] == 6.0 and not r0["cleats"]["weld_j2_2b"]["capped"]
     assert all(x["fixes"] for x in r["flange_braces"] if x["status"] == S.FAILS)
     # 2 bolts per end: E5 instead of H2 (and the H2 rows gone)

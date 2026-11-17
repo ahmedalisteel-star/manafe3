@@ -51,6 +51,8 @@ class BracingInput:
     ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (CONFIRMED by the user)
     flange_brace: str = "L50x5"
     ridge_flange_braces: bool = True        # flange braces at the ridge purlin too, both sides (user 2026-11-16, open item 11)
+    wc_top_ys: dict = field(default_factory=dict)   # frame x → the wind columns' y under that END frame's rafter: a flange
+                                            # brace at the purlin nearest each (user 2026-11-17, step 5d; setting on)
 
 
 def _r(v: float) -> float:
@@ -218,7 +220,15 @@ def flange_braces(lines: dict, inp: BracingInput) -> list[dict]:
         nxt = [m for m in purl if m["s"] > s0 + z.haunch_length][:1]
         ridge = [m for m in purl if m["role"] == "ridge_purlin" and m not in zone + nxt][:1] if inp.ridge_flange_braces else []
         for xf in inp.frames:                                # every frame line (end frames: user, 2026-11-08)
-            for m in zone + nxt + ridge:
+            # an end frame with wind columns: the purlin nearest each column top on this side (not at the ridge)
+            wc = []
+            for y in inp.wc_top_ys.get(xf, []):
+                if abs(y - span / 2) < 1.0 or (y < span / 2) != (side == "A"):
+                    continue
+                near = min(purl, key=lambda m: abs(m["start"][1] - y))
+                if near not in zone + nxt + ridge + wc:
+                    wc.append(near)
+            for m in zone + nxt + ridge + wc:
                 d = rafter_depth(m["s"], inp)
                 low = _pt(side, m["s"], -(d - z.tf / 2), slope, span, eave)
                 high = _pt(side, m["s"], INTO_SECONDARY, slope, span, eave)

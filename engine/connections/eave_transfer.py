@@ -60,6 +60,9 @@ from pyaisc360 import chapter_j as J
 from ..peb.bracing import WALL_BRACE_TOP
 from .cleats import IN, KIP, KSI, _host_at
 from .longitudinal import MIN_FAMILY, low_rise_limits, torsion_exception, wind_factor
+from ..design.frame_checks import _axial_ratio, _flexure_ratio
+from bimsteelauto_connections.secondary import eccentric_group_coefficient
+from .welds import WeldSettings, base_metal, base_metal_tension, weld_metal
 
 BANNER = "NOT FOR ISSUE — eave transfer and wind-column tops (Phase 5 step 5d + step 6 slots); Claude's rules VERIFIED False"
 DESIGNED, FAILS, NOT_EVALUATED, PARTIAL = "DESIGNED", "FAILS", "NOT EVALUATED", "PARTIAL"
@@ -80,6 +83,8 @@ class EaveSettings:
     wc_bolts: int = 2
     threads: str = "N"
     clip_edge: float = 40.0             # bolt to the clip's edge in the force direction, mm
+    wc_bolt_pitch: float = 70.0         # the 2 bolts in a vertical line (the slots), mm — TO CONFIRM
+    clip_weld_leg: float = 5.0          # the clip-to-rafter-flange fillet, both sides along the clip width (shop minimum)
     slot_tol: float = 6.0               # slot length = d0 + δ_down + δ_up + this, mm
     column_lever: float = WALL_BRACE_TOP  # eave to the top wall-brace hole, mm
 
@@ -120,7 +125,13 @@ def top_flange_alone(sec: dict, Fy: float, Mx: float, P: float, Fx: float, a: fl
     Ff = abs(Mx) * 1000.0 / (d - tt) + abs(P) / 2.0
     Af, Zf = bt * tt, tt * bt ** 2 / 4.0
     ua, ub = Ff / (0.9 * Fy * Af / 1000.0), Fx * a / (0.9 * Fy * Zf / 1000.0)
-    return {"Ff": Ff, "M_lat": Fx * a, "axial": ua, "bending": ub, "U": ua + ub}
+    return {"Ff": Ff, "M_lat": Fx * a, "axial": ua, "bending": ub, "U": h1(ua, ub)}
+
+
+def h1(a: float, f: float) -> float:
+    """AISC 360-16 H1-1 as written (user 2026-11-17): a ≥ 0.2 → a + 8/9 f; else a / 2 + f (f = the sum of the flexure
+    ratios)."""
+    return a + 8.0 / 9.0 * f if a >= 0.2 else a / 2.0 + f
 
 
 def flange_lateral(F: float, a: float, b: float) -> float:
@@ -154,7 +165,7 @@ def _p4_at(inputs: dict, name: str, s: float) -> dict:
     for c, sts in inp.forces.items():
         f = min(sts, key=lambda x: abs(x.station - s))
         r = check_member(dataclasses.replace(inp, forces={c: [f]}))
-        out[c] = (r.utilisation, f)
+        out[c] = ({"U": r.utilisation, "a": _axial_ratio(r), "fx": _flexure_ratio(r)}, f)
     return out
 
 
@@ -272,14 +283,16 @@ def building_eave_transfer(b, jr: dict, out: dict, analysis: dict, endplates: di
         rows = []
         for c, fam, T, (ur, fr), (uc, fc), (_uk, fk) in cases:
             Fx = T * ux
-            rows.append(_row("rafter", "rafter end: Phase 4 + weak-axis F_x × a (H1 minor term)", "AISC 360-16 H1-1, F6",
-                             Fx * hs["s"] / 1000.0, mr["phiMny"] / 1000.0, ur + Fx * hs["s"] / mr["phiMny"], c))
+            fy_r = Fx * hs["s"] / mr["phiMny"]
+            rows.append(_row("rafter", "rafter end: H1-1 with Phase 4's Pr/Pc, Mrx/Mcx + the weak-axis F_x × a", "AISC 360-16 H1-1, F6",
+                             Fx * hs["s"] / 1000.0, mr["phiMny"] / 1000.0, h1(ur["a"], ur["fx"] + fy_r), c))
             tf = top_flange_alone(sec, Fy_r, fr.Mz, fr.P, Fx, hs["s"])
             rows.append(_row("rafter", "top flange alone: F_x × a + Mx/(d − tf) + P/2", "user rule (TO CONFIRM interaction)",
                              None, None, tf["U"], c))
             if cs:
-                rows.append(_row("column", "column top (own line, not item 7): Phase 4 + weak-axis F_x × lever", "AISC 360-16 H1-1, F6",
-                                 Fx * st.column_lever / 1000.0, mc["phiMny"] / 1000.0, uc + Fx * st.column_lever / mc["phiMny"], c))
+                rows.append(_row("column", "column top (own line, not item 7): H1-1 with Phase 4 + the weak-axis F_x × lever",
+                                 "AISC 360-16 H1-1, F6", Fx * st.column_lever / 1000.0, mc["phiMny"] / 1000.0,
+                                 h1(uc["a"], uc["fx"] + Fx * st.column_lever / mc["phiMny"]), c))
                 rows.append(_row("column", "column top weak-axis shear", "AISC 360-16 G6 (from memory)", Fx, mc["phiVny"], Fx / mc["phiVny"], c))
             if knee:
                 bolt = knee["bolt"]
@@ -340,25 +353,39 @@ def building_eave_transfer(b, jr: dict, out: dict, analysis: dict, endplates: di
         fd = frame_data(rafter["start"][0])
         rows, notes = [], []
         n = st.wc_bolts
-        rows.append(_row("clip", f"bolt shear ({n} × M{st.wc_bolt_d:g} {st.wc_bolt_grade})", "AISC 360-16 J3.6", F / n, phiRv, F / n / phiRv))
+        e = offset if offset is not None else 0.0
+        if offset is None:
+            notes.append("the end wall's offset: the eccentricity NOT EVALUATED")
+        # the clip: a vertical plate welded to the rafter's bottom flange, the force IN its plane (user 2026-11-17); the
+        # bolt group eccentric by the offset (elastic method, bimsteelauto eccentric_group_coefficient)
+        C = eccentric_group_coefficient(n, st.wc_bolt_pitch, e)
+        rows.append(_row("clip", f"bolt shear ({n} × M{st.wc_bolt_d:g} {st.wc_bolt_grade}, eccentric e {e:g}: C {C:.3f})",
+                         "AISC 360-16 J3.6; elastic group", F, C * phiRv, F / (C * phiRv)))
         lc = st.clip_edge - d0 / 2
-        cap_clip = n * J.bolt_hole_strength(d=st.wc_bolt_d / IN, lc=lc / IN, t=st.clip_t / IN, Fu=Fu_c / KSI,
+        cap_clip = C * J.bolt_hole_strength(d=st.wc_bolt_d / IN, lc=lc / IN, t=st.clip_t / IN, Fu=Fu_c / KSI,
                                             long_slot_perpendicular=True).available * KIP
-        rows.append(_row("clip", "bearing / tear-out on the clip (long slot ⊥ force)", "AISC 360-16 J3.10", F, cap_clip, F / cap_clip))
+        rows.append(_row("clip", "bearing / tear-out on the clip (long slot ⊥ force, eccentric group)", "AISC 360-16 J3.10", F, cap_clip, F / cap_clip))
         if wsec:
             Fu_w = get_grade((_host_at(wc, j["point"]) or {}).get("grade") or "S355JR", wsec["tw"])[1]
-            cap_w = n * J.bolt_hole_strength(d=st.wc_bolt_d / IN, lc=10 * st.wc_bolt_d / IN, t=wsec["tw"] / IN, Fu=Fu_w / KSI).available * KIP
-            rows.append(_row("clip", "bearing on the connected part (the wind column web, standard holes)", "AISC 360-16 J3.10",
-                             F, cap_w, F / cap_w))
+            cap_w = C * J.bolt_hole_strength(d=st.wc_bolt_d / IN, lc=10 * st.wc_bolt_d / IN, t=wsec["tw"] / IN, Fu=Fu_w / KSI).available * KIP
+            rows.append(_row("clip", "bearing on the connected part (the wind column web, standard holes, eccentric group)",
+                             "AISC 360-16 J3.10", F, cap_w, F / cap_w))
         else:
             notes.append("the wind column's section: bearing on it NOT EVALUATED")
-        if offset is not None:
-            Zc = st.clip_width * st.clip_t ** 2 / 4.0
-            M = F * offset
-            rows.append(_row("clip", f"clip bending with the {offset:g} mm offset (minor axis, b t²/4)", "AISC 360-16 F11 (TO CONFIRM orientation)",
-                             M / 1000.0, 0.9 * Fy_c * Zc / 1e6, M / (0.9 * Fy_c * Zc / 1000.0)))
-        else:
-            notes.append("the end wall's offset: the clip bending NOT EVALUATED")
+        M = F * e
+        Zc = st.clip_t * st.clip_width ** 2 / 4.0                # strong axis: the force in the plate's plane
+        rows.append(_row("clip", f"clip bending, strong axis (t b²/4), M = F × the {e:g} mm offset", "AISC 360-16 F11",
+                         M / 1000.0, 0.9 * Fy_c * Zc / 1e6, M / (0.9 * Fy_c * Zc / 1000.0)))
+        # the clip-to-rafter-flange weld: both sides along the clip width; F along the weld, M = F × e across it
+        wsw = WeldSettings()
+        fx_ = F * 1000.0 / (2 * st.clip_width)
+        fz_ = 3.0 * M * 1000.0 / st.clip_width ** 2
+        fr = math.hypot(fx_, fz_)
+        wm = weld_metal(st.clip_weld_leg, 0.0, wsw, directional=False)
+        rows.append(_row("clip", f"clip weld metal ({st.clip_weld_leg:g} mm both sides, no directional increase)", "AISC 360-16 J2.4",
+                         fr, wm, fr / wm))
+        rows.append(_row("clip", "clip base metal (2 lines): across / J4.1 + along / 0.45 Fu t", "AISC 360-16 J4.1, J4.2", None, None,
+                         fz_ / base_metal_tension(st.clip_t, st.clip_grade, 2) + fx_ / base_metal(st.clip_t, st.clip_grade, 2)))
         # step 6: the slot from the rafter's vertical movement at the wind column (service)
         slot = None
         if fd:
@@ -368,24 +395,30 @@ def building_eave_transfer(b, jr: dict, out: dict, analysis: dict, endplates: di
             nodes = fres["nodes"]
             names = sorted((nm for nm in nodes if nm.startswith(("RA", "RB", "RIDGE"))), key=lambda nm: nodes[nm][0])
             xs = [nodes[nm][0] for nm in names]
+            # only the movement AFTER bolting (user 2026-11-17): every ASD combination WITHOUT the dead load — Lr / L,
+            # the wind and the collateral (TO CONFIRM) — from the unfactored load cases' displacements
+            case_v = {}
+            for cn, rr in fres["results"].items():
+                if rr.get("set") == "case" and cn != "D":
+                    disp = rr.get("displacements", {})
+                    if all(nm in disp for nm in names):
+                        case_v[cn] = _interp_xy(xs, [disp[nm][1] for nm in names], ycol)
             for c, s_ in fres.get("combos", []):
                 if s_ != "ASD":
                     continue
-                disp = fres["results"][c].get("displacements", {})
-                ys = [disp[nm][1] for nm in names if nm in disp]
-                if len(ys) != len(names):
-                    continue
-                v = _interp_xy(xs, ys, ycol)
+                fac = fres.get("factors", {}).get(c, {})
+                v = sum(f_ * case_v.get(cn, 0.0) for cn, f_ in fac.items() if cn != "D")
                 if -v > dd:
                     dd, gov = -v, c
                 du = max(du, v)
             L_slot = slot_length(d0, dd, du, st.slot_tol)
-            slot = {"d0": d0, "delta_down": round(float(dd), 2), "delta_up": round(float(du), 2), "tolerance": st.slot_tol, "length": L_slot,
+            slot = {"basis": "ASD combinations without the dead load (Lr / L, W, collateral — TO CONFIRM)", "d0": d0, "delta_down": round(float(dd), 2), "delta_up": round(float(du), 2), "tolerance": st.slot_tol, "length": L_slot,
                     "governing_down": gov, "aisc_long_slot_max": 2.5 * st.wc_bolt_d,
                     "exceeds_long_slot": L_slot > 2.5 * st.wc_bolt_d}
             if slot["exceeds_long_slot"]:
-                notes.append(f"slot {L_slot:g} mm is longer than the AISC Table J3.3M long slot ({2.5 * st.wc_bolt_d:g} mm): "
-                             "a custom slot — the J3 long-slot strength used, flagged")
+                notes.append(f"slot {L_slot:g} mm > the AISC Table J3.3M long slot ({2.5 * st.wc_bolt_d:g} mm): long slot with "
+                             "plate washer, TO CONFIRM (open item 14) — alternatives: a sliding bracket with slots in both "
+                             f"plates (each about {math.ceil(L_slot / 2):g} mm), or a stiffer end-frame rafter")
             # 7a: the rafter's bottom flange alone between the flange-brace points either side of the wind column
             rname = f"rafter {rafter['side']}"
             hs = _host_at(rafter, [rafter["start"][0], ycol, rafter["start"][2]])
@@ -415,13 +448,15 @@ def building_eave_transfer(b, jr: dict, out: dict, analysis: dict, endplates: di
             Af, Zf = sec["bf_bot"] * sec["tf_bot"], sec["tf_bot"] * sec["bf_bot"] ** 2 / 4.0
             best = None
             for c, sts in inp[rname].forces.items():
+                if "1.0W" not in c:                        # 0.9D + 1.0W and 1.2D + 1.0W + 0.5Lr only (user 2026-11-17)
+                    continue
                 f_ = min(sts, key=lambda x: abs(x.station - hs["s"]))
                 Ff = abs(f_.Mz) * 1000.0 / (sec["d"] - sec["tf_bot"]) + abs(f_.P) / 2.0
-                u_ = Ff / (0.9 * Fy_r * Af / 1000.0) + Ml / (0.9 * Fy_r * Zf / 1000.0)
+                u_ = h1(Ff / (0.9 * Fy_r * Af / 1000.0), Ml / (0.9 * Fy_r * Zf / 1000.0))
                 if best is None or u_ > best[0]:
                     best = (u_, c, Ff)
-            rows.append(_row("rafter", "rafter bottom flange alone: lateral F a b / L + flange axial (envelope)",
-                             "user rule 7a (TO CONFIRM envelope)", Ml / 1000.0, 0.9 * Fy_r * Zf / 1e6, best[0], best[1]))
+            rows.append(_row("rafter", "rafter bottom flange alone: lateral F a b / L + flange axial (wind combinations, H1-1)",
+                             "user rule 7a", Ml / 1000.0, 0.9 * Fy_r * Zf / 1e6, best[0], best[1]))
             rec["flange"] = {"u_wind_column": round(uw, 1), "left": left, "right": right, "M_lat": round(float(Ml) / 1000.0, 3),
                              "Ff_axial": round(float(best[2]), 3), "at_brace": at_brace}
         else:

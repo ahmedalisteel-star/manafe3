@@ -53,6 +53,7 @@ class BuildingInput:
     wc_braces_first: int = 2                # wind-column flange braces at every n-th gable girt (from the top), end wall at
     wc_braces_last: int = 2                 # the first / last frame line; 0 = none (user, 2026-11-09)
     ridge_flange_braces: bool = True        # rafter flange braces at the ridge purlin, both sides (user 2026-11-16, item 11)
+    wc_top_flange_braces: bool = True       # end-frame rafter flange braces at the wind-column tops (user 2026-11-17, 5d)
     wind_column: dict | None = None         # Phase 4 step 9: the wind columns' section {hw, tw, bf, tf}; None = the placeholder
     end_rafter: dict | None = None          # the end rafters' section {hw, tw, bf, tf}; None = the main rafter's
 
@@ -148,11 +149,11 @@ def peb_building(b: BuildingInput) -> dict:
     girts = [m for m in sec["members"] if m["role"] == "girt"]
     others = [m for m in sec["members"] if m["role"] != "girt"]
     rafter_ends = {x for i, x in ((0, frames[0]), (b.n_bays, L)) if (b.end_first if i == 0 else b.end_last) == "rafter"}
-    fb = [m for m in flange_braces(lines, bi) if m["start"][0] not in rafter_ends]   # an end-rafter wall has no main frame
 
     # end walls
     gable_sets = []
     end_walls = []
+    wc_ys = {}
     for end, kind, x in (("first", b.end_first, frames[0]), ("last", b.end_last, L)):
         w = end_wall(kind, end, b.span, b.eave_height, b.roof_slope, x, z, wall=b.gable, girt=b.sections.girt, bolt=b.bolt,
                      wc=b.wind_column, er=b.end_rafter)
@@ -165,6 +166,10 @@ def peb_building(b: BuildingInput) -> dict:
         for m in endwall_braces(end, w["x_face"], b.span, b.eave_height, w["supports"], tops, tuple(eb), prof, wc=b.wind_column):
             members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
         end_walls.append({"end": end, "kind": kind, "x_frame": _r(x), "x_face": w["x_face"], "supports": w["supports"]})
+        if kind == "frame" and b.wc_top_flange_braces:
+            wc_ys[x] = sorted(m["start"][1] for m in w["members"] if m["role"] == "wind_column")
+    # flange braces (after the end walls: the end frames' rafters are braced at their wind-column tops too — step 5d)
+    fb = [m for m in flange_braces(lines, dataclasses.replace(bi, wc_top_ys=wc_ys)) if m["start"][0] not in rafter_ends]
 
     op = apply_openings(girts, list(b.openings), b.eave_height, jamb=b.sections.eave_strut, bolt=b.bolt)
     # wind-column flange braces from the gable girts (after the openings: only where a girt piece runs)
@@ -191,7 +196,7 @@ def peb_building(b: BuildingInput) -> dict:
         "input": {"span": b.span, "eave_height": b.eave_height, "roof_slope": b.roof_slope, "bay_spacing": b.bay_spacing, "n_bays": b.n_bays,
                   "bays": list(b.bay_list()), "span_typed": typed.span, "span_ref": typed.span_ref, "grid_inset": typed.grid_inset,
                   "wc_braces_first": b.wc_braces_first, "wc_braces_last": b.wc_braces_last,
-                  "ridge_flange_braces": b.ridge_flange_braces,
+                  "ridge_flange_braces": b.ridge_flange_braces, "wc_top_flange_braces": b.wc_top_flange_braces,
                   "wind_column": b.wind_column, "end_rafter": b.end_rafter},
         # the members are in STEEL coordinates (column A's outer face on y = 0); y_shift moves them onto the reference
         # lines, where the grids are — the app applies it together with the placement (field fixes 5, 7)

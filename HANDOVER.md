@@ -32,7 +32,8 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
 2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
 5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) BUILT
-2026-11-17 — WAIT for the user's review and the TO CONFIRM batch ("Step 5d — what was built"). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+2026-11-17 and revised after review 1 (2026-11-17) — WAIT for the user's approval ("Step 5d — review 1"); open items
+13 and 14 added. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -564,6 +565,32 @@ alone; 3a; 4a own line; 5a; 6a; 7a; 8a) and of 2026-11-17 (step 6 slots).
   the knee's F_x shared equally by all 8 bolts; the column-top lever = the 100 mm to the wall-brace hole.
 - Tests `test_eave_transfer.py` (5; hand values in its docstring; negative controls: no F_x → no flange bending, slot
   tolerance 0, no bracing split → every eave node NOT EVALUATED).
+
+**Step 5d — review 1 (user 2026-11-17), built; AWAITING THE USER'S APPROVAL:**
+- Wind-column top clip = a vertical plate welded to the rafter's bottom flange, the force IN its plane: strong-axis bending
+  Z = t b² / 4 with M = F × the 100 mm offset; the bolt group eccentric by the offset (elastic, bimsteelauto
+  eccentric_group_coefficient: 2 bolts at 70 mm → C = 0.661, accepted); bearing × C; the clip-to-rafter-flange weld (5 mm
+  both sides along the clip width: F along, 3 M / b² across; weld metal and the clip's base metal).
+- Slots from the movement AFTER bolting only: every ASD combination without the dead load (Lr / L, W, collateral — TO
+  CONFIRM), from the unfactored cases; slot = d0 + δ_down + δ_up + 6 mm; beyond 2.5 d → "long slot with plate washer, TO
+  CONFIRM" (not FAIL) — open item 14.
+- MODEL CHANGE (approved): the generator puts an end-frame rafter flange brace at the purlin nearest every wind-column top
+  (setting `wc_top_flange_braces`, on; engine + API; the ridge column is covered by the ridge braces) — building 1 + 4
+  braces (132 → 136, members 428 → 432; plain B1 124 → 128, 420 → 424; end-rafter variant + 2).
+- H1-1 as written (8/9 when Pr/Pc ≥ 0.2) on the top flange alone, the rafter-end add-on, the column-top add-on and the 7a
+  bottom flange (the last two accepted); the rafter flange axial at a wind column from the wind combinations only
+  (0.9D + 1.0W, 1.2D + 1.0W + 0.5Lr).
+- Building 1: **eave 6 DESIGNED, 2 FAIL** (frames 2 / 4 side A, top flange alone 1.047; side B 0.989) — report only, open
+  item 13; **wind-column tops 6 DESIGNED** (eccentric bolt shear 0.451 / 0.495, clip weld 0.290 / 0.318, bearing ≤ 0.32,
+  clip bending 0.090 / 0.099, the bottom flange 0.05–0.09 with the new brace 45 mm from the column top); slots 76 / 77 mm
+  (δ 28.7 down / 24.2 up) and 136 mm at the ridge columns (δ 62.4 / 49.4).
+- Stop-rule values accepted by the user (2026-11-17): the new braces shorten the end frames' 3060 mm points' segment —
+  5c web bearing 1.278 → 0.639 (34 → 30 AISI failures), cleats CL16 / 20 / 71 / 75 0.560 → 0.358; the 7a negative control
+  (setting off) 0.939 (the old linear / full-envelope rule gave 1.011). Phase 4 +0.0001; base uplift F2 / F4 −44.309 →
+  −44.301 kN. Old values asserted with the settings off.
+- TO CONFIRM accepted (2026-11-17): 1 the clip PL10 × 150, bolts 40 mm from the edge; 2 the bolts into the wind column web;
+  8 the knee F_x shared by all 8 bolts; 9 the column-top lever 100 mm; H1-1 on the column top and the 7a flange; C 0.661.
+  Still TO CONFIRM: the slot basis (collateral included), the 70 mm bolt pitch.
 
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
@@ -1647,6 +1674,12 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
      68 → 78 (34 FAILS (AISI) + 4 FAILS + 40 PARTIAL; braces 116 → 132); cleats 174 DESIGNED / 22 FAIL (unchanged), weld
      6 mm (capped), J2.2b over-max 22. Base uplift (test_welds): F1 / F5-BA −35.526 → −35.509, F2 / F4-BA −44.341 →
      −44.309 kN (the braces' dead load; the old values asserted with the setting off). Sizes unchanged (test_sizing).
+13. **Braced-bay lowest roof-brace node** (user 2026-11-17, step 5d): at the interior braced-bay frames 2 and 4 (side A)
+   the eave transfer fails the top flange alone (U 1.047); options: move the roof brace's lowest node to the eave strut, or
+   add an eave-panel brace — the user's decision later (report only until then).
+14. **Wind-column slots beyond the AISC long slot** (user 2026-11-17, step 5d): the ridge wind columns need 136 mm, the
+   quarter-span ones 76–77 mm, against 2.5 d = 40 mm (M16). Alternatives in the report: a sliding bracket with slots in
+   both plates (each about half), or a stiffer end-frame rafter — the user's decision later.
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
    judgement (App. 6 commentary); the default bolt count at the first purlin is decided after the user verifies J3.3.
