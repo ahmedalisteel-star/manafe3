@@ -31,9 +31,9 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 "Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); step 5b
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
 2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
-5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) BUILT
-2026-11-17 and revised after review 1 (2026-11-17) — WAIT for the user's approval ("Step 5d — review 1"); open items
-13 and 14 added. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) APPROVED
+AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). NEXT: step 7 — PLAN ONLY, no
+code until the user answers its decisions (user 2026-11-17). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -70,8 +70,8 @@ Next: the user's confirmations; then Phase 5 (connections) as planned.**
 | 2 | Base plates and anchors incl. net uplift; replaces the field-fix-10 placeholders; **2b: anchor reinforcement (hairpins / ties) as the first fix for shear breakout** | **done** (engine) — `engine/connections/baseplates.py`, `test_baseplates.py` |
 | 3 | Knee / ridge / splice end plates: plate, bolts, welds, column-side checks | **done** (engine; approved by the user 2026-11-12) — `engine/connections/endplates.py`, `test_endplates.py` |
 | 4 | Flange-to-web welds of built-up members; **+ the column-to-base-plate weld, the shear lug, the stiffener welds** (user 2026-11-11 / 12) | **done** (engine; approved by the user 2026-11-15) — `engine/connections/welds.py`, `test_welds.py`; open: braced-bay bases PARTIAL (item 6), lug breakout (ACI 17.11.3), library base metal (item 5) |
-| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | |
-| 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | |
+| 5 | Purlin / girt cleats, brace gussets and rod ends (replaces the U = 0.6 placeholder); **+ flange braces (2 % of the flange force), sag rods and ridge ties as standard-detail joints; + the roof-bracing EAVE TRANSFER as an automatic check (haunch-end weak-axis bending, knee bolt shear along the building, column top) — on a failure, report it and suggest an eave-panel strut** (user 2026-11-11) | **done** (engine; 5a accepted for now, 5b accepted, 5c / 5c-fix approved, 5d approved 2026-11-17) — `cleats.py`, `brace_ends.py`, `stability_braces.py`, `eave_transfer.py`; open items 9, 10, 12, 13, 14 |
+| 6 | Wind-column top with vertical slotted holes (new slot hole type in model, NC, IFC) | **merged into 5d** (user 2026-11-17): slot lengths designed in the engine; the slot hole type in the model / NC / IFC comes with step 7 |
 | 7 | Build the parts in the model; cleats and cap plates welded into their assemblies | |
 | 8 | PEB > "Connections..." in the browser: Check, Design, Apply as one undo step, calc sheets, NOT FOR ISSUE | |
 | 9 | R1 regression, HANDOVER, end-work | |
@@ -566,7 +566,7 @@ alone; 3a; 4a own line; 5a; 6a; 7a; 8a) and of 2026-11-17 (step 6 slots).
 - Tests `test_eave_transfer.py` (5; hand values in its docstring; negative controls: no F_x → no flange bending, slot
   tolerance 0, no bracing split → every eave node NOT EVALUATED).
 
-**Step 5d — review 1 (user 2026-11-17), built; AWAITING THE USER'S APPROVAL:**
+**Step 5d — review 1 (user 2026-11-17), built; APPROVED AS DONE by the user (2026-11-17):**
 - Wind-column top clip = a vertical plate welded to the rafter's bottom flange, the force IN its plane: strong-axis bending
   Z = t b² / 4 with M = F × the 100 mm offset; the bolt group eccentric by the offset (elastic, bimsteelauto
   eccentric_group_coefficient: 2 bolts at 70 mm → C = 0.661, accepted); bearing × C; the clip-to-rafter-flange weld (5 mm
@@ -590,7 +590,8 @@ alone; 3a; 4a own line; 5a; 6a; 7a; 8a) and of 2026-11-17 (step 6 slots).
   −44.301 kN. Old values asserted with the settings off.
 - TO CONFIRM accepted (2026-11-17): 1 the clip PL10 × 150, bolts 40 mm from the edge; 2 the bolts into the wind column web;
   8 the knee F_x shared by all 8 bolts; 9 the column-top lever 100 mm; H1-1 on the column top and the 7a flange; C 0.661.
-  Still TO CONFIRM: the slot basis (collateral included), the 70 mm bolt pitch.
+  TO CONFIRM accepted with the approval (2026-11-17): the slot basis (collateral included in the movement after bolting),
+  the 70 mm bolt pitch for M16. No 5d item is left TO CONFIRM.
 
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
