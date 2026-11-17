@@ -31,7 +31,8 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 "Step 5 decisions" below); step 5a (cleats) ACCEPTED FOR NOW 2026-11-15 (details reviewed later: open item 9, fix before issue); step 5b
 (brace ends) ACCEPTED 2026-11-15; step 5c (flange braces, sag rods, ridge ties; AISI J3 bearing; cleats re-run) BUILT
 2026-11-15, revised over five reviews, APPROVED AS DONE by the user (2026-11-16; open items 9, 11, 12 stay open). Step
-5c-fix (open item 11) BUILT 2026-11-16 — WAIT for the user's approval; then 5d (decisions answered 2026-11-15). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) BUILT
+2026-11-17 — WAIT for the user's review and the TO CONFIRM batch ("Step 5d — what was built"). Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -531,6 +532,39 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
   bending must include that offset as an eccentricity. End frames 1 and 5 are full rigid portal frames (end_first /
   end_last = "frame", pinned bases; line 5 analysed as line 1).
 
+**Step 5d — what was built (2026-11-17, awaiting the user's review; step 6 merged):** `engine/connections/eave_transfer.py`
+(`building_eave_transfer`, `EaveSettings`). NOT FOR ISSUE. The user's answers of 2026-11-15 (1a; 2a + the top flange
+alone; 3a; 4a own line; 5a; 6a; 7a; 8a) and of 2026-11-17 (step 6 slots).
+- Eave transfer, at the lowest roof-brace node of every rafter (the first purlin past the knee, 688.5 mm): F_x = T |u·X|,
+  paired as open item 6 (Case B × wind factor; the §28.3.4 minimum with the dead load only; the ROOF diagonal: T_caseB
+  18.908, T_minimum 21.128 kN → F_x 14.83 / 16.57 kN). Checks per combination: the rafter end (Phase 4 U at the station
+  + F_x a / φMny, F6); the top flange alone (user); the knee bolts (compression side √(V² + (F_x/2)²) against step 3's
+  φVn; tension side J3.7 with step 3's prying bolt force scaled by |M| / Mu); the column top as its own line (Phase 4 U
+  + F_x × 100 mm / φMny; G6 shear) — it does NOT close open item 7; failures carry the suggestion (eave-panel strut).
+- Wind-column tops: the step 1 top reaction (C&C 1.0 W); clip PL10 S355 + 2 × M16 8.8 with VERTICAL SLOTS: bolt shear,
+  bearing on the clip (long slot ⊥ force), bearing on the connected part (the wind column web), clip bending F × the 100
+  mm offset (minor axis); no J10.1. Slots (step 6): d0 + δ_down + δ_up + 6 mm, δ = the end-frame rafter's vertical
+  movement at the wind column over the ASD combinations; flagged beyond the AISC long slot (2.5 d = 40 mm). The rafter's
+  bottom flange alone between the flange-brace points either side of the wind column (M = F a b / L, the step 5c groups)
+  + its axial (envelope of the frame's LRFD combinations); flagged when no flange brace sits at the column top.
+- Building 1: **eave 4 DESIGNED, 4 FAIL** — the interior braced-bay frames 2 and 4 (both sides) fail the top flange
+  alone, U 1.006 / 1.064 (1.2D + 1.6Lr + 0.5WB−) → suggestion: an eave-panel strut / brace; every other eave check ≤ 0.80
+  (column top 0.80, rafter end 0.79, knee tension bolts 0.74, knee compression bolts 0.08, column shear 0.02); end frames
+  0.60. **Wind-column tops 6 FAIL**: clip bending with the offset 1.351 (WF1 / WF3 / WL1 / WL3, F 16.19 kN) and 1.481 (WF2 /
+  WL2, 17.75 kN); the rafter bottom flange at WF1 / WF3 / WL1 / WL3 1.011 (no flange brace at the column top: span 3060.5 →
+  11 362.4, M 27.73 kN·m + axial 91.1 kN); at WF2 / WL2 the ridge group braces it (0.41). Slots 81 / 83 mm (quarter-span
+  columns, δ 41.2 down / 17.2 up) and 148 mm (ridge columns, δ 89.6 / 34.0) — all beyond the 40 mm AISC long slot. Bolts
+  0.15–0.16, bearing ≤ 0.10.
+- **TO CONFIRM batch (Claude's minor choices, step 5d):** the clip as PL10 × 150 mm wide, its bolts 40 mm from the edge in
+  the force direction; the 2 × M16 bolting the clip to the wind column WEB ("bearing on clip and flange" read as the clip
+  and the connected part); the clip's bending about its MINOR axis (b t² / 4) for the offset — the conservative
+  orientation; the slot tolerance 6 mm and the rule d0 + δ_down + δ_up + tolerance; δ over every ASD combination; the
+  rafter flange axial at a wind column as the envelope of the frame's LRFD combinations (the C&C reaction has no frame
+  combination); the top-flange-alone interaction linear (axial + bending); the H1 minor-axis term added with coefficient 1;
+  the knee's F_x shared equally by all 8 bolts; the column-top lever = the 100 mm to the wall-brace hole.
+- Tests `test_eave_transfer.py` (5; hand values in its docstring; negative controls: no F_x → no flange bending, slot
+  tolerance 0, no bracing split → every eave node NOT EVALUATED).
+
 **Unverified sources — to check by the user (one list; status as of 2026-11-12):**
 
 | Item | What was assumed | What the user checks | Status |
@@ -557,6 +591,8 @@ washer pulled through the web; washer for RD12 = a 40 × 40 × 4 square plate (s
 | AISI S100-16 J3 thin-sheet bearing (step 5c, open item 9.2) | J3.3.1 Pn = C mf d t Fu, φ 0.60; C: d/t < 10 → 3.0, 10–22 → 4 − 0.1 d/t, > 22 → 1.8; mf: washers under head and nut 1.00, without / one 0.75, inside sheet of double shear 1.33; J3.1 Pn = t e Fu, φ 0.70 (Fu/Fy ≥ 1.08) / 0.60; for sheet < 4.76 mm — TRANSCRIBED FROM MEMORY | the printed AISI S100-16 J3.1, J3.3.1, Tables J3.3.1-1 / -2 | VERIFIED False |
 | Flange-brace rules (step 5c) | the springs in series: braces, web local bending none when the brace lies in the web plane, cleat in-plane bending, purlin / girt axial E A / L to the nearest braced-bay frame line (the transfer into the bracing node not a spring); 1 bolt per end → H2 eccentric (gauge 28 mm at the contact face, Lc = L about rz, B1, F10); tension Ae = the connected leg's net area; end distance 25 mm; e in the purlin web = (50 − t) / sin 45°; the brace force into the cleat as an envelope over the combinations; wind columns |M| | Claude's rules — the user's call | VERIFIED False |
 | Bolt slip as an added imperfection (step 5c, user 2026-11-15 / -16) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment of the braced member / 500; brace points within 150 mm (setting) of an end / another point merge (the next segment used); L60×6 gauge 35 mm for the fix option — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
+| AISC F6 / G6 minor axis (step 5d) | φMny: Mp = min(Fy Zy, 1.6 Fy Sy), flange local buckling λ = bf / 2tf, λp 0.38 √(E/Fy), λr 1.0 √(E/Fy), F6-2 linear, F6-3 Fcr = 0.69 E / λ²; φVny = 0.9 × 0.6 Fy Σ bf tf (Cv2 = 1) — from memory | the printed AISC 360-16 F6 / G6 | VERIFIED False |
+| Step 5d rules (Claude / user) | the top flange alone (user); the rafter-end H1 add-on; the knee F_x share; the wind-column clip model, its minor-axis bending with the 100 mm offset; the slot rule; the bottom-flange span between the flange-brace points with the envelope axial | the user's call (TO CONFIRM batch) | VERIFIED False |
 | Brace groups (step 5c, user 2026-11-17) | flange-brace points closer than 500 mm on the same flange form one group (the ridge-purlin braces either side of the ridge); the rafter's ridge end is never a brace point in 5c; one App. 6 force per group shared by relative axial stiffness; Δo / Lbr from the real segments outside the group; a flange end within 150 mm merges | the user's call (engineering judgement) | VERIFIED False |
 | Knee as an inner-flange brace (step 5c-fix, user 2026-11-16) | the knee (column top / rafter start) braces the inner flange only when flange braces exist on the rafter's first purlin AND the column's first girt within 1500 mm of the corner (KNEE_TOL); otherwise the inner-flange LTB at the knee is NOT EVALUATED — engineering judgement | the user's call / a reference on knee bracing | VERIFIED False |
 | Sag rods / ridge ties (step 5c) | the down-slope component on a weak-axis continuous beam over the frames and the sag-rod rows, accumulated up the slope with no eave-strut credit; tie = slope total × cos θ; plate washer 40 × 40 × 4 (user default); pull-through φ 0.75 × 0.6 Fu × 4 side × t | Claude's method; the washer from the supplier | VERIFIED False |
@@ -1374,6 +1410,14 @@ After pulling new engine code, restart `python manafe3.py` (the engine does not 
 (`.venv\Scripts\python.exe -m pytest -q engine/tests/test_<x>.py`). Run the full suite file by file
 (`tools/run-tests-by-file.py`), then `npm test`, only ONCE, right before a commit. If a code change is coming while a
 suite is running, STOP the suite first instead of waiting for it.
+
+**Workflow rules (user 2026-11-17):**
+1. Step 5c is FROZEN: remaining doubts become open items, no more 5c rounds.
+2. Step 6 (the wind-column vertical slots) is merged into 5d with the top clip.
+3. Minor choices (defaults, tolerances, report format, setting values) Claude makes itself, flagged TO CONFIRM; the user
+   reviews them in ONE batch at the end of the step. Still ASK FIRST for: code-clause choices, changing an approved
+   decision, section size changes, anything that changes the model.
+4. After a memory stop, rerun only the test files not yet run.
 
 ## Architecture (decided)
 
