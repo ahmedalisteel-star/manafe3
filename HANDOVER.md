@@ -1800,6 +1800,14 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
       / cos 45° → P 21.963 kN; J3.3.1 φPn = 0.60 × C 3.0 (d/t 8) × mf 0.75 × 12 × 1.5 × Fu 420 = 10.206 kN → U 2.152;
       J3.1 tear-out 0.70 × 1.5 × 68.6 × 420 = 30.25 kN (not governing). Driver: the SLIP factor — with slip 0 all 82
       points pass (max 0.939); mf 1.00 (washers): 13.61 kN → U 1.614 with slip.
+   **User decisions 2026-11-18:** (1) 16.2 = PL10 cleat + Z250x65x20x1.8 on the strut-purlin lines (per-line gauge via
+   16.1); recheck after J3.3 is verified. (2) 16.5 = keep the slip amplification, Δo = Lbr / 500 with Lbr the SAME
+   unbraced length App. 6 uses for that brace (not the shorter adjacent segment); washers by default on secondary bolts
+   into cold-formed members (mf 1.00); STOP RULE: old → new U for all 82 points before the tests change. (3) the
+   DetailCraft 0.10 merge goes FIRST (branch `upstream-merge`, not into main until the user approves). (4) Phase 6
+   revisions: upstream's drawing changelog (`app/issuelog`) is adopted; our own revision work is dropped. (7) with
+   item 16: the design-run test takes roof_type = through_fastened as the main case; the no-roof_type strict run stays
+   as a separate negative control. Order after the merge: item 16 code, then item 17, then step 7.
 
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
@@ -1823,10 +1831,16 @@ public and all of it Apache-2.0.)
   and welding the generated cleats / cap plates into their frame and column assemblies
 - **Phase 6** drawings: anchor bolt plan, frame elevations, built-up member shop drawings, erection drawings; NC/DSTV,
   IFC4 with Psets, MTO Excel (rename the producer strings in exports here, with their tests)
+  - (user 2026-11-18) GA-00 3D view sheet (field fix 20);
+  - (user 2026-11-18) assembly drawings for the built-up columns and rafters (with step 7f);
+  - revisions: upstream's drawing changelog (`app/issuelog`, DetailCraft 0.10) — no Manafe3 revision code (user
+    2026-11-18).
 - **Phase 7** packaging: Windows installer, then optional online hosting
 - **Later (user, 2026-11-08 — roadmap only, do not build now):**
   - a **concrete / reference member type**: drawn and clash-checked, never counted in steel weight (MTO, BOM);
   - **crane support**: runway girders, brackets, crane loads in the analysis (the Phase 4 serviceability "crane hook").
+- **After Phase 6 (user 2026-11-18, roadmap only):** model export to glTF / GLB for VR / AR viewing, then a WebXR
+  "View in VR" button.
 
 ## Tests (after the Phase 3 answers, 2026-11-08)
 
