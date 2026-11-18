@@ -35,7 +35,9 @@ const r1 = (v) => Math.round(v * 10) / 10;
 const kgm = (v) => Math.round(v * 100) / 100;
 const num = (v) => String(Number(Number(v).toFixed(2))).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const P = (pts) => pts.map(([x, y, b]) => (b ? [r3(x), r3(y), r3(b)] : [r3(x), r3(y)]));
-const FAMILY_TYPE = { W: 'W shape', S: 'S shape', C: 'Channel', L: 'Angle', HSS: 'Hollow structural section', Pipe: 'Pipe', IPE: 'IPE beam', HEA: 'HEA beam', HEB: 'HEB beam', UPN: 'UPN channel' };
+const FAMILY_TYPE = { W: 'W shape', S: 'S shape', C: 'Channel', L: 'Angle', HSS: 'Hollow structural section', Pipe: 'Pipe', IPE: 'IPE beam', HEA: 'HEA beam', HEB: 'HEB beam', UPN: 'UPN channel',
+  UB: 'Universal beam', UC: 'Universal column', PFC: 'Parallel flange channel', EA: 'Equal angle', UEA: 'Unequal angle', SHS: 'Square hollow section', RHS: 'Rectangular hollow section',
+  CHS: 'Circular hollow section', CFSHS: 'Cold formed square hollow section', CFRHS: 'Cold formed rectangular hollow section', CFCHS: 'Cold formed circular hollow section' };
 
 function layers(prefix) {
   return [{ name: prefix, color: 7 }, { name: prefix + '-THIN', color: 8 }, { name: prefix + '-CENTER', color: 1 }, { name: prefix + '-HIDDEN', color: 4 }, { name: prefix + '-FILL', color: 254 }];
@@ -54,10 +56,24 @@ function drawer(prefix) {
   };
 }
 
-function item({ name, description, plan, params, attrs, category = 'details/generic' }) {
+/**
+ * BK.96: every item names its IFC class. A steel section is a member; a bolt or a screw is a mechanical fastener of that type, a nut, washer, pin
+ * or key a mechanical fastener with no predefined type (IFC4 has none for them); a bearing or a gear is a discrete accessory. A drawing that
+ * stands for no physical thing would be an IfcAnnotation.
+ */
+const PART_IFC = {
+  'hex-bolt': ['IfcMechanicalFastener', 'BOLT'], 'hex-screw': ['IfcMechanicalFastener', 'SCREW'], 'hex-nut': ['IfcMechanicalFastener', 'NOTDEFINED'],
+  washer: ['IfcMechanicalFastener', 'NOTDEFINED'], pin: ['IfcMechanicalFastener', 'NOTDEFINED'], key: ['IfcMechanicalFastener', 'NOTDEFINED'],
+  bearing: ['IfcDiscreteAccessory', 'NOTDEFINED'], gear: ['IfcDiscreteAccessory', 'NOTDEFINED'],
+};
+export const partIfc = (type) => { const [cls, predefined] = PART_IFC[type] || ['IfcDiscreteAccessory', 'NOTDEFINED']; return { class: cls, predefined }; };
+const CATEGORY_IFC = { 'structural/steel': 'IfcMember', 'mechanical/parts': 'IfcDiscreteAccessory', 'details/generic': 'IfcAnnotation' };
+
+function item({ name, description, plan, params, attrs, category = 'details/generic', ifc = null }) {
   return {
     format: 'cadcraft-library-item', format_version: 1, name, kind: 'detail', category, description,
-    maker: '', model: '', plan, body: null, params, source_attrs: attrs,
+    maker: '', model: '', ifc: ifc || { class: CATEGORY_IFC[category] || 'IfcBuildingElementProxy', predefined: 'NOTDEFINED' },
+    plan, body: null, params, source_attrs: attrs,
   };
 }
 
@@ -205,6 +221,7 @@ export function partItem(p) {
   const ref = p.type === 'gear' ? 'Modules from ISO 54:1996, tooth form from the ISO 53:1998 basic rack.' : 'Dimensions from ' + p.standardTitle.split(' ').slice(0, 2).join(' ') + '.';
   return item({
     category: 'mechanical/parts',
+    ifc: partIfc(p.type),
     name: fam.name + ' ' + p.designation,
     description: (fam.name + ', ' + partDims(p) + '. ' + VIEW_TEXT[how] + ' ' + ref + (p.massKg ? ' Weight from the nominal shape in steel (7850 kg/m³), threads not taken off.' : '')).slice(0, 500),
     plan: { layers: layers('PART'), entities: d.ents },

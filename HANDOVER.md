@@ -36,7 +36,20 @@ AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 st
 2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
 confirmed). NEXT: the user's answers on open item 16 and on the DetailCraft 0.10 merge (report given 2026-11-18); then
-7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+7a–7f.
+**DetailCraft 0.10 merge (2026-11-18, branch `upstream-merge`, NOT in main until the user approves):** tag
+`detailcraft-v0.10.0` merged; 506 help / language files taken from upstream and re-branded (`tools/manafe3-rebrand.mjs`,
+now also `app/addons/**/lang/*.json`; 51 per-language whats-new.md removed as upstream removed them); upstream's
+pre-rendered `devshell/index.html` + our app-bar mark; the 9 real conflicts resolved (README ours; nc1 / profiles / ifc:
+ours + upstream's unequal angles / UK aliases / RC voids; view3d: 0.10's shared geometries with our colour / built-up
+material keys and an SPL-aware cache key; drawings: 0.10 title block + our m3 settings and sheet papers; model: 0.10's
+`_s`; detailcraft.js: 0.10's split into *-ui.js modules — our edits moved into footing-stair-ui / export-ui (bar
+naming), clash-ui (grouped clashes), drawings-ui (drawing settings, exportSheets)); `Model.replace` re-done on 0.10's
+change-record history; the in-app Analysis tab skips PEB members and opens with "App aid, not the PEB design" (it did
+NOT skip them before — the cold-formed members were analysed there). Tests: app 16 of 16 (upstream 12 997 passed),
+engine by file (see the merge report); smoke (`tools/manafe3-smoke.mjs`, + Analysis label, shop drawings, IFC / NC,
+toolbox / docked layouts): no exceptions. The four Pro layouts are NOT in this repository (upstream ships docked and
+toolbox only; the Pro layout files come with CadCraft Studio) — not testable here. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,

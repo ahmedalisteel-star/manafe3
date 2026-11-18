@@ -12,6 +12,8 @@ import path from 'node:path';
 import { Roots, PathError, writeFileAtomic, listFiles } from './paths.mjs';
 import { CadSession, extOf } from './cad.mjs';
 import { load, appDir, vendorDir } from './apps.mjs';
+import { ToolError as ToolErr } from '../../mcp/core.mjs';
+import { superTools } from './super.mjs';   // 0.10 BK.59: SuperCad Studio's project tools
 
 // BimCraft's Draw edits (0.6 DF.25, session `bim-draw`): the same tool definitions as its live window (bimcraft/dev/agents.js),
 // each given a `doc` handle here. A build without them (an older package) simply lists none.
@@ -41,8 +43,9 @@ try { TAKEOFF_AGENTS = await load('takeoffcraft', 'agents.js'); } catch { TAKEOF
  */
 export const WINDOW_ONLY = {
   cadcraft: { same: {}, only: ['app_info', 'selection_get', 'selection_set', 'view_describe', 'view_screenshot', 'autocomplete_list', 'autocomplete_run', 'sketch_clean', 'details_find', 'details_list', 'details_add', 'details_place', 'sheets_plan', 'sheets_make', 'autodim_run', 'grid_list', 'grid_move', 'photo_to_drawing', 'redline_read', 'redline_list', 'redline_decide', 'redline_apply', 'redline_answers'], why: 'they work on what is on screen or need the window (diagram_from_text has its headless twin since 0.8 round 3, cad_PART_3)' },
+  supercadcraft: { same: { project_describe: 'super_project_describe', members_list: 'super_members_list', links_list: 'super_links_list', objects_list: 'super_objects_list', object_get: 'super_object_get', layers_list: 'super_layers_list', revisions_list: 'super_revisions_list', changes_list: 'super_changes_list' }, only: ['app_info', 'selection_get', 'selection_set', 'workspace_get', 'workspace_set', 'commands_find', 'command_run', 'apps_list', 'app_tool_query', 'app_tool_run'], why: 'they work on the window: its selection, its workspaces, its command catalog and the apps mounted in its panels (headless: super_open and the project tools read a .ccproject file)' },
   bimcraft: { same: { model_save: 'ifc_save' }, only: ['app_info', 'selection_get', 'selection_set', 'usd_export', 'render_still', 'render_queue', 'frame_break'], why: 'they work on what is on screen (USD is written from the 3D view\'s triangles; renders need the window\'s graphics card)' },
-  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'usd_export', 'legend_open', 'legend_count_start', 'legend_count_status', 'legend_count_result', 'legend_count_add', 'prices_list', 'prices_apply', 'supply_check', 'carbon_check'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
+  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'marks_select', 'usd_export', 'legend_open', 'legend_count_start', 'legend_count_status', 'legend_count_result', 'legend_count_add', 'prices_list', 'prices_apply', 'supply_check', 'carbon_check'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
   markupcraft: { same: { sheets_list: 'markups_list' }, only: ['app_info', 'markup_add', 'markup_status', 'markup_reply', 'markups_export', 'tasks_list', 'task_set', 'task_clear', 'tasks_check', 'revisions_changes', 'pins_list', 'decision_add', 'redline_answer', 'redline_export'], why: 'markups are changed and exported in the window (saving a PDF with markups headless is not built)' },
   modelcraft: { same: {}, only: '*', why: 'ModelCraft has no headless tools yet (render_still and render_queue need the window\'s graphics card)' },
   detailcraft: { same: {}, only: '*', why: 'DetailCraft has no headless tools yet' },
@@ -125,7 +128,7 @@ function keep(env, kind, session, real) {
 
 function get(env, id, kind) {
   const d = env.docs.get(id);
-  const OPENER = { cad: 'drawing_open', ifc: 'ifc_open', takeoff: 'takeoff_open', civil: 'site_open', part: 'part_open' }, WHAT = { cad: 'a drawing', ifc: 'an IFC model', takeoff: 'a takeoff', civil: 'a civil site', part: 'a part' };
+  const OPENER = { super: 'super_open', cad: 'drawing_open', ifc: 'ifc_open', takeoff: 'takeoff_open', civil: 'site_open', part: 'part_open' }, WHAT = { super: 'a Super project', cad: 'a drawing', ifc: 'an IFC model', takeoff: 'a takeoff', civil: 'a civil site', part: 'a part' };
   if (!d) throw new Error('No open file ' + id + '. Open one first (' + (OPENER[kind] || 'drawing_open') + ').');
   if (kind && d.kind !== kind) throw new Error(id + ' is ' + WHAT[d.kind] + ', not ' + WHAT[kind] + '.');
   return d;
@@ -247,12 +250,12 @@ export function headlessTools(env) {
     run: async (a) => { const { doc, ...o } = a; const r = await get(env, doc, 'cad').s.insert(o); if (!r.id) throw new Error(r.error || 'The block was not placed.'); return r; } });
 
   T({ name: 'diagram_from_text', group: 'edit', rollbackPreview: true, title: 'Draw a diagram from text',
-    description: 'Draw a diagram as ordinary, editable objects from text: a Mermaid flowchart or graph (TD, TB, BT, LR, RL; [text], (text), {text}, labels, chains, A & B), a PlantUML component or deployment subset (@startuml … @enduml), D2 basics (a -> b: label), or a from-to list (CSV with from, to, label columns). Blocks are closed polylines with centred text, connectors open polylines with arrow heads, on layer "Diagram"; layered layout, the diagram\'s top-left corner at (x, y). One undo step. The same engine as the live window\'s tool.',
-    inputSchema: obj({ doc: S.doc, text: { description: 'The diagram source in the chosen format.', type: 'string', minLength: 1, maxLength: 400000 }, format: { description: 'auto (detect it), mermaid, plantuml, d2 or csv (default auto).', type: 'string', enum: ['auto', 'mermaid', 'plantuml', 'd2', 'csv'], default: 'auto' }, x: { description: 'Where the diagram starts: x in drawing units (default 0).', type: 'number', default: 0 }, y: { description: 'Where the diagram starts: y in drawing units (default 0).', type: 'number', default: 0 }, textHeight: { description: 'Text height in drawing units (default: sized to the diagram).', type: 'number', exclusiveMinimum: 0 }, layer: { description: 'Layer for the new objects.', type: 'string', minLength: 1, maxLength: 255 } }, ['doc', 'text']),
+    description: 'Draw a diagram as ordinary, editable objects from text: a Mermaid flowchart or graph (TD, TB, BT, LR, RL; [text], (text), {text}, labels, chains, A & B), a PlantUML component or deployment subset (@startuml … @enduml), D2 basics (a -> b: label), a from-to list (CSV with from, to, label columns) or draw.io XML (<mxfile> / <mxGraphModel>: boxes, containers and connectors keep the positions in the file). Blocks are closed polylines with centred text, connectors open polylines with arrow heads, on layer "Diagram"; layered layout, the diagram\'s top-left corner at (x, y). One undo step. The same engine as the live window\'s tool.',
+    inputSchema: obj({ doc: S.doc, text: { description: 'The diagram source in the chosen format.', type: 'string', minLength: 1, maxLength: 400000 }, format: { description: 'auto (detect it), mermaid, plantuml, d2, csv or drawio (default auto).', type: 'string', enum: ['auto', 'mermaid', 'plantuml', 'd2', 'csv', 'drawio'], default: 'auto' }, x: { description: 'Where the diagram starts: x in drawing units (default 0).', type: 'number', default: 0 }, y: { description: 'Where the diagram starts: y in drawing units (default 0).', type: 'number', default: 0 }, textHeight: { description: 'Text height in drawing units (default: sized to the diagram).', type: 'number', exclusiveMinimum: 0 }, layer: { description: 'Layer for the new objects.', type: 'string', minLength: 1, maxLength: 255 } }, ['doc', 'text']),
     run: async (a) => {
       const { doc, text, ...o } = a;
       const r = await get(env, doc, 'cad').s.diagram(text, o);
-      if (!r.ok) throw new Error(({ empty: 'There is no text to draw.', big: 'That text is too long for a diagram.', too_many: 'Too many blocks or connectors (the limit is 400 and 1200).', nothing: 'No blocks were found: check the text is a Mermaid flowchart, PlantUML, D2 or a from-to list.' })[r.error] || r.error);
+      if (!r.ok) throw new Error(({ empty: 'There is no text to draw.', big: 'That text is too long for a diagram.', too_many: 'Too many blocks or connectors (the limit is 400 and 1200).', compressed: 'That draw.io file is compressed in a form this tool cannot open here: in draw.io use File > Export as > XML with Compressed unticked.', nothing: 'No blocks were found: check the text is a Mermaid flowchart, PlantUML, D2 or a from-to list.' })[r.error] || r.error);
       return { format: r.format, blocks: r.blocks, connectors: r.connectors, textHeight: r.th, skippedLines: r.skipped, ids: r.ids.slice(0, 2000) };
     } });
 
@@ -664,6 +667,8 @@ export function headlessTools(env) {
       const s = await MarkupSession.open(bytes, real);
       return { sheets: s.sheets(), ...s.markups(a) };
     } });
+
+  for (const t of superTools(env, { ToolError: ToolErr, readFile, keep, get, S, obj })) T(t);   // 0.10 BK.59
 
   return tools;
 }

@@ -419,6 +419,7 @@
     if (!doc.body) doc.documentElement.appendChild(doc.createElement('body'));
     var vp = doc.createElement('meta'); vp.name = 'viewport'; vp.content = 'width=device-width, initial-scale=1'; doc.head.appendChild(vp);
     doc.title = title;
+    try { window.ccTooltips && window.ccTooltips.attach(w); } catch (e) { /* the window keeps the browser's own tips */ }
     document.querySelectorAll('head link[rel~="stylesheet"][href], head style').forEach(function (node) {
       var c;
       if (node.tagName === 'LINK') { c = doc.createElement('link'); c.rel = 'stylesheet'; c.href = node.href; } else { c = doc.createElement('style'); c.textContent = node.textContent; }
@@ -487,4 +488,25 @@
   });
 
   window.ccShellDialogs = { popOut: popOut, popped: function () { return popped.map(function (p) { return p.d; }); }, places: load, nameOf: nameOf, barOf: barOf };
+})();
+
+/* 0.9 FX.86: the "Starting up…" indicator lives in assets/js/app-boot.js, a plain script placed right after the chip in app-bar.inc so it runs
+ * during parsing, not after it (a deferred script started about 2 s late). */
+
+/* 0.9 FX.87: the version / lab build is the title of the area badge (app-bar.inc); app-tooltips.js shows it as the one Bootstrap tooltip. */
+
+/* 2026-11-09 (owner): ONE function sets the tab title for every app. The page's own title (app-shell.inc) is "<App> | CadCraft" on /use and "<App> — Lab | CadCraft" on /lab;
+ * with a document open it becomes  [• ]<document name> — <App>[ — Lab] | CadCraft : the unsaved mark first, a long document name cut in its own text (never the app name or the
+ * suffix), and the "| CadCraft" suffix always last. ccSetDocTitle(name, dirty) with no name puts the plain page title back.
+ * THE PATTERN IS THIS ONE FUNCTION (TITLE_MAX is the cut length). */
+(function () {
+  var TITLE_MAX = 48, base = document.title, SUFFIX = ' | CadCraft';
+  var head = base.slice(-SUFFIX.length) === SUFFIX ? base.slice(0, -SUFFIX.length) : base;
+  window.ccSetDocTitle = function (name, dirty) {
+    var n = String(name == null ? '' : name).trim();
+    if (!n) { document.title = base; return base; }
+    if (n.length > TITLE_MAX) n = n.slice(0, TITLE_MAX - 1).trimEnd() + '…';
+    document.title = (dirty ? '• ' : '') + n + ' — ' + head + SUFFIX;
+    return document.title;
+  };
 })();

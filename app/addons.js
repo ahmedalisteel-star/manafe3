@@ -32,7 +32,8 @@
  *   entry        "./main.js" — inside the folder (no "..", no URL)
  *   permissions  ["commands", "objects", …] — shown in Settings (JS add-ons have the page's access; reviewed + signed)
  *   description, author, homepage, lang ("./lang/"), help ("./help/help.js") — optional
- *   kind         "lang" = a language add-on: no entry, no code; only langFor (docs/guides/addons/language-files.md)
+ *   kind         "lang" = a language add-on: no entry, no code; only langFor (docs/guides/addons/language-files.md); "addon" = an ordinary
+ *                code add-on (same as leaving kind out); anything else is refused
  *   langFor      [{addon: "<id>", lang: "./pid/"}] — language files laid over ANOTHER add-on's strings (adds a language, fixes
  *                words): only keys that add-on's en.json has, with the same {fills}. Any add-on may carry it; kind "lang" must.
  *                An add-on's strings = its own lang/, then the published pack layer (ccLangPacks), then these (loadStrings).
@@ -122,7 +123,8 @@ export function checkManifest(raw, { app, apiVersion }) {
   if (typeof raw.license !== 'string' || !SPDX_RE.test(raw.license)) return bad('manifest', 'license');
   m.license = raw.license;
   // A language add-on (kind "lang", docs/guides/addons/language-files.md) carries no code: no entry, only lang files for others (langFor).
-  if (raw.kind !== undefined && raw.kind !== 'lang') return bad('manifest', 'kind');
+  // kind "addon" is the ordinary code add-on (the same as no kind; the directory's upload check accepts it, so the loader must too).
+  if (raw.kind !== undefined && raw.kind !== 'lang' && raw.kind !== 'addon') return bad('manifest', 'kind');
   if (raw.kind === 'lang') {
     if (raw.entry !== undefined) return bad('manifest', 'entry');
     m.kind = 'lang';
@@ -570,7 +572,23 @@ export class AddonLoader {
       ]).finally(() => clearTimeout(timer));
       if (typeof r === 'function') e.cleanups.push(r);
       if (e.manifest.help) {
-        try { const h = await this.importer(this.urlOf(e, e.manifest.help)); if (h && h.default) api.help ? api.help(h.default) : base.help(h.default); } catch { /* help is optional */ }
+        const helpApi = (d) => (api.help ? api.help(d) : base.help(d));
+        // The add-on's help in the page's language: help/help.<locale>.js beside help.js (bin/build-help.php --addon writes them,
+        // topics without a translation stay English), the exact locale first, then its language; else the English help.js.
+        let done = false;
+        if (this.locale && this.locale !== 'en' && this.locale !== 'en-XA' && /help\.js$/.test(e.manifest.help)) {
+          for (const l of [...new Set([this.locale, this.locale.split('-')[0]])]) {
+            if (l === 'en') continue;
+            try {
+              const u = this.urlOf(e, e.manifest.help.replace(/help\.js$/, 'help.' + l + '.js'));
+              const h = u ? await this.importer(u) : null;
+              if (h && h.default) { helpApi(h.default); done = true; break; }
+            } catch { /* not translated: the next, then English */ }
+          }
+        }
+        if (!done) {
+          try { const h = await this.importer(this.urlOf(e, e.manifest.help)); if (h && h.default) helpApi(h.default); } catch { /* help is optional */ }
+        }
       }
       e.state = 'active';
       e.reason = e.unsigned ? 'unsigned-dev' : '';
@@ -694,8 +712,11 @@ const shellMain = () => document.querySelector('body.app-shell > main');
 export function findToolbar() {
   const m = shellMain();
   if (!m) return null;
-  const direct = [...m.children].find((c) => c.getAttribute('role') === 'toolbar');
-  return direct || m.querySelector('[data-toolbar][role="toolbar"]') || null;
+  // 2026-11-09: never the panel manager's pin-tab strips (.shell-pintabs, role=toolbar too, appended to <main> once a panel is pinned or hidden): an add-on's
+  // button was built from a pin tab's class (grey fill, white border, icon touching the label: PartCraft's Print stage)
+  const isBar = (c) => c.getAttribute('role') === 'toolbar' && !c.classList.contains('shell-pintabs') && !c.closest('.shell-pintabs');
+  const direct = [...m.children].find(isBar);
+  return direct || [...m.querySelectorAll('[data-toolbar][role="toolbar"], [role="toolbar"]')].find((c) => isBar(c) && c.querySelector('[role="group"] button')) || null;
 }
 
 /** The side panel on one side (by shape: an <aside> whose class ends in -left / -right), wherever it is now (panels window). */
@@ -728,12 +749,19 @@ const writeJson = (k, v) => { try { window.localStorage.setItem(k, JSON.stringif
 const strList = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string' && x.length <= 90).slice(0, 200) : []);
 export const sectionPrefs = {
   appKey: (app) => SECTION_STORE + ':' + String(app || 'app'),
-  collapsed(app, k) { const c = readJson(this.appKey(app)).closed; return !!(c && typeof c === 'object' && c[k]); },
+  // A section the person has not touched follows the host's default: open, or folded when the host sets window.ccAddonSectionsClosed (SuperCad Studio).
+  collapsed(app, k) {
+    const p = readJson(this.appKey(app)), c = p.closed, o = p.opened;
+    if (c && typeof c === 'object' && c[k]) return true;
+    if (o && typeof o === 'object' && o[k]) return false;
+    return window.ccAddonSectionsClosed === true;
+  },
   setCollapsed(app, k, on) {
     const p = readJson(this.appKey(app));
     const c = p.closed && typeof p.closed === 'object' && !Array.isArray(p.closed) ? p.closed : {};
-    if (on) c[k] = 1; else delete c[k];
-    p.closed = c;
+    const o = p.opened && typeof p.opened === 'object' && !Array.isArray(p.opened) ? p.opened : {};
+    if (on) { c[k] = 1; delete o[k]; } else { delete c[k]; o[k] = 1; }
+    p.closed = c; p.opened = o;
     writeJson(this.appKey(app), p);
   },
   /** A rank for a section key: this app's order first, else the global order by add-on id; unknown = after every known one. */
@@ -841,7 +869,9 @@ export function sharedApi(base, addon, registry) {
       if (!tb) return null;
       const g0 = tb.querySelector(':scope > [role="group"]');
       const row0 = g0 && g0.querySelector('[class$="-tool-row"]');
-      const btn0 = tb.querySelector('button:not([hidden])');
+      // the model for the add-on's buttons is a core TOOL button of the toolbar's first group row (same classes, same icon-above-label layout), never a pin tab
+      const cand = [...tb.querySelectorAll('button:not([hidden])')].filter((b) => !b.hasAttribute('data-addon-tool') && !b.classList.contains('shell-pintab') && /\S/.test(b.className));
+      const btn0 = cand.find((b) => /(^|\s)[a-z]+-tool(\s|$)/.test(b.className) && b.querySelector('i, svg') && b.querySelector('span')) || cand.find((b) => /(^|\s)[a-z]+-tool(\s|$)/.test(b.className)) || cand[0] || null;   // a core TOOL button: icon + label, the toolbar's own tool class
       const makeBtn = (t) => {
         if (!SAFE_ID.test(String(t.id))) throw new Error('toolbarGroup: tool id');
         const b = document.createElement('button');

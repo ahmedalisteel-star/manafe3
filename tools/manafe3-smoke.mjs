@@ -122,6 +122,31 @@ await step('Elevation view on an x grid', H + `
   document.querySelector('[data-view="elevation"]').click(); await sleep(500);
   const x = vals.find((v) => v.startsWith('x:')); if (x) { s.value = x; s.dispatchEvent(new Event('change', { bubbles: true })); await sleep(800); }
   return { options: vals.length, xOptions: vals.filter((v) => v.startsWith('x:')).length, chosen: s.value };`);
+// ---- added for the DetailCraft 0.10 merge (user 2026-11-18): the Analysis tab label, shop drawings, IFC and NC export, layouts
+await step('Analysis tab: aid label, PEB members left out', H + `
+  const tab = [...document.querySelectorAll('button, [role="tab"], a')].find((b) => /^\\s*Analysis\\s*$/.test(b.textContent || ''));
+  if (tab) { tab.click(); await sleep(1500); }
+  const lab = document.querySelector('[data-m3-aid]');
+  return { tab: !!tab, label: lab ? lab.textContent.slice(0, 120) : null };`);
+await step('Shop drawings: every part mark, then close', H + `
+  const files = []; const ck = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) files.push(this.download); };
+  document.querySelector('[data-act="shop"]').click(); await sleep(8000);
+  const d = document.querySelector('dialog[open]');
+  const marks = d ? d.querySelectorAll('option, li, tr').length : 0;
+  if (d) d.close();
+  HTMLAnchorElement.prototype.click = ck;
+  return { open: !!d, rows: marks };`);
+await step('IFC and NC export (downloads captured)', H + `
+  const files = []; const ck = HTMLAnchorElement.prototype.click; HTMLAnchorElement.prototype.click = function () { if (this.download) files.push(this.download); };
+  document.querySelector('[data-act="ifc"]').click(); await sleep(8000);
+  document.querySelector('[data-act="nc"]').click(); await sleep(8000);
+  HTMLAnchorElement.prototype.click = ck;
+  return { files };`);
+for (const ws of ['toolbox', 'docked']) {
+  await send('Page.navigate', { url: URL0 + (URL0.includes('?') ? '&' : '?') + 'workspace=' + ws });
+  await sleep(8000);
+  await step('Layout ' + ws + ': PEB menu items', H + `return { layout: document.documentElement.getAttribute('data-cc-ws-boot'), items: [...document.querySelectorAll('[data-m3-act]')].map((b) => b.dataset.m3Act) };`);
+}
 console.log('== ALL problems (' + problems.length + ')'); for (const p of problems) console.log('   ' + p);
 ws.close(); chrome.kill();
 process.exit(problems.some((p) => p.startsWith('EXCEPTION')) ? 1 : 0);

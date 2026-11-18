@@ -8,6 +8,8 @@
  *   fixes  BIM-F1–F5 on the showcase house (fixtures/showcase/bimcraft-house.ifc): the roof over the L only (8 parts, not
  *          12), "Updating the model…" gone after a reload, no Flip for fixed / picture windows, Paint and the plan-only
  *          layout, the Render dialog's sun boxes readable in the model theme (BIM-F6 is Node-tested: test-bimcraft --render)
+ *   d9     0.9 D9.1–D9.3: several columns picked with a wall (Keep only these, one Height for all), grid Dimensions,
+ *          Measure on the plan (snaps, Shift, chain total, Esc, M in the plan-only layout)
  *   df29   pipes and ducts (mep-ui.js): a pipe with its elbow, a branch making a tee, a valve, a duct sized from its airflow,
  *          Properties, the schedules, the takeoff, a riser shown on the level above, Delete and undo
  */
@@ -52,6 +54,7 @@ let ctx = null, page = null;
 async function fresh() {
   if (ctx) await ctx.close();
   ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
   await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -168,7 +171,7 @@ try {
     await page.mouse.move(box.x, box.y, { steps: 3 });
     await page.waitForFunction(() => !document.querySelector('[data-coords="3d"]').hidden, null, { timeout: 5000 });
     const r3 = await page.evaluate(() => [...document.querySelectorAll('[data-coords="3d"] [data-coords-lines] span')].map((s) => s.textContent));
-    ok(r3.length >= 2 && /^Level [12], /.test(r3[0]) && /^X -?\d+ {2}Y -?\d+ {2}Z -?\d+$/.test(r3[1]), 'the pointer over the model: its level and X Y Z in millimetres', r3.join(' | '));
+    ok(r3.length >= 2 && /^Level [12], /.test(r3[0]) && /^X -?\d+ mm {2}Y -?\d+ mm {2}Z -?\d+ mm$/.test(r3[1]), 'the pointer over the model: its level and X Y Z in millimetres', r3.join(' | '));
     await shot(page, 'df15-01-3d');
     // the plan: the level in its corner, the pointer's X and Y from the project origin
     await page.click('[data-model-toggle]');
@@ -176,11 +179,11 @@ try {
     await settled();
     const planLines = () => page.evaluate(() => [...document.querySelectorAll('[data-coords="plan"] [data-coords-lines] span')].map((s) => s.textContent));
     let pl = await planLines();
-    ok(pl[0] === 'Level 1 (floor at 0)', 'Draw on: the plan names its level in the corner', pl.join(' | '));
+    ok(pl[0] === 'Level 1 (floor at 0 mm)', 'Draw on: the plan names its level in the corner', pl.join(' | '));
     const [px, py] = await at(1000, 2000);
     await page.mouse.move(px, py, { steps: 2 });
     pl = await planLines();
-    ok(pl[1] === 'X 6000  Y 2000', 'the pointer at plan point (1000, 2000) of a site moved 5 m east: X 6000  Y 2000 from the project origin', pl.join(' | '));
+    ok(pl[1] === 'X 6000 mm  Y 2000 mm', 'the pointer at plan point (1000, 2000) of a site moved 5 m east: X 6000  Y 2000 from the project origin', pl.join(' | '));
     const pm = await page.evaluate(() => window.bimcraftPlan.view.markers.map((m) => m.kind + '@' + m.p.map(Math.round).join(',')));
     ok(pm.join(' ') === 'origin@-5000,0 survey@0,0', 'the plan draws the origin 5 m west of the survey point (the storey sits on the site)', pm.join(' '));
     await shot(page, 'df15-02-plan');
@@ -194,7 +197,7 @@ try {
     await page.mouse.move(box.x + 3, box.y + 2, { steps: 2 });
     await page.waitForFunction(() => !document.querySelector('[data-coords="3d"]').hidden, null, { timeout: 5000 });
     const r3m = await page.evaluate(() => [...document.querySelectorAll('[data-coords="3d"] [data-coords-lines] span')].map((s) => s.textContent));
-    ok(r3m.length === 3 && /^E 33\d \d{3}\.\d{3} {2}N 6 25\d \d{3}\.\d{3} m$/.test(r3m[2]), 'a map conversion: the readout adds eastings and northings on the map grid', r3m.join(' | '));
+    ok(r3m.length === 3 && /^E 33\d{7}(\.\d+)? {2}N 6\d{9}(\.\d+)? mm \(meters\)$/.test(r3m[2]), 'a map conversion: the readout adds eastings and northings on the map grid', r3m.join(' | '));
     ok(await page.evaluate(() => document.querySelectorAll('[data-coords-mark]').length === 1 && document.querySelector('[data-coords-mark]').dataset.coordsMark === 'both'), 'the site on the project origin: one marker for both');
     await shot(page, 'df15-03-map');
   }
@@ -332,6 +335,88 @@ try {
     await settled();
     ok(await page.evaluate(() => window.bimcraftGrids.state.cols.filter((c) => c.shape === 'round').length) === 1, 'Properties: the picked column made round');
     await shot(page, 'df16-02-columns');
+  }
+
+  if (want('d9')) {
+    // 0.9 D9.1–D9.3 (Discord ask 2026-11-03): several columns' height in one go, grid dimensions, Measure on the plan
+    console.log('== d9: columns together, grid dimensions, plan measure');
+    await fresh();
+    await newBuilding('D9 test');
+    await page.click('[data-res-tools] summary');
+    await page.click('[data-mtool="grid"]');
+    await page.click('[data-grid-place]');
+    await page.waitForSelector('[data-grid-dialog][open]');
+    await page.fill('[data-gp-nu]', '3'); await page.fill('[data-gp-su]', '6000');
+    await page.fill('[data-gp-nv]', '2'); await page.fill('[data-gp-sv]', '7000');
+    await page.fill('[data-gp-extend]', '1500');
+    await page.click('[data-gp-ok]');
+    await planClick(0, 0); await settled();
+    await page.evaluate(() => window.bimcraftPlan.view.fit()); await page.waitForTimeout(200);
+    // D9.2 grid dimensions
+    const gdims = () => page.evaluate(() => window.bimcraftPlan.view.scene.dims.filter((d) => d.grid).map((d) => d.text));
+    ok((await gdims()).length === 0, 'D9.2: no grid dimensions until asked');
+    await page.check('[data-grid-dims]'); await settled();
+    const gd = await gdims();
+    ok(gd.length === 4 && gd.filter((x) => /6.?000/.test(x)).length === 2 && gd.some((x) => /12.?000/.test(x)) && gd.some((x) => /7.?000/.test(x)), 'D9.2: Dimensions shows 6000, 6000, 12000 overall and 7000', gd.join(' | '));
+    await page.evaluate(() => document.activeElement?.blur());   // keys typed in a form field stay the field's
+    await page.keyboard.press('Control+z'); await settled();
+    ok((await gdims()).length === 0, 'D9.2: Ctrl+Z hides them again');
+    await page.keyboard.press('Control+y'); await settled();
+    ok((await gdims()).length === 4, 'D9.2: Ctrl+Y brings them back', String((await gdims()).length));
+    await shot(page, 'd9-01-grid-dims');
+    // columns at every crossing, a wall along A over two of them
+    await page.click('[data-res-tools] summary'); await page.click('[data-mtool="column"]');
+    await page.click('[data-col-grid]'); await settled();
+    await page.click('[data-mtool="wall"]');
+    await planClick(0, 0); await planClick(12000, 0); await page.keyboard.press('Escape'); await settled();
+    await page.click('[data-mtool="select"]');
+    // D9.1: a box/shift pick of columns + a wall → Keep only these → the columns' shared fields
+    const cols = await page.evaluate(() => window.bimcraftGrids.state.cols.map((c) => ({ key: window.bimcraftRes.api.kb() + c.id, y: Math.round(c.at[1]) })));
+    const wallKey = await page.evaluate(() => window.bimcraftRes.api.kb() + window.bimcraftPlan.state.data.walls[0].id);
+    await pick([...cols.map((c) => c.key), wallKey]); await settled();
+    ok(await page.isVisible('[data-pick-only="Column"]') && !(await page.isVisible('[data-mp-colheight]')), 'D9.1: columns and a wall picked: no shared fields, a "Keep only these" on Column');
+    await shot(page, 'd9-02-mixed-pick');
+    await page.click('[data-pick-only="Column"]'); await settled();
+    ok(await page.evaluate(() => window.bimcraftVis && document.querySelector('[data-pick-count]')?.dataset.pickCount) === String(cols.length) && await page.isVisible('[data-mp-colheight]'), 'D9.1: Keep only these: the six columns, with their Height');
+    await page.fill('[data-mp-colheight]', '4200'); await page.press('[data-mp-colheight]', 'Enter'); await settled();
+    const hs = await page.evaluate(() => window.bimcraftGrids.state.cols.map((c) => Math.round(c.h)));
+    ok(hs.length === cols.length && hs.every((h) => h === 4200), 'D9.1: Height 4200 typed once: every picked column is 4200 tall', hs.join());
+    // different heights show an empty Height, then one value for all
+    const two = await page.evaluate(() => window.bimcraftGrids.state.cols.slice(0, 2).map((c) => window.bimcraftRes.api.kb() + c.id));
+    await pick([two[0]]); await page.waitForSelector('[data-mp-colheight]');
+    await page.fill('[data-mp-colheight]', '3500'); await page.press('[data-mp-colheight]', 'Enter'); await settled();
+    await pick(two); await page.waitForSelector('[data-mp-colheight]');
+    ok(await page.inputValue('[data-mp-colheight]') === '', 'D9.1: columns of different heights: Height is empty, not the first one\'s');
+    ok(!/\bnull\b/.test(await page.textContent('.bc-props, [data-props], [data-pick-count]').catch(() => '')) && !(await page.evaluate(() => document.querySelector('[data-pick-count]')?.parentElement?.textContent || '')).includes('null'), 'D9.1: one kind picked: no stray text, no Keep only buttons');
+    await page.fill('[data-mp-colheight]', '3800'); await page.press('[data-mp-colheight]', 'Enter'); await settled();
+    const h2 = await page.evaluate(() => window.bimcraftGrids.state.cols.slice(0, 2).map((c) => Math.round(c.h)));
+    ok(h2.join() === '3800,3800', 'D9.1: then one height for both', h2.join());
+    await shot(page, 'd9-03-columns');
+    // D9.3 Measure on the plan
+    await page.keyboard.press('Escape');
+    await page.click('[data-mtool="pmeasure"]');
+    ok((await page.textContent('[data-model-hint]')).startsWith('Click the first point'), 'D9.3: Measure: its hint');
+    await planClick(60, 40);                       // snaps to crossing 1 / A
+    await planClick(6000 - 50, 7000 + 30);         // snaps to crossing 2 / B
+    const m = await page.evaluate(() => window.bimcraftPlanMeasure.state.pts.map((p) => p.map(Math.round).join(',')));
+    ok(m.join(' ') === '0,0 6000,7000', 'D9.3: the two points snap to the grid crossings', m.join(' '));
+    const st = await page.textContent('[data-status], .bc-status').catch(() => '');
+    ok(/9.?220/.test(st) && /6.?000/.test(st) && /7.?000/.test(st), 'D9.3: the distance (9220) with ΔX 6000 and ΔY 7000 in the status line', st);
+    await planClick(12000 + 40, 7000 - 40, { modifiers: ['Shift'] });
+    const m2 = await page.evaluate(() => window.bimcraftPlanMeasure.state.pts.map((p) => p.map(Math.round).join(',')));
+    ok(m2[2] === '12000,7000', 'D9.3: Shift keeps the next leg straight; the chain goes on', m2.join(' '));
+    ok(/Total/.test(await page.textContent('[data-status], .bc-status').catch(() => '')), 'D9.3: a chain shows the running total');
+    await shot(page, 'd9-04-measure');
+    const before = await page.evaluate(() => window.bimcraftPlan.state.data.walls.length + window.bimcraftGrids.state.cols.length);
+    await page.keyboard.press('Escape');
+    ok(await page.evaluate(() => window.bimcraftPlanMeasure.state.pts.length) === 0, 'D9.3: Esc clears the measure');
+    ok(await page.evaluate(() => window.bimcraftPlan.state.data.walls.length + window.bimcraftGrids.state.cols.length) === before, 'D9.3: nothing was added to the model');
+    // M in the plan-only layout opens the plan Measure
+    await page.click('[data-mtool="select"]');
+    await page.click('[data-model-layout="plan"]');
+    await page.mouse.move(10, 10); await page.keyboard.press('m');
+    ok(await page.evaluate(() => document.querySelector('[data-mtool="pmeasure"]').getAttribute('aria-pressed')) === 'true', 'D9.3: M with only the plan shown opens the plan Measure');
+    await page.click('[data-model-layout="split"]').catch(() => {});
   }
 
   if (want('df18')) {
@@ -832,11 +917,12 @@ try {
     await shot(page, 'df19-02-sheet');
     await page.click('[data-sh-save]');
     await settled();
-    const sh = await page.evaluate(() => window.bimcraftViews.state.sheets);
+    const shAll = await page.evaluate(() => window.bimcraftViews.state.sheets);
+    const sh = shAll.filter((x) => x.number === 'A-601');   // 0.10 BK.74: a new building comes with sheet A-101 (sheet-1), so this one is beside it
     const pw = 420 / 2;   // a3 for mm drawings: the plan started in the middle
-    ok(sh.length === 1 && sh[0].number === 'A-601' && sh[0].views.length === 1 && sh[0].views[0].ratio === 100 && sh[0].views[0].x < pw - 20, 'Save the sheet: one sheet in the model, its plan at 1:100 where it was dragged', JSON.stringify(sh));
-    ok(await page.isVisible('[data-pb-sheet="sheet-1"]'), 'listed under Sheets in the browser');
-    await page.click('[data-pb-sheet="sheet-1"]');
+    ok(sh.length === 1 && shAll.length === 2 && shAll.some((x) => x.number === 'A-101') && sh[0].views.length === 1 && sh[0].views[0].ratio === 100 && sh[0].views[0].x < pw - 20, 'Save the sheet: it is in the model beside the building\'s first sheet, its plan at 1:100 where it was dragged', JSON.stringify(shAll));
+    ok(await page.isVisible(`[data-pb-sheet="${sh[0].id}"]`), 'listed under Sheets in the browser');
+    await page.click(`[data-pb-sheet="${sh[0].id}"]`);
     await page.waitForSelector('[data-sh-dialog][open]');
     const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 15000 }), page.click('[data-sh-pdf]')]);
     const pdfPath = await dl.path();

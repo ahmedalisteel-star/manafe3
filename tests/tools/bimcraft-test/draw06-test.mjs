@@ -109,7 +109,13 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     ok(TR.trimPlan({ guid: 'W', a: [0, 0], b: [2000, 0] }, { a: [3000, 500], b: [3000, 2000], t: 160 }, [0, 0]).error === 'model.err.trim.miss', 'an edge the wall\'s line passes beside: refused (model.err.trim.miss)');
     ok(TR.trimPlan({ guid: 'W', a: [0, 0], b: [2000, 0] }, { a: [3000, 80], b: [3000, 2000], t: 160 }, [0, 0]).b?.[0] === 3000, 'meeting the edge within half its thickness of its end still counts');
     ok(TR.trimPlan({ guid: 'W', a: [0, 0], b: [2000, 0] }, { a: [0, 500], b: [2000, 500], t: 160 }, [0, 0]).error === 'model.err.trim.parallel', 'a parallel edge: refused');
-    ok(TR.trimPlan({ guid: 'W', a: [0, 0], b: [3020, 0] }, edge, [3010, 0]).error === 'model.err.trim.short', 'a part shorter than 50 mm: refused');
+    { // 0.10 BK.73: a part under 50 mm is made (it is advice now); only under 1 mm is refused (no wall)
+      const kept = TR.trimPlan({ guid: 'W', a: [0, 0], b: [3020, 0] }, edge, [3010, 0]);
+      ok(!kept.error && Math.abs(Math.hypot(kept.b[0] - kept.a[0], kept.b[1] - kept.a[1]) - 20) < 1e-6, 'a part 20 mm long: kept as asked (BK.73: advice, not a refusal)', JSON.stringify(kept));
+      ok(TR.trimPlan({ guid: 'W', a: [0, 0], b: [3000.7, 0] }, edge, [3000.4, 0]).error === 'model.err.trim.short', 'a part under 1 mm: refused (no wall)');
+      const ADV = await import(new URL('../../public_html/assets/apps/bimcraft/dev/draw-advice.js', import.meta.url).href);
+      ok(ADV.modelAdvice({ walls: [{ guid: 'W', len: 20 }, { guid: 'V', len: 3000 }] }).map((a) => a.code + ':' + a.about[0].id).join() === 'advice.wall.short:W', 'the 20 mm wall is advice in Problems (advice.wall.short)');
+    }
     ok(TR.trimPlan({ guid: 'E', a: [0, 0], b: [3020, 0] }, edge, [0, 0]).error === 'model.err.trim.same', 'a wall trimmed to itself: refused');
     const c = TR.cornerPlan({ guid: 'A', a: [0, 0], b: [4000, 0] }, [1000, 0], { guid: 'B', a: [5000, 1000], b: [5000, 4000] }, [5000, 3000]);
     ok(P2(c[0].b) === '5000,0' && P2(c[1].a) === '5000,0' && P2(c[0].a) === '0,0' && P2(c[1].b) === '5000,4000', 'corner: both walls run to where their centre lines meet');
@@ -234,6 +240,21 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     ok(gr[0].axes.some((x) => x.tag === '3a' && near(x.a[0], 18500, 1e-6)) && !gr[0].axes.some((x) => x.tag === '4'), 'renamed to 3a and moved 500');
     ed.modelChange(G.changeGrid({ bubbles: 'start' }));
     ok(G.readGrids(w())[0].bubbles === 'start', 'bubbles at the start only');
+    // 0.9 D9.2: grid dimensions — the Dims flag survives a rewrite and an undo; spacings + overall per family
+    ok(G.readGrids(w())[0].dims === false, 'D9.2: a grid starts without dimensions');
+    ed.modelChange(G.changeGrid({ dims: true }));
+    ok(G.readGrids(w())[0].dims === true && G.readGrids(w())[0].bubbles === 'start', 'D9.2: Dimensions on, the bubbles kept');
+    ed.modelChange(G.changeGridAxis('3a', { tag: '3b' }));
+    ok(G.readGrids(w())[0].dims === true, 'D9.2: Dimensions stay on when a line changes');
+    ed.modelChange(G.changeGridAxis('3b', { tag: '3a' }));
+    {
+      const gd = G.gridDims(G.gridLayout({ origin: [0, 0], angle: 0, u: { count: 4, spacing: [6000, 6000, 1500], first: '1' }, v: { count: 2, spacing: 7000, first: 'A' }, extend: 1500 }), (m) => String(Math.round(m)));
+      ok(gd.map((d) => d.text).sort().join() === ['1500', '6000', '6000', '13500', '7000'].sort().join(), 'D9.2: dimensions 6000, 6000, 1500 and 13500 overall across the numbered lines, 7000 between A and B', gd.map((d) => d.text).join());
+      const rot = G.gridDims(G.gridLayout({ origin: [100, 200], angle: 30, u: { count: 3, spacing: 5000, first: '1' }, v: { count: 1, spacing: 1, first: 'A' }, extend: 1000 }), (m) => String(Math.round(m)));
+      ok(rot.map((d) => d.text).join() === '5000,5000,10000', 'D9.2: a turned grid measures across its lines', rot.map((d) => d.text).join());
+    }
+    ed.modelChange(G.changeGrid({ dims: false }));
+    ok(G.readGrids(w())[0].dims === false, 'D9.2: Dimensions off');
     ed.modelChange(G.removeGridAxes(['3a']));
     gr = G.readGrids(w());
     ok(gr[0].axes.length === 5 && !danglingRefs(new TextDecoder().decode(ed.save())).length, 'a line deleted; no dangling references');
@@ -263,8 +284,18 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     ed.modelChange(C.changeColumn(cols[0].guid, { shape: 'round', width: 400 }));
     cols = C.readColumns(w());
     ok(cols.find((c) => c.guid === cols[0].guid)?.shape === 'round' && /IFCCIRCLEPROFILEDEF\('?\.?AREA\.?'?,\$,#\d+,200\.?\)/.test(new TextDecoder().decode(ed.save())), 'one made round, 400 across (IfcCircleProfileDef radius 200)');
-    key = ''; try { ed.modelChange(C.placeColumns({ storey: L1, points: [[0, 0]], width: 20 })); } catch (e) { key = e.key; }
-    ok(key === 'model.err.col.size' && C.readColumns(w()).length === 6, 'a 20 mm column: refused, nothing written');
+    key = ''; try { ed.modelChange(C.placeColumns({ storey: L1, points: [[0, 0]], width: 5 })); } catch (e) { key = e.key; }
+    ok(key === 'model.err.col.size' && C.readColumns(w()).length === 6, 'a 5 mm column: refused, nothing written (it cannot be built)');
+    { // 0.10 BK.73: unusual is not impossible: a 20 mm column is made, with advice (a warning) and no refusal
+      const ADV = await import(new URL('../../public_html/assets/apps/bimcraft/dev/draw-advice.js', import.meta.url).href);
+      ADV.clearAdvice(); key = '';
+      try { ed.modelChange(C.placeColumns({ storey: L1, points: [[9000, 9000]], width: 20, depth: 20 })); } catch (e) { key = e.key || String(e); }
+      const adv = ADV.advice();
+      ok(key === '' && C.readColumns(w()).length === 7 && adv.some((a) => a.code === 'advice.column.across' && a.vars.is === 20), 'a 20 mm column: made as asked, with advice advice.column.across (BK.73)', key + ' ' + JSON.stringify(adv.map((a) => a.code)));
+      ok(ADV.adviceProblems(adv).every((p) => p.severity === 'warning'), 'the advice is a warning in Problems, never an error');
+      ed.undo(); ADV.clearAdvice();
+      ok(C.readColumns(w()).length === 6, 'undo takes the thin column away again');
+    }
     ed.modelChange(C.removeColumns([cols[1].guid]));
     { const dg = danglingRefs(new TextDecoder().decode(ed.save())); if (dg.length) { const tx = new TextDecoder().decode(ed.save()); console.log('  dbg', dg.slice(0, 3).join(), tx.split('\n').filter((l) => dg.some((d) => l.includes(d + ',') || l.includes(d + ')'))).slice(0, 3).join(' || ').slice(0, 600)); } ok(C.readColumns(w()).length === 5 && !dg.length, 'one deleted; no dangling references', 'columns ' + C.readColumns(w()).length + ' dangling ' + dg.length); }
     saved.columns = ed.save();
@@ -417,6 +448,12 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     let key = ''; try { ed.modelChange(SI.addLevels({ elevations: [3000] })); } catch (e) { key = e.key; }
     ok(key === 'model.err.lv.none' && readLevels(w()).length === 4, 'a height that already has a level: refused, nothing added');
     ed.undo();
+    // a negative height goes below the lowest level (DC.119, the Add levels dialog)
+    ed.modelChange(SI.addLevels({ elevations: [-6000, -3000] }), { label: 'Levels', verb: 'Added' });
+    L = readLevels(w());
+    ok(L.map((l) => Math.round(l.elevation) + '/' + Math.round(l.height) + ' ' + l.name).join() === '-6000/3000 Level -2,-3000/3000 Level -1,0/3000 Level 1,3000/3000 Level 2', 'Add levels at -6000 and -3000: two below, each 3000 tall, named Level -1 and Level -2');
+    ed.undo();
+    ok(readLevels(w()).length === 2, 'undo takes both below-levels away');
     const B2 = await building({ n: 2, h: 3000 });
     const w2 = () => new ModelWriter(WebIFC, B2.ed.api, B2.ed.mid);
     B2.ed.modelChange(B2.OPS.drawWalls({ storey: B2.levels[0].guid, segs: [{ a: [0, 0], b: [5000, 0] }], typeKey: 'ext-2x6', topLevel: B2.levels[1].guid }));
@@ -424,8 +461,18 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     L = readLevels(w2());
     ok(L.length === 3 && L.map((l) => Math.round(l.elevation) + '/' + Math.round(l.height)).join() === '0/3500,3500/3500,7000/3500', 'split 10500 into three: 0, 3500, 7000, each 3500 tall (the third added)');
     ok(near(B2.OPS.snapshotModel(B2.ed).walls[0].height, 3500, 1e-6), 'the wall up to Level 2 follows (3500)');
-    key = ''; try { B2.ed.modelChange(SI.splitLevels({ total: 2000, count: 3 })); } catch (e) { key = e.key; }
-    ok(key === 'model.err.lv.split', 'levels under 1 m: refused');
+    key = ''; try { B2.ed.modelChange(SI.splitLevels({ total: 20, count: 3 })); } catch (e) { key = e.key; }
+    ok(key === 'model.err.lv.split', 'levels under 10 mm: refused (no level)');
+    { // 0.10 BK.73: levels under 1 m are made as asked; the advice is read back from the model, so it is there after a reopen too
+      const RA = await import(new URL('../../public_html/assets/apps/bimcraft/dev/draw-advice-model.js', import.meta.url).href);
+      ok(!RA.readAdvice(w2()).some((a) => a.kind === 'level'), 'three levels of 3500: no level advice');
+      key = ''; try { B2.ed.modelChange(SI.splitLevels({ total: 2000, count: 3 }), { label: 'Levels', verb: 'Split' }); } catch (e) { key = e.key || String(e); }
+      const lv2 = readLevels(w2()), adv = RA.readAdvice(w2()).filter((a) => a.code === 'advice.level.height');
+      ok(key === '' && lv2.slice(0, 2).every((l) => Math.abs(l.height - 2000 / 3) < 1), 'split 2000 into three: made (levels 667 mm tall), not refused', key);
+      ok(adv.length >= 2 && adv.every((a) => a.vars.is === 667 && a.about[0].id), 'and each short level is Drawing advice, read from the model (' + adv.length + ')');
+      B2.ed.undo();
+      ok(!RA.readAdvice(w2()).some((a) => a.kind === 'level'), 'undo: the advice is gone with the short levels');
+    }
     // a file whose building has no site: one is set up by itself, nothing moves
     const B3 = await building();
     const w3 = () => new ModelWriter(WebIFC, B3.ed.api, B3.ed.mid);
@@ -840,11 +887,11 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     const d = createDispatcher({ server: { name: 'bimcraft', title: 'BimCraft', version: 'test' }, allowed: () => allowed });
     for (const def of AG.modelTools({ ed: () => ed, apply: async (label, op) => ed.modelChange(op, { label: 'Assistant: ' + label }) })) d.tool(def);
     const call = async (name, a = {}) => { const r = await d.call(name, a); return { r, v: r.structuredContent, text: r.content?.[0]?.text || '' }; };
-    { const have = d.list().map((x) => x.name); ok(['model_describe', 'walls_list'].every((n) => have.includes(n)) && !have.includes('walls_add') && d.list().every((x) => x.annotations?.readOnlyHint !== false), 'read only: model_describe and walls_list are listed, no edit tool is (finding elements stays bim-agent.js\'s elements_find; 0.8: the read tools of bim_PART_2 and mep_PART_2 are there too)'); }
+    { const have = d.list().map((x) => x.name); ok(['model_describe', 'walls_list', 'wall_types_list'].every((n) => have.includes(n)) && !have.includes('walls_add') && !have.includes('walls_swap_type') && d.list().every((x) => x.annotations?.readOnlyHint !== false), 'read only: model_describe and walls_list are listed, no edit tool is (finding elements stays bim-agent.js\'s elements_find; 0.8: the read tools of bim_PART_2 and mep_PART_2 are there too)'); }
     let x = await call('walls_add', { points: [[0, 0], [6000, 0]] });
     ok(x.r.isError && /edit permission/.test(x.text) && ed.changes.length === 0, 'walls_add refused without edit; nothing changes');
     allowed = ['read', 'edit'];
-    ok(['walls_add', 'opening_add', 'floor_add', 'levels_add', 'grid_add', 'element_set', 'elements_delete', 'elements_move', 'wall_change', 'opening_change', 'phase_set', 'furniture_add', 'massing_add'].every((n) => d.list().some((x) => x.name === n)), 'with edit: the Draw, AS.5 and 0.8 edit tools are listed (' + d.list().length + ' tools in all)');
+    ok(['walls_add', 'opening_add', 'floor_add', 'levels_add', 'grid_add', 'element_set', 'elements_delete', 'elements_move', 'wall_change', 'walls_swap_type', 'opening_change', 'phase_set', 'furniture_add', 'massing_add'].every((n) => d.list().some((x) => x.name === n)), 'with edit: the Draw, AS.5 and 0.8 edit tools are listed (' + d.list().length + ' tools in all)');
     x = await call('model_describe');
     ok(x.v.units === 'mm' && x.v.levels.length === 2 && x.v.levels[0].name === 'Level 1' && x.v.walls.count === 0 && x.v.types.walls.includes('ext-2x6') && x.v.types.doors.includes('door-single'), 'model_describe: two levels, no walls, the types the edit tools take');
     x = await call('walls_add', { points: [[0, 0], [6000, 0], [6000, 4000], [0, 4000]], closed: true, type: 'ext-2x6' });
