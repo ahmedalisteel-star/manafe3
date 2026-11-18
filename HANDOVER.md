@@ -1809,6 +1809,19 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    item 16: the design-run test takes roof_type = through_fastened as the main case; the no-roof_type strict run stays
    as a separate negative control. Order after the merge: item 16 code, then item 17, then step 7.
 
+17. **Apex haunch — fix BEFORE step 7** (user 2026-11-18; plan only, the user's decisions first): the generator makes no
+   apex haunch — the rafter is [knee haunch taper] + equal constant segments, cut plumb at the apex
+   (`engine/peb/builtup_frame.py` builtup_frame_members). Plan: `BuiltUpSizes.apex_haunch_length` (0 = none) and
+   `hw_apex` (web depth at the ridge); the last rafter piece gets one more tapered web segment hw_rafter → hw_apex over
+   that length on both sides (the 12 m transport rule and the equal-webs-at-a-splice rule stay; it is a segment of the
+   last piece, no new splice); refused when it overlaps the knee haunch or hw_apex < hw_rafter. Reruns: the frame
+   analysis (taper discretisation already follows the segments), Phase 4 member checks (DG 25 on the new taper; the
+   across-ridge rule of item 11), sizing (optionally hw_apex as a variable), Phase 5 step 3 ridge end plates (depth at
+   the ridge = hw_apex + flanges → a longer lever), 5c ridge flange braces / brace groups (deeper rafter at the ridge
+   purlin), STAAD export, the Building… form (two fields, SIZE_FIELDS) and the fixtures. Estimate 7.5–10.5 h (generator
+   + API + validation 3 h; browser form + app test 1.5 h; verification and old → new review 3 h; sizing variable 2–3 h
+   if wanted). Decisions asked 2026-11-18: default on or off; default length and ridge depth; sizing variable or not.
+
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
    judgement (App. 6 commentary); the default bolt count at the first purlin is decided after the user verifies J3.3.
