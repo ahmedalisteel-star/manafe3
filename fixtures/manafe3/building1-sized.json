@@ -2,7 +2,8 @@
   "name": "Building 1 with the Phase 4 frame sizes applied",
   "source": "Manafe3 Phase 4 step 8 (HANDOVER 'Step 8 - what was built', 2026-11-09): engine/design/sizing.py size_frames on building 1, V 45 m/s, exposure C, AISC 360-16 LRFD, prismatic stability - 6 rounds, full ratio 0.893, serviceability 0.80, 1669 kg per frame (span-rule defaults 2551 kg, ratio 0.39). NOT FOR ISSUE.",
   "loads": {"V": 45, "exposure": "C"},
-  "building": {"span": 24000, "eave_height": 6000, "roof_slope": 0.1, "bay_spacing": 6000, "n_bays": 4},
+  "building": {"span": 24000, "eave_height": 6000, "roof_slope": 0.1, "bay_spacing": 6000, "n_bays": 4,
+               "roof_type": "through_fastened"},
   "sizes": {"hw_knee": 475, "hw_base": 300, "hw_rafter": 300, "haunch_length": 2400, "bf": 200, "tf": 10,
             "grade": "S355", "tw_column": 6, "tw_haunch": 6, "tw_rafter": 6}
 }

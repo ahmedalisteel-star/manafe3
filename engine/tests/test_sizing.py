@@ -99,8 +99,9 @@ def test_building_1_converges():
 
 @pytest.mark.slow
 def test_cold_formed_by_r_factor_with_strict_beside():
-    r = sz.size_cold_formed(BuildingInput(**B1), LoadsInput(V=45, exposure="C"))
-    assert r["uplift_method"] == "r_factor" and r["R_VERIFIED"] is False
+    # open item 15: the R-factor only on a through-fastened roof (roof_type not given → strict, tested in test_item15)
+    r = sz.size_cold_formed(BuildingInput(**B1, roof_type="through_fastened"), LoadsInput(V=45, exposure="C"))
+    assert r["uplift_method"] == "r_factor" and r["R_VERIFIED"] is False and r["roof_type"] == "through_fastened"
     assert "NOT FOR ISSUE" in r["banner"] and "R-FACTOR" in r["banner"]
     assert r["passed"]
     for role in ("purlin", "eave_strut", "girt"):

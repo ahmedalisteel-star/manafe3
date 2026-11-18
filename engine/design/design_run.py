@@ -297,7 +297,13 @@ def secondary_rows(sc: dict, strict: dict | None, out: dict) -> tuple[list[dict]
     for g in ("purlins", "eave_struts", "girts", "gable_girts"):
         for r in cf[g]:
             pieces = [m for m in out["members"] if m.get("line") == r["id"] or m["id"] == r["id"] or (g == "gable_girts" and m["id"].split("-")[0] == r["id"])]
-            flags = list(cf_flags) + (r_flags if r.get("uplift_method") == "r_factor" else [])
+            flags = list(cf_flags) + (r_flags if r.get("uplift_method") == "r_factor" else []) + list(r.get("flags") or [])
+            if r.get("uplift_method") == "r_factor":       # open item 15 (a): the anchorage forces are not built yet
+                flags.append("AISI S100-16 I6.4.1 anchorage forces NOT EVALUATED")
+            if (r.get("i623") or {}).get("applied"):
+                flags.append("AISI S100-16 I6.2.3 coefficients and x unconfirmed")
+            if r.get("pairing"):
+                flags.append("Case B purlin zoning (Fig. 28.3-1) unconfirmed")
             s = st.get(r["id"])
             for m in pieces:
                 rows.append(_row(m["id"], r["kind"].replace("_", " "), r["profile"], "AISI", r["ratio"], r["governing"], _gov_clause(r["checks"], r["governing"]),
@@ -310,7 +316,8 @@ def secondary_rows(sc: dict, strict: dict | None, out: dict) -> tuple[list[dict]
 
 # --------------------------------------------------------------------------------------------- check and size
 
-def check_building(b: BuildingInput, li, settings: DesignSettings, progress=lambda s: None, workers=None) -> dict:
+def check_building(b: BuildingInput, li, settings: DesignSettings, progress=lambda s: None, workers=None,
+                   line_profiles: dict | None = None) -> dict:
     from .cfs_checks import cfs_checks
     from .secondary_checks import secondary_checks
     from .sizing import evaluate, explicit
@@ -332,8 +339,9 @@ def check_building(b: BuildingInput, li, settings: DesignSettings, progress=lamb
         if code == settings.governing or len(settings.codes) == 1:
             service = [{"lines": l["lines"], **{k: l["service"][k] for k in ("checks", "max_ratio")}} for l in ev["lines"]]
     progress("Wind columns, end rafters, bracing, purlins, girts, eave struts…")
-    sc = secondary_checks(b, li, limits=limits, uplift_method=settings.uplift_method)
-    strict = cfs_checks(b, li, limits=limits, out=out, uplift_method="strict") if settings.uplift_method == "r_factor" else None
+    sc = secondary_checks(b, li, limits=limits, uplift_method=settings.uplift_method, line_profiles=line_profiles)
+    strict = (cfs_checks(b, li, limits=limits, out=out, uplift_method="strict", line_profiles=line_profiles)
+              if settings.uplift_method == "r_factor" else None)
     r, c = secondary_rows(sc, strict, out)
     rows += r
     calc.update(c)
@@ -384,8 +392,9 @@ def size_building(b: BuildingInput, li, settings: DesignSettings, progress=lambd
     b3 = dataclasses.replace(b2, wind_column=ew["wind_column"]["to"] if "wind_column" in ew else b2.wind_column,
                              end_rafter=ew["end_rafter"]["to"] if "end_rafter" in ew else b2.end_rafter)
     progress("Checking the proposed building fully…")
-    chk = check_building(b3, li, settings, progress, workers)
-    proposed = {"sizes": fr["sizes"], "sections": cf["sections"], "wind_column": b3.wind_column, "end_rafter": b3.end_rafter}
+    chk = check_building(b3, li, settings, progress, workers, line_profiles=cf.get("line_profiles"))
+    proposed = {"sizes": fr["sizes"], "sections": cf["sections"], "line_profiles": cf.get("line_profiles", {}),
+                "wind_column": b3.wind_column, "end_rafter": b3.end_rafter}
     return clean({**chk, "action": "size", "proposed": proposed, "weight_before": before, "weight_after": chk["summary"]["weight"],
                   "sizing": {"frames": {k: fr[k] for k in ("max_ratio", "service_ratio", "kg_per_frame", "converged", "passed", "rounds")},
                              "cold_formed": cf["roles"], "end_walls": ew, "cold_formed_banner": cf["banner"]}})

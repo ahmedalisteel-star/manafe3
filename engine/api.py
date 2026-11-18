@@ -195,6 +195,9 @@ class BuildingRequest(BaseModel):
     brace_axial: bool = Field(True, description="the bracing's axial forces in the frame lines and the struts (open item 7)")
     wind_column: SectionOverrideIn | None = Field(None, description="wind columns' built-up section (Design… sizes it); default the placeholder")
     end_rafter: SectionOverrideIn | None = Field(None, description="end rafters' built-up section; default the main rafter's")
+    roof_type: Literal["through_fastened", "standing_seam"] | None = Field(
+        None, description="roof panel (open item 15): required for the R-factor (I6.2.1) and I6.2.3; not given → strict, bare DSM")
+    fastener_x: float = Field(0.33, gt=0, le=1, description="AISI S100-16 I6.2.3 fastener position x (TO CONFIRM)")
 
 
 @app.post("/peb/building")
@@ -220,7 +223,7 @@ def _building_input(req: BuildingRequest) -> BuildingInput:
         bays=tuple(req.bays) if req.bays else None, span_ref=req.span_ref, grid_inset=req.grid_inset,
         wc_braces_first=req.wc_braces_first, wc_braces_last=req.wc_braces_last, ridge_flange_braces=req.ridge_flange_braces,
         wc_top_flange_braces=req.wc_top_flange_braces,
-        brace_axial=req.brace_axial,
+        brace_axial=req.brace_axial, roof_type=req.roof_type, fastener_x=req.fastener_x,
         wind_column=req.wind_column.model_dump() if req.wind_column else None, end_rafter=req.end_rafter.model_dump() if req.end_rafter else None)
 
 

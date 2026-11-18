@@ -239,11 +239,13 @@ def test_whole_building_step6():
     assert r["max_ratio"] == max(allr) and r["max_ratio"] > 1.0
     assert max(x["ratio"] for x in r["eave_struts"]) > 1.0 and max(x["ratio"] for x in r["purlins"]) > 1.0
     assert max(x["ratio"] for x in r["girts"]) < 1.0                    # girts never had sag rods: unchanged (0.94)
-    # open item 7 (accepted 2026-11-17): the strut axial (roof-X node purlins, eave struts) does not depend on the uplift
-    # method → above 1 by the R-factor too (open item 15); without it (brace_axial off, the old control) below 1 as before
-    rr = cfs_checks(BuildingInput(**B1), LI, uplift_method="r_factor")
-    assert rr["uplift_method"] == "r_factor" and rr["max_ratio"] > 1.0
-    r0 = cfs_checks(BuildingInput(**B1, brace_axial=False), LI, uplift_method="r_factor")
+    # open item 15 (user 2026-11-18): roof_type not given → strict even when the R-factor is asked for (above 1, as r);
+    # through-fastened → the R-factor and, on the strut lines, I6.2.3 with the same-direction pairing → below 1
+    rn = cfs_checks(BuildingInput(**B1), LI, uplift_method="r_factor")
+    assert rn["roof_type"] is None and all(x["uplift_method"] == "strict" for x in rn["purlins"]) and rn["max_ratio"] > 1.0
+    rr = cfs_checks(BuildingInput(**B1, roof_type="through_fastened"), LI, uplift_method="r_factor")
+    assert rr["uplift_method"] == "r_factor" and 0.5 < rr["max_ratio"] < 1.0
+    r0 = cfs_checks(BuildingInput(**B1, brace_axial=False, roof_type="through_fastened"), LI, uplift_method="r_factor")
     assert 0.5 < r0["max_ratio"] < 1.0
     p1 = next(x for x in r["purlins"] if x["id"] == "RA1")
     # a = 2400 (bimsteelauto end_zone_width); per span: the end spans reach into the gable strips
@@ -305,9 +307,19 @@ def test_r_factor_capacity_by_hand(b1_lines):
     ln = dict(next(x for x in lines if x["id"] == "RA1"))
     sd = section_data(ln["profile"], ln["grade"])
     ln["rfactor"] = r_factor(ln, sd, tied_ok=True)
-    strict = check_line(ln, sd, COMBOS_ROOF, 150)
+    ln["roof_type"] = "through_fastened"                               # open item 15: the R-factor only on this roof
+    strict = check_line(ln, sd, COMBOS_ROOF, 150, "strict")
     rfac = check_line(ln, sd, COMBOS_ROOF, 150, "r_factor")
     assert strict["uplift_method"] == "strict" and rfac["uplift_method"] == "r_factor"
+    # negative controls (user 2026-11-18): roof_type not given / standing seam → the strict result exactly, flagged
+    for rt, flag in ((None, "not given"), ("standing_seam", "I6.2.2 not implemented")):
+        x = check_line({**ln, "roof_type": rt}, sd, COMBOS_ROOF, 150, "r_factor")
+        assert x["uplift_method"] == "strict" and x["ratio"] == strict["ratio"] and any(flag in f for f in x["flags"])
+    # the I6.4.1 anchorage row: outside the line U, status PARTIAL, not passed (decision (a), approved 2026-11-18)
+    anc = [c for c in rfac["checks"] if "I6.4.1" in c["name"]]
+    assert len(anc) == 1 and anc[0]["ratio"] == math.inf and rfac["ratio"] < 1.0 and not rfac["passed"]
+    assert rfac["status"] == "PARTIAL - I6.4.1 anchorage NOT EVALUATED"
+    assert not [c for c in strict["checks"] if "I6.4.1" in c["name"]]
     assert rfac["ratio"] < strict["ratio"]
     # Mnlo longhand: Mne = My, local curve
     My, Mcrl = sd["My"], sd["Mcrl"]

@@ -361,56 +361,91 @@ def cf_candidates(profile: str) -> list[str]:
     return [n for n, _ in sorted(out, key=lambda v: v[1])]
 
 
-def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", target: float = TARGET, limits=None) -> dict:
-    """Purlin, eave strut and girt profiles (building-wide, one each): the lightest ladder profile ≤ the target."""
-    from .cfs_checks import R_VERIFIED, building_lines, check_line, r_factor, section_data, tied_rows
-    from ..peb.secondary import Sections
+def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", target: float = TARGET, limits=None,
+                     supplier: dict | None = None) -> dict:
+    """Purlin, eave strut and girt profiles: one BASE profile per role (the lightest ladder profile ≤ the target on the
+    role's lines without a wind strut force) and, on the STRUT lines (eave struts with a strut force, purlins at the
+    roof-X nodes), a heavier GAUGE of the same depth, flange and lip where they need it (open item 15, decision 4 —
+    per-line gauge; the rest of the roof keeps the base). The lines and forces are cfs_checks' own (prepare_lines)."""
+    from .cfs_checks import R_VERIFIED, check_one, is_strut_line, prepare_lines, section_data
     limits = limits or ServiceLimits()
+    b0 = b
     b, _ = resolve(b)
     out = peb_building(b)
-    lines = building_lines(out, li)
-    tied, untied = tied_rows(out)
+    lines, meta = prepare_lines(b0, li, out)
     roles = {"purlin": ("purlin", "ridge_purlin"), "eave_strut": ("eave_strut",), "girt": ("girt", "gable_girt")}
-    chosen, report = {}, {}
+    chosen, report, line_profiles = {}, {}, {}
+    sd_cache = {}
+
+    def sd_of(prof, grade):
+        key = (prof, grade)
+        if key not in sd_cache:
+            sd_cache[key] = section_data(prof, grade, supplier)
+        return sd_cache[key]
+
+    def worst_of(prof, subset, method):
+        w, gov, used = 0.0, None, set()
+        for l in subset:
+            try:
+                sd = sd_of(prof, l["grade"])
+            except ValueError:
+                return math.inf, "invalid profile", used
+            r = check_one(dict(l, profile=prof), sd, limits, method)
+            used.add(r["uplift_method"])
+            if r["ratio"] > w:
+                w, gov = r["ratio"], f"{l['id']}: {r['governing']} ({r['combo']})"
+        return float(w), gov, used
+
+    def rnd(v):
+        return round(v, 4) if math.isfinite(v) else math.inf
+
     for role, kinds in roles.items():
         mine = [l for l in lines if l["kind"] in kinds]
         if not mine:
             continue
+        struts = [l for l in mine if is_strut_line(l)]
+        base_lines = [l for l in mine if not is_strut_line(l)] or mine      # all strut lines: the base sees them all
         cur = getattr(b.sections, role)
-        pick = None
-        tried = []
-        def worst_of(prof, method):
-            w, gov, used = 0.0, None, set()
-            for l in mine:
-                l2 = dict(l, profile=prof)
-                try:
-                    sd = section_data(prof, l["grade"])
-                except ValueError:
-                    return math.inf, "invalid profile", used
-                l2["rfactor"] = r_factor(l2, sd, tied_ok=bool(tied) and not untied)
-                r = check_line(l2, sd, l2["combos"], limits.purlin, method)
-                used.add(r["uplift_method"])
-                if r["ratio"] > w:
-                    w, gov = r["ratio"], f"{l['id']}: {r['governing']} ({r['combo']})"
-            return float(w), gov, used
-
+        pick, gov, used, tried = None, None, set(), []
         for prof in cf_candidates(cur):
-            worst, gov, used = worst_of(prof, uplift_method)
-            tried.append((prof, round(worst, 4) if math.isfinite(worst) else math.inf))
+            worst, gov, used = worst_of(prof, base_lines, uplift_method)
+            tried.append((prof, rnd(worst)))
             if worst <= target:
                 pick = prof
                 break
         chosen[role] = pick
-        strict = worst_of(pick, "strict") if pick else (math.inf, None, set())
+        strict = worst_of(pick, base_lines, "strict") if pick else (math.inf, None, set())
+        per_line = {}
+        if pick and base_lines is not mine:
+            g0 = parse_name(pick)
+            gauges = sorted({p for p in cf_candidates(pick) if (lambda g: g["H"] == g0["H"] and g["B"] == g0["B"] and g["D"] == g0["D"]
+                                                                and g["t"] >= g0["t"])(parse_name(p))}, key=lambda p: parse_name(p)["t"])
+            for l in struts:
+                lt, lp, lg = [], None, None
+                for prof in gauges:
+                    w, g, u = worst_of(prof, [l], uplift_method)
+                    lt.append((prof, rnd(w)))
+                    if w <= target:
+                        lp, lg = prof, g
+                        break
+                ls = worst_of(lp, [l], "strict") if lp else (math.inf, None, set())
+                per_line[l["id"]] = {"profile": lp, "ratio": lt[-1][1] if lp else None, "governing": lg, "tried": lt,
+                                     "strict_ratio": rnd(ls[0]), "changed": bool(lp and lp != pick),
+                                     "note": None if lp else f"no gauge of {g0['kind']}{g0['H']:g}x{g0['B']:g}x{g0['D']:g} meets the target"}
+                if lp and lp != pick:
+                    line_profiles[l["id"]] = lp
         report[role] = {"from": cur, "to": pick, "ratio": tried[-1][1] if pick else None, "governing": gov if pick else None,
-                        "uplift_method_used": sorted(used) if pick else None,
-                        "strict_ratio": round(strict[0], 4) if math.isfinite(strict[0]) else math.inf, "strict_governing": strict[1],
-                        "tried": tried, "note": None if pick else "no ladder profile meets the target"}
+                        "uplift_method_used": sorted(used) if pick else None, "base_lines": [l["id"] for l in base_lines],
+                        "strict_ratio": rnd(strict[0]), "strict_governing": strict[1], "tried": tried, "strut_lines": per_line,
+                        "passed": bool(pick) and all(v["profile"] for v in per_line.values()),
+                        "note": None if pick else "no ladder profile meets the target"}
     note = ("loads per line from the generated building at the CURRENT profiles (self weight of a heavier profile is "
-            "small; the next run re-checks)")
+            "small; the next run re-checks); strut lines may take a heavier gauge of the base profile (line_profiles) — "
+            "the generator carries one profile per role, so line_profiles reach the checks, not the model (yet)")
     sections = dataclasses.replace(b.sections, **{k: v for k, v in chosen.items() if v})
-    r_used = uplift_method == "r_factor"
+    r_used = uplift_method == "r_factor" and meta["roof_type"] == "through_fastened"
     banner = BANNER + (" — R-FACTOR RESULTS NOT FOR ISSUE: the R values (AISI S100-16 Table I6.2.1-1) are unconfirmed"
                        if r_used and not R_VERIFIED else "")
-    return {"banner": banner, "uplift_method": uplift_method, "R_VERIFIED": R_VERIFIED, "target": target, "roles": report,
-            "sections": dataclasses.asdict(sections), "passed": all(chosen.values()), "note": note, "designed": False}
+    return {"banner": banner, "uplift_method": uplift_method, "roof_type": meta["roof_type"], "fastener_x": meta["fastener_x"],
+            "R_VERIFIED": R_VERIFIED, "target": target, "roles": report, "sections": dataclasses.asdict(sections),
+            "line_profiles": line_profiles, "passed": all(v["passed"] for v in report.values()), "note": note, "designed": False}

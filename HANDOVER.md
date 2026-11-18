@@ -34,7 +34,9 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 5c-fix (open item 11) APPROVED 2026-11-17. Step 5d (eave transfer + wind-column tops, step 6 slots merged in) APPROVED
 AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). Step 7 plan ANSWERED (user
 2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
-"Open items" 7). NEXT: open item 15 — report and plan only, no code until the user answers; then 7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+"Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
+confirmed). NEXT: the user's answers on open item 16 and on the DetailCraft 0.10 merge (report given 2026-11-18); then
+7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -651,6 +653,10 @@ still create parts, marked NOT FOR ISSUE.
 | Bolt slip as an added imperfection (step 5c, user 2026-11-15 / -16) | the one-time slip (hole clearance, 2 mm for M12 in 14 mm) amplifies the App. 6 required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment of the braced member / 500; brace points within 150 mm (setting) of an end / another point merge (the next segment used); L60×6 gauge 35 mm for the fix option — engineering judgement from the AISC 360-16 App. 6 commentary (not a code equation); applied to every check of the brace force and to the cleat force (Claude's extension beyond H2) | the App. 6 commentary text; the user's call on the extent | VERIFIED False |
 | AISC F6 / G6 minor axis (step 5d) | φMny: Mp = min(Fy Zy, 1.6 Fy Sy), flange local buckling λ = bf / 2tf, λp 0.38 √(E/Fy), λr 1.0 √(E/Fy), F6-2 linear, F6-3 Fcr = 0.69 E / λ²; φVny = 0.9 × 0.6 Fy Σ bf tf (Cv2 = 1) — from memory | the printed AISC 360-16 F6 / G6 | VERIFIED False |
 | Open item 7 rules (Claude / user, 2026-11-17) | the roof-X chord force V × s / b (constant shear, the panel's larger end, loads at the ridge); the column ΔP at the diagonal's top clamped to the top node; every node purlin (ridge and eave node included, 150 mm tolerance) takes V; the eave strut in a braced bay = the wall-panel shear; between two braced bays max(drag, App. 6 panel bracing 0.005 × ΣPr of the columns strictly between, same combination) (user 1c); BR combinations on LRFD only, no notional twin | the user's call | VERIFIED False |
+| AISI S100-16 I6.2.3 (open item 15, user 2026-11-18) | weak-axis Pn = C1 C2 C3 A E / 29 500 (in, kips), C1 = 0.79 x + 0.54, C2 = 1.17 t + 0.93, C3 = 2.5 b − 1.63 d + 22.8; φc 0.85; x: Z = fastener distance from the outside web edge / flange width, C = (flange width − that distance) / flange width; limits t ≤ 0.125 in, 6 ≤ d ≤ 12 in, lips, 70 ≤ d/t ≤ 170, 2.8 ≤ d/b < 5, 16 ≤ flat w/t < 50, span ≤ 33 ft, Fy ≥ 33 ksi; to confirm on site: fasteners ≤ 12 in, rotational stiffness ≥ 0.0015 k/in/in, both flanges held at the supports — FROM MEMORY; x is a project input (default 0.33, TO CONFIRM) | the printed AISI S100-16 I6.2.3 (all four coefficients, x for Z vs C, φ, the limits) | VERIFIED False |
+| Distortional at the analytical Lcrd (open item 15, user 2026-11-18) | when the finite strip shows no second minimum in COMPRESSION, Pcrd = the signature curve read at Lcrd = [6 π⁴ ho (1 − ν²)/t³ (Ixf (xof − hxf)² − Ixyf²/Iyf (xof − hxf)²)]^(1/4), flange + simple-lip closed forms (CUFSM / AISI commentary practice); negative control: Z200x65x20x2.0 at Lcrd 616.6 mm = 137.56 kN vs the FSM minimum 136.32 kN (+0.9 %, limit 5 %) | the AISI S100-16 App. 2 / commentary equations (the printed page) | VERIFIED False |
+| I6.2.1 continuous-span lap minimum (open item 15) | lap each side of every interior support ≥ 1.5 d (`R_LIMITS["lap_min_d"]`; Z200 → 300 mm, Z250 → 375 mm; building 1 has 600 mm) — FROM MEMORY, no verified clause / sub-item number | the printed AISI S100-16 I6.2.1 conditions | VERIFIED False |
+| Case B purlin zoning (open item 15, decision 2) | strut purlins / eave struts under Case B MWFRS uplift: zone 2E within 2a of either end wall, zone 2 elsewhere, both slopes, +GCpi (conservative; bimsteelauto's frame loading uses 2 / 3 by side); the inward-wind combinations take gravity + the strut force only | the printed ASCE 7-16 Fig. 28.3-1 (Case B roof zones) | VERIFIED False |
 | Step 5d rules (Claude / user) | the top flange alone (user); the rafter-end H1 add-on; the knee F_x share; the wind-column clip model, its minor-axis bending with the 100 mm offset; the slot rule; the bottom-flange span between the flange-brace points with the envelope axial | the user's call (TO CONFIRM batch) | VERIFIED False |
 | Brace groups (step 5c, user 2026-11-17) | flange-brace points closer than 500 mm on the same flange form one group (the ridge-purlin braces either side of the ridge); the rafter's ridge end is never a brace point in 5c; one App. 6 force per group shared by relative axial stiffness; Δo / Lbr from the real segments outside the group; a flange end within 150 mm merges | the user's call (engineering judgement) | VERIFIED False |
 | Knee as an inner-flange brace (step 5c-fix, user 2026-11-16) | the knee (column top / rafter start) braces the inner flange only when flange braces exist on the rafter's first purlin AND the column's first girt within 1500 mm of the corner (KNEE_TOL); otherwise the inner-flange LTB at the knee is NOT EVALUATED — engineering judgement | the user's call / a reference on knee bracing | VERIFIED False |
@@ -1673,6 +1679,10 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
      (both already failing before: open item 15). Old values asserted with `brace_axial` off.
    - Tests: `test_brace_axial.py` (hand values, statics of the frame line, item 6 pairing, the 1c rule; negative controls:
      setting off, line 3, no Case B split).
+   - **Gap found 2026-11-18 (open item 15):** the "6a — the sizing loop sees it" decision held for the MAIN FRAMES only.
+     `size_cold_formed` called `building_lines` + `check_line` directly, so the purlin and eave-strut sizing saw NEITHER
+     the item 7 strut forces nor the eave-strut force (they were attached only inside `cfs_checks`). Fixed under item 15
+     (`prepare_lines`: one set of lines and forces for the checks and the sizing).
 8. **Pedestal / footing input** (user 2026-11-15) — fix BEFORE step 7, the user's decisions first: with no pedestal input
    EVERY base of a building (building 1: all 16 — 10 frame bases and 6 wind-column bases) reads "PLATE DESIGNED - ANCHORS
    NOT EVALUATED": only the rod steel is checked, the ACI 318-19 Ch. 17 concrete modes (breakout, pullout, side-face
@@ -1748,6 +1758,49 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    check governs each and how φPn is computed; propose AISI S100-16 I6.2.3 (the C1 C2 C3 method) for the axial strength
    of a Z with one flange through-fastened to the sheeting, VERIFIED False until the user checks the page. Plan and
    numbers only, no code until the user answers.
+   - Report: `docs/reports/item15.md` (committed 2026-11-18). Decisions (user 2026-11-18): (a) R-factor only with
+     `roof_type = through_fastened` and the limits passing (standing seam → strict, "I6.2.2 not implemented"), strict
+     beside, I6.4.1 anchorage NOT EVALUATED on every R-factor line; (b) I6.2.3 weak axis with the DSM strong axis,
+     x input (default 0.33, TO CONFIRM); 1 same-direction pairing (C&C alone; Case B uplift + Case B share; minimum +
+     dead load only); 2 Case B zoning 2E / 2 (TO CONFIRM); 3 no Pcrd minimum → read at Lcrd (negative control 5 %);
+     4 sizing on the same lines and forces, strut lines may take a heavier gauge of the same depth (per-line gauge).
+   - Old → new (user 2026-11-18): purlins ACCEPTED (Z250x65x20x1.5 everywhere; strut purlins 0.880 / 0.701 / 0.892);
+     eave struts NOT yet (base C200x65x20x1.5 + C200x65x20x1.8 on the braced-bay lines) — pending the Phase 5 rerun.
+   - Phase 5 at the design-side sizes (scratch rerun, 2026-11-18; the connection engine reads the GENERATOR's one profile
+     per role, not `line_profiles`): eave-strut joints all pass at 1.5 mm (cleat web bearing 0.145 → 0.192, sag-rod /
+     ridge-tie washer pull-through 0.110 → 0.146); purlin / girt webs at 1.5 mm: 5a cleats failing 22 → 28 (bearing /
+     tear-out now governs, max 1.401 → 1.692), 5c flange-brace web bearing (J3.3 unverified) failing 34 → 46 (max 1.626 →
+     2.152); 5d eave transfer FAILS 4 → 2 (1.066 → 1.058; side B 1.007 → 1.000). Gaps: the cleats take the eave-strut drag
+     only (0 here) and no strut axial on the strut purlins — a what-if with 15.027 kN injected: eave-strut cleats ≤ 0.874,
+     strut-purlin cleats CL7/9/27/29/62/64/82/84 0.964 → 1.251 (cleat compression + bending); a cleat carrying two gauges
+     (CL4 / CL57) uses the first piece's t. Per-line gauge stays design-side (user); write-back = step 9 Apply (role-wide).
+   - Done (not committed): fixture `roof_type: through_fastened`; Building… form "Roof panel" field (blank = strict,
+     flagged; app test); tests `test_item15.py` (hand values) + test_cfs updates. Waiting for the user's OK before the
+     full suite and the commit.
+16. **Connections and sizes — fix BEFORE step 7** (user 2026-11-18; report and plan only until the user answers):
+   1. One source of sizes: the connection engine (5a cleats, 5c, 5d) reads `out["members"][…]["profile"]` (the
+      generator's one profile per role), not `line_profiles`. Plan: the generator takes the per-line gauges
+      (`Sections.lines {line or piece id: profile}`, same H / B / D only — refused otherwise; holes and cleats depend on
+      H only, so they stay), applied where the pieces are made (`secondary.py`); then the checks, the sizing, the
+      connections, MTO and NC all read the members — `cfs_checks(line_profiles=)` kept only as a what-if. Same change as
+      16.4.
+   2. Strut axial into the cleats (same-direction pairing): the braced-bay eave-strut cleats take P_split (Case B share
+      × wind factor; minimum with D only), the strut-purlin cleats at the braced-bay frame lines take V (15.027).
+      What-if (2026-11-18, Z250x1.5): CL7 / 9 / 27 / 29 / 62 / 64 / 82 / 84 — PL8: cleat compression + bending 1.251, web
+      bearing (2 × M12 in 1.5 mm) 1.143, weld 6 mm 1.077; PL10: 0.794 / 1.143 / 0.768 (weld 8 mm); PL12: 0.541 / 1.143.
+      The web governs once the cleat is PL10 → proposed fix: PL10 + 4 × M12 (web ≈ 0.57, linear in the bolt count —
+      estimate) or PL10 + the strut-purlin line at Z250x65x20x1.8 (web 1.143 × 1.5 / 1.8 = 0.953, C = 3.0 stays as d/t
+      < 10). A stiffened cleat is not modelled (needs a new check). Eave-strut cleats with 15.027: ≤ 0.874 (pass).
+   3. Bug: a cleat carrying two gauges (CL4 / CL57: bays 3 and 4) takes the FIRST piece's t (`cleats.py`, `dims =
+      cf_dims(pcs[0]["profile"])`); fix: the thinner piece's t (and its grade).
+   4. Apply (Phase 4 step 9) writes per-line gauges: `proposed.line_profiles` → the building spec (`specWithProposal`),
+      `buildingRequest` sends `sections.lines`, the engine generator (16.1); MTO / NC follow the model.
+   5. Realism of the 46 flange-brace web-bearing fails at 1.5 mm (max 2.152, F1-RA s 688.6, the first purlin RA1): App.
+      6 Prb = 0.02 Mr Cd / ho = 0.02 × 137.673 / 0.4348 = 6.333 kN; slip factor 1 + 2 / (688.6 / 500) = 2.452 → 15.53;
+      / cos 45° → P 21.963 kN; J3.3.1 φPn = 0.60 × C 3.0 (d/t 8) × mf 0.75 × 12 × 1.5 × Fu 420 = 10.206 kN → U 2.152;
+      J3.1 tear-out 0.70 × 1.5 × 68.6 × 420 = 30.25 kN (not governing). Driver: the SLIP factor — with slip 0 all 82
+      points pass (max 0.939); mf 1.00 (washers): 13.61 kN → U 1.614 with slip.
+
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
    judgement (App. 6 commentary); the default bolt count at the first purlin is decided after the user verifies J3.3.

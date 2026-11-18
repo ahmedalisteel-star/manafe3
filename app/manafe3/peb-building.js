@@ -32,8 +32,20 @@ export const BUILDING_DEFAULTS = {
   purlin: 'Z200x65x20x2.0', eave_strut: 'C200x65x20x2.0', girt: 'Z200x65x20x2.0', openings: '',
   grids_mode: 'merge', footings: 'none',
   wc_braces_first: 2, wc_braces_last: 2,   // wind-column flange braces at every n-th gable girt, per end wall; 0 = none (2026-11-09)
+  roof_type: '',                           // open item 15 (2026-11-18): through_fastened / standing_seam / blank (= not given)
 };
 export const SPAN_REFS = ['outside', 'centreline', 'grid'];
+/** The roof panel (open item 15): through_fastened → R-factor (I6.2.1) and I6.2.3; standing_seam → strict (I6.2.2 not
+ * implemented); blank → not given: strict and the bare-section axial strength, flagged on every cold-formed line. */
+export const ROOF_TYPES = ['', 'through_fastened', 'standing_seam'];
+export const ROOF_TYPE_BLANK_FLAG = 'Roof panel not given: purlins / girts by the strict uplift rule, no R-factor or I6.2.3 (flagged on every line)';
+export function roofTypeOf(form) {
+  const v = String(form?.roof_type ?? '').trim();
+  if (v === '') return null;
+  if (!ROOF_TYPES.includes(v)) throw new Error(`Roof panel: through_fastened, standing_seam or blank, not "${v}"`);
+  return v;
+}
+export const roofTypeFlag = (form) => (roofTypeOf(form) === null ? ROOF_TYPE_BLANK_FLAG : null);
 export const MAX_BUILDINGS = 50;
 
 const num = (form, k, label, { int = false, blank = false, dflt } = {}) => {
@@ -114,6 +126,8 @@ export function buildingRequest(form, state = null) {
     wc_braces_first: num(form, 'wc_braces_first', 'Wind-column braces (frame 1 wall)', { int: true, dflt: 2 }), wc_braces_last: num(form, 'wc_braces_last', 'Wind-column braces (last wall)', { int: true, dflt: 2 }),
   };
   if (bl) body.bays = bl.bays;
+  const rt = roofTypeOf(form);                // blank → absent: the engine's 'not given' (strict, flagged)
+  if (rt) body.roof_type = rt;
   const sizes = sizesOf(form);
   if (sizes) body.sizes = sizes;
   for (const g of ['wind_column', 'end_rafter']) {   // Phase 4 step 9: the sections Design… sizes ({hw, tw, bf, tf}; absent = default)

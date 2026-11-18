@@ -57,6 +57,9 @@ class BuildingInput:
     brace_axial: bool = True                # open item 7: the bracing's axial forces in the frame lines and struts (user 2026-11-17)
     wind_column: dict | None = None         # Phase 4 step 9: the wind columns' section {hw, tw, bf, tf}; None = the placeholder
     end_rafter: dict | None = None          # the end rafters' section {hw, tw, bf, tf}; None = the main rafter's
+    roof_type: str | None = None            # open item 15 (user 2026-11-18), REQUIRED for the R-factor / I6.2.3:
+                                            # "through_fastened" or "standing_seam"; None = not given → strict, bare DSM
+    fastener_x: float = 0.33                # I6.2.3 fastener position x (project input, TO CONFIRM)
 
     def bay_list(self) -> tuple[float, ...]:
         return tuple(float(v) for v in self.bays) if self.bays else (float(self.bay_spacing),) * int(self.n_bays)

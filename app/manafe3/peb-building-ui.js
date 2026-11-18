@@ -8,7 +8,7 @@
  * member) or "New building". Updating regenerates only that building's generated members; your own members, footings
  * and the other buildings stay. The mapping is peb-building.js.
  */
-import { BUILDING_DEFAULTS, buildingRequest, requestBuilding, applyBuilding, removeBuilding, buildingsOf, membersOfBuilding, buildingOfMember, SIZE_FIELDS, SPAN_REFS } from './peb-building.js';
+import { BUILDING_DEFAULTS, buildingRequest, requestBuilding, applyBuilding, removeBuilding, buildingsOf, membersOfBuilding, buildingOfMember, SIZE_FIELDS, SPAN_REFS, ROOF_TYPES, roofTypeFlag } from './peb-building.js';
 import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
@@ -38,7 +38,8 @@ const GROUPS = [
     ['wc_braces_last', 'Wind-column flange braces, last wall', 'the same for the end wall at the last frame; 0 = none']]],
   ['Bracing, laps, bolts', [['braced_bays', 'Braced bays', 'e.g. 1, 4 — empty = the first and the last bay', null, 'text'], ['end_braced_bays', 'End-wall braced bays', 'bays of the end walls counted from line A, e.g. 1 — empty = 1 on an end-rafter wall, none on a main-frame wall', null, 'text'], ['brace_type', 'Bracing', '', ['rod', 'angle']], ['ridge_tie', 'Ridge tie', 'Ties the two ridge purlins across the apex at every sag-rod row', ['rod', 'strap']],
     ['lap', 'Lap each side (mm)', 'empty = 10 % of each bay', null, 'text'], ['bolt', 'Bolts', '', ['M12', 'M16']]]],
-  ['Sections', [['purlin', 'Purlin', 'e.g. Z200x65x20x2.0', 'cf', 'text'], ['eave_strut', 'Eave strut, jambs', 'e.g. C200x65x20x2.0', 'cf', 'text'], ['girt', 'Girt', '', 'cf', 'text']]],
+  ['Sections', [['purlin', 'Purlin', 'e.g. Z200x65x20x2.0', 'cf', 'text'], ['eave_strut', 'Eave strut, jambs', 'e.g. C200x65x20x2.0', 'cf', 'text'], ['girt', 'Girt', '', 'cf', 'text'],
+    ['roof_type', 'Roof panel', 'through_fastened: R-factor (AISI I6.2.1) and I6.2.3 for the struts; standing_seam: strict (I6.2.2 not implemented); blank: not given — strict, flagged', ROOF_TYPES]]],
   ['Openings', [['openings', 'One per line', 'wall at width sill height — e.g. A 7000 4000 0 4000 (wall A, B, first or last; sill 0 = door)', null, 'area']]],
 ];
 const NOTE = 'Geometry only, NOT designed (Phase 4). Splices, knee, ridge and brace connections are points only (Phase 5).';
@@ -58,7 +59,7 @@ function buildDialog() {
     ...fields.map(([k, label, hint, opts, kind]) => {
       const id = 'm3-b-' + k;
       let inp;
-      if (Array.isArray(opts)) { inp = h('select', { id, class: 'form-select form-select-sm' }, ...opts.map((o) => h('option', { value: o, text: o }))); }
+      if (Array.isArray(opts)) { inp = h('select', { id, class: 'form-select form-select-sm' }, ...opts.map((o) => h('option', { value: o, text: o === '' ? '(blank: not given — strict, flagged)' : o }))); }
       else if (kind === 'area') inp = h('textarea', { id, rows: '3', class: 'form-control form-control-sm', placeholder: 'A 7000 4000 0 4000' });
       else inp = h('input', { id, type: kind === 'text' ? 'text' : 'number', step: 'any', class: 'form-control form-control-sm', list: opts === 'cf' ? 'm3-cf-list' : null });
       inputs[k] = inp;
@@ -104,6 +105,7 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
     if (!kept) fill();
   }
   ui.inputs.which.addEventListener('change', () => load(which()));
+  ui.inputs.roof_type.addEventListener('change', () => { const f = roofTypeFlag({ roof_type: ui.inputs.roof_type.value }); ui.note.textContent = f || NOTE; });
   btn.addEventListener('click', () => {
     const st = model().state, list = buildingsOf(st);
     ui.inputs.which.replaceChildren(...list.map((b) => h('option', { value: b.id, text: `${b.name} (${b.id})` })), h('option', { value: NEW, text: 'New building' }));
@@ -138,7 +140,7 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
       if (!r) { ui.note.textContent = 'The model refused the building; see the status bar.'; return; }
       ui.dlg.close();
       fit?.();
-      print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}${r.footings ? `, ${r.footings.added} footings added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.`);
+      print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}${r.footings ? `, ${r.footings.added} footings added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.${roofTypeFlag(form) ? ' ' + roofTypeFlag(form) + '.' : ''}`);
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }
   });

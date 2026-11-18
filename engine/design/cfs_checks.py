@@ -47,7 +47,12 @@ Strength (AISI S100-16, DSM, Appendix 1 curves from the vendored direct_strength
         (K = 1 about every axis; sag rods not counted for compression — conservative), B1 = 1 / (1 − P / Pex), Cm = 1.
 Deflection: ASD, span / limit (ServiceLimits.purlin, default 150), gross Ix (the effective Ix at service stress is not
     computed: slightly unconservative for slender webs — stated); a cantilever against 2 × its length / limit.
-Uplift by the R-factor (user decision 2026-11-09; option uplift_method="r_factor", the default stays "strict"):
+Open item 15 (user 2026-11-18): uplift_method "r_factor" is the default but applies ONLY on roof_type
+    "through_fastened" where the limits pass (standing seam → strict, "I6.2.2 not implemented"; not given → strict); the
+    strict U beside it; every R-factor line carries the I6.4.1 anchorage row NOT EVALUATED (status PARTIAL; the line U
+    is the member's). Axial on a strut line: I6.2.3 (weak axis, x input) with the DSM strong axis on a through-fastened
+    roof where the I6.2.3 limits pass, else the bare-section DSM. Strut lines: the same-direction pairing (ASSUMPTIONS).
+Uplift by the R-factor (user decision 2026-11-09):
     AISI S100-16 I6.2.1, through-fastened panels: for purlins and girts under uplift / suction (combinations with Wout),
     the free flange in compression between supports: φMn = 0.90 R Se Fy, Se Fy taken as the DSM local strength with
     Mne = My (Mnlo) — Claude's reading, TO CONFIRM; the larger of this and the brace-point value WITHOUT the sag rods
@@ -108,6 +113,27 @@ R_UNKNOWN = (
     "insulation, if any: glass-fibre blanket ≤ 6 in (152 mm), compressed between member and panel",
 )
 UPLIFT_METHODS = ("strict", "r_factor")
+#: the roof panel (open item 15, user 2026-11-18): R-factor (I6.2.1) and I6.2.3 only on a through-fastened roof
+ROOF_TYPES = ("through_fastened", "standing_seam")
+X_DEFAULT = 0.33                 # I6.2.3 fastener position x (project input, TO CONFIRM)
+#: AISI S100-16 I6.2.3 conditions the model can check — FROM MEMORY, VERIFIED False (mm, MPa)
+I623_LIMITS = {"t_max": 3.175, "d": (152.4, 304.8), "d_t": (70.0, 170.0), "d_b": (2.8, 5.0), "flange_w_t": (16.0, 50.0),
+               "span_max": 10058.0, "Fy_min": 227.5}
+I623_VERIFIED = False
+I623_UNKNOWN = (
+    "panel fasteners ≤ 12 in (305 mm) on centre",
+    "rotational lateral stiffness of the panel / fastener system ≥ 0.0015 k/in/in (10.3 kN/m/m)",
+    "both flanges prevented from moving laterally at the supports",
+    "x (fastener position): Z — fastener distance from the outside web edge / flange width; C — (flange width − that "
+    "distance) / flange width (Claude's memory); the value used is the project input",
+    "eave strut: one flange through-fastened to the roof panel",
+)
+#: the same-direction pairing (open item 15, decision 1; item 6's rule): the §28.3.4 minimum with dead load only
+COMBOS_MIN = {"LRFD": {"0.9D + 1.0 BRmin (dead load only)": {"D": 0.9}, "1.2D + 1.0 BRmin (dead load only)": {"D": 1.2}}, "ASD": {}}
+CASEB_NOTE = ("Case B MWFRS roof uplift on a strut line (open item 15, decision 2 — TO CONFIRM against ASCE 7-16 Fig. "
+              "28.3-1): zone 2E within 2a of either end wall, zone 2 elsewhere, both slopes, +GCpi; the inward-wind "
+              "combinations take gravity + the strut force only (Case B has no inward roof pressure)")
+ANCHORAGE_ROW = "Anchorage forces (AISI S100-16 I6.4.1) — NOT EVALUATED"
 
 ASSUMPTIONS = (
     "sag-rod rows are brace points of the free flange in the gravity combinations only, where tied off at the ridge and "
@@ -119,8 +145,12 @@ ASSUMPTIONS = (
     "shear; the critical points are then the lap ends",
     "roof C&C zones (user 2026-11-09): theta <= 7 deg Fig. 30.3-2A, edge strips a along eaves and gable ends (no ridge "
     "strip), corners zone 3, zone 1 elsewhere (1' not used); steeper roofs not evaluated until Fig. 30.3-2B/C are typed in",
-    "eave strut: the bracing force at its bay in every combination with wind (the LRFD 1.0W value, 0.5 of it with "
-    "0.5W), together with the C&C bending — an envelope",
+    "strut lines (eave struts, purlins at the roof-X nodes): same-direction pairing (open item 15) — C&C alone with no "
+    "wind strut force; Case B MWFRS uplift with the Case B strut share at the combination's wind factor; the §28.3.4 "
+    "minimum force with dead load only (0.9D, 1.2D); the App. 6 panel-bracing force between braced bays stays with its "
+    "own combination",
+    "R-factor (I6.2.1) and I6.2.3 only on a through-fastened roof (roof_type); standing seam → strict (I6.2.2 not "
+    "implemented); roof_type not given → strict and the bare-section DSM axial strength",
 )
 
 
@@ -191,7 +221,8 @@ def section_data(profile: str, grade: str, supplier: dict | None = None) -> dict
             val[k], src[k] = float(sup[k]), "supplier"
         else:
             m = s[key][mode]
-            val[k], src[k] = (m["value"] if m else None), ("geometry (finite strip)" if m else "NOT IDENTIFIED")
+            val[k], src[k] = (m["value"] if m else None), (("geometry (finite strip" + (", at the analytical Lcrd — VERIFIED False"
+                                                                if "Lcrd" in m.get("source", "") else "") + ")") if m else "NOT IDENTIFIED")
     src["Fy"] = "supplier" if "Fy" in sup else st.get("source", grade)
     My, Py = val["Sx"] * Fy, val["A"] * Fy
     h_flat = s["H"] - 2 * (t + s["r_inside"])
@@ -233,7 +264,56 @@ def axial_capacity(sd: dict, L: float) -> dict:
     if sd["Pcrl"] is None or sd["Pcrd"] is None:
         return {"phiPn": 0.0, "Pcre": pcre, "note": "local or distortional buckling not identified — NOT EVALUATED"}
     Pnl, Pnd = Pnl_local(Pne, sd["Pcrl"]), Pnd_distortional(Py, sd["Pcrd"])
-    return {"phiPn": PHI_C * min(Pnl, Pnd), "Pcre": pcre, "Pne": Pne, "Pnl": Pnl, "Pnd": Pnd, "note": ""}
+    return {"phiPn": PHI_C * min(Pnl, Pnd), "Pcre": pcre, "Pne": Pne, "Pnl": Pnl, "Pnd": Pnd, "note": "", "method": "DSM, bare section (Pcre at the bay)"}
+
+
+def i623_limits(sd: dict, span: float) -> list[dict]:
+    """AISI S100-16 I6.2.3 conditions the model can check (FROM MEMORY, VERIFIED False)."""
+    from .cfs_section import parse_name
+    g = parse_name(sd["profile"])
+    d, b, t = g["H"], g["B"], g["t"]
+    w = b - 2 * (sd["r_inside"] + t)
+    L = I623_LIMITS
+    return [
+        {"name": "t ≤ 0.125 in (3.18 mm)", "value": t, "ok": t <= L["t_max"]},
+        {"name": "6 in ≤ d ≤ 12 in (152–305 mm)", "value": d, "ok": L["d"][0] <= d <= L["d"][1]},
+        {"name": "flanges edge-stiffened (lips)", "value": g["D"], "ok": g["D"] > 0},
+        {"name": "70 ≤ d / t ≤ 170", "value": round(d / t, 2), "ok": L["d_t"][0] <= d / t <= L["d_t"][1]},
+        {"name": "2.8 ≤ d / b < 5", "value": round(d / b, 3), "ok": L["d_b"][0] <= d / b < L["d_b"][1]},
+        {"name": "16 ≤ flange flat w / t < 50", "value": round(w / t, 2), "ok": L["flange_w_t"][0] <= w / t < L["flange_w_t"][1]},
+        {"name": "span ≤ 33 ft (10 058 mm)", "value": span, "ok": span <= L["span_max"]},
+        {"name": "Fy ≥ 33 ksi (228 MPa)", "value": sd["Fy"], "ok": sd["Fy"] >= L["Fy_min"]},
+    ]
+
+
+def strong_axis_capacity(sd: dict, L: float) -> dict:
+    """DSM about the geometric strong axis over L (flexural buckling, Pex = π² E Ix / L²), Pnl and Pnd. N."""
+    Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / L ** 2
+    Pne = Pne_global(sd["Py"], Pex)
+    if sd["Pcrl"] is None or sd["Pcrd"] is None:
+        return {"Pn": None, "Pex": Pex, "note": "local or distortional buckling not identified — NOT EVALUATED"}
+    Pnl, Pnd = Pnl_local(Pne, sd["Pcrl"]), Pnd_distortional(sd["Py"], sd["Pcrd"])
+    return {"Pn": min(Pnl, Pnd), "Pex": Pex, "Pne": Pne, "Pnl": Pnl, "Pnd": Pnd, "note": ""}
+
+
+def i623_capacity(sd: dict, L: float, x: float) -> dict:
+    """AISI S100-16 I6.2.3 (one flange through-fastened): Pn = C1 C2 C3 A E / 29 500 (in, kips) about the weak axis,
+    the smaller of it and the DSM strong-axis value, φc 0.85. C1 = 0.79 x + 0.54, C2 = 1.17 t + 0.93,
+    C3 = 2.5 b − 1.63 d + 22.8 (b flange width, d depth, t, in) — FROM MEMORY, VERIFIED False."""
+    from .cfs_section import parse_name
+    g = parse_name(sd["profile"])
+    d, b, t = g["H"] / 25.4, g["B"] / 25.4, g["t"] / 25.4
+    A = sd["A"] / 25.4 ** 2
+    C1, C2, C3 = 0.79 * x + 0.54, 1.17 * t + 0.93, 2.5 * b - 1.63 * d + 22.8
+    Pw = C1 * C2 * C3 * A * (29500.0 / 29500.0) * 4448.2216152605          # kips → N
+    s = strong_axis_capacity(sd, L)
+    if s["Pn"] is None:
+        return {"phiPn": 0.0, "Pn_weak_I623": Pw, "strong": s, "C1": C1, "C2": C2, "C3": C3, "x": x,
+                "note": "strong axis: " + s["note"], "method": "I6.2.3 weak axis; strong axis NOT EVALUATED"}
+    Pn = min(Pw, s["Pn"])
+    return {"phiPn": PHI_C * Pn, "Pn": Pn, "Pn_weak_I623": Pw, "Pn_strong_DSM": s["Pn"], "strong": s, "C1": C1, "C2": C2, "C3": C3,
+            "x": x, "governs": "weak axis (I6.2.3)" if Pw <= s["Pn"] else "strong axis (DSM)", "note": "",
+            "method": f"I6.2.3 (x {x:g}, TO CONFIRM; VERIFIED False) with the DSM strong axis"}
 
 
 def r_factor(line: dict, sd: dict, tied_ok: bool | None = None) -> dict:
@@ -286,8 +366,16 @@ def _row(name, ref, demand, capacity, unit, note=""):
             "ratio": round(r, 4) if math.isfinite(r) else math.inf, "unit": unit, "note": note}
 
 
-def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, uplift_method: str = "strict") -> dict:
-    """line: {id, kind, nodes, supports, braces, cases: {D, C, Lr, Win, Wout: [q per element, kN/m]}, P (eave strut, kN)}."""
+def _p_at(zones, x, key):
+    return next((z[2][key] for z in zones if z[0] - 1e-6 <= x <= z[1] + 1e-6), 0.0)
+
+
+def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, uplift_method: str = "r_factor") -> dict:
+    """line: {id, kind, nodes, supports, braces, cases: {D, C, Lr, Win, Wout[, WoutB]: [q per element, kN/m]}, and on a
+    strut line P_split {governing, caseB, minimum} (eave strut, kN) or P_zones [(x0, x1, split)] (purlin at the roof-X
+    nodes); P_panel_by_combo {combo: kN} (eave strut between braced bays); roof_type, fastener_x}.
+    Strut lines get three families (open item 15): C&C alone (no wind strut force), Case B uplift + the Case B share,
+    the minimum with dead load only."""
     nodes, sup, br = line["nodes"], line["supports"], sorted(line["braces"])
     # under uplift / suction the free flange is braced only where something restrains THAT flange (user 2026-11-09):
     # the supports, the line's ends and any anti-roll / flange brace on it — never the sag rods near the other flange
@@ -299,92 +387,131 @@ def check_line(line: dict, sd: dict, combos: dict, deflection_limit: float, upli
     Mnlo = Mnl_local(sd["My"], sd["Mcrl"]) if sd["Mcrl"] else None
     if uplift_method not in UPLIFT_METHODS:
         raise ValueError(f"uplift_method must be one of {UPLIFT_METHODS}")
+    roof_type = line.get("roof_type")
+    tf = roof_type == "through_fastened"
     rf = line.get("rfactor")
-    use_r = uplift_method == "r_factor" and rf is not None and rf["applicable_from_model"] and Mnlo is not None
-    worst = None
-    defl = None
-    has_P = bool(line.get("P") or line.get("P_by_combo"))
-    ax = axial_capacity(sd, max(b - a for a, b in zip(sup, sup[1:]))) if has_P else None
-    Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / max(b - a for a, b in zip(sup, sup[1:])) ** 2 if has_P else None
-    pz = line.get("P_zones") or []            # open item 7: a purlin strut at the roof-X nodes, only inside its braced bay
-    if pz and ax is None:
-        Lz = max(z[1] - z[0] for z in pz)
-        ax = axial_capacity(sd, Lz)
-        Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / Lz ** 2
-    for setname, cs in combos.items():
-        for cname, fac in cs.items():
-            q = [sum(f * line["cases"].get(c, [0.0] * (len(nodes) - 1))[i] for c, f in fac.items()) for i in range(len(nodes) - 1)]
-            if any(not math.isfinite(v) for v in q):
-                return {**_meta(line, sd), "uplift_method": uplift_method, "ratio": math.inf, "passed": False, "combo": cname, "governing": "wind not evaluated",
-                        "checks": [_row("C&C wind — NOT EVALUATED", "ASCE 7-16 Fig. 30.3-2A", 1.0, 0.0, "-", line.get("wind_note", ""))]}
-            st = beam_line(nodes, sup, q, EI)
-            if setname == "ASD":
-                for i in range(len(nodes) - 1):
-                    L = nodes[i + 1] - nodes[i]
-                    cant = (nodes[i] not in sup) or (nodes[i + 1] not in sup)
-                    lim = (2 * L if cant else L) / deflection_limit
-                    seg = st[i * NST:(i + 1) * NST]
-                    dmax = max(abs(s[3]) for s in seg)
-                    if defl is None or dmax / lim > defl["ratio"]:
-                        defl = {**_row(f"Deflection ({'2 × cantilever' if cant else 'span'} / {deflection_limit:g})", "Serviceability (user limit, ASD)", dmax, lim, "mm",
-                                       f"{cname}, span {L:.0f} mm, gross Ix"), "combo": cname}
-                continue
-            Pk_line = 0.0
-            wfac = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
-            if line.get("P"):
-                Pk_line = line["P"] * wfac
-            if line.get("P_by_combo"):            # open item 7, 1c: already factored, per combination
-                Pk_line = max(Pk_line, line["P_by_combo"].get(cname, 0.0))
-            xs_ = np.array([s[0] for s in st])
-            Ms_ = np.array([abs(s[1]) for s in st])
-            cbs = {}
-            uplift = "Wout" in fac
-            bp = br_up if uplift else br
-            for si, (x, M, V, _) in enumerate(st):
-                Pk = Pk_line if not pz else next((z[2] for z in pz if z[0] - 1e-6 <= x <= z[1] + 1e-6), 0.0) * wfac
-                ne = nsec[si // NST]
-                k = next((j for j in range(len(bp) - 1) if bp[j] - 1e-6 <= x <= bp[j + 1] + 1e-6), None)
-                Lb = bp[k + 1] - bp[k] if k is not None else None
-                if k is not None and k not in cbs:
-                    a_, b_ = bp[k], bp[k + 1]
-                    inside = (xs_ >= a_ - 1e-6) & (xs_ <= b_ + 1e-6)
-                    Mmax = float(Ms_[inside].max()) if inside.any() else 0.0
-                    MA, MB, MC = (float(np.interp(a_ + f * (b_ - a_), xs_, Ms_)) for f in (0.25, 0.5, 0.75))
-                    cant = a_ < sup[0] - 1e-6 or b_ > sup[-1] + 1e-6
-                    cbs[k] = 1.0 if cant or Mmax <= 0 else 12.5 * Mmax / (2.5 * Mmax + 3 * MA + 4 * MB + 3 * MC)
-                fc = flexure_capacity(sd, M, Lb, cbs.get(k, 1.0), ne)
-                rnote = ""
-                if use_r and M < 0 and uplift and sup[0] - 1e-6 <= x <= sup[-1] + 1e-6:
-                    phiR = ne * PHI_B * rf["R"] * Mnlo
-                    if phiR > fc["phiMn"]:                 # two valid methods (the brace-point one without sag rods): the larger
-                        fc = {**fc, "phiMn": phiR, "note": ""}
-                        rnote = f"R-factor I6.2.1: R {rf['R']:g} × Se Fy (= Mnlo), R VERIFIED False; above the brace-point value"
-                rows = []
-                B1 = 1.0
-                if Pk > 0 and ax:
-                    B1 = 1.0 / (1.0 - Pk * 1e3 / Pex) if Pk * 1e3 < Pex else math.inf
-                    r_int = (Pk * 1e3 / ax["phiPn"] if ax["phiPn"] > 0 else math.inf) + (B1 * abs(M) / fc["phiMn"] if fc["phiMn"] > 0 else math.inf)
-                    rows.append({**_row("Axial + bending (H1.2, B1 · M)", "AISI S100-16 H1.2, App. 1 (DSM)", r_int, 1.0, "-",
-                                        f"P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN (Pcre at the bay), B1 {B1:.3f}"
-                                        + (" — roof-X strut (open item 7)" if pz else ""))})
-                rows.append(_row("Flexure (DSM)", "AISI S100-16 App. 1 1.2.2 (F)", abs(M) / 1e6, fc["phiMn"] / 1e6, "kN·m",
-                                 ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}"
-                                  + (" (uplift: braced at supports / flange braces only)" if uplift else ""))
-                                 + (", lap: 2 sections" if ne == 2 else "") + (" — " + fc["note"] if fc["note"] else "")))
-                rows.append(_row("Shear", "AISI S100-16 G2 (vendored, φ 0.90)", abs(V) / 1e3, ne * phiV / 1e3, "kN"))
-                if Mnlo:
-                    ri = (abs(M) / (ne * PHI_B * Mnlo)) ** 2 + (abs(V) / (ne * phiV)) ** 2
-                    rows.append(_row("Bending + shear (H2)", "AISI S100-16 H2", ri, 1.0, "-"))
-                r = max(rw["ratio"] for rw in rows)
-                if worst is None or r > worst["ratio"]:
-                    worst = {"ratio": r, "combo": cname, "x": x, "M": M / 1e6, "V": V / 1e3, "P": Pk, "Lb": Lb, "checks": rows}
+    use_r = uplift_method == "r_factor" and tf and rf is not None and rf["applicable_from_model"] and Mnlo is not None
+    flags = []
+    if roof_type is None:
+        flags.append("roof_type not given (required): strict uplift rule and the bare-section DSM axial strength")
+    elif roof_type == "standing_seam":
+        flags.append("standing seam roof: strict uplift rule — AISI S100-16 I6.2.2 not implemented")
+    ps = line.get("P_split")
+    pz = line.get("P_zones") or []
+    ppanel = line.get("P_panel_by_combo") or {}
+    strut = bool(ps or pz)
+    spans = [b - a for a, b in zip(sup, sup[1:])]
+    Lax = (max(z[1] - z[0] for z in pz) if pz and not (ps or ppanel) else max(spans))
+    ax, i623 = None, None
+    if strut or ppanel:
+        lim = i623_limits(sd, max(spans))
+        ok = tf and all(c["ok"] for c in lim)
+        ax = i623_capacity(sd, Lax, float(line.get("fastener_x", X_DEFAULT))) if ok else axial_capacity(sd, Lax)
+        i623 = {"applied": ok, "conditions": lim, "to_confirm": list(I623_UNKNOWN), "VERIFIED": I623_VERIFIED,
+                "x": float(line.get("fastener_x", X_DEFAULT)),
+                "why_not": None if ok else ("roof is not through-fastened" if not tf else "a checkable I6.2.3 condition fails")}
+    Pex = math.pi ** 2 * 203395.3 * sd["Ix"] / Lax ** 2 if ax else None
+    n_el = len(nodes) - 1
+
+    families = [("C&C", combos, line["cases"], lambda x, cn, wf: ppanel.get(cn, 0.0))]
+    if strut:
+        cb = {"LRFD": {k: v for k, v in combos["LRFD"].items() if "Win" in v or "Wout" in v}, "ASD": {}}
+        cases_b = {**line["cases"], "Win": [0.0] * n_el, "Wout": line["cases"].get("WoutB", [0.0] * n_el)}
+        cases_m = {**line["cases"], "Win": [0.0] * n_el, "Wout": [0.0] * n_el}
+
+        def p_caseb(x, cn, wf):
+            s = _p_at(pz, x, "caseB") if pz else ps["caseB"]
+            return max(s * wf, ppanel.get(cn, 0.0))
+
+        def p_min(x, cn, wf):
+            return _p_at(pz, x, "minimum") if pz else ps["minimum"]
+        families += [("Case B + strut", cb, cases_b, p_caseb), ("minimum + D", COMBOS_MIN, cases_m, p_min)]
+
+    worst, defl, fam_worst = None, None, {}
+    for fam, combos_f, cases, pfun in families:
+        for setname, cs in combos_f.items():
+            for cname, fac in cs.items():
+                q = [sum(f * cases.get(c, [0.0] * n_el)[i] for c, f in fac.items()) for i in range(n_el)]
+                if any(not math.isfinite(v) for v in q):
+                    return {**_meta(line, sd), "uplift_method": uplift_method, "ratio": math.inf, "passed": False, "combo": cname,
+                            "governing": "wind not evaluated", "flags": flags,
+                            "checks": [_row("C&C wind — NOT EVALUATED", "ASCE 7-16 Fig. 30.3-2A", 1.0, 0.0, "-", line.get("wind_note", ""))]}
+                st = beam_line(nodes, sup, q, EI)
+                if setname == "ASD":
+                    for i in range(n_el):
+                        L = nodes[i + 1] - nodes[i]
+                        cant = (nodes[i] not in sup) or (nodes[i + 1] not in sup)
+                        lim_ = (2 * L if cant else L) / deflection_limit
+                        seg = st[i * NST:(i + 1) * NST]
+                        dmax = max(abs(s[3]) for s in seg)
+                        if defl is None or dmax / lim_ > defl["ratio"]:
+                            defl = {**_row(f"Deflection ({'2 × cantilever' if cant else 'span'} / {deflection_limit:g})", "Serviceability (user limit, ASD)", dmax, lim_, "mm",
+                                           f"{cname}, span {L:.0f} mm, gross Ix"), "combo": cname}
+                    continue
+                wfac = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+                xs_ = np.array([s[0] for s in st])
+                Ms_ = np.array([abs(s[1]) for s in st])
+                cbs = {}
+                uplift = "Wout" in fac
+                bp = br_up if uplift else br
+                for si, (x, M, V, _) in enumerate(st):
+                    Pk = pfun(x, cname, wfac) if ax else 0.0
+                    ne = nsec[si // NST]
+                    k = next((j for j in range(len(bp) - 1) if bp[j] - 1e-6 <= x <= bp[j + 1] + 1e-6), None)
+                    Lb = bp[k + 1] - bp[k] if k is not None else None
+                    if k is not None and k not in cbs:
+                        a_, b_ = bp[k], bp[k + 1]
+                        inside = (xs_ >= a_ - 1e-6) & (xs_ <= b_ + 1e-6)
+                        Mmax = float(Ms_[inside].max()) if inside.any() else 0.0
+                        MA, MB, MC = (float(np.interp(a_ + f * (b_ - a_), xs_, Ms_)) for f in (0.25, 0.5, 0.75))
+                        cant = a_ < sup[0] - 1e-6 or b_ > sup[-1] + 1e-6
+                        cbs[k] = 1.0 if cant or Mmax <= 0 else 12.5 * Mmax / (2.5 * Mmax + 3 * MA + 4 * MB + 3 * MC)
+                    fc = flexure_capacity(sd, M, Lb, cbs.get(k, 1.0), ne)
+                    rnote = ""
+                    if use_r and M < 0 and uplift and sup[0] - 1e-6 <= x <= sup[-1] + 1e-6:
+                        phiR = ne * PHI_B * rf["R"] * Mnlo
+                        if phiR > fc["phiMn"]:                 # two valid methods (the brace-point one without sag rods): the larger
+                            fc = {**fc, "phiMn": phiR, "note": ""}
+                            rnote = f"R-factor I6.2.1: R {rf['R']:g} × Se Fy (= Mnlo), R VERIFIED False; above the brace-point value"
+                    rows = []
+                    if Pk > 0 and ax:
+                        B1 = 1.0 / (1.0 - Pk * 1e3 / Pex) if Pk * 1e3 < Pex else math.inf
+                        r_int = (Pk * 1e3 / ax["phiPn"] if ax["phiPn"] > 0 else math.inf) + (B1 * abs(M) / fc["phiMn"] if fc["phiMn"] > 0 else math.inf)
+                        rows.append({**_row("Axial + bending (H1.2, B1 · M)", "AISI S100-16 H1.2" + (", I6.2.3" if i623 and i623["applied"] else ", App. 1 (DSM)"),
+                                            r_int, 1.0, "-",
+                                            f"{fam}: P {Pk:.2f} kN, φPn {ax['phiPn'] / 1e3:.2f} kN ({ax['method']}), B1 {B1:.3f}"
+                                            + (" — roof-X strut (open item 7)" if pz else "") + (" — " + ax["note"] if ax.get("note") else ""))})
+                    rows.append(_row("Flexure (DSM)", "AISI S100-16 App. 1 1.2.2 (F)", abs(M) / 1e6, fc["phiMn"] / 1e6, "kN·m",
+                                     ("sheeted flange in compression, Mne = My" if M >= 0 else rnote or f"free flange in compression, Lb {Lb:.0f} mm, Cb {fc['Cb']:.2f}"
+                                      + (" (uplift: braced at supports / flange braces only)" if uplift else ""))
+                                     + (", lap: 2 sections" if ne == 2 else "") + (" — " + fc["note"] if fc["note"] else "")))
+                    rows.append(_row("Shear", "AISI S100-16 G2 (vendored, φ 0.90)", abs(V) / 1e3, ne * phiV / 1e3, "kN"))
+                    if Mnlo:
+                        ri = (abs(M) / (ne * PHI_B * Mnlo)) ** 2 + (abs(V) / (ne * phiV)) ** 2
+                        rows.append(_row("Bending + shear (H2)", "AISI S100-16 H2", ri, 1.0, "-"))
+                    r = max(rw["ratio"] for rw in rows)
+                    if fam not in fam_worst or r > fam_worst[fam]:
+                        fam_worst[fam] = r
+                    if worst is None or r > worst["ratio"]:
+                        worst = {"ratio": r, "combo": cname, "family": fam, "x": x, "M": M / 1e6, "V": V / 1e3, "P": Pk, "Lb": Lb, "checks": rows}
     checks = list(worst["checks"]) + ([defl] if defl else [])
     gov = max(checks, key=lambda c: c["ratio"])
-    return {**_meta(line, sd), "uplift_method": "r_factor" if use_r else "strict", "ratio": gov["ratio"],
-            "passed": all(c["ratio"] <= 1.0 for c in checks), "governing": gov["name"],
-            "combo": worst["combo"] if gov is not defl else defl["combo"], "x": round(worst["x"], 1),
-            "forces": {"M": round(worst["M"], 3), "V": round(worst["V"], 3), "P": round(worst["P"], 3), "Lb": worst["Lb"]},
-            "checks": checks}
+    passed = all(c["ratio"] <= 1.0 for c in checks)
+    status = "DESIGNED" if passed else "FAILS"
+    if use_r:                                   # decision (a): the I6.4.1 anchorage forces are not built yet
+        checks.append(_row(ANCHORAGE_ROW, "AISI S100-16 I6.4.1", 1.0, 0.0, "-",
+                           "required with the R-factor method; not built — the line is not complete until it is"))
+        passed = False
+        status = "PARTIAL - I6.4.1 anchorage NOT EVALUATED" if status == "DESIGNED" else status
+    return {**_meta(line, sd), "uplift_method": "r_factor" if use_r else "strict", "ratio": gov["ratio"], "passed": passed, "status": status,
+            "governing": gov["name"], "combo": worst["combo"] if gov is not defl else defl["combo"], "family": worst["family"] if gov is not defl else "C&C",
+            "pairing": {k: round(v, 4) if math.isfinite(v) else math.inf for k, v in fam_worst.items()} if strut else None,
+            "x": round(worst["x"], 1), "forces": {"M": round(worst["M"], 3), "V": round(worst["V"], 3), "P": round(worst["P"], 3), "Lb": worst["Lb"]},
+            "axial": None if ax is None else {"phiPn_kN": round(ax["phiPn"] / 1e3, 3), "method": ax["method"], "L": Lax,
+                                              **({k: round(ax[k], 4) for k in ("C1", "C2", "C3") if k in ax}),
+                                              **({"Pn_weak_I623_kN": round(ax["Pn_weak_I623"] / 1e3, 3)} if "Pn_weak_I623" in ax else {}),
+                                              **({"Pn_strong_DSM_kN": round(ax["Pn_strong_DSM"] / 1e3, 3)} if ax.get("Pn_strong_DSM") else {})},
+            "i623": i623, "flags": flags, "checks": checks}
 
 
 def _span_zones(line):
@@ -569,6 +696,8 @@ def _roof_line(lid, role, profile, grade, nodes, sups, braces, trib, ys, c, thet
     lr = roof_live_load(trib * c * maxspan / 1e6, math.tan(math.radians(theta)), Lo=li.Lo)
     Lr = lr.Lr * trib / 1000 * c * c
     win, wout, zones, notes = [], [], [], set()
+    woutb, zones_b = [], []
+    pb = wind.pressures.get("W_B_pi_pos", {})            # Case B, +GCpi (the larger roof suction); kN/m², + toward the surface
     for i in range(len(nodes) - 1):
         s0, s1 = _span_of(nodes, sups, i)
         x0, x1 = min(nodes[i], s0), max(nodes[i + 1], s1)
@@ -579,12 +708,17 @@ def _roof_line(lid, role, profile, grade, nodes, sups, braces, trib, ys, c, thet
         win.append(pi_ * trib / 1000)
         wout.append(po * trib / 1000)
         zones.append(z)
+        # open item 15, decision 2 (TO CONFIRM against Fig. 28.3-1): 2E within 2a of either end wall, else 2, both slopes
+        zb = "2E" if (nodes[i] < 2 * a or nodes[i + 1] > Lb_ - 2 * a) else "2"
+        zones_b.append(zb)
+        woutb.append(min(pb.get(zb, math.nan), 0.0) * trib / 1000 if pb else math.nan)
     n = len(nodes) - 1
     return {"id": lid, "kind": role, "profile": profile, "grade": grade, "nodes": nodes, "supports": sups, "braces": sorted(set(braces)),
-            "trib": trib, "zones": zones, "wind_note": "; ".join(sorted(notes)),
-            "cases": {"D": [D] * n, "C": [C] * n, "Lr": [Lr] * n, "Win": win, "Wout": wout},
+            "trib": trib, "zones": zones, "zones_caseB": zones_b, "wind_note": "; ".join(sorted(notes)),
+            "cases": {"D": [D] * n, "C": [C] * n, "Lr": [Lr] * n, "Win": win, "Wout": wout, "WoutB": woutb},
             "loads": {"D": round(D, 4), "C": round(C, 4), "Lr": round(Lr, 4), "Lr_kPa": round(lr.Lr, 4),
-                      "W_in": [round(v, 4) for v in win], "W_out": [round(v, 4) for v in wout]}, "combos": COMBOS_ROOF}
+                      "W_in": [round(v, 4) for v in win], "W_out": [round(v, 4) for v in wout],
+                      "W_out_caseB": [round(v, 4) for v in woutb]}, "combos": COMBOS_ROOF}
 
 
 def _wall_line(lid, role, profile, grade, nodes, sups, braces, trib, corner, theta, wind):
@@ -636,64 +770,121 @@ def _column_Pr(b: BuildingInput, li, out: dict, lines: list, side: str) -> dict:
     return tot
 
 
+def _split(value, k, r):
+    """A governing (minimum-scaled) LRFD strut force → Case B share and §28.3.4 minimum (item 6). No split known:
+    the governing value in both families (conservative), flagged."""
+    if not value:
+        return None
+    if k and r:
+        vb = value / k
+        return {"governing": value, "caseB": vb, "minimum": vb * r, "split": True}
+    return {"governing": value, "caseB": value, "minimum": value, "split": False}
+
+
+def prepare_lines(b: BuildingInput, li, out: dict, *, line_profiles: dict | None = None) -> tuple[list[dict], dict]:
+    """Every cold-formed line with its loads AND forces (open item 15, decision 4: the checks and the sizing see the same
+    lines): the strut forces of the longitudinal bracing / open item 7 split by family, the panel-bracing force per
+    combination, roof_type and the I6.2.3 x. line_profiles {line id: profile} overrides a line's profile (per-line gauge)."""
+    roof_type = getattr(b, "roof_type", None)
+    if roof_type is not None and roof_type not in ROOF_TYPES:
+        raise ValueError(f"roof_type must be one of {ROOF_TYPES} (or not given), got {roof_type!r}")
+    x = float(getattr(b, "fastener_x", X_DEFAULT))
+    if not 0.0 < x <= 1.0:
+        raise ValueError(f"fastener_x must be in (0, 1], got {x}")
+    lines = building_lines(out, li)
+    tied, untied = tied_rows(out)
+    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+    struts, bl, k, r = {}, None, None, None
+    if braces and out.get("braced_bays"):
+        bsr = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
+        bs = bsr["sets"]["LRFD"]
+        struts = {j: abs(v) for j, v in bs["strut"]}
+        k, r = bsr.get("minimum_scale"), bsr.get("minimum_ratio")
+        if getattr(b, "brace_axial", True) and out["input"].get("brace_axial", True):
+            bl = brace_loads(out, bsr)                    # open item 7 (user 2026-11-17, decisions 1a, 3a, 4a)
+    for ln in lines:
+        if line_profiles and ln["id"] in line_profiles:
+            ln["profile"] = line_profiles[ln["id"]]
+            ln["profile_override"] = True
+        ln["roof_type"], ln["fastener_x"] = roof_type, x
+        if ln["kind"] == "eave_strut":
+            bay = int(ln["id"].rsplit("-", 1)[1])
+            drag = struts.get(bay, 0.0)
+            e = (bl or {}).get("struts", {}).get("eave", {}).get(bay)
+            P = drag
+            if e and e.get("between"):
+                pr = _column_Pr(b, li, out, e["panel_lines"], ln["id"][1])
+                ln["P_panel_by_combo"] = {cn: PANEL_BRACE * pr.get(cn, 0.0) for cn in COMBOS_ROOF["LRFD"]}
+                ln["P_rule"], ln["P_panel"] = e["rule"], {"lines": e["panel_lines"], "sum_Pr": pr}
+            elif e:
+                P, ln["P_rule"] = max(drag, e["P"] or 0.0), e["rule"]
+            ln["P_split"] = _split(P, k, r)
+        elif ln["kind"] in ("purlin", "ridge_purlin") and bl:
+            V = bl.get("V") or {}
+            sp = {"governing": V.get("governing"), "caseB": V.get("caseB"), "minimum": V.get("minimum"), "split": True}
+            pz = [(z["x0"], z["x1"], sp) for z in bl["struts"]["purlin_nodes"] if z["side"] == ln.get("side")
+                  and any(abs(ln["y"] - y) / ln["cos"] < bl["struts"]["node_tol"] for y in z["node_ys"])]
+            if pz:
+                ln["P_zones"] = pz
+        ln["tied_ok"] = bool(tied) and not untied
+    return lines, {"tied": tied, "untied": untied, "roof_type": roof_type, "fastener_x": x}
+
+
+def is_strut_line(ln: dict) -> bool:
+    """A line carrying a WIND strut force (eave strut with P, purlin at the roof-X nodes) — decision 4's per-line gauge."""
+    return bool(ln.get("P_split") or ln.get("P_zones"))
+
+
+def check_one(ln: dict, sd: dict, limits: ServiceLimits, uplift_method: str) -> dict:
+    """One prepared line: the check, the strict rule beside it when the R-factor was used, the strut forces echoed."""
+    ln = dict(ln, rfactor=r_factor(ln, sd, tied_ok=ln.get("tied_ok")))
+    r = check_line(ln, sd, ln["combos"], limits.purlin, uplift_method)
+    if r["uplift_method"] == "r_factor":
+        s = check_line(ln, sd, ln["combos"], limits.purlin, "strict")
+        r["strict"] = {"ratio": s["ratio"], "governing": s["governing"], "combo": s["combo"]}
+    if ln.get("P_zones"):
+        r["P_strut_zones"] = [{"x0": a, "x1": b_, "P_kN": p["governing"], "caseB_kN": p["caseB"], "minimum_kN": p["minimum"]}
+                              for a, b_, p in ln["P_zones"]]
+    if ln["kind"] == "eave_strut":
+        sp = ln.get("P_split")
+        r["P_strut_kN"] = sp["governing"] if sp else 0.0
+        r["P_split"] = sp
+        if ln.get("P_rule"):
+            r["P_strut_rule"] = ln["P_rule"]
+        if ln.get("P_panel_by_combo"):
+            r["P_strut_by_combo"] = {k_: round(v, 4) for k_, v in ln["P_panel_by_combo"].items()}
+            r["P_panel"] = ln["P_panel"]
+    if ln.get("profile_override"):
+        r["profile_override"] = True
+    return r
+
+
 def cfs_checks(b: BuildingInput, li, *, supplier: dict | None = None, limits: ServiceLimits | None = None, out: dict | None = None,
-               uplift_method: str = "strict") -> dict:
-    """Step 6 for a building: every purlin, girt, gable-girt and eave-strut line. uplift_method "strict" (default) or
-    "r_factor" (AISI S100-16 I6.2.1 — R VERIFIED False until the user confirms the table)."""
+               uplift_method: str = "r_factor", line_profiles: dict | None = None) -> dict:
+    """Step 6 for a building: every purlin, girt, gable-girt and eave-strut line. uplift_method "r_factor" (default;
+    applied only on a through-fastened roof where the limits pass — the strict rule beside it) or "strict"."""
     if uplift_method not in UPLIFT_METHODS:
         raise ValueError(f"uplift_method must be one of {UPLIFT_METHODS}")
     limits = limits or ServiceLimits()
     if out is None:
         b, _ = resolve(b)
         out = peb_building(b)
-    lines = building_lines(out, li)
-    tied, untied = tied_rows(out)
-    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
-    struts = {}
-    bl = None
-    if braces and out.get("braced_bays"):
-        bsr = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
-        bs = bsr["sets"]["LRFD"]
-        struts = {j: abs(v) for j, v in bs["strut"]}
-        if getattr(b, "brace_axial", True) and out["input"].get("brace_axial", True):
-            bl = brace_loads(out, bsr)                    # open item 7 (user 2026-11-17, decisions 1a, 3a, 4a)
+    lines, meta = prepare_lines(b, li, out, line_profiles=line_profiles)
     res = {"purlins": [], "eave_struts": [], "girts": [], "gable_girts": []}
     cache = {}
     for ln in lines:
         key = (ln["profile"], ln["grade"])
         if key not in cache:
             cache[key] = section_data(*key, supplier)
-        if ln["kind"] == "eave_strut":
-            bay = int(ln["id"].rsplit("-", 1)[1])
-            ln["P"] = struts.get(bay, 0.0)
-            e = (bl or {}).get("struts", {}).get("eave", {}).get(bay)
-            if e and e.get("between"):
-                pr = _column_Pr(b, li, out, e["panel_lines"], ln["id"][1])
-                ln["P_by_combo"] = {cn: max(ln["P"] * max(f.get("Win", 0.0), f.get("Wout", 0.0)), PANEL_BRACE * pr.get(cn, 0.0))
-                                    for cn, f in COMBOS_ROOF["LRFD"].items()}
-                ln["P_rule"], ln["P_panel"] = e["rule"], {"lines": e["panel_lines"], "sum_Pr": pr}
-            elif e:
-                ln["P"], ln["P_rule"] = max(ln["P"], e["P"]), e["rule"]
-        elif ln["kind"] in ("purlin", "ridge_purlin") and bl:
-            pz = [(z["x0"], z["x1"], z["P"]) for z in bl["struts"]["purlin_nodes"] if z["side"] == ln.get("side")
-                  and any(abs(ln["y"] - y) / ln["cos"] < bl["struts"]["node_tol"] for y in z["node_ys"])]
-            if pz:
-                ln["P_zones"] = pz
-        ln["rfactor"] = r_factor(ln, cache[key], tied_ok=bool(tied) and not untied)
-        r = check_line(ln, cache[key], ln["combos"], limits.purlin, uplift_method)
-        if ln.get("P_zones"):
-            r["P_strut_zones"] = [{"x0": a, "x1": b_, "P_kN": p} for a, b_, p in ln["P_zones"]]
-        if ln["kind"] == "eave_strut":
-            r["P_strut_kN"] = ln.get("P", 0.0)
-            if ln.get("P_rule"):
-                r["P_strut_rule"] = ln["P_rule"]
-            if ln.get("P_by_combo"):
-                r["P_strut_by_combo"] = {k: round(v, 4) for k, v in ln["P_by_combo"].items()}
-                r["P_panel"] = ln["P_panel"]
+        r = check_one(ln, cache[key], limits, uplift_method)
         res[{"purlin": "purlins", "ridge_purlin": "purlins", "eave_strut": "eave_struts", "girt": "girts", "gable_girt": "gable_girts"}[ln["kind"]]].append(r)
     allr = [r["ratio"] for v in res.values() for r in v]
     sections = {f"{k[0]} {k[1]}": {kk: vv for kk, vv in v.items() if not kk.startswith("_")} for k, v in cache.items()}
+    tied, untied = meta["tied"], meta["untied"]
     return {"banner": BANNER, "code": "AISI S100-16 (DSM), LRFD; deflection ASD", **res, "sections": sections,
             "max_ratio": max(allr) if allr else None, "assumptions": list(ASSUMPTIONS), "deflection_limit": limits.purlin,
-            "uplift_method": uplift_method, "R_VERIFIED": R_VERIFIED, "sag_rows": {"tied": [round(v, 1) for v in tied], "untied": [round(v, 1) for v in untied]},
+            "uplift_method": uplift_method, "roof_type": meta["roof_type"], "fastener_x": meta["fastener_x"],
+            "R_VERIFIED": R_VERIFIED, "I623_VERIFIED": I623_VERIFIED, "caseB_zoning": CASEB_NOTE,
+            "line_profiles": dict(line_profiles or {}),
+            "sag_rows": {"tied": [round(v, 1) for v in tied], "untied": [round(v, 1) for v in untied]},
             "designed": False, "VERIFIED": False}

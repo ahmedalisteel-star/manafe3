@@ -124,10 +124,12 @@ def test_check_building_1():
     assert {"column", "rafter", "wind column", "end rafter", "purlin", "girt", "eave strut", "gable girt"} <= kinds
     assert {row["code"] for row in r["rows"]} == {"AISC", "ECP", "AISI"}
     s = r["summary"]
-    # max_ratio was < 1.0 before open item 7; the strut axial in the roof-X purlins / eave struts takes it above 1 (2.10,
-    # accepted 2026-11-17, open item 15)
+    # max_ratio was < 1.0 before open item 7; the strut axial took it to 2.10 (R-factor, 2026-11-17). Open item 15
+    # (2026-11-18): this building gives no roof_type → strict and the bare-section axial (the old code's strict value was
+    # 3.29); with the same-direction pairing the strut purlins RA1 / RA5 govern in the Case B family: 2.4006
     assert s["weight"]["t"] > 10 and s["max_ratio"] > 1.0 and s["unverified_rows"] > 0 and s["unverified_items"]
-    assert s["max_ratio"] == pytest.approx(2.1035, abs=2e-3)
+    assert s["max_ratio"] == pytest.approx(2.4006, abs=2e-3)
+    assert any("roof_type not given" in f for f in s["unverified_items"])
     assert s["max_by_type"]["eave strut"]["max_ratio"] > 1.0 or s["max_by_type"]["purlin"]["max_ratio"] > 1.0
     purl = next(row for row in r["rows"] if row["kind"] == "purlin")
     assert purl["uplift_method"] in ("r_factor", "strict") and purl["strict_ratio"] is not None

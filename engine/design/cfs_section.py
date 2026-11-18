@@ -27,7 +27,14 @@ Finite strip (simply supported ends, one half-wave of length a; Cheung's method,
     the curve's peak after the distortional minimum (a_global_from) the lowest mode is local / distortional, and the
     global mode — falling with length — lies above the peak value: there the curve AT THE PEAK is used, a lower bound.
     If a second minimum is not found the distortional value is NOT invented: the result says so and the check that
-    needs it reports ratio = inf.
+    needs it reports ratio = inf — EXCEPT in compression (open item 15, user 2026-11-18): there the curve is read at
+    the analytical distortional half-wavelength Lcrd (AISI S100-16 App. 2 / commentary closed form for a flange with
+    a simple lip, CUFSM practice — VERIFIED False):
+        Lcrd = [6 π⁴ ho (1 − ν²) / t³ · (Ixf (xof − hxf)² + Cwf − Ixyf² / Iyf · (xof − hxf)²)]^(1/4), ho = H out-to-out,
+        flange + lip on the centreline (b = B − t, d = D − t/2): Ixf = t (t² b² + 4 b d³ + t² b d + d⁴) / (12 (b + d)),
+        Iyf = t (b⁴ + 4 d b³) / (12 (b + d)), Ixyf = t b² d² / (4 (b + d)), xof = b² / (2 (b + d)),
+        hxf = −(b² + 2 d b) / (2 (b + d)), Cwf = 0.
+    Negative control (test): where a minimum exists (Z200x65x20x2.0) the value at Lcrd is within 5 % of it (+0.9 %).
     Independent checks (tests): a flat plate with both edges supported → k = 4.00, one edge free → k → 0.425 (closed
     forms); a long C column → the closed-form flexural / flexural-torsional buckling load from the properties.
 Units: mm, N, MPa. E = 29 500 ksi (AISI S100-16 A3.1, NOT AISC's 29 000), ν = 0.3.
@@ -49,7 +56,7 @@ E_CFS = 29500.0 * KSI                 # 203 395 MPa
 NU = 0.30
 R_INSIDE = 1.0                        # inside bend radius / t — Claude's assumption (the names carry no radius)
 LENGTHS = tuple(float(v) for v in np.logspace(math.log10(15.0), math.log10(30000.0), 90))
-VERIFIED = {"properties": False, "finite_strip": False, "mode_split": False}
+VERIFIED = {"properties": False, "finite_strip": False, "mode_split": False, "lcrd_compression": False}
 ASSUMPTIONS = (
     f"inside bend radius = {R_INSIDE:g} t (the profile name carries no radius; a supplier table replaces it)",
     "lips at 90 degrees to the flanges; both flanges the same width",
@@ -221,6 +228,16 @@ def minima(nodes, t, stress, curve, fixed=()) -> list[tuple[float, float]]:
     return out
 
 
+def lcrd(kind: str, H: float, B: float, D: float, t: float, coef: float = 6.0) -> float:
+    """Analytical distortional half-wavelength, mm (coef 6 = compression; 4.8 = bending, not used). VERIFIED False."""
+    b, d, ho = B - t, D - t / 2, H
+    Ixf = t * (t * t * b * b + 4 * b * d ** 3 + t * t * b * d + d ** 4) / (12 * (b + d))
+    Iyf = t * (b ** 4 + 4 * d * b ** 3) / (12 * (b + d))
+    Ixyf = t * b * b * d * d / (4 * (b + d))
+    e = b * b / (2 * (b + d)) + (b * b + 2 * d * b) / (2 * (b + d))     # xof − hxf (= b for a simple lip)
+    return (coef * math.pi ** 4 * ho * (1 - NU ** 2) / t ** 3 * (Ixf * e * e - Ixyf ** 2 / Iyf * e * e)) ** 0.25
+
+
 # ----------------------------------------------------------------------------------------------- the section
 
 @lru_cache(maxsize=64)
@@ -243,10 +260,19 @@ def cfs_section(name: str, Fy: float, r: float | None = None) -> dict:
         last = (dist or loc or (curve[0][0], 0.0))[0]
         tail = [c for c in curve if c[0] > last]
         a_peak = max(tail, key=lambda c: c[1])[0] if tail else last
+        dd = {"a": round(dist[0], 1), "factor": dist[1], "value": dist[1] * ref, "source": "FSM second minimum"} if dist else None
+        note = None if dist else "the signature curve shows no second minimum: distortional buckling NOT identified"
+        if dist is None and key == "compression":          # open item 15: read the curve at the analytical Lcrd
+            La = lcrd(g["kind"], g["H"], g["B"], g["D"], t)
+            lam = load_factor(nodes, t, La, st)
+            if math.isfinite(lam) and lam > 0:
+                dd = {"a": round(La, 1), "factor": lam, "value": lam * ref,
+                      "source": "FSM curve at the analytical Lcrd (no second minimum) — VERIFIED False"}
+                note = (f"no second minimum: distortional read at the analytical Lcrd = {La:.1f} mm (AISI S100-16 App. 2 / "
+                        "commentary, CUFSM practice) — VERIFIED False")
         out[key] = {"curve": [(round(a, 2), round(l, 5)) for a, l in curve], "a_global_from": round(a_peak, 1),
                     "local": {"a": round(loc[0], 1), "factor": loc[1], "value": loc[1] * ref} if loc else None,
-                    "distortional": {"a": round(dist[0], 1), "factor": dist[1], "value": dist[1] * ref} if dist else None,
-                    "note": None if dist else "the signature curve shows no second minimum: distortional buckling NOT identified"}
+                    "distortional": dd, "note": note}
     out["_nodes"] = tuple(nodes)
     out["_sb"], out["_sc"] = tuple(sb), tuple(sc)
     return out

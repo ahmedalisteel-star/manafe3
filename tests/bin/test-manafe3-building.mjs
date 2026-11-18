@@ -36,6 +36,14 @@ const RES = JSON.parse(fs.readFileSync(path.join(REPO, 'fixtures/manafe3/buildin
   ok(body.openings.length === 2 && body.openings[1].wall === 'first' && body.openings[0].height === 4000, 'openings parsed', body.openings);
   ok(B.buildingRequest(f).braced_bays === null && B.buildingRequest(f).fixed_lap === null && !('sizes' in B.buildingRequest(f)), 'empty fields → the engine\'s defaults');
   ok(throwsMsg(() => B.parseOpenings('C 1 2 3 4'), /Opening line 1/) === true && throwsMsg(() => B.parseBays('1, x'), /Braced bays/) === true, 'bad text refused');
+  // open item 15: the roof panel — blank (the default) = not given: no roof_type in the request (the engine's strict
+  // rule, flagged) and the visible flag; through_fastened / standing_seam pass through; anything else is refused
+  ok(B.BUILDING_DEFAULTS.roof_type === '' && !('roof_type' in B.buildingRequest(f)), 'roof panel blank → absent from the request', B.buildingRequest(f).roof_type);
+  ok(B.roofTypeFlag(f) === B.ROOF_TYPE_BLANK_FLAG && /strict/.test(B.ROOF_TYPE_BLANK_FLAG), 'blank → the visible flag');
+  ok(B.buildingRequest({ ...f, roof_type: 'through_fastened' }).roof_type === 'through_fastened' && B.roofTypeFlag({ ...f, roof_type: 'through_fastened' }) === null, 'through_fastened passes, no flag');
+  ok(B.buildingRequest({ ...f, roof_type: 'standing_seam' }).roof_type === 'standing_seam', 'standing_seam passes');
+  ok(throwsMsg(() => B.buildingRequest({ ...f, roof_type: 'sandwich' }), /Roof panel/) === true, 'an unknown roof panel is refused');
+  ok(JSON.stringify(B.ROOF_TYPES) === '["","through_fastened","standing_seam"]', 'the three choices of the form');
 }
 
 // ---- 2. the engine's building into a model ---------------------------------------------------------------------------
