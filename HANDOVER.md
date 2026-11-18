@@ -1820,7 +1820,13 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    the ridge = hw_apex + flanges → a longer lever), 5c ridge flange braces / brace groups (deeper rafter at the ridge
    purlin), STAAD export, the Building… form (two fields, SIZE_FIELDS) and the fixtures. Estimate 7.5–10.5 h (generator
    + API + validation 3 h; browser form + app test 1.5 h; verification and old → new review 3 h; sizing variable 2–3 h
-   if wanted). Decisions asked 2026-11-18: default on or off; default length and ridge depth; sizing variable or not.
+   if wanted).
+   **User decisions 2026-11-18 (build AFTER item 16; order: merge, 16, 17, step 7):** default ON for new buildings, OFF
+   for saved projects (no silent geometry change); `building1-sized.json` stays OFF and a NEW fixture has the apex
+   haunch ON. Defaults: apex_haunch_length = span / 15, min 1500 mm, rounded to 100 mm; hw_apex = 1.5 × hw_rafter,
+   rounded to 50 mm — both editable in Building…, both printed as defaults (TO CONFIRM in the step batch). Sizing: a
+   fixed ratio for now (varying hw_apex → roadmap). STOP RULE: old → new sections and U (rafters, ridge end plates,
+   ridge flange braces) on the new fixture before the tests change.
 
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip
@@ -1833,6 +1839,7 @@ public and all of it Apache-2.0.)
 - Wind-column deflection limit and end-wall serviceability in Design… (not checked today; the web is held ≥ 300).
 - Sizing loop: different flange plates per segment (column / haunch / rafter) for lighter frames (user, 2026-11-09 —
   roadmap, not now; the generator's splice rule keeps one flange plate today).
+- Sizing loop: hw_apex (apex haunch depth) as a sizing variable instead of the fixed 1.5 × hw_rafter (user 2026-11-18).
 
 - **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
 - **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames) — **DONE 2026-11-05**
