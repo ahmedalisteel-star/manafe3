@@ -49,7 +49,15 @@ change-record history; the in-app Analysis tab skips PEB members and opens with 
 NOT skip them before — the cold-formed members were analysed there). Tests: app 16 of 16 (upstream 12 997 passed),
 engine by file (see the merge report); smoke (`tools/manafe3-smoke.mjs`, + Analysis label, shop drawings, IFC / NC,
 toolbox / docked layouts): no exceptions. The four Pro layouts are NOT in this repository (upstream ships docked and
-toolbox only; the Pro layout files come with CadCraft Studio) — not testable here. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+toolbox only; the Pro layout files come with CadCraft Studio) — not testable here.
+Merge follow-up (2026-11-18 / -19, user's conditions): `tests/bin/test-manafe3-merge.mjs` — Building… Apply and Design…
+Apply = one undo step each, undo / redo JSON-equal, Model.replace one step; two tapered webs alike in name and size get
+different view3d geometries, two identical ones share one (fails without the SPL cache key — checked). App 17 of 17.
+The automated speed comparison (main vs upstream-merge) was DROPPED: the run was stopped for low memory (user
+2026-11-19: do not retry); the user compares the two branches by hand in the browser instead. Known suspect if the
+branch is slower: our `tx.s` writes (applyBuilding, crane, loads, drawings / design settings) make 0.10's history take
+a full snapshot — fix proposed, not applied: read through `tx._s`, add `k:<field>` / `e:members:<id>` keys on writes.
+The merge waits for the user's "merge". Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
