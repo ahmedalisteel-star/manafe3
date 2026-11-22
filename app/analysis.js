@@ -69,6 +69,7 @@ export function frameOf(state, analysis) {
   for (const m of state.members) {
     if (!MEMBER_KINDS.includes(m.type)) continue;
     if (m.panel) continue;   // 0.8 round 3 (EG.6): a framing panel's pieces are not steel frame members
+    if (m.gen === 'peb') { skipped.push({ id: m.id, why: 'peb' }); continue; }   // Manafe3 (changed file, MANAFE3-CHANGES.md): PEB members are designed by the engine (PEB › Analysis… / Design…), never here
     const p = getProfile(m.profile, state.profiles || []);
     if (!p || !p.loops) { skipped.push({ id: m.id, why: 'profile' }); continue; }
     if (dist(m.start, m.end) < 1) { skipped.push({ id: m.id, why: 'short' }); continue; }
@@ -228,7 +229,7 @@ export function frameOf(state, analysis) {
 export function sectionsOf(state) {
   const seen = new Map();
   for (const m of state.members) {
-    if (!MEMBER_KINDS.includes(m.type) || m.panel) continue;
+    if (!MEMBER_KINDS.includes(m.type) || m.panel || m.gen === 'peb') continue;   // Manafe3: PEB members left out (see frameOf)
     const key = String(m.profile).toUpperCase();
     if (seen.has(key)) continue;
     const p = getProfile(m.profile, state.profiles || []);

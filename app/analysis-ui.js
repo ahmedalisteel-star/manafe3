@@ -12,6 +12,8 @@ import { el } from './ui-util.js';
 import { t } from './i18n.js';
 import { ANALYSIS_DEFAULTS, cleanAnalysis, analyse, sectionsOf, MEMBER_KINDS } from './analysis.js';
 import { framePanel } from './frame/frame-panel.js';
+import { modalOfFrame, modeSolution, MODAL_NOTE } from './fem/frame-fem.js';
+import { DYN } from './fem/frame-dyn.js';   // 0.9 SU.1056: response spectrum, time history, pushover (lib/fem)   // 0.9 SU.908: natural frequencies (lib/fem)
 import { showResults, clearResults, showUtilisation, clearUtilisation } from './analysis-view.js';
 import * as B from './study/breakit.js';   // 0.8 round 3 (EG.31): findings, reserve, Problems (lib/study, copied by tools/study/sync.mjs)
 import { frameLive } from './study/live.js';   // 0.8 round 3 (EG.29): live re-solve
@@ -44,9 +46,12 @@ export function breakAbout(list) {
   return list.map(own).map((p) => ({ ...p, about: p.about.filter((a) => a.kind !== 'combo').map((a) => (a.kind === 'connection' ? { ...a, kind: 'conn' } : a.kind === 'member' ? { ...a, id: drawnId(a.id) } : a)) }));
 }
 
+/** Manafe3 (changed file, MANAFE3-CHANGES.md, user 2026-11-18): the in-app analysis, P-Delta, ASCE 7 wind and seismic blocks are an aid;
+ *  the PEB design is the engine's (PEB › Analysis… / Design…) and PEB members are left out here (analysis.js frameOf). */
+export const M3_AID = 'App aid, not the PEB design: PEB members are left out here; the PEB design is PEB › Analysis… and PEB › Design….';   // i18n-ignore (English for now)
 export function mountAnalysis(app) {
   const model = () => app.getModel();
-  return framePanel({
+  const fp = framePanel({
     el, t,
     cls: { block: 'dc-block', note: 'dc-note', head: 'dc-rep-head', table: 'dc-table fa-table', btn: 'btn-line btn-sm-dc', primary: 'btn-plot btn-sm-dc', link: 'dc-linkbtn', select: 'select-cc fa-select', input: 'form-control fa-input', error: 'fa-error' },
     version: () => model().version,
@@ -66,6 +71,7 @@ export function mountAnalysis(app) {
     hide: () => clearResults(app.getView()),
     design: true,       // sections carry an I shape (analysis.js shapeOf), so the Design checks block shows
     showUtil: (frame, map) => (map ? showUtilisation(app.getView(), frame, map) : clearUtilisation(app.getView())),
+    fem: { modal: modalOfFrame, modeSolution, note: MODAL_NOTE, dyn: DYN },   // 0.9 SU.908: the Finite elements block (natural frequencies)
     concrete: true,     // 0.8 SU.1056: the Concrete and Seismic blocks
     sections: () => sectionsOf(model().state),
     problems: (list) => app.setFrameProblems?.(list),
@@ -73,4 +79,7 @@ export function mountAnalysis(app) {
     live: { frameLive },
     rerender: app.rerender,
   });
+  const upstreamPanel = fp.panel;   // Manafe3: the aid label first, above every block of the tab
+  fp.panel = () => [el('p', { className: 'dc-warn', dataset: { m3Aid: '' } }, M3_AID), ...upstreamPanel()];
+  return fp;
 }

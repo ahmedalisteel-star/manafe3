@@ -57,7 +57,11 @@ export async function fromInput({ app, root, stage, panels = {}, status = null, 
       return { id: 'g' + ti + '-' + pi, label: tx(pn.label), large, stacks };
     }).filter((g) => g.large.length || g.stacks.length),
   })).filter((t) => t.groups.length);
-  const toolbarEl = () => [...root.children].find((n) => n.getAttribute('role') === 'toolbar') || root.querySelector('[role="toolbar"]');
+  // 2026-11-09: the app's own toolbar is the one with the most button GROUPS. MarkupCraft got a second [role=toolbar] (its area bar, hidden, 2 groups, first in
+  // the page) and, once a layout moves the real toolbar into a region, the first match was that one: the toolbox came up empty.
+  const groupsIn = (n) => n.querySelectorAll('[role="group"]').length;
+  const toolbarEl = () => [...root.children].find((n) => n.getAttribute('role') === 'toolbar' && groupsIn(n))
+    || [...root.querySelectorAll('[role="toolbar"]')].sort((a, b) => groupsIn(b) - groupsIn(a))[0] || null;
   const toolbox = () => {
     const tb = toolbarEl(); if (!tb) return [];
     const owner = new Map(); for (const c of I.commands) { const b = target(c); if (b && !owner.has(b)) owner.set(b, c.id); }
@@ -72,6 +76,7 @@ export async function fromInput({ app, root, stage, panels = {}, status = null, 
     hide: [], toolbar: toolbarEl,
     ribbon: style ? ribbon : null, toolbox,
     tool(id) { const c = byId.get(cid(id)); return { label: label(cid(id)), icon: c?.icon || 'bi-dot', built: !!target(c) }; },
+    source: (id) => target(byId.get(cid(id))) || null,   // 0.10 BK.33: the command's own button (the tooltip engine reads its description)
     can(id) {
       const c = byId.get(cid(id)), b = target(c);
       if (!b) return { enabled: false, reason: T('shell.ws.why.notbuilt', { app: document.querySelector('[data-app-settings]')?.dataset.appName || app }) };

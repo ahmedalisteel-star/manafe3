@@ -44,6 +44,9 @@ function targets() {
   walk(path.join(ROOT, 'app/help'), (p) => /\.(md|js)$/.test(p));
   walk(path.join(ROOT, 'devshell/site/assets/lang'), (p) => p.endsWith('.json'));
   walk(path.join(ROOT, 'devshell/site/assets/help'), (p) => p.endsWith('.md'));
+  // add-on language files (DetailCraft 0.10: app/addons/regs/lang/*.json) — visible text; addon.json (author) and the
+  // add-ons' code comments are not touched (user 2026-11-18: app/addons/ added to the rebrand)
+  walk(path.join(ROOT, 'app/addons'), (p) => p.endsWith('.json') && path.basename(path.dirname(p)) === 'lang');
   for (const f of ['devshell/index.html']) out.push(path.join(ROOT, f));
   return out;
 }
@@ -52,6 +55,7 @@ function targets() {
 const SPOTS = [
   ['devshell/app.json', '"name": "DetailCraft"', '"name": "Manafe3"'],
   ['app/detailcraft.js', "model.state.name + ' — DetailCraft'", "model.state.name + ' — Manafe3'"],
+  ['app/detailcraft.js', "model.state.name + ' — DetailCraft | CadCraft'", "model.state.name + ' — Manafe3'"],   // 0.10: the fallback beside ccSetDocTitle
   ['app/detailcraft.js', "[{ description: 'DetailCraft', extensions", "[{ description: 'Manafe3', extensions"],
   ['app/detailcraft.js', "[{ description: 'DetailCraft, IFC, project bundle'", "[{ description: 'Manafe3, IFC, project bundle'"],
 ];

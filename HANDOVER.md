@@ -35,8 +35,34 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). Step 7 plan ANSWERED (user
 2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
-confirmed). NEXT: the user's answers on open item 16 and on the DetailCraft 0.10 merge (report given 2026-11-18); then
-7a–7f. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
+confirmed). DetailCraft 0.10 MERGED (2026-11-19). **NEXT: open item 16 code (user decisions 2026-11-18, in "Open items"
+16), then open item 17 (apex haunch, decisions 2026-11-18), then step 7 (7a–7f).**
+**DetailCraft 0.10 merge (2026-11-18, branch `upstream-merge`, NOT in main until the user approves):** tag
+`detailcraft-v0.10.0` merged; 506 help / language files taken from upstream and re-branded (`tools/manafe3-rebrand.mjs`,
+now also `app/addons/**/lang/*.json`; 51 per-language whats-new.md removed as upstream removed them); upstream's
+pre-rendered `devshell/index.html` + our app-bar mark; the 9 real conflicts resolved (README ours; nc1 / profiles / ifc:
+ours + upstream's unequal angles / UK aliases / RC voids; view3d: 0.10's shared geometries with our colour / built-up
+material keys and an SPL-aware cache key; drawings: 0.10 title block + our m3 settings and sheet papers; model: 0.10's
+`_s`; detailcraft.js: 0.10's split into *-ui.js modules — our edits moved into footing-stair-ui / export-ui (bar
+naming), clash-ui (grouped clashes), drawings-ui (drawing settings, exportSheets)); `Model.replace` re-done on 0.10's
+change-record history; the in-app Analysis tab skips PEB members and opens with "App aid, not the PEB design" (it did
+NOT skip them before — the cold-formed members were analysed there). Tests: app 16 of 16 (upstream 12 997 passed),
+engine by file (see the merge report); smoke (`tools/manafe3-smoke.mjs`, + Analysis label, shop drawings, IFC / NC,
+toolbox / docked layouts): no exceptions. The four Pro layouts are NOT in this repository (upstream ships docked and
+toolbox only; the Pro layout files come with CadCraft Studio) — not testable here.
+Merge follow-up (2026-11-18 / -19, user's conditions): `tests/bin/test-manafe3-merge.mjs` — Building… Apply and Design…
+Apply = one undo step each, undo / redo JSON-equal, Model.replace one step; two tapered webs alike in name and size get
+different view3d geometries, two identical ones share one (fails without the SPL cache key — checked). App 17 of 17.
+The automated speed comparison (main vs upstream-merge) was DROPPED: the run was stopped for low memory (user
+2026-11-19: do not retry); the user compares the two branches by hand in the browser instead. Known suspect if the
+branch is slower: our `tx.s` writes (applyBuilding, crane, loads, drawings / design settings) make 0.10's history take
+a full snapshot — fix proposed, not applied: read through `tx._s`, add `k:<field>` / `e:members:<id>` keys on writes.
+**MERGED into main 2026-11-19/22 ("Merge DetailCraft 0.10", no fast-forward; branch `upstream-merge` deleted)** after the
+user's manual comparison (2026-11-19): the 0.10 branch is as fast or faster on every step (undo / redo 0.03–0.12 s, GA
+0.20 s, Make building 0.95 s), undo is one step, and the default building is identical on both (620 members,
+21 400.1 kg). The `tx.s` fix stays a proposal (no slowdown seen).
+**For the user (0.10 behaviour):** after a reload 0.10 opens an EMPTY model and offers "Recover your work?" — Recover,
+or File › Open, brings the last model back. Open for the user: the "Unverified sources" list below (DG 1, ISO 4.6, ACI 17.5.2.1(b), DG 16,
 the AISC tables, the stiffener rules).**
 
 Phase 4 (for the record): **Phase 4 — member design. Plan APPROVED by the user (2026-11-08) with additions A and B; in progress — step 1 done,
@@ -622,6 +648,13 @@ still create parts, marked NOT FOR ISSUE.
    single undo step in step 8.
 - **7f added (user):** extend shop.js to built-up tapered members — the web plate outline, the flange strips, holes and
   slots, weld symbols, the NOT FOR ISSUE marking (an existing module extended: within the no-new-drawing-code rule).
+  After 0.9 ("a shop drawing for every part" in one PDF) 7f still needs: the SPL web outline and the cold-formed C / Z
+  (shop.js draws PL, I, C, L, CHS, RHS only), slots (after 7c), weld symbols, the NOT FOR ISSUE stamp.
+  (user 2026-11-22) Output › Shop drawing must open on the SELECTED part — today it opens on sheet 1 (br1) with girt
+  b10 selected. Upstream behaviour (the same code in 0.9 and 0.10): `openShop` opens on `selectedPart()`, which is set
+  only when exactly ONE thing is selected (`sel`; with two or more, `multi`, it is null → sheet 1). To do in 7f: open on
+  the first selected part's sheet when several are selected (and reproduce the user's case first — a girt line is
+  several pieces, or a table selection).
 - **Order:** open item 7 fix, then 7a (engine part specs), 7b (converter), 7c (hooks: built-up holes, attach, slot, NOT FOR
   ISSUE), 7d (clash closure: the flange-brace points and the geometry warnings), 7e (tests, building 1), 7f (shop.js).
 
