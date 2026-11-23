@@ -1572,6 +1572,7 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
 - `tools/manafe3-rebrand.mjs` (re-run after every upstream merge; `--check` lists leftovers): visible
   "DetailCraft"/"CadCraft" → "Manafe3" ("CadCraft Studio" → "Manafe3 Desktop") in `app/lang/*`, shell lang files,
   help (`.md` + compiled `help.js`), `devshell/index.html`, `app.json` name, window title, file-type labels.
+- After every upstream merge: delete the platform folders again (`android/`, `ios/`, `linux/`, `macos/`, `web/`, `windows/` — upstream README stubs pointing to the DetailCraft / CadCraft Studio downloads; nothing in the app, the tests or the scripts uses them; user 2026-11-23), then run `node tools/manafe3-rebrand.mjs` and `npm test`.
 - By hand: Manafe3 logo (`devshell/site/favicon.*`, concept B M-frame from `branding/` — see `branding/README.md`), app-bar logo, "About" link to getcadcraft.com hidden.
 - **Kept on purpose (not visible / needed by tests):** internal slug `detailcraft` (test mirror paths), module and
   file names, the `.detailcraft.json` / `detailcraft-clip` formats, code comments, and the **producer strings inside
