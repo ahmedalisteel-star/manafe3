@@ -1977,7 +1977,7 @@ public and all of it Apache-2.0.)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-22 12:51 on ENG04-PC
-- Did: Merge DetailCraft 0.10
-- Tests: engine engine: 299 passed (42 files, largest peak 333 MiB in test_building_analysis.py, 3669 s) | app 17 of 17 test files passed
+- When: 2026-11-23 17:10 on ENG04-PC
+- Did: Item 16: per-line gauges, PL12 strut cleats, runner fix
+- Tests: engine engine: 300 passed (42 files, largest peak 332 MiB in test_building_analysis.py, 7469 s) | app 17 of 17 test files passed
 <!-- LAST-SESSION:END -->
