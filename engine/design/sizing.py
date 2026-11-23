@@ -361,12 +361,19 @@ def cf_candidates(profile: str) -> list[str]:
     return [n for n, _ in sorted(out, key=lambda v: v[1])]
 
 
+#: the strut purlins' minimum thickness (open item 16.2, user 2026-11-18: Z250x65x20x1.8 on the strut-purlin lines with
+#: the PL10 cleat — the 2 x M12 web bearing in 1.5 mm governs the cleat; recheck after AISI J3.3 is verified)
+STRUT_PURLIN_T_MIN = 1.8
+
+
 def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", target: float = TARGET, limits=None,
-                     supplier: dict | None = None) -> dict:
+                     supplier: dict | None = None, strut_purlin_t_min: float = STRUT_PURLIN_T_MIN) -> dict:
     """Purlin, eave strut and girt profiles: one BASE profile per role (the lightest ladder profile ≤ the target on the
     role's lines without a wind strut force) and, on the STRUT lines (eave struts with a strut force, purlins at the
     roof-X nodes), a heavier GAUGE of the same depth, flange and lip where they need it (open item 15, decision 4 —
-    per-line gauge; the rest of the roof keeps the base). The lines and forces are cfs_checks' own (prepare_lines)."""
+    per-line gauge; the rest of the roof keeps the base). The lines and forces are cfs_checks' own (prepare_lines).
+    A strut PURLIN line takes at least strut_purlin_t_min (open item 16.2: its cleat's web bearing, a connection rule
+    the member check does not see)."""
     from .cfs_checks import R_VERIFIED, check_one, is_strut_line, prepare_lines, section_data
     limits = limits or ServiceLimits()
     b0 = b
@@ -422,7 +429,8 @@ def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", t
                                                                 and g["t"] >= g0["t"])(parse_name(p))}, key=lambda p: parse_name(p)["t"])
             for l in struts:
                 lt, lp, lg = [], None, None
-                for prof in gauges:
+                tmin = strut_purlin_t_min if role == "purlin" else 0.0
+                for prof in [p for p in gauges if parse_name(p)["t"] >= tmin - 1e-9] or gauges[-1:]:
                     w, g, u = worst_of(prof, [l], uplift_method)
                     lt.append((prof, rnd(w)))
                     if w <= target:
@@ -431,6 +439,8 @@ def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", t
                 ls = worst_of(lp, [l], "strict") if lp else (math.inf, None, set())
                 per_line[l["id"]] = {"profile": lp, "ratio": lt[-1][1] if lp else None, "governing": lg, "tried": lt,
                                      "strict_ratio": rnd(ls[0]), "changed": bool(lp and lp != pick),
+                                     "t_min": tmin or None, "t_min_rule": ("open item 16.2: strut purlin ≥ "
+                                                                         f"{tmin:g} mm (cleat web bearing)") if tmin else None,
                                      "note": None if lp else f"no gauge of {g0['kind']}{g0['H']:g}x{g0['B']:g}x{g0['D']:g} meets the target"}
                 if lp and lp != pick:
                     line_profiles[l["id"]] = lp
@@ -441,11 +451,13 @@ def size_cold_formed(b: BuildingInput, li, *, uplift_method: str = "r_factor", t
                         "note": None if pick else "no ladder profile meets the target"}
     note = ("loads per line from the generated building at the CURRENT profiles (self weight of a heavier profile is "
             "small; the next run re-checks); strut lines may take a heavier gauge of the base profile (line_profiles) — "
-            "the generator carries one profile per role, so line_profiles reach the checks, not the model (yet)")
+            "Apply writes them into the building (sections.lines, open item 16.1/16.4); strut purlins take at least "
+            f"{strut_purlin_t_min:g} mm (open item 16.2)")
     sections = dataclasses.replace(b.sections, **{k: v for k, v in chosen.items() if v})
     r_used = uplift_method == "r_factor" and meta["roof_type"] == "through_fastened"
     banner = BANNER + (" — R-FACTOR RESULTS NOT FOR ISSUE: the R values (AISI S100-16 Table I6.2.1-1) are unconfirmed"
                        if r_used and not R_VERIFIED else "")
     return {"banner": banner, "uplift_method": uplift_method, "roof_type": meta["roof_type"], "fastener_x": meta["fastener_x"],
-            "R_VERIFIED": R_VERIFIED, "target": target, "roles": report, "sections": dataclasses.asdict(sections),
+            "R_VERIFIED": R_VERIFIED, "target": target, "roles": report,
+            "sections": {k: v for k, v in dataclasses.asdict(sections).items() if k != "lines"},
             "line_profiles": line_profiles, "passed": all(v["passed"] for v in report.values()), "note": note, "designed": False}

@@ -8,7 +8,7 @@
  * member) or "New building". Updating regenerates only that building's generated members; your own members, footings
  * and the other buildings stay. The mapping is peb-building.js.
  */
-import { BUILDING_DEFAULTS, buildingRequest, requestBuilding, applyBuilding, removeBuilding, buildingsOf, membersOfBuilding, buildingOfMember, SIZE_FIELDS, SPAN_REFS, ROOF_TYPES, roofTypeFlag } from './peb-building.js';
+import { BUILDING_DEFAULTS, buildingRequest, keptLineProfiles, filterLineProfiles, GAUGES_CLEARED, requestBuilding, applyBuilding, removeBuilding, buildingsOf, membersOfBuilding, buildingOfMember, SIZE_FIELDS, SPAN_REFS, ROOF_TYPES, roofTypeFlag } from './peb-building.js';
 import { requestDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
@@ -126,12 +126,23 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
   ui.form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const form = Object.fromEntries(Object.entries(ui.inputs).filter(([k]) => k !== 'which').map(([k, i]) => [k, i.value]));
+    // Manafe3 open item 16.4: Design… Apply's per-line gauges — cleared when the line geometry changes, dropped when the
+    // role changes depth, and only ids the regenerated building has are sent
+    const kl = keptLineProfiles(buildingsOf(model().state).find((x) => x.id === which())?.spec, form);
     let body;
     try { body = buildingRequest(form, model().state); } catch (err) { ui.note.textContent = err.message; return; }
     if (form.grids_mode === 'replace' && !window.confirm('Replace ALL grid lines of the model with the building\'s grids? Your other grid lines will be removed (Undo brings them back).')) return;
     ui.add.disabled = true; ui.note.textContent = 'Asking the engine…';
     try {
-      const res = await requestBuilding(body);
+      let res = await requestBuilding(body);
+      if (Object.keys(kl.line_profiles).length) {
+        const fl = filterLineProfiles(kl.line_profiles, res.members);
+        kl.dropped.push(...fl.dropped);
+        if (Object.keys(fl.line_profiles).length) {
+          form.line_profiles = fl.line_profiles;
+          res = await requestBuilding(buildingRequest(form, model().state));
+        }
+      }
       const r = edit('PEB building', (tx) => {
         const out = applyBuilding(tx, res, form, { grids: form.grids_mode, id: which() });
         if (form.footings === 'pads') out.footings = addPadFootings(tx, tx.s, { building: out.id });   // field fix 9, same undo step
@@ -140,6 +151,8 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
       if (!r) { ui.note.textContent = 'The model refused the building; see the status bar.'; return; }
       ui.dlg.close();
       fit?.();
+      if (kl.cleared) print(`${GAUGES_CLEARED} (${kl.dropped.join(', ')}).`);
+      else if (kl.dropped.length) print(`Per-line gauges dropped (another depth, or no such line in the building): ${kl.dropped.join(', ')}.`);
       print(`${r.name}: ${r.members} members, ${r.cleats} cleats, ${r.holes} holes${r.replaced ? `, ${r.replaced} replaced` : ''}${r.gridsAdded ? `, ${r.gridsAdded} grid lines added` : ''}${r.gridsSkipped ? ' (rotated: grid lines not added)' : ''}${r.footings ? `, ${r.footings.added} footings added` : ''}; braced bays ${res.braced_bays.join(', ')}. Not designed.${roofTypeFlag(form) ? ' ' + roofTypeFlag(form) + '.' : ''}`);
     } catch (err) { ui.note.textContent = err.message; }
     finally { ui.add.disabled = false; }

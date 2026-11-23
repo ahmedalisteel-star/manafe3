@@ -113,7 +113,10 @@ def test_api_job_flow(monkeypatch):
 
 @pytest.mark.slow
 def test_check_building_1():
-    b = BuildingInput(**B1, end_first="rafter")
+    """Main case (open item 16, user decision 2026-11-18 (7)): roof_type = through_fastened — the R-factor (I6.2.1) and
+    I6.2.3 apply, flagged unverified. NEGATIVE CONTROL: the same building with no roof_type → strict and the bare-section
+    axial (2.4006, the strut purlins in the Case B family)."""
+    b = BuildingInput(**B1, end_first="rafter", roof_type="through_fastened")
     r = dr.check_building(b, LoadsInput(V=45, exposure="C"), dr.DesignSettings(stability="prismatic"))
     json.dumps(r)
     ids = {m["id"] for m in peb_building(b)["members"]}
@@ -124,13 +127,23 @@ def test_check_building_1():
     assert {"column", "rafter", "wind column", "end rafter", "purlin", "girt", "eave strut", "gable girt"} <= kinds
     assert {row["code"] for row in r["rows"]} == {"AISC", "ECP", "AISI"}
     s = r["summary"]
-    # max_ratio was < 1.0 before open item 7; the strut axial took it to 2.10 (R-factor, 2026-11-17). Open item 15
-    # (2026-11-18): this building gives no roof_type → strict and the bare-section axial (the old code's strict value was
-    # 3.29); with the same-direction pairing the strut purlins RA1 / RA5 govern in the Case B family: 2.4006
-    assert s["weight"]["t"] > 10 and s["max_ratio"] > 1.0 and s["unverified_rows"] > 0 and s["unverified_items"]
-    assert s["max_ratio"] == pytest.approx(2.4006, abs=2e-3)
-    assert any("roof_type not given" in f for f in s["unverified_items"])
-    assert s["max_by_type"]["eave strut"]["max_ratio"] > 1.0 or s["max_by_type"]["purlin"]["max_ratio"] > 1.0
-    purl = next(row for row in r["rows"] if row["kind"] == "purlin")
-    assert purl["uplift_method"] in ("r_factor", "strict") and purl["strict_ratio"] is not None
+    assert s["weight"]["t"] > 10 and s["unverified_rows"] > 0 and s["unverified_items"]
+    # through-fastened: every member below 1.0, the gable girt GF5-1 governs (flexure, 1.0W inward)
+    assert s["max_ratio"] == pytest.approx(0.7268, abs=2e-3)
+    assert s["max_by_type"]["purlin"]["max_ratio"] == pytest.approx(0.6661, abs=2e-3)
+    assert s["max_by_type"]["eave strut"]["max_ratio"] == pytest.approx(0.595, abs=2e-3)
+    assert not any("roof_type not given" in f for f in s["unverified_items"])
+    purl = [row for row in r["rows"] if row["kind"] == "purlin"]
+    assert {row["uplift_method"] for row in purl} == {"r_factor"} and all(row["strict_ratio"] is not None for row in purl)
     assert any(k.endswith("|ECP") for k in r["calc"]) and all(r["calc"][k]["checks"] for k in r["calc"])
+    # NEGATIVE CONTROL: no roof_type → strict and the bare-section DSM axial (the old main case's values)
+    rs = dr.check_building(BuildingInput(**B1, end_first="rafter"), LoadsInput(V=45, exposure="C"), dr.DesignSettings(stability="prismatic"))
+    ss = rs["summary"]
+    # max_ratio was < 1.0 before open item 7; the strut axial took it to 2.10 (R-factor, 2026-11-17). Open item 15
+    # (2026-11-18): no roof_type → strict and the bare-section axial (the old code's strict value was 3.29); with the
+    # same-direction pairing the strut purlins RA1 / RA5 govern in the Case B family: 2.4006
+    assert ss["max_ratio"] == pytest.approx(2.4006, abs=2e-3) and ss["max_ratio"] > s["max_ratio"]
+    assert any("roof_type not given" in f for f in ss["unverified_items"])
+    assert {row["uplift_method"] for row in rs["rows"] if row["kind"] == "purlin"} == {"strict"}
+    # the main frames do not depend on the roof panel
+    assert ss["max_by_type"]["rafter"]["max_ratio"] == pytest.approx(s["max_by_type"]["rafter"]["max_ratio"], abs=1e-4)

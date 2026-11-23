@@ -163,13 +163,24 @@ def test_sizing_sees_the_strut_force_per_line_gauge():
     assert pur["to"] == "Z250x65x20x1.5" and es["to"] == "C200x65x20x1.5"
     # the strut lines are checked WITH their axial (the old sizing never saw it): RA5's governing row is H1.2
     assert pur["strut_lines"]["RA5"]["governing"].startswith("RA5: Axial + bending")
-    assert not any(v["changed"] for v in pur["strut_lines"].values())          # the strut purlins pass on the base
+    # the strut purlins pass the MEMBER check on the base (1.5) but take at least 1.8 mm for their cleats' web bearing
+    # (open item 16.2, user 2026-11-18 / approved 2026-11-22): Z250x65x20x1.8 on RA / RB 1, 5, 10
+    struts = ("RA1", "RA5", "RA10", "RB1", "RB5", "RB10")
+    assert sorted(pur["strut_lines"]) == sorted(struts)
+    assert all(v["changed"] and v["profile"] == "Z250x65x20x1.8" and v["t_min"] == 1.8 for v in pur["strut_lines"].values())
+    assert all(v["tried"][0][0] == "Z250x65x20x1.8" for v in pur["strut_lines"].values())   # 1.5 not tried: below t_min
     # the braced-bay eave struts: C200x1.5 above the target → the next GAUGE of the same depth / flange / lip, C200x1.8
-    assert r["line_profiles"] == {k: "C200x65x20x1.8" for k in ("RA0-1", "RA0-4", "RB0-1", "RB0-4")}
+    assert r["line_profiles"] == {**{k: "C200x65x20x1.8" for k in ("RA0-1", "RA0-4", "RB0-1", "RB0-4")},
+                                  **{k: "Z250x65x20x1.8" for k in struts}}
+    # NEGATIVE CONTROL: strut_purlin_t_min 0 → the old result, the strut purlins stay on the base (no purlin line gauge)
+    r0 = size_cold_formed(b0, li, strut_purlin_t_min=0.0)
+    assert not any(v["changed"] for v in r0["roles"]["purlin"]["strut_lines"].values())
+    assert r0["line_profiles"] == {k: "C200x65x20x1.8" for k in ("RA0-1", "RA0-4", "RB0-1", "RB0-4")}
     t = es["strut_lines"]["RA0-1"]["tried"]
     assert t[0][0] == "C200x65x20x1.5" and t[0][1] > 0.90 and t[1][0] == "C200x65x20x1.8" and t[1][1] <= 0.90
     # negative control: lines without a wind strut force set the base and are never in line_profiles
     assert set(es["base_lines"]) == {"RA0-2", "RA0-3", "RB0-2", "RB0-3"} and not set(es["base_lines"]) & set(r["line_profiles"])
+    assert "lines" not in r["sections"]                                              # per-line gauges only in line_profiles
     # C200x1.8 R-factor capacity longhand: My 13.549, Mcrl 17.665 → Mnlo 12.552 → 0.9 × 0.65 × 12.552 = 7.343 kN·m
     sd = section_data("C200x65x20x1.8", "S350GD")
     Mnlo = (1 - 0.15 * (sd["Mcrl"] / sd["My"]) ** 0.4) * (sd["Mcrl"] / sd["My"]) ** 0.4 * sd["My"]

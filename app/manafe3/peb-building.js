@@ -134,7 +134,45 @@ export function buildingRequest(form, state = null) {
     const v = form[g];
     if (v && typeof v === 'object') body[g] = Object.fromEntries(['hw', 'tw', 'bf', 'tf'].map((k) => [k, Number(v[k])]));
   }
+  // open item 16.4: per-line gauges from Design… Apply ({line or piece id: profile}); the engine refuses another depth
+  if (form.line_profiles && typeof form.line_profiles === 'object' && Object.keys(form.line_profiles).length) body.sections.lines = { ...form.line_profiles };
   return body;
+}
+
+/**
+ * Open item 16.4 (user 2026-11-22): the per-line gauges a building keeps when its Building… form is submitted again.
+ * - ALL are cleared when the geometry that numbers the lines changes (span, eave height, slope, bays, bay spacing, purlin /
+ *   girt spacing or first positions, apex gap, braced bays): an id may then point to another line → cleared = true.
+ * - Otherwise a gauge stays only while its role's profile has the same kind, depth, flange and lip; the others are
+ *   dropped and listed. Role by id: R<side>0 / R<side>0-<bay> eave strut, R<side><k> purlin, G<side><k> girt.
+ * Then filterLineProfiles() against the generated building drops the ids it does not have, before they are sent.
+ */
+export const LINE_GEOMETRY_FIELDS = ['span', 'eave_height', 'roof_slope', 'n_bays', 'bay_spacing', 'bays', 'roof_spacing_a', 'roof_spacing_b',
+  'roof_first_a', 'roof_first_b', 'apex_gap', 'girt_spacing_a', 'girt_spacing_b', 'girt_first', 'braced_bays', 'span_ref', 'grid_inset'];
+export const GAUGES_CLEARED = 'Per-line gauges cleared: geometry changed, re-run Design';
+export function keptLineProfiles(kept, form) {
+  const all = kept?.line_profiles || {};
+  if (!Object.keys(all).length) return { line_profiles: {}, dropped: [], cleared: false };
+  const norm = (v) => { const t = String(v ?? '').trim(); return t !== '' && Number.isFinite(Number(t)) ? String(Number(t)) : t.replace(/\s+/g, ' '); };
+  const dflt = (k) => BUILDING_DEFAULTS[k];
+  if (LINE_GEOMETRY_FIELDS.some((k) => norm(kept[k] ?? dflt(k)) !== norm(form?.[k] ?? dflt(k)))) return { line_profiles: {}, dropped: Object.keys(all).sort(), cleared: true };
+  const dims = (n) => { const m = String(n || '').trim().match(/^([CZ])\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)$/i); return m ? `${m[1].toUpperCase()}${+m[2]}x${+m[3]}x${+m[4]}` : null; };
+  const role = (id) => (/^R[AB]0(-\d+)?$/.test(id) ? 'eave_strut' : /^R[AB]\d+$/.test(id) ? 'purlin' : /^G[AB]\d+$/.test(id) ? 'girt' : null);
+  const keep = {}, dropped = [];
+  for (const [id, prof] of Object.entries(all)) {
+    const r = role(id), base = r && dims(form?.[r]);
+    if (base && base === dims(prof)) keep[id] = prof; else dropped.push(id);
+  }
+  return { line_profiles: keep, dropped, cleared: false };
+}
+
+/** Open item 16.4: keep only the per-line gauge ids the generated building has (a cold-formed line id or piece id). */
+export function filterLineProfiles(lineProfiles, members) {
+  const ids = new Set();
+  for (const m of members || []) if (['purlin', 'ridge_purlin', 'eave_strut', 'girt'].includes(m.role)) { ids.add(m.id); if (m.line) ids.add(m.line); }
+  const keep = {}, dropped = [];
+  for (const [id, p] of Object.entries(lineProfiles || {})) (ids.has(id) ? (keep[id] = p) : dropped.push(id));
+  return { line_profiles: keep, dropped };
 }
 
 export function memberFromEngine(m, gen = 'peb') {

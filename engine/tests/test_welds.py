@@ -319,9 +319,11 @@ def test_sized_building_1_welds():
     # −35.526 before the ridge flange braces (open item 11, 2026-11-16), −35.509 with them; open item 7 (2026-11-17, accepted
     # by the user): the brace combinations of the direction in which this base's diagonal is the tension one carry the
     # roof-X chord's vertical share as well → −38.289 (governing 0.9D + 1.0WB+ with BRB)
-    assert worst["F1-BA"] == pytest.approx(-38.289, abs=0.005) and worst["F5-BA"] == pytest.approx(-38.289, abs=0.005)
-    # −44.341 before the ridge braces, −44.309 with them, −44.301 with the wind-column-top braces too; −47.088 with open item 7
-    assert worst["F2-BA"] == pytest.approx(-47.088, abs=0.005) and worst["F4-BA"] == pytest.approx(-47.088, abs=0.005)
+    # −38.282 with the 24 PL12 strut cleats in the roof dead load (open item 16.2, approved by the user 2026-11-23)
+    assert worst["F1-BA"] == pytest.approx(-38.282, abs=0.002) and worst["F5-BA"] == pytest.approx(-38.282, abs=0.002)
+    # −44.341 before the ridge braces, −44.309 with them, −44.301 with the wind-column-top braces too; −47.088 with open item 7;
+    # −47.081 with PL10 strut cleats, −47.074 with PL12 (open item 16.2, approved by the user 2026-11-23)
+    assert worst["F2-BA"] == pytest.approx(-47.074, abs=0.002) and worst["F4-BA"] == pytest.approx(-47.074, abs=0.002)
     gov = min(next(b for b in braced if b["joint"] == "F2-BA")["longitudinal"]["cases"], key=lambda c: c["Pu"])
     assert gov["combo"].endswith("+ 1BRB") and gov["T_brace"] == pytest.approx(18.860, abs=2e-3)       # the same T as the columns
     # NEGATIVE CONTROL: the ridge flange braces, the wind-column-top braces and the brace axial (open item 7) off → the old
@@ -333,7 +335,9 @@ def test_sized_building_1_welds():
     bs_off = building_bases(building_joints(_dc.replace(b0, ridge_flange_braces=False, wc_top_flange_braces=False, brace_axial=False), li, analysis=an_off, out=out_off),
                             out_off, BaseSettings(concrete="C25/30"), analysis=an_off)
     w_off = {x["joint"]: min(c["Pu"] for c in x["longitudinal"]["cases"]) for x in bs_off["bases"] if x.get("longitudinal")}
-    assert w_off["F1-BA"] == pytest.approx(-35.526, abs=0.005) and w_off["F2-BA"] == pytest.approx(-44.341, abs=0.005)
+    # −35.519 / −44.327 with the 24 PL12 strut cleats: they follow the roof X-bracing, not the switches above, so their weight
+    # stays in the roof dead load (+0.007 / +0.014, the same shift as the main case; open item 16.2, approved by the user 2026-11-23)
+    assert w_off["F1-BA"] == pytest.approx(-35.519, abs=0.005) and w_off["F2-BA"] == pytest.approx(-44.327, abs=0.005)
     # the 6 LRFD WB combinations + 0.9D / 1.2D + BRmin (gravity only → the DAM solves each with ±N: 4), in the one direction
     # this base's diagonal pulls
     N_BR_PAIRS = 6 + 4

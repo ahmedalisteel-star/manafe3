@@ -14,7 +14,8 @@
  *   memberIdsOf(state, buildingId, ids)     engine ids (= member names) → model member ids, within that building
  *   tableRows(result, {filter, sort, dir, code})   the results table
  *   proposalRows(spec, proposed)            what Size proposes, field by field (before → after)
- *   specWithProposal(spec, proposed)        the building spec with the proposed sizes (what Apply hands applyBuilding)
+ *   specWithProposal(spec, proposed)        the building spec with the proposed sizes (what Apply hands applyBuilding),
+ *                                           per-line gauges included (spec.line_profiles, open item 16.4)
  *   calcSheetsHtml(result, keys, meta)      one HTML document, a calc sheet per member, print → PDF
  */
 import { ENGINE_URL } from './peb-frame.js';
@@ -113,6 +114,13 @@ export function proposalRows(spec, proposed) {
     const v = proposed?.[g];
     if (v) for (const k of SEC_KEYS) rows.push({ group: g === 'wind_column' ? 'Wind columns' : 'End rafters', field: k, before: spec?.[g]?.[k] ?? '(default)', after: v[k] });
   }
+  // Manafe3 open item 16.4: the per-line gauges (strut lines) — a line not in the proposal goes back to its role's profile
+  if (proposed?.line_profiles) {
+    const was = spec?.line_profiles || {}, now = proposed.line_profiles;
+    for (const id of [...new Set([...Object.keys(was), ...Object.keys(now)])].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))) {
+      if (was[id] !== now[id]) rows.push({ group: 'Cold-formed lines', field: id, before: was[id] ?? '(role profile)', after: now[id] ?? '(role profile)' });
+    }
+  }
   return rows;
 }
 
@@ -123,6 +131,7 @@ export function specWithProposal(spec, proposed) {
   if (s.grade) out.grade = s.grade;
   for (const k of ['purlin', 'eave_strut', 'girt']) if (proposed?.sections?.[k]) out[k] = proposed.sections[k];
   for (const g of ['wind_column', 'end_rafter']) if (proposed?.[g]) out[g] = Object.fromEntries(SEC_KEYS.map((k) => [k, Number(proposed[g][k])]));
+  if (proposed?.line_profiles) out.line_profiles = { ...proposed.line_profiles };   // open item 16.4: per-line gauges, the whole set
   return out;
 }
 

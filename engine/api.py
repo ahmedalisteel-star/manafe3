@@ -153,6 +153,7 @@ class SectionsIn(BaseModel):
     purlin: str = "Z200x65x20x2.0"
     eave_strut: str = "C200x65x20x2.0"
     girt: str = "Z200x65x20x2.0"
+    lines: dict[str, str] = Field(default_factory=dict, description="per-line gauge {line or piece id: profile}, same kind / H / B / D as the role's (open item 16.1)")
 
 
 class OpeningIn(BaseModel):

@@ -81,6 +81,30 @@ ok(r2.id === bid && B.buildingsOf(m.state).find((b) => b.id === bid).spec.purlin
 m.undo();
 ok(JSON.stringify(m.state.members.length) === before && B.buildingsOf(m.state).find((b) => b.id === bid).spec.purlin === 'Z200x65x20x2.0', 'ONE undo step restores the model');
 
+// ---- open item 16.4: Apply writes the per-line gauges --------------------------------------------------------------------
+const lp = { 'RA0-1': 'C200x65x20x1.8', RA1: 'Z250x65x20x1.8' };
+const prL = D.proposalRows({ ...spec, line_profiles: { GA2: 'Z200x65x20x2.5', RA1: 'Z250x65x20x1.8' } }, { ...proposed, line_profiles: lp });
+ok(prL.filter((x) => x.group === 'Cold-formed lines').map((x) => `${x.field}:${x.before}>${x.after}`).join(' ') === 'GA2:Z200x65x20x2.5>(role profile) RA0-1:(role profile)>C200x65x20x1.8',
+  'proposal rows: per-line gauges added / dropped, an unchanged one not listed', prL.filter((x) => x.group === 'Cold-formed lines'));
+const specL = D.specWithProposal(spec, { ...proposed, line_profiles: lp });
+const bodyL = B.buildingRequest(specL, m.state);
+ok(JSON.stringify(specL.line_profiles) === JSON.stringify(lp) && JSON.stringify(bodyL.sections.lines) === JSON.stringify(lp), 'Apply\'s spec keeps the per-line gauges and the request sends sections.lines', bodyL.sections);
+ok(!('lines' in body.sections) && !('line_profiles' in D.specWithProposal(spec, proposed)), 'no per-line gauge proposed → none sent (negative control)');
+ok(JSON.stringify(D.specWithProposal({ ...spec, line_profiles: { RA1: 'Z250x65x20x1.8' } }, { ...proposed, line_profiles: {} }).line_profiles) === '{}', 'a proposal without strut gauges clears the old ones (the proposal is the whole set)');
+const keptSpec = { ...B.BUILDING_DEFAULTS, purlin: 'Z250x65x20x1.5', eave_strut: 'C200x65x20x1.5', girt: 'Z225x65x20x1.5', line_profiles: { ...lp, GA2: 'Z200x65x20x2.5' } };
+const sameGeom = { ...keptSpec, line_profiles: undefined };
+const kl = B.keptLineProfiles(keptSpec, sameGeom);
+ok(!kl.cleared && JSON.stringify(kl.line_profiles) === JSON.stringify(lp) && kl.dropped.join() === 'GA2', 'NEGATIVE CONTROL — same geometry: a gauge stays while its role keeps its depth, else dropped and listed', kl);
+ok(B.keptLineProfiles(keptSpec, { ...sameGeom, span: '24000', n_bays: '4' }).cleared === false, 'the same values typed as text are not a geometry change');
+for (const [k, v] of [['n_bays', 5], ['bay_spacing', 7500], ['span', 30000], ['roof_spacing_a', 1500], ['girt_spacing_b', 1500], ['braced_bays', '2 3'], ['bays', '6000 7000 6000 6000']]) {
+  const r = B.keptLineProfiles(keptSpec, { ...sameGeom, [k]: v });
+  ok(r.cleared && !Object.keys(r.line_profiles).length && r.dropped.length === 3, `${k} changed → ALL per-line gauges cleared (ids may point to another line)`, r);
+}
+ok(B.GAUGES_CLEARED === 'Per-line gauges cleared: geometry changed, re-run Design', 'the cleared message');
+const fl = B.filterLineProfiles({ RA1: 'Z250x65x20x1.8', 'RA0-1': 'C200x65x20x1.8', RA14: 'Z250x65x20x1.8', 'RA0-9': 'C200x65x20x1.8' }, RES.members);
+ok(JSON.stringify(fl.line_profiles) === JSON.stringify({ RA1: 'Z250x65x20x1.8', 'RA0-1': 'C200x65x20x1.8' }) && fl.dropped.join() === 'RA14,RA0-9', 'ids the building does not have are dropped and listed, never sent', fl);
+ok(!('lines' in B.buildingRequest({ ...sameGeom }, m.state).sections), 'a form without kept gauges sends no sections.lines');
+
 // ---- request and saving the settings ---------------------------------------------------------------------------------
 ok(throws(() => D.designRequest(m.state, {}), /loads/i), 'no loads → refused');
 m.change('loads', (tx) => { tx.s.m3loads = { V: 45, exposure: 'C' }; tx.s.m3design = { code_basis: 'AISC', target: 0.85 }; });

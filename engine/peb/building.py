@@ -149,7 +149,9 @@ def peb_building(b: BuildingInput) -> dict:
                       ridge_flange_braces=b.ridge_flange_braces)
     rods = sag_rods(lines, bi)
     overhang = z.bf / 2 + cf_dims(b.sections.girt)["H"]     # to the end-wall girt line
-    sec = secondary_members(lines, frames, end_overhang=overhang, bolt=b.bolt, fixed_lap=b.fixed_lap, extra_holes=rods["holes"])
+    xb = x_bracing(lines, lines["walls"], bi)
+    sec = secondary_members(lines, frames, end_overhang=overhang, bolt=b.bolt, fixed_lap=b.fixed_lap, extra_holes=rods["holes"],
+                            cleat_profiles=strut_purlin_cleats(lines, xb, braced, b.roof_slope))
     girts = [m for m in sec["members"] if m["role"] == "girt"]
     others = [m for m in sec["members"] if m["role"] != "girt"]
     rafter_ends = {x for i, x in ((0, frames[0]), (b.n_bays, L)) if (b.end_first if i == 0 else b.end_last) == "rafter"}
@@ -187,7 +189,7 @@ def peb_building(b: BuildingInput) -> dict:
     cleats = sec["cleats"] + [c for end, sup in gable_sets for c in gable_cleats(op["girts"], end, sup, b.bolt)]
     for m in others + op["girts"] + op["members"]:
         members.append({**m, "type": ROLE_TYPE.get(m["role"], "beam")})
-    for m in rods["members"] + x_bracing(lines, lines["walls"], bi) + fb:
+    for m in rods["members"] + xb + fb:
         members.append({**m, "type": "brace", "position": "middle", "rotation": 0.0})
     for k, m in enumerate(members):
         m.setdefault("id", f"P{k + 1}")
@@ -213,6 +215,28 @@ def peb_building(b: BuildingInput) -> dict:
         "notes": ["Geometry only: NOT designed (Phase 4). Splices, knee, ridge and brace connections are points only (Phase 5).",
                   "Cold-formed design properties come from the supplier's catalogue (needed before Phase 4)."],
     }
+
+
+#: the cleat of a strut purlin at a braced-bay frame line (open item 16.2, user 2026-11-18: PL10 — the PL8 cleat fails in
+#: compression + bending under the roof-X strut force; user 2026-11-23: PL12 with a 10 mm fillet both sides — PL10's 8 mm
+#: weld failed at the design-side sizes; recheck after AISI J3.3 is verified)
+STRUT_CLEAT = "PL12x100"
+
+
+def strut_purlin_cleats(lines: dict, roof_braces: list[dict], braced: list[int], slope: float) -> dict:
+    """{(line id, frame index): STRUT_CLEAT} for the purlins at the roof-X nodes (within NODE_TOL along the slope of a
+    roof-brace end, open item 7's rule) at the two frame lines of each braced bay (0-based bay j: frames j and j + 1)."""
+    from ..analysis.brace_axial import NODE_TOL
+    cos = 1.0 / math.sqrt(1.0 + slope * slope)
+    out = {}
+    for j in braced:
+        for side in "AB":
+            ys = {p[1] for m in roof_braces if m["role"] == "roof_brace" and m["bay"] == j and m["side"] == side
+                  for p in (m["start"], m["end"])}
+            for ln in lines["roof"]:
+                if ln["side"] == side and ln["role"] in ("purlin", "ridge_purlin") and any(abs(ln["start"][1] - y) / cos < NODE_TOL for y in ys):
+                    out[(ln["id"], j)] = out[(ln["id"], j + 1)] = STRUT_CLEAT
+    return out
 
 
 def gable_cleats(girts: list[dict], end: str, supports: list[float], bolt: str) -> list[dict]:

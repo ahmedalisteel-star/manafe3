@@ -230,11 +230,24 @@ def _building1():
     return {"joints": joint_list(b, out)}, out, li
 
 
+def _b1():
+    from engine.peb.building import resolve
+    from engine.tests.test_joints import _sized
+    return resolve(_sized()[0])[0]
+
+
 def test_building_1_cleats():
     from engine.design.cfs_checks import building_lines
     jr, out, li = _building1()
-    r = C.building_cleats(jr, out, li)
+    r = C.building_cleats(jr, out, li, b=_b1())
     assert r["banner"].startswith("NOT FOR ISSUE") and r["counts"] == {"DESIGNED": 196}
+    # NEGATIVE CONTROL (user 2026-11-23): without the building input the item 7 panel force of the eave struts between
+    # the braced bays cannot be computed — their 6 cleats read NOT EVALUATED, never a pass
+    r0 = C.building_cleats(jr, out, li)
+    ne = [x for x in r0["cleats"] if x["status"] == C.NOT_EVALUATED]
+    assert sorted(x["joint"] for x in ne) == ["CL2", "CL3", "CL4", "CL57", "CL58", "CL59"]
+    assert all("panel-bracing force" in x["missing"][0] and "checks" not in x for x in ne)
+    assert r0["counts"] == {"DESIGNED": 190, C.NOT_EVALUATED: 6}
     assert r["detail"]["weld_leg"] == 5.0 and r["detail"]["bolts"].startswith("2 x M12 8.8")
     assert all(x["governing"]["U"] <= 1.0 for x in r["cleats"])
     # an interior eave-strut cleat: two simple spans (one with the 300 mm overhang) — hand values from the line loads
@@ -245,7 +258,7 @@ def test_building_1_cleats():
     qa, qb = q(a, 0), q(b, 0)
     Rl = qa * 6.3 ** 2 / (2 * 6.0)
     hand = (qa * 6.3 - Rl) + qb * 6.0 / 2
-    case = next(c for c in x["cases"] if c["combo"] == "1.2D+1.6Lr+0.5W")
+    case = next(c for c in x["cases"] if c["combo"] == "1.2D+1.6Lr+0.5W (C&C) +N")      # a strut cleat (item 16.2)
     assert case["R"] == pytest.approx(hand, abs=2e-3)
     assert case["F_out"] == pytest.approx(0.1 * hand - 0.1 * 0.5 * (a["Win"][0] * (6.3 - 6.3 ** 2 / 12) + b["Win"][0] * 3.0), abs=2e-3)
     assert [p["e_minus"] for p in x["pieces"]] == [6275.0, 20.0] and [p["along"] for p in x["pieces"]] == [-25.0, 25.0]
@@ -267,8 +280,32 @@ def test_building_1_not_evaluated():
     jr2 = copy.deepcopy(jr)
     j = next(j for j in jr2["joints"] if j["type"] == "cleat" and out2["cleats"][int(j["id"][2:]) - 1]["line"] == "RA2")
     j["members"] = [m for m in j["members"] if "distance" not in m]
-    r = C.building_cleats(jr2, out2, li)
+    r = C.building_cleats(jr2, out2, li, b=_b1())
     ne = [x for x in r["cleats"] if x["status"] == C.NOT_EVALUATED]
     assert {x["line"] for x in ne} == {"RA1", "RA2"} and len(ne) == 5 + 1
     assert all("checks" not in x for x in ne)                                       # never a U for a missing input
     assert any("web grade" in m for x in ne for m in x["missing"]) and any("host" in m for x in ne for m in x["missing"])
+
+
+def test_thin_host_flange_guard():
+    """User 2026-11-23: the flange-side base metal of the fixed 10 mm fillet is not a separate row (it cannot govern while
+    the host flange tf ≥ the leg: 0.75 · 0.6 · 482 · 7.07 = 1534 N/mm weld metal < 0.75 · 0.6 · 490 · 10 = 2205 rupture and
+    1.0 · 0.6 · 355 · 10 = 2130 yield per line). NEGATIVE CONTROL: rafter F2-RA's flanges cut to 8 mm → its strut cleats
+    (PL12, 10 mm fillet) read NOT EVALUATED with the reason; its PL8 cleats (sized leg) are still checked."""
+    jr, out, li = _building1()
+    out2 = copy.deepcopy(out)
+    host = next(m for m in out2["members"] if m["id"] == "F2-RA")
+    for seg in host["section"]["segments"]:
+        seg["tf_top"] = seg["tf_bot"] = 8.0
+    r = C.building_cleats(jr, out2, li, b=_b1())
+    on = {x["joint"]: x for x in r["cleats"] if (x.get("host") or {}).get("member") == "F2-RA"
+          or (x["status"] == C.NOT_EVALUATED and x["joint"] in ("CL7", "CL27", "CL52"))}
+    for j in ("CL7", "CL27", "CL52"):                                   # RA1 / RA5 / RA10 at frame 2: the strut cleats
+        x = on[j]
+        assert x["cleat"] == "PL12x100" and x["status"] == C.NOT_EVALUATED and "checks" not in x
+        assert "host flange tf 8 mm < the fixed fillet leg 10 mm" in x["missing"][0]
+    pl8 = [x for x in on.values() if x["cleat"] == "PL8x100"]
+    assert pl8 and all("checks" in x and x["status"] != C.NOT_EVALUATED for x in pl8)
+    # the unmodified building: the same cleats are evaluated (tf 10 = the leg)
+    r0 = C.building_cleats(jr, out, li, b=_b1())
+    assert all(x["status"] != C.NOT_EVALUATED for x in r0["cleats"] if x["joint"] in ("CL7", "CL27", "CL52"))

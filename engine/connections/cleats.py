@@ -78,7 +78,7 @@ from bimsteelauto_connections.welds import min_weld_size
 from pyaisc360 import chapter_j as J
 from pyaisc360.chapter_e import flexural_buckling_stress_E3
 
-from ..design.cfs_checks import COMBOS_ROOF, NST, STEEL_KN_M3, beam_line, building_lines
+from ..design.cfs_checks import COMBOS_MIN, COMBOS_ROOF, NST, STEEL_KN_M3, attach_struts, beam_line, building_lines, strut_setup
 from ..design.cfs_section import cfs_section
 from ..design.inputs import plate_strength
 from ..peb.secondary import cf_dims
@@ -92,6 +92,8 @@ FAILS = "FAILS"
 #: a failure that rests only on the AISI J3 thin-web bearing typed from memory (user 2026-11-15) — until the printed page
 #: is checked (open item 9.2)
 FAILS_AISI = "FAILS (AISI J3.3 unverified, item 9.2)"
+#: on a cleat whose GOVERNING check is the AISI J3.3 / J3.1 thin-web bearing (user 2026-11-23): a note, status unchanged
+AISI_GOV_NOTE = "governing check from AISI J3.3, unverified (item 9.2)"
 #: cold-formed gauges offered in the fix options (typical supplier thicknesses, mm) — options only, the model is not changed
 CF_GAUGES = (1.5, 1.8, 2.0, 2.3, 2.5, 3.0, 3.2)
 
@@ -128,9 +130,19 @@ ASSUMPTIONS = (
     "the bolts in one shear plane: conservative",
     "the down-slope component of the roof gravity reaction is taken at the cleat as if there were no sag rods; a wall line's "
     "own weight and sheeting act out of the cleat plane; both as bolt tension and cleat minor-axis bending",
-    "eave struts: the bracing's strut force (LRFD 1.0 W, × the combination's wind factor), both signs; purlins / girts: "
-    "no axial force (no drag in the model) except, at a flange-braced frame (step 5c), the flange-brace force (the largest "
-    "over the frame's combinations, both signs, added to every combination: an envelope)",
+    "strut lines (open item 16.2, the same-direction pairing of open item 15 — the member check's): the eave strut's "
+    "P_split (the drag, or in a braced bay the wall-panel shear), between two braced bays the item 7 panel-bracing force "
+    "max(drag, 0.005 x sum Pr of the columns, same combination) (user 1c), and at the braced-bay frame lines the strut "
+    "purlin's roof-X force V — C&C with the panel force only, Case B uplift with max(Case B share x the wind factor, "
+    "panel), the §28.3.4 minimum with dead load only (0.9D, 1.2D); every combination both signs",
+    "flange-brace force at a cleat with a strut force: the strut force PLUS the flange-brace force of THE SAME "
+    "combination (frame combinations matched by their D, Lr and wind factors; Case B with the brace cases, the minimum "
+    "with BRmin), worse sign — user decision 2026-11-22 ('concurrent forces, same combination'). Other purlins / girts: "
+    "the flange-brace force (the largest over the frame's combinations, both signs, added to every combination: an "
+    "envelope)",
+    "a cleat carrying two gauges (two pieces) takes the THINNER piece's web thickness and grade (open item 16.3)",
+    "one weld leg per cleat type (plate thickness and width): one detail per joint type (open item 16.2: the PL10 strut "
+    "cleats have their own leg)",
     "the cleat's steel = the host member's grade unless set (the model gives the cleat no grade)",
 )
 FIXES = {
@@ -154,7 +166,14 @@ class CleatSettings:
     electrode: str = "E70"
     shop_min_leg: float = 5.0          # as step 4
     flange_web_leg: float = 5.0        # the host's flange-to-web fillet for k = tf + leg (J10.2); step 4's shop minimum
-    web_washers: bool = False          # washers under head AND nut on the cold-formed web: AISI mf 1.00 (else 0.75)
+    #: a fixed fillet leg per cleat type (mm), still capped at J2.2b — user 2026-11-23: the PL12 strut cleat takes 10 mm
+    fixed_legs: dict = None
+    web_washers: bool = True           # washers under head AND nut on the cold-formed web: AISI mf 1.00 (else 0.75) —
+                                       # the default for secondary bolts into cold-formed members (open item 16.5, user 2026-11-18)
+
+    def __post_init__(self):
+        if self.fixed_legs is None:
+            self.fixed_legs = {"PL12x100": 10.0}
 
     def check(self) -> "CleatSettings":
         if self.threads not in ("N", "X"):
@@ -315,10 +334,79 @@ def wall_dead_load(line: dict, li) -> list[float]:
     return [q] * (len(line["nodes"]) - 1)
 
 
-def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float, N_brace: float = 0.0) -> list[dict]:  # Rd: {"D": kN}
+ROOF_KINDS = ("purlin", "ridge_purlin", "eave_strut")
+
+
+def cleat_cases(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float, N_brace: float = 0.0, *,
+                strut: dict | None = None, families: bool = False, N_brace_by=None, panel: dict | None = None) -> list[dict]:  # Rd: {"D": kN}
     """The LRFD combinations at one support of one line: [{combo, R, F_out, N}] (kN). R from the line's own load cases;
     F_out: roof — tan θ × the gravity part of R; wall — the wall dead load's reaction Rd (out of plane); N = ± P × the
-    combination's wind factor (eave struts)."""
+    combination's wind factor (eave struts).
+    families (open item 16.2, a cleat with a strut force; roof lines), the same-direction pairing of the member check
+    (cfs_checks.check_line), every combination both signs:
+        C&C          N = ± (the item 7 panel force of THAT combination (eave strut between braced bays) + Nb)
+        Case B       the wind combinations with Case B uplift WoutB and no inward roof pressure,
+                     N = ± (max(caseB × the wind factor, panel) + Nb)
+        minimum + D  COMBOS_MIN, N = ± (minimum + Nb)
+    strut {caseB, minimum} kN or None; panel {COMBOS_ROOF name: kN}. Nb = the flange-brace force of THE SAME combination
+    (N_brace_by(family, factors) → kN; user decision 2026-11-22, "concurrent forces, same combination", worse sign);
+    without it the enveloped N_brace (fallback, flagged by the caller)."""
+    if not (families and line["kind"] in ROOF_KINDS):
+        return _cc_family(line, R, Rd, tan_t, P, N_brace)
+    nb = N_brace_by if N_brace_by is not None else (lambda fam, fac: abs(N_brace))
+    panel = panel or {}
+    sb = (strut or {}).get("caseB") or 0.0
+    sm = (strut or {}).get("minimum") or 0.0
+    Rb = {**R, "Win": 0.0, "Wout": R.get("WoutB", 0.0)}
+    out = []
+
+    def add(name, RR, fac, n):
+        r = sum(f * RR.get(c, 0.0) for c, f in fac.items())
+        fo = tan_t * sum(f * RR.get(c, 0.0) for c, f in fac.items() if c in GRAVITY)
+        for sg, lab in ((1.0, "+"), (-1.0, "-")):
+            out.append({"combo": f"{name} {lab}N", "R": r, "F_out": fo, "N": sg * n})
+    for name, fac in COMBOS_ROOF["LRFD"].items():
+        wf = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+        add(f"{name} (C&C)", R, fac, max(P * wf, panel.get(name, 0.0)) + nb("C&C", fac))
+    for name, fac in COMBOS_ROOF["LRFD"].items():
+        wf = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+        if wf > 0:
+            add(f"{name} Case B + strut", Rb, fac, max(sb * wf, panel.get(name, 0.0)) + nb("caseB", fac))
+    for name, fac in COMBOS_MIN["LRFD"].items():
+        add(f"{name} + strut", R, fac, sm + nb("minimum", fac))
+    return out
+
+
+def flange_brace_match(entries: list, family: str, fac: dict) -> float | None:
+    """The flange-brace force (kN) of the frame combinations that ARE this cleat combination (user decision 2026-11-22):
+    the same D and Lr factors and wind factor; C&C — no brace case; Case B — a WB case with BRA / BRB (without brace
+    combinations: WB alone); minimum — a BRmin case with the same D. entries [(frame factors, N)]. The largest of the
+    matching frame combinations (the worse sign / direction); None when none matches."""
+    D, Lr = fac.get("D", 0.0), fac.get("Lr", 0.0)
+    w = max(fac.get("Win", 0.0), fac.get("Wout", 0.0))
+
+    def pick(need_br):
+        best = None
+        for f, N in entries:
+            if abs(f.get("D", 0.0) - D) > 1e-9:
+                continue
+            bm = any(k.startswith("BRmin") for k in f)
+            if family == "minimum":
+                ok = bm
+            else:
+                fw = max((v for k, v in f.items() if k.startswith("W")), default=0.0)
+                br = any(k in ("BRA", "BRB") for k in f)
+                if abs(f.get("Lr", 0.0) - Lr) > 1e-9 or abs(fw - w) > 1e-9 or bm:
+                    continue
+                ok = (any(k.startswith("WB") for k in f) and br == need_br) if family == "caseB" else not br
+            if ok:
+                best = max(best or 0.0, abs(N))
+        return best
+    v = pick(True)
+    return pick(False) if v is None and family == "caseB" else v
+
+
+def _cc_family(line: dict, R: dict, Rd: dict | None, tan_t: float, P: float, N_brace: float) -> list[dict]:
     out = []
     combos = COMBOS_ROOF["LRFD"] if line["kind"] in ("purlin", "ridge_purlin", "eave_strut") else COMBOS_WALL_CLEAT
     for name, fac in combos.items():
@@ -540,7 +628,8 @@ def check_cleat(geom: dict, pieces: list[dict], combos: list[list[dict]], mats: 
                 options.append(f"{r['name']} (U {r['U']:.3f}): a PL10 cleat → U {r['U'] * geom['t_cleat'] / 10.0:.3f}")
         else:
             options.append(f"{r['name']} (U {r['U']:.3f}): {FIXES[r['key']]}")
-    return {"status": (FAILS_AISI if aisi_only(bad) else FAILS) if bad else DESIGNED, "fix_options": options,
+    notes = [AISI_GOV_NOTE] if str(gov.get("ref", "")).startswith("AISI") else []   # user 2026-11-23 (status unchanged)
+    return {"status": (FAILS_AISI if aisi_only(bad) else FAILS) if bad else DESIGNED, "fix_options": options, "notes": notes,
             "governing": {k: gov[k] for k in ("name", "U", "combo")},
             "checks": checks, "weld_flow_max": round(weld_need, 2),
             "fixes": sorted({f"{r['name']}: {FIXES[r['key']]}" for r in bad})}
@@ -594,20 +683,25 @@ def _line_key(m: dict) -> str:
 
 
 def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings | None = None,
-                    flange_brace_N: dict | None = None) -> dict:
-    """Every cleat joint of a building_joints() result (CL k ↔ out["cleats"][k − 1]) → checked cleats."""
-    from ..analysis.bracing_system import longitudinal_bracing
-    from ..analysis.endwall_analysis import _geom, longitudinal_feed
-
+                    flange_brace_N: dict | None = None, flange_brace_N_by_combo: dict | None = None, b=None) -> dict:
+    """Every cleat joint of a building_joints() result (CL k ↔ out["cleats"][k − 1]) → checked cleats.
+    flange_brace_N {(line, x): kN} the enveloped flange-brace force; flange_brace_N_by_combo {(line, x): {frame combo:
+    (factors, kN)}} the same per frame combination (a strut cleat takes the force of the same combination). b: the
+    BuildingInput — needed for the item 7 panel-bracing force of an eave strut between two braced bays (ΣPr of the
+    columns, cfs_checks._column_Pr); without it such a cleat reads NOT EVALUATED."""
+    from ..design.cfs_checks import _column_Pr
     st = (settings or CleatSettings()).check()
     mem = {m["id"]: m for m in out["members"] if m.get("id")}
     lines = building_lines(out, li)
     tan_t = float(out["input"]["roof_slope"])
-    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
-    struts = {}
-    if braces and out.get("braced_bays"):
-        bs = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))["sets"]["LRFD"]
-        struts = {j: v for j, v in bs["strut"]}
+    ss = strut_setup(out, li)          # open item 16.2: the member checks' strut forces (one source)
+    no_panel = set()
+    for ln in lines:
+        e = ((ss["bl"] or {}).get("struts", {}).get("eave", {}) if ln["kind"] == "eave_strut" else {}).get(
+            int(ln["id"].rsplit("-", 1)[1]) if ln["kind"] == "eave_strut" else None)
+        if e and e.get("between") and b is None:
+            no_panel.add(ln["id"])
+        attach_struts(ln, ss, panel=(lambda e_, side: _column_Pr(b, li, out, e_["panel_lines"], side)) if b is not None else None)
     # cfs line id → (line, reactions, wall dead-load reactions); the members of each line by the cleat's line name
     key_of = {}
     for m in out["members"]:
@@ -648,13 +742,15 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
             t_c = W = None
             missing.append(f"cleat size from {c['profile']!r}")
         mats = {"mf": 1.0 if st.web_washers else 0.75}
+        thin = None
         if pcs:
-            dims = cf_dims(pcs[0]["profile"])
+            thin = min(pcs, key=lambda m: cf_dims(m["profile"])["t"])      # two gauges on one cleat: the thinner (item 16.3)
+            dims = cf_dims(thin["profile"])
             try:
-                ws_ = plate_strength(pcs[0].get("material", ""), dims["t"])
+                ws_ = plate_strength(thin.get("material", ""), dims["t"])
                 mats["web"] = (ws_["Fy"], ws_["Fu"])
             except ValueError:
-                missing.append(f"web grade {pcs[0].get('material')!r} (not a known grade)")
+                missing.append(f"web grade {thin.get('material')!r} (not a known grade)")
         cg = st.cleat_grade or (host or {}).get("grade")
         if cg and t_c:
             mats["cleat"] = get_grade(cg, t_c)
@@ -678,6 +774,19 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
         axis = 0 if abs(c["width_dir"][0]) > 0.5 else 1
         sgn = c["width_dir"][axis]
         pieces, combos = [], None
+
+        def strut_at(ln):
+            """{caseB, minimum} of a line at this support (open item 16.2), or None."""
+            if ln["kind"] == "eave_strut":
+                return ln.get("P_split")
+            z = [p for a, b_, p in ln.get("P_zones") or [] if abs(sup_x - a) < 1.0 or abs(sup_x - b_) < 1.0]
+            return z[0] if z else None
+        fam = any(strut_at(ln) or ln.get("P_panel_by_combo") for ln, _, _ in contrib)
+        np_ = sorted(ln["id"] for ln, _, _ in contrib if ln["id"] in no_panel)
+        if np_:
+            res.append({**rec, "missing": [f"the item 7 panel-bracing force of {', '.join(np_)} (between two braced bays): "
+                                           "the building input b is not given"]})
+            continue
         for ln, R, Rd in contrib:
             # the pieces this line puts on the cleat: an eave-strut bay = one piece; a continuous line = every piece there
             # (a bay line of the eave strut is numbered by x; its piece is the one spanning the bay's middle)
@@ -697,7 +806,6 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
                 bay = int(ln["id"].rsplit("-", 1)[1])
                 pc = {"piece": m["id"], "along": along, "side": side, "e_minus": e_neg, "e_plus": e_pos,
                       "butt": len(cols) > 1}
-                P = struts.get(bay, 0.0)
                 Nb = 0.0
             else:
                 hx = c["base"][axis] + cols[0] * sgn
@@ -707,53 +815,91 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
                     ds.append((hx - lo, hi - hx) if sgn > 0 else (hi - hx, hx - lo))
                 pc = {"piece": "+".join(m["id"] for m in ps), "along": cols[0], "side": 1.0,
                       "e_minus": min(x[0] for x in ds), "e_plus": min(x[1] for x in ds), "butt": False}
-                P = 0.0
                 Nb = (flange_brace_N or {}).get((c["line"], round(sup_x)), 0.0)
                 if Nb:
                     pc["flange_brace_N"] = round(Nb, 3)
+            sp = strut_at(ln)
+            if sp:
+                pc["strut_kN"] = {"caseB": round(sp["caseB"], 3), "minimum": round(sp["minimum"], 3), "split": sp.get("split")}
+            pnl = ln.get("P_panel_by_combo")
+            if pnl:
+                pc["panel_kN"] = {k_: round(v, 3) for k_, v in pnl.items()}
+                pc["panel_rule"] = ln.get("P_rule")
+            nby = None
+            byc = (flange_brace_N_by_combo or {}).get((c["line"], round(sup_x)))
+            if fam and Nb and ln["kind"] != "eave_strut":
+                if byc:
+                    ent = list(byc.values())
+
+                    def nby(fam_, fac, ent=ent, Nb=Nb):
+                        v = flange_brace_match(ent, fam_, fac)
+                        if v is None:                       # no frame combination matches: the envelope (flagged)
+                            pc.setdefault("flange_brace_unmatched", []).append(fam_)
+                            return Nb
+                        return v
+                    pc["flange_brace_rule"] = "the same combination (user 2026-11-22), worse sign"
+                else:
+                    pc["flange_brace_rule"] = "envelope (no per-combination forces given)"
             pieces.append(pc)
-            cs = cleat_cases(ln, R, Rd, tan_t, P, 0.0 if ln["kind"] == "eave_strut" else Nb)
+            cs = cleat_cases(ln, R, Rd, tan_t, 0.0, 0.0 if ln["kind"] == "eave_strut" else Nb, strut=sp, families=fam,
+                             N_brace_by=nby, panel=pnl)
             combos = [[x] for x in cs] if combos is None else [a + [x] for a, x in zip(combos, cs)]
         if combos is None:
             res.append({**rec, "missing": [f"the piece of line {c['line']} on the cleat"]})
             continue
         rec.update(geometry={k: geom[k] for k in ("t_cleat", "W", "h", "up_low", "up_high", "columns", "d0")},
                    pieces=pieces, host=host, materials={"cleat": {"grade": cg, "Fy": mats["cleat"][0], "Fu": mats["cleat"][1]},
-                                                        "web": {"grade": pcs[0].get("material"), "t": dims["t"],
+                                                        "web": {"grade": thin.get("material"), "t": dims["t"],
                                                                 "Fy": mats["web"][0], "Fu": mats["web"][1]}},
                    cases=[{"combo": cs_[0]["combo"], "R": round(sum(x["R"] for x in cs_), 3),
                            "F_out": round(sum(abs(x["F_out"]) for x in cs_), 3),
                            "N": [round(x["N"], 3) for x in cs_]} for cs_ in combos])
         pending.append((rec, geom, pieces, combos, mats, host, cg))
         res.append(rec)
-    # one weld leg for every cleat (one detail per joint type)
-    need = 0.0
-    for rec, geom, pieces, combos, mats, host, cg in pending:
-        for cs in combos:
-            need = max(need, weld_flows(geom, pieces, cs)["resultant"])
-    t_thin = min([g["t_cleat"] for _, g, *_ in pending] + [h["tf"] for *_, h, _ in pending]) if pending else 8.0
-    sized = weld_leg(need, t_thin, st) if pending else None
-    # the leg is CAPPED at the AISC J2.2b maximum for the cleat (t − 2 mm for t ≥ 6, else t — user 2026-11-16); a cleat
-    # needing more shows its weld rows FAIL with the fix option "PL10 cleat (max 8 mm)"
-    tc_min = min((g["t_cleat"] for _, g, *_ in pending), default=8.0)
-    cap = tc_min if tc_min < 6.0 else tc_min - 2.0
-    leg = min(x for x in (sized, cap) if x is not None) if pending else None
-    for rec, geom, pieces, combos, mats, host, cg in pending:
-        r = check_cleat(geom, pieces, combos, mats, bolts, host, leg, cg, st)
-        rec.update(r)
-    # AISC 360-16 J2.2b maximum fillet ALONG AN EDGE: t for t < 6 mm, t − 2 mm for t ≥ 6 mm (user 2026-11-15: report it)
-    j22b = None
-    if pending and leg:
-        tc_ = tc_min
-        mx = cap
-        ws_ = WeldSettings(electrode=st.electrode)
-        cap_mx = weld_metal(mx, 0.0, ws_, directional=False)
-        over = sorted(rec["joint"] for rec, geom, pieces, combos, *_ in pending
+    # one weld leg per cleat type (one detail per joint type; open item 16.2: the PL10 strut cleats are their own type)
+    groups: dict[tuple, list] = {}
+    for item in pending:
+        groups.setdefault((item[1]["t_cleat"], item[1]["W"]), []).append(item)
+    group_rec = []
+    for (tc_g, W_g), items in sorted(groups.items()):
+        need_g = max(weld_flows(geom, pieces, cs)["resultant"] for _, geom, pieces, combos, *_ in items for cs in combos)
+        t_thin = min([tc_g] + [h["tf"] for *_, h, _ in items])
+        sized = weld_leg(need_g, t_thin, st)
+        # the leg is CAPPED at the AISC J2.2b maximum for the cleat (t − 2 mm for t ≥ 6, else t — user 2026-11-16); a
+        # cleat needing more shows its weld rows FAIL with the fix option "PL10 cleat (max 8 mm)"
+        cap = tc_g if tc_g < 6.0 else tc_g - 2.0
+        fixed = (st.fixed_legs or {}).get(f"PL{tc_g:g}x{W_g:g}")
+        if fixed and fixed + 1e-9 < max(min_weld_size(t_thin), st.shop_min_leg):
+            raise ValueError(f"fixed weld leg {fixed:g} mm on PL{tc_g:g}x{W_g:g} is below the AISC J2.4 minimum for the thinner "
+                             f"part ({t_thin:g} mm) / the shop minimum")
+        leg = min(fixed, cap) if fixed else min(x for x in (sized, cap) if x is not None)
+        for rec, geom, pieces, combos, mats, host, cg in items:
+            if fixed and host["tf"] + 1e-9 < leg:
+                # user 2026-11-23: the flange-side base metal of the fillet is not a separate row — it cannot govern while
+                # the host flange tf ≥ the leg (hand check in docs/reports/item16.md); a thinner flange is not evaluated
+                rec.update(status=NOT_EVALUATED, missing=[f"host flange tf {host['tf']:g} mm < the fixed fillet leg {leg:g} mm: "
+                                                          "the flange-side base metal is not checked"], weld_leg=leg)
+                continue
+            rec.update(check_cleat(geom, pieces, combos, mats, bolts, host, leg, cg, st))
+            rec["weld_leg"] = leg
+        # AISC 360-16 J2.2b maximum fillet ALONG AN EDGE: t for t < 6 mm, t − 2 mm for t ≥ 6 mm (user 2026-11-15)
+        cap_mx = weld_metal(cap, 0.0, WeldSettings(electrode=st.electrode), directional=False)
+        over = sorted(rec["joint"] for rec, geom, pieces, combos, *_ in items
                       if max(weld_flows(geom, pieces, cs)["resultant"] for cs in combos) > cap_mx + 1e-9)
-        j22b = {"t_cleat": tc_, "max_leg": mx, "leg": leg, "sized_leg": sized, "capped": sized is None or sized > mx,
-                "cleats_needing_more_than_max": over,
+        group_rec.append({"cleat": f"PL{tc_g:g}x{W_g:g}", "count": len(items), "t_cleat": tc_g, "max_leg": cap, "leg": leg,
+                          "fixed_leg": fixed,
+                          "sized_leg": sized, "capped": sized is None or sized > cap, "weld_flow_max": round(need_g, 2),
+                          "cleats_needing_more_than_max": over})
+    need = max((g["weld_flow_max"] for g in group_rec), default=0.0)
+    leg = group_rec[0]["leg"] if group_rec else None       # the thinnest cleat type's leg (the common PL8 detail)
+    j22b = None
+    if group_rec and leg:
+        g0 = group_rec[0]
+        j22b = {**{k: g0[k] for k in ("t_cleat", "max_leg", "leg", "sized_leg", "capped", "cleats_needing_more_than_max")},
+                "by_cleat": group_rec,
                 "note": ("the leg is capped at the J2.2b maximum (user 2026-11-16); J2.2b is written for fillets along the "
-                         "EDGE of a part (lap joints) — the cleat weld is a T-joint on the cleat's faces")}
+                         "EDGE of a part (lap joints) — the cleat weld is a T-joint on the cleat's faces; one leg per cleat "
+                         "type (by_cleat)")}
     counts: dict[str, int] = {}
     for r in res:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
@@ -761,5 +907,6 @@ def building_cleats(joints_result: dict, out: dict, li, settings: CleatSettings 
             "assumptions": list(ASSUMPTIONS), "weld_j2_2b": j22b,
             "detail": {"cleat": sorted({r["cleat"] for r in res}), "bolts": f"2 x M{d_bolt:g} {st.bolt_grade} per piece, snug-tight, "
                        f"threads {'included' if st.threads == 'N' else 'excluded'}", "weld_leg": leg,
+                       "weld_legs": {g["cleat"]: g["leg"] for g in group_rec},
                        "weld_flow_max": round(need, 2), "bolt_phiRv": round(bolts["phiRv"], 3), "bolt_phiRt": round(bolts["phiRt"], 3)},
             "cleats": res, "counts": counts}

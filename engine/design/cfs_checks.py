@@ -83,6 +83,7 @@ from ..analysis.endwall_analysis import _geom, longitudinal_feed
 from ..analysis.bracing_system import longitudinal_bracing
 from ..analysis.brace_axial import PANEL_BRACE, brace_loads
 from ..peb.building import BuildingInput, peb_building, resolve
+from ..peb.secondary import cf_dims
 from .cfs_section import KSI, Mcre, Pcre, cfs_section
 from .inputs import plate_strength
 from .serviceability import ServiceLimits
@@ -596,6 +597,11 @@ def building_lines(out: dict, li) -> list[dict]:
     ms = out["members"]
     lines = []
 
+    def thinnest(ps):
+        """A line of lapped pieces with per-piece gauges (open item 16.1): the thinnest piece's profile and grade —
+        conservative for the whole line."""
+        return min(ps, key=lambda p: cf_dims(p["profile"])["t"])
+
     def pieces(role_set, key):
         g = {}
         for m in ms:
@@ -619,7 +625,7 @@ def building_lines(out: dict, li) -> list[dict]:
             xb = max(max(p["start"][0], p["end"][0]) for p in ps)
             y = ps[0]["start"][1]
             ys = sorted([y - lo * c, y + hi * c] if side == "A" else [y - hi * c, y + lo * c])
-            sd_prof = ps[0]["profile"]
+            p0 = thinnest(ps)
             if role == "eave_strut":                               # butt-jointed: one simple span per bay
                 spans = [(frames[j], frames[j + 1], [xa] if j == 0 else [], [xb] if j == len(frames) - 2 else []) for j in range(len(frames) - 1)]
             else:
@@ -629,7 +635,10 @@ def building_lines(out: dict, li) -> list[dict]:
                 x0, x1, left, right = sp
                 sups = [x for x in frames if x0 - 1e-6 <= x <= x1 + 1e-6]
                 nodes = sorted(set(left + sups + right + [v for l in laps for v in l]))
-                lines.append(_roof_line(f"{k}" + (f"-{frames.index(x0) + 1}" if role == "eave_strut" else ""), role, sd_prof, ps[0].get("material", "S350GD"),
+                if role == "eave_strut":                           # the bay's own piece (per-piece gauge, item 16.1)
+                    mid = (x0 + x1) / 2
+                    p0 = next((p for p in ps if min(p["start"][0], p["end"][0]) < mid < max(p["start"][0], p["end"][0])), p0)
+                lines.append(_roof_line(f"{k}" + (f"-{frames.index(x0) + 1}" if role == "eave_strut" else ""), role, p0["profile"], p0.get("material", "S350GD"),
                                         nodes, sups, [x for x in rows if x0 < x < x1] + [nodes[0], nodes[-1]] + sups, trib, ys, c, theta, span, Lb_, a, wind, li))
                 lines[-1]["laps"] = laps
                 lines[-1]["y"], lines[-1]["side"], lines[-1]["cos"] = y, side, c
@@ -646,7 +655,8 @@ def building_lines(out: dict, li) -> list[dict]:
             xb = max(max(p["start"][0], p["end"][0]) for p in ps)
             laps = _laps(ps, 0)
             nodes = sorted(set([xa, xb] + frames + [v for l in laps for v in l]))
-            lines.append(_wall_line(k, "girt", ps[0]["profile"], ps[0].get("material", "S350GD"), nodes, frames, [xa, xb] + frames,
+            p0 = thinnest(ps)
+            lines.append(_wall_line(k, "girt", p0["profile"], p0.get("material", "S350GD"), nodes, frames, [xa, xb] + frames,
                                     lo + hi, lambda u0, u1: u0 < a or u1 > Lb_ - a, theta, wind))
             lines[-1]["laps"] = laps
     # ---- gable girts
@@ -793,41 +803,56 @@ def prepare_lines(b: BuildingInput, li, out: dict, *, line_profiles: dict | None
         raise ValueError(f"fastener_x must be in (0, 1], got {x}")
     lines = building_lines(out, li)
     tied, untied = tied_rows(out)
-    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
-    struts, bl, k, r = {}, None, None, None
-    if braces and out.get("braced_bays"):
-        bsr = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
-        bs = bsr["sets"]["LRFD"]
-        struts = {j: abs(v) for j, v in bs["strut"]}
-        k, r = bsr.get("minimum_scale"), bsr.get("minimum_ratio")
-        if getattr(b, "brace_axial", True) and out["input"].get("brace_axial", True):
-            bl = brace_loads(out, bsr)                    # open item 7 (user 2026-11-17, decisions 1a, 3a, 4a)
+    ss = strut_setup(out, li, brace_axial=getattr(b, "brace_axial", True))
     for ln in lines:
         if line_profiles and ln["id"] in line_profiles:
             ln["profile"] = line_profiles[ln["id"]]
             ln["profile_override"] = True
         ln["roof_type"], ln["fastener_x"] = roof_type, x
-        if ln["kind"] == "eave_strut":
-            bay = int(ln["id"].rsplit("-", 1)[1])
-            drag = struts.get(bay, 0.0)
-            e = (bl or {}).get("struts", {}).get("eave", {}).get(bay)
-            P = drag
-            if e and e.get("between"):
-                pr = _column_Pr(b, li, out, e["panel_lines"], ln["id"][1])
-                ln["P_panel_by_combo"] = {cn: PANEL_BRACE * pr.get(cn, 0.0) for cn in COMBOS_ROOF["LRFD"]}
-                ln["P_rule"], ln["P_panel"] = e["rule"], {"lines": e["panel_lines"], "sum_Pr": pr}
-            elif e:
-                P, ln["P_rule"] = max(drag, e["P"] or 0.0), e["rule"]
-            ln["P_split"] = _split(P, k, r)
-        elif ln["kind"] in ("purlin", "ridge_purlin") and bl:
-            V = bl.get("V") or {}
-            sp = {"governing": V.get("governing"), "caseB": V.get("caseB"), "minimum": V.get("minimum"), "split": True}
-            pz = [(z["x0"], z["x1"], sp) for z in bl["struts"]["purlin_nodes"] if z["side"] == ln.get("side")
-                  and any(abs(ln["y"] - y) / ln["cos"] < bl["struts"]["node_tol"] for y in z["node_ys"])]
-            if pz:
-                ln["P_zones"] = pz
+        attach_struts(ln, ss, panel=lambda e, side: _column_Pr(b, li, out, e["panel_lines"], side))
         ln["tied_ok"] = bool(tied) and not untied
     return lines, {"tied": tied, "untied": untied, "roof_type": roof_type, "fastener_x": x}
+
+
+def strut_setup(out: dict, li, *, brace_axial: bool = True) -> dict:
+    """The longitudinal bracing's strut forces of a generated building, ONE source for the member checks (prepare_lines)
+    and the cleats (open item 16.2): bimsteelauto's drag per bay, the minimum split (item 6) and open item 7's brace loads."""
+    braces = [m for m in out["members"] if m["role"] in ("roof_brace", "wall_brace")]
+    ss = {"drag": {}, "bl": None, "k": None, "r": None}
+    if braces and out.get("braced_bays"):
+        bsr = longitudinal_bracing(_geom(out["input"]), braces, [j - 1 for j in out["braced_bays"]], longitudinal_feed(out, li))
+        ss["drag"] = {j: abs(v) for j, v in bsr["sets"]["LRFD"]["strut"]}
+        ss["k"], ss["r"] = bsr.get("minimum_scale"), bsr.get("minimum_ratio")
+        if brace_axial and out["input"].get("brace_axial", True):
+            ss["bl"] = brace_loads(out, bsr)              # open item 7 (user 2026-11-17, decisions 1a, 3a, 4a)
+    return ss
+
+
+def attach_struts(ln: dict, ss: dict, panel=None) -> None:
+    """Put a line's strut force on it: an eave strut's P_split (the drag, or in a braced bay the wall-panel shear; between
+    two braced bays the App. 6 panel force per combination when `panel(e, side)` gives the columns' ΣPr — else not
+    attached), a purlin's P_zones at the roof-X nodes."""
+    bl, k, r = ss["bl"], ss["k"], ss["r"]
+    if ln["kind"] == "eave_strut":
+        bay = int(ln["id"].rsplit("-", 1)[1])
+        drag = ss["drag"].get(bay, 0.0)
+        e = (bl or {}).get("struts", {}).get("eave", {}).get(bay)
+        P = drag
+        if e and e.get("between"):
+            if panel is not None:
+                pr = panel(e, ln["id"][1])
+                ln["P_panel_by_combo"] = {cn: PANEL_BRACE * pr.get(cn, 0.0) for cn in COMBOS_ROOF["LRFD"]}
+                ln["P_rule"], ln["P_panel"] = e["rule"], {"lines": e["panel_lines"], "sum_Pr": pr}
+        elif e:
+            P, ln["P_rule"] = max(drag, e["P"] or 0.0), e["rule"]
+        ln["P_split"] = _split(P, k, r)
+    elif ln["kind"] in ("purlin", "ridge_purlin") and bl:
+        V = bl.get("V") or {}
+        sp = {"governing": V.get("governing"), "caseB": V.get("caseB"), "minimum": V.get("minimum"), "split": True}
+        pz = [(z["x0"], z["x1"], sp) for z in bl["struts"]["purlin_nodes"] if z["side"] == ln.get("side")
+              and any(abs(ln["y"] - y) / ln["cos"] < bl["struts"]["node_tol"] for y in z["node_ys"])]
+        if pz:
+            ln["P_zones"] = pz
 
 
 def is_strut_line(ln: dict) -> bool:

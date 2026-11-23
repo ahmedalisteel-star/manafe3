@@ -27,12 +27,14 @@ The user's decisions (2026-11-15, step 5c: 1a–6a, 7b, 8a (as corrected), 9a, 1
                     web plane — the model's geometry is checked, else NOT EVALUATED); the cleat; the purlin / girt axially
                     to the nearest braced-bay frame line (gable girts: to the wall end), E A / L.
         slip        (user 2026-11-15) the hole clearance is a ONE-TIME slip, not a spring: an added initial imperfection,
-                    the required brace force × (1 + slip / Δo), Δo = the SHORTER adjacent unbraced segment at the brace
-                    point / 500 (user 2026-11-15; βbr keeps the longer, Lbr), slip 2 mm (setting) — applied to every
-                    brace force check (H2, bolts, bearing) and to the force into the cleat; the stiffness is unchanged.
+                    the required brace force × (1 + slip / Δo), Δo = Lbr / 500 with Lbr the SAME unbraced length App. 6
+                    uses for that brace (βbr, the group's longer outside segment — open item 16.5, user 2026-11-18; it
+                    was the shorter adjacent segment), slip 2 mm (setting) — applied to every brace force check (H2,
+                    bolts, bearing) and to the force into the cleat; the stiffness is unchanged.
         bolts       M12 8.8 per end (bolts_per_end), threads included: shear J3.6; bearing on the 5 mm leg AISC J3.10 (lc =
                     end_distance − d0 / 2); on the 2 mm purlin / girt web AISI S100-16 J3.3.1 / J3.1 (VERIFIED False), e
-                    = the hole's distance to the purlin's flange along the brace / sin 45° (conservative). The FRAME-SIDE
+                    = the hole's distance to the purlin's flange along the brace / sin 45° (conservative); washers under
+                    head and nut by default (mf 1.00 — open item 16.5, user 2026-11-18; setting web_washers). The FRAME-SIDE
                     end (clip / flange hole) is not detailed in the model → NOT EVALUATED, the point reads PARTIAL.
         cleats      the point's lateral force Prb (the largest over the combinations) goes along the purlin into its cleat
                     at that frame: the 5a cleats are re-run with it (both signs, every combination: an envelope).
@@ -96,7 +98,8 @@ class StabilitySettings:
     gauge_L60: float = 35.0              # bolt gauge for the L60x6 fix option, mm (setting, VERIFIED False)
     slip: float = 2.0                    # one-time bolt slip = the hole clearance (M12 in a 14 mm hole), mm — an added
                                          # initial imperfection: Prb × (1 + slip / Δo), Δo = Lbr / 500 (user 2026-11-15)
-    web_washers: bool = False            # AISI mf: 1.00 with washers under head and nut, else 0.75
+    web_washers: bool = True             # AISI mf: 1.00 with washers under head and nut, else 0.75 — washers by default on
+                                         # secondary bolts into cold-formed members (open item 16.5, user 2026-11-18)
     plate_washer: float = 40.0           # sag rod / ridge tie square plate washer side, mm (user default)
     plate_washer_t: float = 4.0
 
@@ -246,7 +249,7 @@ def merged_points(points: list[float], ends: tuple[float, float], tol: float) ->
 
 
 def lbr_short_of(points: list[float], ends: tuple[float, float], tol: float = 0.0) -> dict:
-    """{s: the SHORTER adjacent segment} — the slip imperfection's Δo = this / 500 (user 2026-11-15 / -16)."""
+    """{s: the SHORTER adjacent segment} — reported only (the slip's Δo was this / 500 until open item 16.5)."""
     return {s: min(v) for s, v in _segments(points, ends, tol).items()}
 
 
@@ -370,6 +373,17 @@ def _moment_rows(host: dict, analysis: dict, wc_inputs: dict) -> dict | None:
     return out
 
 
+def _moment_factors(host: dict, analysis: dict) -> dict:
+    """{frame combo: load factors} of the host's frame line (LRFD; wind columns: none known → {})."""
+    from .welds import _frame_result
+    if host["role"] == "wind_column":
+        return {}
+    fres, _ = _frame_result(analysis, host["start"][0])
+    if fres is None:
+        return {}
+    return {n: dict(f) for n, f in (fres.get("factors") or {}).items() if fres["results"].get(n, {}).get("set") == "LRFD"}
+
+
 def _row(r):
     key, name, ref, dem, cap, U = r[:6]
     dem, cap, U = float(dem), float(cap), float(U)
@@ -386,8 +400,8 @@ def _status(checks, notes):
 def brace_groups(us: list[float], ends: tuple[float, float], group_tol: float, merge_tol: float) -> list[dict]:
     """Brace GROUPS on one flange (user 2026-11-17, engineering judgement): points closer than group_tol form one group;
     for each group the unbraced segments OUTSIDE it — to the nearest point of another group or to a flange end (an end
-    within merge_tol of the group merges: the side then has no segment) — give Lbr (the longer) and Lsh (the shorter, for
-    the slip's Δo). us: the points' coordinates along the flange (the rafters: knee A → ridge → knee B, the ridge never a
+    within merge_tol of the group merges: the side then has no segment) — give Lbr (the longer) and Lsh (the shorter: reported only —
+    the slip's Δo is Lbr / 500 since open item 16.5). us: the points' coordinates along the flange (the rafters: knee A → ridge → knee B, the ridge never a
     point). Returns [{"members": [indices into us], "Lbr", "Lsh", "near_end"}]."""
     order = sorted(range(len(us)), key=lambda i: us[i])
     grp, cur = [], [order[0]] if order else []
@@ -474,7 +488,7 @@ def _flange_point_checks(q: dict, shares: list, worst: dict, amp: float, Prb_amp
     rec.update(status=status, fixes=fixes, notes=notes, checks=checks, governing={k_: checks[0][k_] for k_ in ("name", "U")},
                demand={"combo": worst["combo"], "Mr": round(worst["Mr"], 3), "Cd": worst["Cd"], "ho": round(q["ho"], 1),
                        "Lbr": round(Lbr_g, 1), "Prb": round(worst["Prb"], 3), "beta_req": round(worst["beta"], 4),
-                       "slip_mm": st.slip, "L_short": round(Lsh_g, 1), "delta_o": round(Lsh_g / 500.0, 3),
+                       "slip_mm": st.slip, "L_short": round(Lsh_g, 1), "delta_o": round(Lbr_g / 500.0, 3),
                        "slip_factor": round(amp, 4), "Prb_amplified": round(Prb_amp, 3), "P_brace": round(P, 3),
                        "cos_alpha": round(cos_a, 4)},
                stiffness={**{kk_: (round(v, 3) if math.isfinite(v) else "rigid") for kk_, v in k.items()},
@@ -491,7 +505,7 @@ def _flange_point_checks(q: dict, shares: list, worst: dict, amp: float, Prb_amp
 
 
 def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li, settings: StabilitySettings | None = None,
-                              cleat_settings=None) -> dict:
+                              cleat_settings=None, b=None) -> dict:
     """Step 5c over a building: flange-brace points, sag-rod pieces, ridge ties, and the 5a cleats re-run with the
     flange-brace force (with the before / after)."""
     st = (settings or StabilitySettings()).check()
@@ -518,7 +532,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
     for (h, p), ms in groups.items():
         host = _host_of(ms[0], mem, out)
         by_host.setdefault(host["id"] if host else h, []).append((p, ms, host))
-    points, N_map, geometry_warnings = [], {}, []
+    points, N_map, NC_map, geometry_warnings = [], {}, {}, []
     # ---- pass 1: every brace point with its own data; its FLANGE (the rafters of one frame form one inner flange, knee A
     # → ridge → knee B, the ridge never a brace point — user 2026-11-17) and its coordinate u along that flange
     pts_all = []
@@ -532,6 +546,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
         a = [(host["end"][i] - host["start"][i]) / L for i in range(3)]
         sv = {p: sum((p[i] - host["start"][i]) * a[i] for i in range(3)) for p, _, _ in pts}
         mrows = _moment_rows(host, analysis, wc_inputs)
+        mfac = _moment_factors(host, analysis)
         brace_s = sorted(sv.values())
         if host["role"] == "rafter":
             other = next((m_ for m_ in out["members"] if m_.get("role") == "rafter" and m_.get("side") != host.get("side")
@@ -592,7 +607,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             Ap = cfs_section(sec_line["profile"], 350.0)["props"]["A"]
             k_sec = math.inf if Lp < 1.0 else E_STEEL * Ap / Lp / 1000.0
             pts_all.append({"rec": rec, "p": p, "s": s, "u": to_u(s), "fkey": fkey, "fends": fends, "host": host, "hid": hid,
-                            "mrows": mrows, "brace_s": brace_s, "ms": ms, "b0": b0, "Lb": Lb_, "cos_a": cos_a, "sec_line": sec_line,
+                            "mrows": mrows, "mfac": mfac, "brace_s": brace_s, "ms": ms, "b0": b0, "Lb": Lb_, "cos_a": cos_a, "sec_line": sec_line,
                             "ck": ck, "gb": gb, "bb": bb, "tb": tb, "ang": ang, "ho": sec["d"] - (sec["tf_top"] + sec["tf_bot"]) / 2,
                             "k": stiffness_provided(len(ms), ang["A"], Lb_, cos_a, tc, W, (ups[0] + ups[-1]) / 2, k_sec),
                             "Lp": Lp, "web_normal_cos": abs(sum(a_ * b_ for a_, b_ in zip(ub, n_web)))})
@@ -613,6 +628,7 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                                           "with": "member end", "note": f"brace point within {st.merge_tol:g} mm — merged; "
                                                                         "check the detail for clashes in step 7"})
             worst = None
+            prb_by = {}
             for combo in g[0]["mrows"]:
                 Mr_g, Cd_g = 0.0, 1.0
                 for q in g:
@@ -623,9 +639,10 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                     Mr_g = max(Mr_g, abs(M) if q["host"]["role"] == "wind_column" else max(0.0, -M))
                     Cd_g = max(Cd_g, cd_factors(q["brace_s"], rows)[q["s"]])
                 dm = point_demand(Mr_g, Cd_g, min(q["ho"] for q in g), Lbr_g, st.brace_fraction)
+                prb_by[combo] = dm["Prb"]
                 if worst is None or dm["Prb"] > worst["Prb"]:
                     worst = {**dm, "combo": combo, "Mr": Mr_g, "Cd": Cd_g}
-            amp = slip_factor(st.slip, Lsh_g)
+            amp = slip_factor(st.slip, Lbr_g)                # Δo = Lbr / 500, App. 6's own Lbr (open item 16.5)
             Prb_amp = worst["Prb"] * amp
             kk = {(id(q), i): q["ang"]["A"] * q["cos_a"] ** 2 / m_["length"] for q in g for i, m_ in enumerate(q["ms"])}
             ktot = sum(kk.values())
@@ -633,13 +650,25 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
             gid = f"{fkey[0]}:{fkey[1]}:{gi + 1}"
             for q in g:
                 shares = [kk[(id(q), i)] / ktot for i in range(len(q["ms"]))]
+                ckey = (q["ck"]["line"], round(q["ck"]["x"]))     # per combination into the cleat (user 2026-11-22)
+                for combo, prb in prb_by.items():
+                    fac = (q.get("mfac") or {}).get(combo)
+                    if fac is None:
+                        continue
+                    v = prb * amp * sum(shares)
+                    old = NC_map.setdefault(ckey, {}).get(combo)
+                    if old is None or v > old[1]:
+                        NC_map[ckey][combo] = (fac, v)
                 _flange_point_checks(q, shares, worst, amp, Prb_amp, Lbr_g, Lsh_g, k_group, gid, len(g),
                                      sum(len(x["ms"]) for x in g), st, d_bolt, d0, phiRv, mf, points, N_map)
     # sag rods and ridge ties
     sf = sag_forces(out, li)
     rods = [m for m in out["members"] if m["role"] in ("sag_rod", "ridge_tie")]
     rod_prof = {m["role"]: m for m in rods}
-    lines_t = {m["line"]: cf_dims(m["profile"])["t"] for m in out["members"] if m["role"] in ("purlin", "ridge_purlin", "eave_strut")}
+    lines_t = {}
+    for m in out["members"]:
+        if m["role"] in ("purlin", "ridge_purlin", "eave_strut"):      # per-piece gauges (item 16.1): the line's thinnest
+            lines_t[m["line"]] = min(lines_t.get(m["line"], math.inf), cf_dims(m["profile"])["t"])
     lines_g = {m["line"]: m.get("material", "") for m in out["members"] if m["role"] in ("purlin", "ridge_purlin", "eave_strut")}
     sag, ties = [], []
     for role, target in (("sag_rod", sag), ("ridge_tie", ties)):
@@ -686,8 +715,8 @@ def building_stability_braces(joints_result: dict, out: dict, analysis: dict, li
                                "T": round(T, 3), "combo": combo, "status": status, "fixes": fixes, "checks": checks,
                                "governing": {k_: checks[0][k_] for k_ in ("name", "U")}, "web_t": tw})
     # the 5a cleats, before and after the flange-brace force
-    before = building_cleats(joints_result, out, li, cleat_settings)
-    after = building_cleats(joints_result, out, li, cleat_settings, flange_brace_N=N_map)
+    before = building_cleats(joints_result, out, li, cleat_settings, b=b)
+    after = building_cleats(joints_result, out, li, cleat_settings, flange_brace_N=N_map, flange_brace_N_by_combo=NC_map, b=b)
     bmap = {x["joint"]: x for x in before["cleats"]}
     changed = []
     for x in after["cleats"]:

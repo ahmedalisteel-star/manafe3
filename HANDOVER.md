@@ -35,8 +35,9 @@ user's ACI 318-19 17.11.3 page); open item 7 (Phase 4 member checks under the br
 AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 stay open). Step 7 plan ANSWERED (user
 2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
-confirmed). DetailCraft 0.10 MERGED (2026-11-19). **NEXT: open item 16 code (user decisions 2026-11-18, in "Open items"
-16), then open item 17 (apex haunch, decisions 2026-11-18), then step 7 (7a–7f).**
+confirmed). DetailCraft 0.10 MERGED (2026-11-19). Open item 16 DONE (2026-11-23, committed; values
+approved by the user, "Open items" 16, `docs/reports/item16.md`). **NEXT: open item 17 (apex haunch, decisions 2026-11-18),
+then step 7 (7a–7f).**
 **DetailCraft 0.10 merge (2026-11-18, branch `upstream-merge`, NOT in main until the user approves):** tag
 `detailcraft-v0.10.0` merged; 506 help / language files taken from upstream and re-branded (`tools/manafe3-rebrand.mjs`,
 now also `app/addons/**/lang/*.json`; 51 per-language whats-new.md removed as upstream removed them); upstream's
@@ -639,10 +640,13 @@ still create parts, marked NOT FOR ISSUE.
 4. a — the flange-brace frame-side clip is modelled, welded to the inner flange; checks J2.4 weld, J3.10 bearing, J4.3
    block shear; a point is DESIGNED only when all pass AND it has no clash.
 5. a — bolts for every engine-designed joint and for the existing purlin / girt / cleat holes (complete BOM bolt list);
-   the bolt-length rule TO CONFIRM.
+   the bolt-length rule TO CONFIRM. (user 2026-11-22) Washers (now the default on secondary bolts into cold-formed members,
+   AISI mf 1.00 — open item 16.5) must appear in the bolt and parts lists.
 6. a — each part carries its joint's status and open-item flags; a sheet showing such a part gets a forced NOT FOR ISSUE
    in the title block and cannot be set to "For fabrication"; the flag also goes to an NC header text line and an IFC
-   property.
+   property. (user 2026-11-23) A part whose governing check is the AISI J3.3 / J3.1 thin-web bearing (VERIFIED False,
+   item 9.2) carries the flag "governing check from AISI J3.3, unverified (item 9.2)" (the cleat record's notes) on the
+   drawings, in the NC header and as an IFC property.
 7. a — the autopilot skips generated (PEB) members (one-line hook); its proposals never compete with the engine's designs.
 8. a — step 7 = converter, hooks and tests (applied through the agent tool / tests); the PEB › Connections… button and the
    single undo step in step 8.
@@ -698,6 +702,7 @@ still create parts, marked NOT FOR ISSUE.
 | Shared base metal of double fillets (step 4) | 0.45 Fu t / 2 per line (user rule) | done in bimsteelauto 0.15.4 (`t_shared`, opt-in; Manafe3 uses it) | closed 2026-11-15 |
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
 | bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
+| J2.2b maximum fillet on the cleat welds (step 5a / item 16; user 2026-11-23) | the AISC 360-16 J2.2b maximum fillet (t − 2 mm for t ≥ 6 mm) applied to the cleat END welds, a T-joint on the cleat's faces (PL8 6 mm, PL12 10 mm); J2.2b may only govern welds ALONG plate edges — the cap rule stays until confirmed | confirm from the printed J2.2b page | VERIFIED False |
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -1842,6 +1847,34 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    revisions: upstream's drawing changelog (`app/issuelog`) is adopted; our own revision work is dropped. (7) with
    item 16: the design-run test takes roof_type = through_fastened as the main case; the no-roof_type strict run stays
    as a separate negative control. Order after the merge: item 16 code, then item 17, then step 7.
+   **DONE 2026-11-23 (committed after the user's approvals of 2026-11-22 / -23):** old → new in `docs/reports/item16.md`;
+   tests updated (test_stability_braces, test_item15, test_welds, test_cleats, test_design_run main case through_fastened
+   with strict as the negative control; app test-manafe3-design.mjs 16.4).
+   **User review 2026-11-22.** APPROVED as reported: slip factor via Lbr / 500, washers default (mf 1.00), PL10 strut
+   cleats, strut purlins Z250x65x20x1.8 on RA / RB 1, 5, 10, uplift F2 / F4-BA −47.088 → −47.081 kN, the test_item15
+   changes. **User decisions 2026-11-22:**
+   - Flange brace + strut at a cleat with a strut force: "concurrent forces, same combination". For each combination,
+     the strut force PLUS that combination's flange-brace force, worse sign (the App. 6 brace force acts both ways).
+     Neither max() nor the enveloped force added to every combination. The frame combinations are matched by their D,
+     Lr and wind factors: C&C — no brace case; Case B — WB with BRA / BRB; minimum — BRmin with the same D
+     (`cleats.flange_brace_match`; 5c passes the per-combination forces).
+   - Eave-strut cleats between two braced bays take the item 7 panel-bracing force max(drag, 0.005 × ΣPr) in the same
+     families as the member check (C&C: the panel force; Case B: max(Case B share × wf, panel)). This was decided by
+     item 7 and is not open; `building_cleats(b=)` needs the BuildingInput for ΣPr, without it NOT EVALUATED.
+   - 16.4: ALL per-line gauges are cleared when the line geometry changes ("Per-line gauges cleared: geometry changed,
+     re-run Design"); ids the new building does not have are dropped and listed, never sent.
+   - Rerun with the rule: CL7 / 9 / 62 / 64 on the sized fixture 0.926 / 0.926 / 0.892 / 0.892 DESIGNED (weld metal
+     8 mm); at the design-side sizes 1.118 / 1.118 / 1.075 / 1.075 FAILS (weld metal 8 mm). Not fixed — options in the
+     report (10 mm weld on PL10, PL12 + 10 mm).
+   - (user 2026-11-23) The cleat weld is modelled on BOTH sides of the plate → PL12 + 10 mm fillet (= the J2.2b cap)
+     on all 24 strut cleats (`building.STRUT_CLEAT = "PL12x100"`, `CleatSettings.fixed_legs {"PL12x100": 10}`): all 24
+     DESIGNED on both sizes (design-side CL7 / 9 0.947, CL62 / 64 0.910, web bearing governs; table in the report).
+     APPROVED by the user 2026-11-23. Host at all 24: rafter top flange tf 10 mm S355 (none below 10). The flange-side
+     base metal of the fillet is NOT a separate check row (only the cleat's, t / 2 per line); the fixed leg is now
+     refused when below the J2.4 minimum by the thinner part (10 mm ≥ 5 mm here). Cleat records whose governing check is
+     AISI J3.3 carry the note "governing check from AISI J3.3, unverified (item 9.2)" (status and counts unchanged).
+     Flange-side base metal of the 10 mm fillet at the 24 strut cleats (user hand check 2026-11-23; rafter top flange tf 10 mm S355, E70): weld metal 0.75 × 0.6 × 482 × 7.07 = 1534 N/mm per line < base metal rupture 0.75 × 0.6 × 490 × 10 = 2205 N/mm and yield 1.0 × 0.6 × 355 × 10 = 2130 N/mm, so the weld metal governs;
+     no separate row while tf ≥ the leg. Guard: a host flange tf below the fixed leg → the cleat reads NOT EVALUATED with that reason (test_cleats::test_thin_host_flange_guard, negative control F2-RA at tf 8).
 
 17. **Apex haunch — fix BEFORE step 7** (user 2026-11-18; plan only, the user's decisions first): the generator makes no
    apex haunch — the rafter is [knee haunch taper] + equal constant segments, cut plumb at the apex

@@ -60,6 +60,10 @@ class Sections:
     purlin: str = "Z200x65x20x2.0"
     eave_strut: str = "C200x65x20x2.0"
     girt: str = "Z200x65x20x2.0"
+    #: per-line gauge (open item 16.1, user 2026-11-18): {line id ("RA1", "GB2") or piece id ("RA0-2"): profile} — the
+    #: same kind, depth H, flange B and lip D as the line's role profile (only the thickness differs: holes and cleats
+    #: depend on H only, so they stay); anything else, or an id the building does not have, is refused
+    lines: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -110,8 +114,18 @@ def girt_heights(eave: float, wall: Wall) -> list[float]:
     return out
 
 
+def gauge_of(base: str, other: str, where: str) -> str:
+    """A per-line gauge `other` for a line whose role profile is `base`: the same kind, H, B and D (open item 16.1)."""
+    a, b = cf_dims(base), cf_dims(other)
+    if any(a[k] != b[k] for k in ("kind", "H", "B", "D")):
+        raise ValueError(f"per-line gauge {where}: {other} must have the kind, depth, flange and lip of {base} "
+                         f"(only the thickness may differ)")
+    return other.strip()
+
+
 def secondary_lines(inp: SecondaryInput) -> dict:
-    """Purlin and girt lines for the whole building (step 2)."""
+    """Purlin and girt lines for the whole building (step 2). A line's profile is its role's, or its per-line gauge
+    (Sections.lines, open item 16.1)."""
     for lab, x in (("roof A", inp.roof_a), ("roof B", inp.roof_b)):
         x.check(lab)
     for lab, x in (("wall A", inp.wall_a), ("wall B", inp.wall_b)):
@@ -125,9 +139,11 @@ def secondary_lines(inp: SecondaryInput) -> dict:
             y, z = roof_point(s, side, span, eave, slope)
             role = "eave_strut" if k == 0 else "ridge_purlin" if k == len(ss) - 1 else "purlin"
             x0, x1 = (0.0, L) if side == "A" else (L, 0.0)          # side B runs back along X: Z top flange up-slope
+            base = inp.sections.eave_strut if role == "eave_strut" else inp.sections.purlin
+            lid = f"R{side}{k}"
             roof.append(dict(
-                id=f"R{side}{k}", role=role, side=side, s=_r(s),
-                profile=inp.sections.eave_strut if role == "eave_strut" else inp.sections.purlin,
+                id=lid, role=role, side=side, s=_r(s), base_profile=base,
+                profile=gauge_of(base, inp.sections.lines[lid], lid) if lid in inp.sections.lines else base,
                 start=[_r(x0), _r(y), _r(z)], end=[_r(x1), _r(y), _r(z)],
                 # rotation θ on both sides: side A runs +X, side B −X, so geom.js frame() gives v = the roof normal and
                 # u = up-slope on each (the Z's top flange and the C's flanges point up-slope)
@@ -137,9 +153,12 @@ def secondary_lines(inp: SecondaryInput) -> dict:
     for side, cfg, y in (("A", inp.wall_a, 0.0), ("B", inp.wall_b, span)):
         for k, z in enumerate(girt_heights(eave, cfg)):
             x0, x1 = (0.0, L) if side == "A" else (L, 0.0)
-            walls.append(dict(id=f"G{side}{k + 1}", role="girt", side=side, z=_r(z), profile=inp.sections.girt,
+            gid = f"G{side}{k + 1}"
+            gp = gauge_of(inp.sections.girt, inp.sections.lines[gid], gid) if gid in inp.sections.lines else inp.sections.girt
+            walls.append(dict(id=gid, role="girt", side=side, z=_r(z), profile=gp, base_profile=inp.sections.girt,
                               start=[_r(x0), _r(y), _r(z)], end=[_r(x1), _r(y), _r(z)], rotation=90.0, position="bottom"))
-    return {"roof": roof, "walls": walls, "slope_length": _r(roof_slope_length(span, slope)), "designed": False}
+    return {"roof": roof, "walls": walls, "slope_length": _r(roof_slope_length(span, slope)), "designed": False,
+            "piece_profiles": dict(inp.sections.lines)}
 
 
 # ---- step 3: pieces, laps, holes, cleats ------------------------------------------------------------------------------
@@ -210,9 +229,11 @@ def c_pieces(frames: list[float], overhang: float) -> list[dict]:
 
 
 def secondary_members(lines: dict, frames: list[float], end_overhang: float, bolt: str = "M12", fixed_lap: float | None = None,
-                      extra_holes: list[dict] | None = None) -> dict:
+                      extra_holes: list[dict] | None = None, cleat_profiles: dict | None = None) -> dict:
     """Pieces with their web holes (DetailCraft member holes: face web, x from the piece start, y across the web from the
-    section centre) and the cleats, from secondary_lines() and the frame lines' x (ascending)."""
+    section centre) and the cleats, from secondary_lines() and the frame lines' x (ascending). A piece takes its per-piece
+    gauge (lines["piece_profiles"][piece id], open item 16.1) or its line's profile; every per-line / per-piece id given
+    must exist. cleat_profiles {(line id, frame index): "PLtxW"} overrides the default PL8x100 (open item 16.2)."""
     if bolt not in HOLE:
         raise ValueError("bolt must be M12 or M16")
     if fixed_lap is not None and not (100 <= fixed_lap <= 3000):
@@ -220,7 +241,11 @@ def secondary_members(lines: dict, frames: list[float], end_overhang: float, bol
     d0 = HOLE[bolt]
     L = frames[-1] - frames[0]
     members, cleats = [], []
+    given = dict(lines.get("piece_profiles") or {})
+    used = set()
     for line in lines["roof"] + lines["walls"]:
+        if line["id"] in given:
+            used.add(line["id"])
         dims = cf_dims(line["profile"])
         g = gauge(line["profile"])
         if g <= 2 * d0:
@@ -239,8 +264,13 @@ def secondary_members(lines: dict, frames: list[float], end_overhang: float, bol
                 lx = to_l(h["x"])
                 if p["a"] < lx < p["b"]:
                     holes.append({"face": "web", "x": _r(lx - p["a"]), "y": h["y"], "d": h["d"]})
+            pid = f"{line['id']}-{k + 1}"
+            prof = line["profile"]
+            if pid in given:
+                prof = gauge_of(line.get("base_profile", line["profile"]), given[pid], pid)
+                used.add(pid)
             members.append({
-                "id": f"{line['id']}-{k + 1}", "role": line["role"], "side": line["side"], "line": line["id"], "profile": line["profile"],
+                "id": pid, "role": line["role"], "side": line["side"], "line": line["id"], "profile": prof,
                 "start": [_r(x0 + sgn * p["a"]), line["start"][1], line["start"][2]],
                 "end": [_r(x0 + sgn * p["b"]), line["start"][1], line["start"][2]],
                 "rotation": line["rotation"], "position": line["position"], "length": _r(p["b"] - p["a"]), "holes": holes, "designed": False,
@@ -259,8 +289,12 @@ def secondary_members(lines: dict, frames: list[float], end_overhang: float, bol
             cleats.append({
                 "start": [_r(c) for c in st], "end": [_r(st[0]), _r(st[1] + h * v[1]), _r(st[2] + h * v[2])], "width_dir": [sgn, 0.0, 0.0],
                 "line": line["id"], "frame": i, "x": _r(xf), "base": [_r(xf), line["start"][1], line["start"][2]],
-                "rotation": line["rotation"], "profile": f"PL8x100", "height": _r(h), "side": "back" if is_c else "up",
+                "rotation": line["rotation"], "profile": (cleat_profiles or {}).get((line["id"], i), "PL8x100"), "height": _r(h),
+                "side": "back" if is_c else "up",
                 "holes": [{"along": _r(a), "up": _r(dims["H"] / 2 + sy * g / 2), "d": d0} for a in along for sy in (-1, 1)],
                 "host": ("column" if line["role"] in ("girt", "eave_strut") else "rafter") + " " + line["side"],
             })
+    unknown = sorted(set(given) - used)
+    if unknown:
+        raise ValueError(f"per-line gauge: no purlin, eave-strut or girt line / piece {', '.join(unknown)} in this building")
     return {"members": members, "cleats": cleats, "bolt": bolt, "hole": d0, "length": L, "designed": False}
