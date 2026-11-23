@@ -23,6 +23,7 @@ if ($LASTEXITCODE -ne 0) { Write-Host 'uv sync failed.' -ForegroundColor Red; ex
 $failed = $false
 if (-not $SkipTests) {
   Step 'engine tests (fast set -m "not slow", one file at a time - end-work.ps1 runs everything)'
+  $env:PYTHONIOENCODING = 'utf-8'
   uv run python tools/run-tests-by-file.py -m "not slow"
   if ($LASTEXITCODE -ne 0) { $failed = $true }
   Step 'app tests (npm test)'

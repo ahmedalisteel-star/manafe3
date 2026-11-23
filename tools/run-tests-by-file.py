@@ -5,6 +5,7 @@ memory; a single pytest process keeps every file's imports, caches and results a
     uv run python tools/run-tests-by-file.py                 # every file, slow tests included (end-work.ps1)
     uv run python tools/run-tests-by-file.py -m "not slow"   # the fast set (start-work.ps1)
     options: --min-free-gib 3   warn when less memory than this is free before the run (default 3)
+             --only "test_x*.py" only the files matching this glob (negative controls / quick checks; end-work -OnlyTests)
 
 Every file runs with MANAFE3_WORKERS=1 (analyses serial; a test that passes workers= explicitly still gets its pool —
 test_building_analysis.py keeps the parallel path tested with 2). Per file: pytest's summary, the time and the PEAK
@@ -12,6 +13,10 @@ memory of the whole process tree (pytest + its analysis subprocesses), sampled e
 that fails or runs out of memory is reported by name with its peak, and the exit code is 1. In the full run (no -m) a
 file that collects no test is a failure; with -m a file whose tests are all deselected is fine.
 The last line is the summary end-work.ps1 records:  engine: <n> passed, <n> failed, ... (<files> files, largest peak ...)
+Exit code (2026-11-23, user): 0 only when every file passed with a pytest summary; 1 when any file failed, ran out of
+memory or gave no summary line (or no test file matched); 2 when the runner itself crashed (then NO "engine:" line is
+printed, so end-work.ps1 refuses too). Output is UTF-8 whatever the console or pipe (a non-ASCII test name or message
+crashed the cp1252 print before).
 """
 
 from __future__ import annotations
@@ -81,6 +86,8 @@ def run_file(f: Path, marker: str | None) -> dict:
     # 5 = nothing collected: fine when -m deselected every test of the file (the fast set), a FAILURE in the full run
     # (user decision 2026-11-12: a file that collects no test is a broken file)
     ok = p.returncode == 0 or (p.returncode == 5 and marker is not None)
+    if ok and not summary:                       # no summary line: killed, or pytest did not finish — never a pass
+        ok = False
     return {"file": f.name, "rc": p.returncode, "ok": ok, "seconds": time.time() - t0, "peak_mib": peak / 2**20,
             "procs": procs_at_peak, "summary": summary or "(no pytest summary - killed?)", "counts": counts,
             "tail": "" if ok else "\n".join(lines[-40:])}
@@ -90,6 +97,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("-m", dest="marker", default=None, help='pytest marker expression, e.g. "not slow"')
     ap.add_argument("--min-free-gib", type=float, default=3.0)
+    ap.add_argument("--only", default=None, help='only the test files matching this glob, e.g. "test_cleats*.py"')
     a = ap.parse_args()
     vm = psutil.virtual_memory()
     free = vm.available / 2**30
@@ -99,7 +107,10 @@ def main() -> int:
         for name, n, gib in top_memory():
             print(f"    {name:28s} {n:3d} processes {gib:5.2f} GiB")
         print("  Close browser tabs / other programs if you can. The run continues.")
-    files = sorted((ROOT / "engine" / "tests").glob("test_*.py"))
+    files = sorted((ROOT / "engine" / "tests").glob(a.only or "test_*.py"))
+    if not files:
+        print(f"no test file matches {a.only or 'test_*.py'}")
+        return 1
     tot: dict[str, int] = {}
     bad, rows, t0 = [], [], time.time()
     for f in files:
@@ -120,5 +131,23 @@ def main() -> int:
     return 1 if bad else 0
 
 
+def _utf8() -> None:
+    for s in (sys.stdout, sys.stderr):
+        try:
+            s.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    _utf8()
+    try:
+        rc = main()
+    except SystemExit:                           # argparse (--help, a bad option) keeps its own exit code
+        raise
+    except BaseException as e:                   # a crash of the runner itself is never a pass (no "engine:" line)
+        import traceback
+        traceback.print_exc()
+        print(f"\nRUNNER CRASHED ({type(e).__name__}): the test result is unknown - treated as FAILED")
+        rc = 2
+    sys.exit(rc)

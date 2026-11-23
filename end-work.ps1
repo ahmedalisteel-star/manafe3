@@ -2,22 +2,31 @@
 #   powershell -ExecutionPolicy Bypass -File .\end-work.ps1 -Message "What I did"
 #   -Next "..."   also replace the "Next task" line in the Last session block (optional)
 #   -Footer "..." extra lines at the end of the commit message, e.g. a Co-Authored-By trailer (optional)
+#   -DryRun       run the tests and stop: nothing is written, committed or pushed (exit 1 when a test fails)
+#   -OnlyTests "test_x*.py"  only these engine test files (negative controls); implies -DryRun
 # Steps: tests (engine: one file at a time, tools/run-tests-by-file.py) -> update HANDOVER.md "Last session" -> git add -> commit -> git push. Nothing is pushed if a test fails.
-param([string]$Message, [string]$Next, [string]$Footer)
+param([string]$Message, [string]$Next, [string]$Footer, [switch]$DryRun, [string]$OnlyTests)
+if ($OnlyTests) { $DryRun = $true }
 $ErrorActionPreference = 'Continue'   # native tools write progress to stderr; exit codes are checked instead
 Set-Location -LiteralPath $PSScriptRoot
 function Step($t) { Write-Host "`n== $t ==" -ForegroundColor Cyan }
 
+if (-not $Message -and $DryRun) { $Message = 'dry run' }
 if (-not $Message) { $Message = Read-Host 'What did you do this session (one line, used as the commit message)' }
 if (-not $Message.Trim()) { Write-Host 'A message is needed.' -ForegroundColor Red; exit 1 }
 
 Step 'engine tests (every file on its own, slow included; tools/run-tests-by-file.py)'
 # one fresh Python process per test file, analyses serial (MANAFE3_WORKERS=1); it warns first when memory is short
-uv run python tools/run-tests-by-file.py | Tee-Object -Variable pyOut | Out-Host
-$pyOk = ($LASTEXITCODE -eq 0)
+$env:PYTHONIOENCODING = 'utf-8'
+if ($OnlyTests) { uv run python tools/run-tests-by-file.py --only $OnlyTests | Tee-Object -Variable pyOut | Out-Host }
+else { uv run python tools/run-tests-by-file.py | Tee-Object -Variable pyOut | Out-Host }
+$pyRc = $LASTEXITCODE
+$pyOk = ($pyRc -eq 0)
 $py = ($pyOut | Out-String)
 $pyLine = ($py -split "`r?`n" | Where-Object { $_ -match '^engine: ' } | Select-Object -Last 1)
 if (-not $pyLine) { $pyLine = 'engine: no summary (the runner did not finish)'; $pyOk = $false }
+if ($pyLine -match 'FAILED FILES') { $pyOk = $false }
+Write-Host "engine runner exit code: $pyRc"
 Step 'app tests (npm test)'
 $js = (npm test --silent 2>&1 | Out-String)
 $jsOk = ($LASTEXITCODE -eq 0)
@@ -29,6 +38,7 @@ if (-not ($pyOk -and $jsOk)) {
   if (-not $jsOk) { Write-Host (($js -split "`r?`n" | Where-Object { $_ -match 'FAIL' }) -join "`n") }
   exit 1
 }
+if ($DryRun) { Write-Host "`nDRY RUN: tests passed - nothing written, committed or pushed." -ForegroundColor Green; exit 0 }
 
 Step 'HANDOVER.md last session'
 $hand = Join-Path $PSScriptRoot 'HANDOVER.md'
