@@ -37,7 +37,7 @@ AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 st
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
 confirmed). DetailCraft 0.10 MERGED (2026-11-19). Open item 16 DONE (2026-11-23, committed; values
 approved by the user, "Open items" 16, `docs/reports/item16.md`). **NEXT (user decision 2026-11-24): open item 17 (apex
-haunch; DONE 2026-11-24, approved by the user) → merge DetailCraft 0.11 → engine test speed-up (roadmap "Small task") → step 7 (7a–7f).**
+haunch; DONE 2026-11-24, approved, `d13ec662`) → **item 17b** (kink flange braces; DONE 2026-11-24, approved by the user) → merge DetailCraft 0.11 → engine test speed-up (roadmap "Small task") → step 7 (7a–7f).**
 **DetailCraft 0.11.0 (tag `detailcraft-v0.11.0`, 23 Nov 2026) — REPORT ONLY, not merged (2026-11-24):**
 `docs/reports/detailcraft-0.11.md`. Dry-run merge (`git merge-tree`, no files written): 305 help / language conflicts +
 11 others — README (ours), 5 platform READMEs (delete again), `devshell/index.html` (upstream's + our mark), `build.js`
@@ -53,6 +53,7 @@ IFC meshes in a worker).
 **User decision 2026-11-24 — order:** (1) item 17; (2) merge 0.11 on branch `upstream-merge-011`: re-brand
 (`node tools/manafe3-rebrand.mjs`), delete the platform folders again, full tests (engine all + app), the user's manual
 check in the browser, then into `main`; (3) the engine test speed-up (roadmap "Small task"); (4) step 7.
+**User decision 2026-11-24 (later) — order:** item 17b → merge 0.11 (as above) → test speed-up → step 7.
 **DetailCraft 0.10 merge (2026-11-18, branch `upstream-merge`, NOT in main until the user approves):** tag
 `detailcraft-v0.10.0` merged; 506 help / language files taken from upstream and re-branded (`tools/manafe3-rebrand.mjs`,
 now also `app/addons/**/lang/*.json`; 51 per-language whats-new.md removed as upstream removed them); upstream's
@@ -1932,6 +1933,15 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    = 12 000 mm CONFIRMED by the user 2026-11-24. The J10 formulas and inputs (lb = 0, k = tf) are in "Unverified sources".
    **APPROVED by the user 2026-11-24 as reported in `docs/reports/item17.md`** (rafters, ridge end plates M20 / PL15, ridge
    flange braces, wind-column tops, kink checks, +11.30 kg per frame).
+   **17b (user decision 2026-11-24; APPROVED by the user 2026-11-24 as reported):** with the apex haunch ON, a rafter flange-brace pair at the purlin nearest the
+   bottom-flange kink on its EAVE side (the nearest brace toward the eave was 6 901.9 mm on F2–F4 and 4 529.9 mm on F1 / F5,
+   measured from the kink's bottom-flange point — the 6 870 / 4 498 first reported were taken from the top-flange point);
+   the same detail and rules as step 5c (L50x5, 1 M12 per end, the same group and merge rules); none when the apex is OFF
+   (existing fixtures unchanged). Code: `peb/bracing.flange_braces` (`kink` purlin), switch `kink_flange_braces` (default
+   True; BuildingInput / API; echoed in `input` only with the apex ON); `kink.nearest_flange_brace` measures from the
+   kink's bottom-flange point. Building 1 apex: RA8 / RB8 (s 9 487.881; the kink at 10 459.851) → 16 braces (136 → 152),
+   kink → brace 972.0 mm. Test `test_apex_haunch.py::test_kink_flange_braces_17b` (position, count; negative controls:
+   apex OFF and the switch off give none). Old → new: `docs/reports/item17.md` "17b" (`tools/item17-compare.py OUT 17b`).
 
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip

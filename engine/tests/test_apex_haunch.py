@@ -202,3 +202,37 @@ def test_kink_nothing_without_the_haunch():
     b0, _ = _fx("building1-sized.json")
     r = building_kinks(b0, None, analysis={"frames": []})
     assert r["kinks"] == [] and "no apex haunch" in r["note"]
+
+
+def test_kink_flange_braces_17b():
+    """Open item 17b (user 2026-11-24): apex ON → a flange-brace pair at the purlin nearest the kink on its EAVE side.
+
+    By hand: purlin spacing (12 000 × √1.01 − 200) / 10 = 11 859.851 / 10 = 1 185.985 → RA8 at s 9 487.881, RA9 at
+    10 673.866; the kink at s 12 059.851 − 1 600 = 10 459.851 → RA8 (the last purlin with s ≤ the kink).
+    Brace bottom end (rafter depth 320 outside the haunch, 315 to the flange mid-thickness): the roof point y = 9 487.881 /
+    1.0049876 = 9 440.794, z = 6 944.079; along the roof normal (−0.0995037, 0.9950372) × −315 → y 9 472.138,
+    z 6 630.643; run 315 + 50 = 365 at 45° → length 365 √2 = 516.188. Count: interior frames 2, 3, 4 × 2 sides × 2 = 12,
+    end frames 1, 5 × 2 sides × 1 (inside the building only) = 4 → 16 more braces (136 → 152).
+    Kink → that brace along the roof: 10 459.851 − 9 487.881 = 971.970."""
+    from engine.connections.joints import _frame_info
+    from engine.connections.kink import _kinks, nearest_flange_brace
+    b, _ = _fx("building1-apex.json")
+    b0, _ = _fx("building1-sized.json")
+    fb = lambda bb: [m for m in peb_building(resolve(bb)[0])["members"] if m["role"] == "flange_brace"]
+    on, off, sized = fb(b), fb(dataclasses.replace(b, kink_flange_braces=False)), fb(b0)
+    assert (len(on), len(off), len(sized)) == (152, 136, 136)
+    new = [m for m in on if m["line"] in ("RA8", "RB8")]
+    assert len(new) == 16 and not [m for m in off + sized if m["line"] in ("RA8", "RB8")]   # NEGATIVE CONTROLS
+    a3 = [m for m in new if m["line"] == "RA8" and m["start"][0] == 12000.0]
+    assert len(a3) == 2 and all(m["start"] == [12000.0, pytest.approx(9472.138, abs=1e-3), pytest.approx(6630.643, abs=1e-3)] for m in a3)
+    assert sorted(m["end"][0] for m in a3) == [11635.0, 12365.0] and all(m["length"] == pytest.approx(516.188, abs=1e-3) for m in a3)
+    assert all(m["profile"] == "L50x5" for m in new)
+    assert sorted(m["start"][0] for m in new if m["line"] == "RB8") == [0.0, 6000.0, 6000.0, 12000.0, 12000.0, 18000.0, 18000.0, 24000.0]
+    # the other braces are the same with and without (only the 16 added)
+    key = lambda m: (m["host"], m["line"], tuple(m["start"]), tuple(m["end"]))
+    assert sorted(map(key, off)) == sorted(map(key, [m for m in on if m["line"] not in ("RA8", "RB8")]))
+    bb = resolve(b)[0]
+    out = peb_building(bb)
+    ms, info = _frame_info(bb, 2)
+    for kk in _kinks(ms, info):
+        assert nearest_flange_brace(kk, out, 12000.0, 0.1)["eave"]["distance_along_rafter"] == pytest.approx(971.97, abs=0.1)

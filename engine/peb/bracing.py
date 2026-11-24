@@ -51,6 +51,7 @@ class BracingInput:
     ridge_strap: str = "PL3x50"            # the strap: a flat 3 x 50, one bolt each end (CONFIRMED by the user)
     flange_brace: str = "L50x5"
     ridge_flange_braces: bool = True        # flange braces at the ridge purlin too, both sides (user 2026-11-16, open item 11)
+    kink_flange_braces: bool = True         # apex haunch ON: a pair at the purlin nearest the kink, eave side (open item 17b)
     wc_top_ys: dict = field(default_factory=dict)   # frame x → the wind columns' y under that END frame's rafter: a flange
                                             # brace at the purlin nearest each (user 2026-11-17, step 5d; setting on)
 
@@ -225,6 +226,12 @@ def flange_braces(lines: dict, inp: BracingInput) -> list[dict]:
         zone = [m for m in purl if s0 < m["s"] <= s0 + z.haunch_length]
         nxt = [m for m in purl if m["s"] > s0 + z.haunch_length][:1]
         ridge = [m for m in purl if m["role"] == "ridge_purlin" and m not in zone + nxt][:1] if inp.ridge_flange_braces else []
+        # open item 17b (user 2026-11-24): with the apex haunch ON, the purlin nearest the bottom-flange KINK on its eave
+        # side (s ≤ the kink's roof distance; the straight top flange puts the kink square below the top point) gets a pair
+        kink = []
+        if getattr(z, "apex", False) and inp.kink_flange_braces:
+            s_k = span / 2.0 * math.sqrt(1 + slope ** 2) - z.apex_haunch_length
+            kink = [m for m in purl if m["s"] <= s_k + 1e-6 and m not in zone + nxt + ridge][-1:]
         for xf in inp.frames:                                # every frame line (end frames: user, 2026-11-08)
             # an end frame with wind columns: the purlin nearest each column top on this side (not at the ridge)
             wc = []
@@ -232,9 +239,9 @@ def flange_braces(lines: dict, inp: BracingInput) -> list[dict]:
                 if abs(y - span / 2) < 1.0 or (y < span / 2) != (side == "A"):
                     continue
                 near = min(purl, key=lambda m: abs(m["start"][1] - y))
-                if near not in zone + nxt + ridge + wc:
+                if near not in zone + nxt + ridge + kink + wc:
                     wc.append(near)
-            for m in zone + nxt + ridge + wc:
+            for m in zone + nxt + ridge + kink + wc:
                 d = rafter_depth(m["s"], inp)
                 low = _pt(side, m["s"], -(d - z.tf / 2), slope, span, eave)
                 high = _pt(side, m["s"], INTO_SECONDARY, slope, span, eave)

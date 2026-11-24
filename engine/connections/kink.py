@@ -119,6 +119,8 @@ def nearest_flange_brace(kk: dict, out: dict, x_frame: float, slope: float) -> d
     c = math.sqrt(1.0 + slope * slope)
     y0, y1 = kk["start"][1], kk["end"][1]
     yk = y0 + (y1 - y0) * kk["x_along_rafter"] / math.hypot(y1 - y0, kk["end"][2] - kk["start"][2])
+    # the kink's BOTTOM-flange point (mid-thickness), square below the top line — where the flange braces end too
+    yk += math.copysign(1.0, y1 - y0) * (kk["d"] - kk["tf_bot"] / 2.0) * slope / c
     host = f"rafter {kk['side']}"
     pts = [m for m in out["members"] if m["role"] == "flange_brace" and m.get("host") == host and abs(m["start"][0] - x_frame) < 1.0]
     if not pts:

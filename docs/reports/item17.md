@@ -99,3 +99,63 @@ Building 1 apex rafter: assemblies s1 (knee haunch) and s2 + s3 (one piece). Pie
 - The plumb-cut end of a TAPERED end segment is drawn with the end vertices at x1 + k·v (segmentPlates, since Phase 1):
   the apex web outline is 3 450 mm² (0.16 kg) larger than the exact plumb cut — pre-existing, not changed here.
 - The CJP welds are stated (`cjp: true` on the parts, the engine's butt-splice note), not designed (full strength).
+
+# Open item 17b: flange brace at the kink, old → new (stop rule, 2026-11-24)
+
+NOT FOR ISSUE. **APPROVED by the user 2026-11-24 as reported here.** Old = `building1-apex.json` with
+`kink_flange_braces=False` (= item 17 as committed, `d13ec662`); new = `building1-apex.json` (default True).
+`tools/item17-compare.py OUT.json 17b`; the bottom-flange segment rows: each segment checked alone (the DG 25 member
+input with its stations limited to that segment and M < 0, i.e. the bottom flange in compression) — a reporting run,
+not a new rule.
+
+**User decision 2026-11-24 (17b):** apex haunch ON → a rafter flange-brace pair at the purlin nearest the bottom-flange
+kink on its EAVE side; the step 5c detail and rules (L50x5, 1 M12 per end, the same group and merge rules); none with
+the apex OFF.
+
+**Correction to item 17's distance table:** it measured from the kink's TOP-flange point. From the bottom-flange point
+(where the braces end): toward the ridge 1 413.1 (was 1 444.6), toward the eave 6 901.9 on F2–F4 (was 6 870.4) and
+4 529.9 on F1 / F5 (was 4 498.4). `kink.nearest_flange_brace` now measures from the bottom-flange point.
+
+## Position and count (by hand, `test_apex_haunch.py::test_kink_flange_braces_17b`)
+Purlins at 1 185.985 spacing → RA8 / RB8 at s 9 487.881 (RA9 10 673.866 is past the kink at 10 459.851). Brace bottom end
+(depth 320) y 9 472.138, z 6 630.643; 45°, run 365, length 516.188. Count 136 → 152 (+16: frames 2–4 × 2 sides × 2,
+frames 1 / 5 × 2 sides × 1, inside the building). Kink → the new brace 972.0 mm (hand 971.97). Negative controls:
+apex OFF (`building1-sized.json`) and the switch off: 136, no RA8 / RB8 brace; every other brace identical.
+
+## Rafter bottom flange (inner flange) — Lb and U, rafter A (B is the mirror)
+| frame | segment old → new (mm along the design member) | Lb | U (segment, H1) | flexure U | combo |
+|---|---|---|---|---|---|
+| F2–F4 | 3 086.8 – 11 400.7 | 8 313.9 | 0.6812 (F3) / 0.6817 (F2, F4) | 0.6702 | 0.9D + 1.0WA |
+| → F2–F4 | 3 086.8 – 9 016.7 | 5 929.9 | 0.4275 / 0.4279 | 0.4166 | 0.9D + 1.0WA |
+| → F2–F4 | 9 016.7 – 11 400.7 | 2 384.0 | 0.3653 | 0.3543 | 0.9D + 1.0WA |
+| F1, F5 | 5 458.8 – 11 400.7 | 5 941.9 | 0.3208 | 0.3207 | 0.9D + 1.0WB + BRB |
+| → F1, F5 | 5 458.8 – 9 016.7 | 3 557.9 | 0.2320 | 0.2318 | 0.9D + 1.0WB + BRB |
+| → F1, F5 | 9 016.7 – 11 400.7 | 2 384.0 | 0.2134 | 0.2133 | 0.9D + 1.0WB + BRB |
+The member results (governing at the knee end, 1.2D + 1.6Lr): F2–F4 0.8103 → 0.8107, F1 / F5 0.4274 → 0.4276, frame max
+0.8778 → 0.8783 (the braces' own weight in the secondary load); serviceability 0.7395 unchanged. The segment next to
+the knee (1 894.2 – 3 086.8): 0.6460 → 0.6463.
+
+## Flange-brace points (rafter A; 82 → 92 points, all PARTIAL as before — the frame-side end is not detailed)
+| point (s along the flange) | old: Lbr / Prb / P_brace / U | new: Lbr / Prb / P_brace / U |
+|---|---|---|
+| F3 RA3 (3 060.4) | 8 301.9 / 11.821 / 9.365 / 0.5162 | 5 929.9 / 11.827 / 9.773 / 0.5386 |
+| F3 **RA8 (8 990.4) NEW** | — | 5 929.9 / 5.126 / 4.236 / 0.2335 |
+| F3 RA10 ridge (11 362.4) | 8 301.9 / 3.664 / 1.451 / 0.0800 | 2 372.0 / 3.662 / 1.840 / 0.1014 |
+| F1 RA5 (5 432.4) | 5 930.0 / 1.830 / 3.025 / 0.1667 | 3 558.0 / 1.599 / 2.897 / 0.1597 |
+| F1 **RA8 (8 990.4) NEW** | — | 3 558.0 / 3.163 / 5.730 / 0.3158 |
+| F1 RA10 ridge (11 362.4) | 5 930.0 / 2.094 / 1.730 / 0.0954 | 2 372.0 / 2.093 / 2.103 / 0.1159 |
+Governing everywhere: bearing on the purlin web (AISI J3.3, VERIFIED False). Why RA3 and the ridge brace go UP: the
+shorter Lbr makes Δo = Lbr / 500 smaller, so the slip amplification (1 + slip / Δo, item 16.5) is larger.
+
+## Cleats at these purlins (5a re-run with the flange-brace force; counts 186 DESIGNED / 10 FAILS both)
+| cleat | old U | new U | governing |
+|---|---|---|---|
+| CL43 F3 RA8 | 0.5432 | 0.6324 | cleat axial + bending (1.2D + 1.6Lr + 0.5W + flange brace) |
+| CL41 F1 RA8 | 0.2246 | 0.2925 | cleat axial + bending |
+| CL18 F3 RA3 | 0.7618 | 0.7808 | weld metal 6 mm |
+| CL53 F3 RA10 | 0.3545 | 0.3637 | cleat axial + bending |
+| CL28 F3 RA5 / CL16 F1 RA3 / CL26 F1 RA5 / CL51 F1 RA10 | 0.5432 / 0.3003 / 0.4360 / 0.4165 | 0.5432 / 0.3004 / 0.4392 / 0.4182 | — |
+
+## Weight
+Frame (built-up) 1 679.77 kg per frame line — unchanged. Flange braces 307.6 → 338.4 kg (+30.8 kg for the building:
+16 × 0.516 m of L50x5); building 16 694.9 → 16 725.7 kg.

@@ -3,6 +3,7 @@
 the ridge end plates, the ridge flange braces, the wind-column tops at the ridge and the kink check.
 
     uv run python tools/item17-compare.py OUT.json        (slow: two building analyses + two frame checks)
+    uv run python tools/item17-compare.py OUT.json 17b    open item 17b: apex fixture, kink flange braces off → on
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-def run(fixture: str) -> dict:
+def run(fixture: str, **over) -> dict:
     from engine.analysis.building_analysis import analyse_building
     from engine.connections.eave_transfer import building_eave_transfer
     from engine.connections.endplates import building_endplates
@@ -29,7 +30,7 @@ def run(fixture: str) -> dict:
     from engine.peb.loads_input import LoadsInput
 
     fx = json.loads((ROOT / "fixtures" / "manafe3" / fixture).read_text(encoding="utf-8"))
-    b0, li = BuildingInput(**fx["building"], sizes=BuiltUpSizes(**fx["sizes"])), LoadsInput(**fx["loads"])
+    b0, li = BuildingInput(**fx["building"], sizes=BuiltUpSizes(**fx["sizes"]), **over), LoadsInput(**fx["loads"])
     b, _ = resolve(b0)
     out = peb_building(b)
     an = analyse_building(b, li)
@@ -39,14 +40,17 @@ def run(fixture: str) -> dict:
     et = building_eave_transfer(b, jr, out, an, ep)
     kk = building_kinks(b0, li, analysis=an, out=out)
     ev = evaluate(b, li, explicit(b.sizes), code="AISC", stability="dg25")
-    rows, _ = frame_rows(ev, "AISC")
+    rows, calc = frame_rows(ev, "AISC")
     wc = {m["id"]: m for m in out["members"] if m["role"] == "wind_column"}
     return {"fixture": fixture, "sizes": fx["sizes"], "joints": jr, "endplates": ep, "stability": sb, "eave": et, "kinks": kk,
-            "frame_rows": rows, "frame_max": ev["max_ratio"], "service": ev["service_ratio"],
+            "frame_rows": rows, "frame_calc": calc, "frame_max": ev["max_ratio"], "service": ev["service_ratio"],
             "wind_columns": {k: {"start": v["start"], "end": v["end"]} for k, v in wc.items()}}
 
 
 if __name__ == "__main__":
-    res = {"old": run("building1-sized.json"), "new": run("building1-apex.json")}
+    if len(sys.argv) > 2 and sys.argv[2] == "17b":   # open item 17b: the kink flange braces off → on, both on the apex fixture
+        res = {"old": run("building1-apex.json", kink_flange_braces=False), "new": run("building1-apex.json")}
+    else:
+        res = {"old": run("building1-sized.json"), "new": run("building1-apex.json")}
     pathlib.Path(sys.argv[1]).write_text(json.dumps(res, default=str, indent=1), encoding="utf-8")
     print("written", sys.argv[1])
