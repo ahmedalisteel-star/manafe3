@@ -36,8 +36,23 @@ AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 st
 2026-11-17, "Step 7 — decisions" below). Open item 7 BUILT (2026-11-17, values accepted; record in
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
 confirmed). DetailCraft 0.10 MERGED (2026-11-19). Open item 16 DONE (2026-11-23, committed; values
-approved by the user, "Open items" 16, `docs/reports/item16.md`). **NEXT: open item 17 (apex haunch, decisions 2026-11-18),
-then step 7 (7a–7f).**
+approved by the user, "Open items" 16, `docs/reports/item16.md`). **NEXT (user decision 2026-11-24): open item 17 (apex
+haunch, decisions 2026-11-18) → merge DetailCraft 0.11 → engine test speed-up (roadmap "Small task") → step 7 (7a–7f).**
+**DetailCraft 0.11.0 (tag `detailcraft-v0.11.0`, 23 Nov 2026) — REPORT ONLY, not merged (2026-11-24):**
+`docs/reports/detailcraft-0.11.md`. Dry-run merge (`git merge-tree`, no files written): 305 help / language conflicts +
+11 others — README (ours), 5 platform READMEs (delete again), `devshell/index.html` (upstream's + our mark), `build.js`
+(0.11 incremental build cache PERF.36 / 78: our built-up / base-plate / plateWeight / concrete hooks move into the cached
+member loop, `CONN_BUILDERS` and the `fresh` block; the built-up base plate's cache key must carry the column's version),
+`clash.js` (our shaped-plate sampling into 0.11's cached point routine), `model.js` (DC.27 per-session ids;
+`Model.replace` also takes an id block), `detailcraft.js` (11 hunks; the built-up Properties editor moves to
+`member-props-ui.js`, the concrete m³ summary to `report-panel-ui.js`). Auto-merged but to test: `view3d.js` (PERF.36
+`updateParts` vs our Design… colour keys), `marks.js`, `ifc.js`, `export-ui.js`. Useful: weld checks (AISC J2.4 / J4.2 /
+J2.5, EN 1993-1-8) as an independent cross-check only (the Analysis tab skips PEB members); Zeman export add-on (off by
+default; I-shape main parts only, probably not our built-up members); big-model speed (incremental build / 3D update,
+IFC meshes in a worker).
+**User decision 2026-11-24 — order:** (1) item 17; (2) merge 0.11 on branch `upstream-merge-011`: re-brand
+(`node tools/manafe3-rebrand.mjs`), delete the platform folders again, full tests (engine all + app), the user's manual
+check in the browser, then into `main`; (3) the engine test speed-up (roadmap "Small task"); (4) step 7.
 **DetailCraft 0.10 merge (2026-11-18, branch `upstream-merge`, NOT in main until the user approves):** tag
 `detailcraft-v0.10.0` merged; 506 help / language files taken from upstream and re-branded (`tools/manafe3-rebrand.mjs`,
 now also `app/addons/**/lang/*.json`; 51 per-language whats-new.md removed as upstream removed them); upstream's
@@ -1907,6 +1922,9 @@ public and all of it Apache-2.0.)
 - Sizing loop: different flange plates per segment (column / haunch / rafter) for lighter frames (user, 2026-11-09 —
   roadmap, not now; the generator's splice rule keeps one flange plate today).
 - Sizing loop: hw_apex (apex haunch depth) as a sizing variable instead of the fixed 1.5 × hw_rafter (user 2026-11-18).
+- **Small task (user 2026-11-24; after the 0.11 merge, before step 7):** speed up the full engine suite (~2 h):
+  parallel files (`--jobs 3`, lower when free memory < 3 GB) and an on-disk cache of the building-1 analysis keyed by
+  input hash + code version (negative control: changed input misses the cache); all test values unchanged.
 
 - **Phase 1** tapered built-up member type (web taper, flange plates, 3D, BOM, NC per plate) — **DONE 2026-11-05**
 - **Phase 2** secondary steel (Z/C purlins and girts with laps, sag rods, flange braces, rod/angle bracing, end-wall frames) — **DONE 2026-11-05**
