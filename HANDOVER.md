@@ -2028,7 +2028,7 @@ public and all of it Apache-2.0.)
 ## Last session
 
 <!-- LAST-SESSION:START (written by end-work.ps1) -->
-- When: 2026-11-23 17:10 on ENG04-PC
-- Did: Item 16: per-line gauges, PL12 strut cleats, runner fix
-- Tests: engine engine: 300 passed (42 files, largest peak 332 MiB in test_building_analysis.py, 7469 s) | app 17 of 17 test files passed
+- When: 2026-11-24 12:44 on ENG04-PC
+- Did: Items 17 and 17b: apex haunch, kink flange braces
+- Tests: engine engine: 310 passed (43 files, largest peak 323 MiB in test_building_analysis.py, 2480 s) | app 18 of 18 test files passed
 <!-- LAST-SESSION:END -->
