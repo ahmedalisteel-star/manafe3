@@ -13,6 +13,9 @@
  *   the LAST segment's length is whatever remains of the member's line, so moving an end never breaks the member
  *   at every splice the two segments have the same web depth and the same top and bottom flange widths (user decision
  *   2026-11-05; thicknesses may change); shop minimums web 6 mm, flange 8 mm
+ *   joint (optional) = the segment's START boundary: absent = a field splice (a new shipping piece); 'shop' = shop-welded
+ *     to the segment before it (open item 17, the apex haunch: one shipping piece, no end plate; one top flange plate
+ *     across it, so the same top flange thickness, grade and straight flange); never on the first segment
  *
  *   cleanBuiltUp(bu, L) → cleaned copy (last length = the remainder) or throws a plain message naming the segment/splice
  *   buMark(bu) → 'BU 300-800x8 250x12/250x12' (the member's profile text)
@@ -62,7 +65,10 @@ export function cleanBuiltUp(bu, L) {
     if (!STRAIGHT.includes(straight)) throw new Error(`${label}: the straight flange must be top, bottom or centre`);
     const length = n('length');
     if (i < rows.length - 1 && !(length > 0)) throw new Error(`${label}: length must be more than 0 mm`);
-    return { length, hwStart, hwEnd, tw, top, bot, grade, straight };
+    const joint = s?.joint == null || s.joint === 'splice' ? null : String(s.joint);
+    if (joint && joint !== 'shop') throw new Error(`${label}: the joint must be splice or shop`);
+    if (joint && i === 0) throw new Error(`${label}: the first segment has no joint at its start`);
+    return { length, hwStart, hwEnd, tw, top, bot, grade, straight, ...(joint ? { joint } : {}) };
   });
   const before = segs.slice(0, -1).reduce((a, s) => a + s.length, 0);
   const last = L - before;
@@ -73,6 +79,7 @@ export function cleanBuiltUp(bu, L) {
     if (Math.abs(a.hwEnd - b.hwStart) > TOL) throw new Error(`${where}: web depths differ (${fmt(a.hwEnd)} | ${fmt(b.hwStart)} mm); a splice joins equal webs`);
     if (Math.abs(a.top.b - b.top.b) > TOL) throw new Error(`${where}: top flange widths differ (${fmt(a.top.b)} | ${fmt(b.top.b)} mm)`);
     if (Math.abs(a.bot.b - b.bot.b) > TOL) throw new Error(`${where}: bottom flange widths differ (${fmt(a.bot.b)} | ${fmt(b.bot.b)} mm)`);
+    if (b.joint === 'shop' && (Math.abs(a.top.t - b.top.t) > TOL || a.grade !== b.grade || a.straight !== b.straight)) throw new Error(`Shop joint ${i + 1} (segment ${i + 1} | segment ${i + 2}): one top flange plate runs across it, so the top flange thickness, grade and straight flange must be the same`);
   }
   // member end cuts: the end face is x = end + k·v (k = 0 square; a rafter's plumb cut k = the roof slope); endU: the end
   // face also slopes ACROSS the flanges, x = end + endU·u (a wind column's top under a sloping rafter)
@@ -125,7 +132,7 @@ export function segmentPlates(bu, L) {
       return f;
     };
     out.push({
-      index, x0, x1, grade: s.grade, straight: s.straight, hwStart: s.hwStart, hwEnd: s.hwEnd,
+      index, x0, x1, grade: s.grade, straight: s.straight, hwStart: s.hwStart, hwEnd: s.hwEnd, joint: s.joint || null,
       web: { t: s.tw, outline: [[at0(a.webBot), a.webBot], [at1(b.webBot), b.webBot], [at1(b.webTop), b.webTop], [at0(a.webTop), a.webTop]] },
       top: flange(s.top, 'top'), bot: flange(s.bot, 'bot'),
     });

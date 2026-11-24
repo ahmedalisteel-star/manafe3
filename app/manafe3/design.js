@@ -103,7 +103,7 @@ export function tableRows(result, { filter = '', sort = 'ratio', dir = -1, code 
   return [...rows].sort((a, b) => { const x = k(a), y = k(b); return (x < y ? -1 : x > y ? 1 : String(a.id).localeCompare(String(b.id), undefined, { numeric: true })) * dir; });
 }
 
-const SIZE_KEYS = ['hw_knee', 'hw_base', 'hw_rafter', 'haunch_length', 'bf', 'tf', 'tw_column', 'tw_haunch', 'tw_rafter'];
+const SIZE_KEYS = ['hw_knee', 'hw_base', 'hw_rafter', 'haunch_length', 'bf', 'tf', 'tw_column', 'tw_haunch', 'tw_rafter', 'apex_haunch_length', 'hw_apex'];   // open item 17: the apex haunch (hw_apex follows 1.5 × hw_rafter in the sizing)
 const SEC_KEYS = ['hw', 'tw', 'bf', 'tf'];
 export function proposalRows(spec, proposed) {
   const rows = [];

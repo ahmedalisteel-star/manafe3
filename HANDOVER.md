@@ -37,7 +37,7 @@ AS DONE by the user (2026-11-17, "Step 5d — review 1"; open items 13 and 14 st
 "Open items" 7). Open item 15 DONE (2026-11-18, committed; purlins and eave struts accepted, NOT FOR ISSUE until the R table is
 confirmed). DetailCraft 0.10 MERGED (2026-11-19). Open item 16 DONE (2026-11-23, committed; values
 approved by the user, "Open items" 16, `docs/reports/item16.md`). **NEXT (user decision 2026-11-24): open item 17 (apex
-haunch, decisions 2026-11-18) → merge DetailCraft 0.11 → engine test speed-up (roadmap "Small task") → step 7 (7a–7f).**
+haunch; DONE 2026-11-24, approved by the user) → merge DetailCraft 0.11 → engine test speed-up (roadmap "Small task") → step 7 (7a–7f).**
 **DetailCraft 0.11.0 (tag `detailcraft-v0.11.0`, 23 Nov 2026) — REPORT ONLY, not merged (2026-11-24):**
 `docs/reports/detailcraft-0.11.md`. Dry-run merge (`git merge-tree`, no files written): 305 help / language conflicts +
 11 others — README (ours), 5 platform READMEs (delete again), `devshell/index.html` (upstream's + our mark), `build.js`
@@ -718,6 +718,7 @@ still create parts, marked NOT FOR ISSUE.
 | Web weld tension zone, clearance rules (step 3) | zone = innermost tension row + 2 d; nut corner + 5 mm | Claude's detailing rules — the user's call | VERIFIED False |
 | bimsteelauto_connections limits found (step 3) | `size_fillet_weld`: fixed by 0.15.3 tee mode (the default stays thicker-part minimum + edge maximum); `check_column_side` always runs J10.5 (Manafe3 lists it as not applicable) | whether to change the library defaults / J10.5 (the user's decision) | fillet: fixed 2026-11-12; defaults and J10.5: open |
 | J2.2b maximum fillet on the cleat welds (step 5a / item 16; user 2026-11-23) | the AISC 360-16 J2.2b maximum fillet (t − 2 mm for t ≥ 6 mm) applied to the cleat END welds, a T-joint on the cleat's faces (PL8 6 mm, PL12 10 mm); J2.2b may only govern welds ALONG plate edges — the cap rule stays until confirmed | confirm from the printed J2.2b page | VERIFIED False |
+| AISC 360-16 J10-2 / J10-4, apex-haunch kink check (open item 17, `connections/kink.py`) | J10.2 φRn = 1.00 Fyw tw (5k + lb), J10.3 φRn = 0.75 × 0.80 tw² [1 + 3 (lb/d)(tw/tf)^1.5] √(E Fyw tf / tw) Qf (interior, Qf 1.0), written from memory; inputs lb = 0 and k = tf (fillet leg ignored) — Claude's conservative judgement; full resultant 2\|C\| sin(θ/2) normal to the flange | the printed J10.2 / J10.3 (and whether a kink may use lb > 0 / k = tf + leg) | VERIFIED False (`kink.VERIFIED["J10"]`) |
 
 ## Field fixes from the first real project (R1) — done (2026-11-08 / 09)
 
@@ -1909,6 +1910,28 @@ manafe3.py starts both (stdlib only; runs `uv sync` on first use)
    rounded to 50 mm — both editable in Building…, both printed as defaults (TO CONFIRM in the step batch). Sizing: a
    fixed ratio for now (varying hw_apex → roadmap). STOP RULE: old → new sections and U (rafters, ridge end plates,
    ridge flange braces) on the new fixture before the tests change.
+   **User decisions 2026-11-24 (D1–D5):** D1 = A, the apex segment SHOP-WELDED to the last rafter piece (segment `joint:
+   "shop"`, one shipping piece, no splice, no end plate); web = ONE shaped plate (constant + taper) when the piece fits
+   the plate length rule, else two plates with a CJP butt weld; bottom flange two plates with a CJP weld at the kink; the
+   same in BOM / NC. D2: engine OFF unless `apex_haunch_length` / `hw_apex` are sent (existing tests / fixtures unchanged);
+   Building… sends ON for new buildings, OFF for saved projects. **D3: the 50 % minimum design force at the ridge joint is
+   based on the RAFTER section just outside the apex haunch (not the deeper apex section); the joint is still designed
+   for 100 % of the actual concurrent forces of every combination.** D4: no apex haunch on end-rafter (bearing) end walls;
+   frame-type end walls get the same haunch. D5: the web at the bottom-flange kink checked for the kink force, both signs
+   (J10.2 local yielding; J10.3 crippling where compressive), a stiffener pair only if it fails, hand-checked in a test
+   with a negative control; the distance kink → nearest flange brace reported on each rafter (no rule; the user decides).
+   **BUILT and APPROVED 2026-11-24:** old → new in
+   `docs/reports/item17.md` (`tools/item17-compare.py`); new fixture `building1-apex.json`; new tests
+   `engine/tests/test_apex_haunch.py`, `tests/bin/test-manafe3-apex.mjs`; no existing test value changed. Code: engine
+   `peb/builtup_frame.py` (sizes, `apex_defaults`, `with_apex_ratio`, the shop segment), `sections/builtup.py` (`joint`,
+   `field_splices`), `analysis/frame_model.py` (`FrameModelInfo.shop`), `connections/joints.py` (no splice at a shop
+   joint; D3 basis; placeholder warning ignores the apex fields), `peb/bracing.py` (`rafter_depth`: flange braces, wind
+   columns), `connections/kink.py` (D5), `design/sizing.py` (fixed ratio), `api.py` (fields, `apex_defaults` in
+   /peb/frame/defaults); app `builtup.js`, `builtup-parts.js` (pieces, one web plate / CJP), `builtup-ui.js`,
+   `peb-frame.js` (`APEX_FIELDS`, `apexDefaults`), `peb-building-ui.js` (two fields, ON for new), `design.js`. `builtup-parts.MAX_PLATE_LENGTH`
+   = 12 000 mm CONFIRMED by the user 2026-11-24. The J10 formulas and inputs (lb = 0, k = tf) are in "Unverified sources".
+   **APPROVED by the user 2026-11-24 as reported in `docs/reports/item17.md`** (rafters, ridge end plates M20 / PL15, ridge
+   flange braces, wind-column tops, kink checks, +11.30 kg per frame).
 
 12. **Unverified basis of the 5c failures** (user 2026-11-16): the flange-brace web bearing on the 2 mm purlins / girts (34
    points) and the first-purlin cleats CL7 / CL9 / CL62 / CL64 depend on the unverified AISI J3.3 (item 9.2) and on the slip

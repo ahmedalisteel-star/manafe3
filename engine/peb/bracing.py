@@ -80,11 +80,17 @@ def _pt(side, s, h, slope, span, eave, along=0.0):
 
 
 def rafter_depth(s: float, inp: BracingInput) -> float:
-    """Overall rafter depth at roof distance s (built-up frame: haunch from the column's inner face, then constant)."""
+    """Overall rafter depth at roof distance s (built-up frame: haunch from the column's inner face, then constant; with
+    the apex haunch ON (open item 17) a taper hw_rafter → hw_apex over the last apex_haunch_length before the ridge)."""
     z = inp.sizes
-    s0 = (z.hw_knee + 2 * z.tf) * math.sqrt(1 + inp.roof_slope ** 2)
+    c = math.sqrt(1 + inp.roof_slope ** 2)
+    s0 = (z.hw_knee + 2 * z.tf) * c
     d = s - s0
     hw = z.hw_rafter if d >= z.haunch_length else z.hw_knee + (z.hw_rafter - z.hw_knee) * max(d, 0) / z.haunch_length
+    if getattr(z, "apex", False):
+        to_ridge = inp.span / 2.0 * c - s           # roof distance to the ridge (the rafter's plumb end at the apex)
+        if to_ridge < z.apex_haunch_length:
+            hw = z.hw_rafter + (z.hw_apex - z.hw_rafter) * (z.apex_haunch_length - max(to_ridge, 0.0)) / z.apex_haunch_length
     return hw + 2 * z.tf
 
 

@@ -23,7 +23,7 @@ from typing import Literal
 
 from .analysis.building_analysis import analyse_building
 from .peb.building import BuildingInput, peb_building
-from .peb.builtup_frame import BuiltUpSizes, default_sizes, sizes_dict
+from .peb.builtup_frame import BuiltUpSizes, apex_defaults, default_sizes, sizes_dict
 from .peb.loads_input import LoadsInput
 from .peb.secondary import RoofSide, Sections, Wall
 from .peb.frame import FrameInput, portal_frame
@@ -72,6 +72,8 @@ class SizesIn(BaseModel):
     tw_column: float | None = None
     tw_haunch: float | None = None
     tw_rafter: float | None = None
+    apex_haunch_length: float = Field(0.0, ge=0, description="mm along the rafter from the ridge end; 0 = no apex haunch (open item 17)")
+    hw_apex: float | None = Field(None, gt=0, description="web depth at the ridge, mm (apex haunch ON)")
 
 
 class SectionOverrideIn(BaseModel):
@@ -103,6 +105,7 @@ class SegmentIn(BaseModel):
     tf_bot: float
     grade: str = "S355"
     straight: str = "top"
+    joint: str = Field("splice", description="the segment's start boundary: splice (field) or shop (shop-welded, open item 17)")
 
 
 class BuiltUpRequest(BaseModel):
@@ -277,7 +280,9 @@ class DefaultsRequest(BaseModel):
 @app.post("/peb/frame/defaults")
 def peb_frame_defaults(req: DefaultsRequest) -> dict:
     """The built-up placeholder sizes the span rules give (HANDOVER.md, Phase 1 decisions); the form shows them for editing."""
-    return {"sizes": sizes_dict(default_sizes(req.span)), "designed": False}
+    z = default_sizes(req.span)
+    # open item 17: the apex haunch defaults a NEW building starts with (the form fills them; saved projects stay OFF)
+    return {"sizes": sizes_dict(z), "apex_defaults": apex_defaults(req.span, z.hw_rafter), "designed": False}
 
 
 # --------------------------------------------------------------------------------------------- Phase 4 step 9: Design…

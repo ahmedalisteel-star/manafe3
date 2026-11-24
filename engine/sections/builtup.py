@@ -11,6 +11,10 @@ re-derive them. What it adds is the Manafe3 member as the user types it:
 * at every **splice** (segment boundary) the two segments must have the same web depth and the same top and bottom
   flange widths (user decision 2026-11-05); thicknesses may change.
 * shop minimums: web 6 mm, flange 8 mm.
+* a segment's `joint` names its START boundary: "splice" (default: a field splice, a new shipping piece) or "shop"
+  (open item 17, user decision 2026-11-24 D1: shop-welded to the segment before it — one shipping piece, no end plate;
+  the web is one shaped plate or two with a CJP butt weld, the bottom flange two plates with a CJP weld at a kink). A
+  shop joint also needs the same top flange (one plate across it) and grade. The first segment has no start joint.
 
 Units: mm, mm², mm³, mm⁴. x is measured along the member's line from its start.
 """
@@ -24,6 +28,7 @@ from bimsteelauto.sections import SectionError, TaperedMember, WeldedI
 MIN_WEB_T = 6.0
 MIN_FLANGE_T = 8.0
 GRADES = ("S275", "S355", "A572 Gr 50", "St 37", "St 44", "St 52")
+JOINTS = ("splice", "shop")              # a segment's start boundary (open item 17)
 STRAIGHT = ("top", "bottom", "centre")   # which flange lies on the member's line (PEB standard per role; see frame.py)
 STEEL_DENSITY = 7850.0                   # kg/m³
 _TOL = 1e-6                              # mm
@@ -45,6 +50,7 @@ class Segment:
     tf_bot: float
     grade: str = "S355"
     straight: str = "top"
+    joint: str = "splice"
 
     def check(self, label: str) -> None:
         p = []
@@ -65,6 +71,8 @@ class Segment:
             p.append(f"grade {self.grade!r} is not one of {', '.join(GRADES)}")
         if self.straight not in STRAIGHT:
             p.append(f"straight flange {self.straight!r} must be top, bottom or centre")
+        if self.joint not in JOINTS:
+            p.append(f"joint {self.joint!r} must be splice or shop")
         if p:
             raise BuiltUpError(f"{label}: " + "; ".join(p))
 
@@ -98,6 +106,11 @@ class BuiltUpMember:
                 raise BuiltUpError(f"{where}: top flange widths differ ({a.bf_top:g} | {b.bf_top:g} mm)")
             if abs(a.bf_bot - b.bf_bot) > _TOL:
                 raise BuiltUpError(f"{where}: bottom flange widths differ ({a.bf_bot:g} | {b.bf_bot:g} mm)")
+            if b.joint == "shop" and (abs(a.tf_top - b.tf_top) > _TOL or a.grade != b.grade or a.straight != b.straight):
+                raise BuiltUpError(f"shop joint {i + 1} (segment {i + 1} | segment {i + 2}): one top flange plate runs "
+                                   f"across it: the same top flange thickness, grade and straight flange are needed")
+        if self.segments[0].joint != "splice":
+            raise BuiltUpError("segment 1: the first segment has no joint at its start (joint must be splice)")
         for s in self.segments:
             try:
                 s.tapered()
@@ -113,8 +126,18 @@ class BuiltUpMember:
         return sum(s.length for s in self.segments)
 
     @property
+    def field_splices(self) -> list[float]:
+        """x of each FIELD splice (a segment boundary that is not a shop joint)."""
+        out, x = [], 0.0
+        for a, b in zip(self.segments, self.segments[1:]):
+            x += a.length
+            if b.joint != "shop":
+                out.append(x)
+        return out
+
+    @property
     def splices(self) -> list[float]:
-        """x of each splice along the member."""
+        """x of each segment boundary along the member (field splices and shop joints; see field_splices)."""
         out, x = [], 0.0
         for s in self.segments[:-1]:
             x += s.length

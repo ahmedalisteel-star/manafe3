@@ -8,6 +8,14 @@ form, and every member carries `designed: False` until Phases 3-4:
     column           one tapered segment, web 300 at the base → hw_knee at the eave
     haunch           span / 10 long (along the rafter) from the column face, web hw_knee → hw_rafter (equal webs at the splice)
     rafter           hw_rafter, constant to the ridge; split into equal segments when longer than 12 m (transport)
+    apex haunch      (open item 17, user decisions 2026-11-18 / -24) OFF unless apex_haunch_length > 0 is given (saved
+                     projects and every request without it are unchanged); when ON: the last rafter piece ends in ONE more
+                     tapered segment hw_rafter → hw_apex over apex_haunch_length (measured along the rafter from the plumb
+                     ridge end), SHOP-WELDED to the piece (segment joint "shop": no splice, no end plate, one shipping
+                     piece). The transport split counts the whole piece (constant + apex). Building… defaults
+                     (apex_defaults): length = span / 15, at least 1500, rounded to 100; hw_apex = 1.5 × hw_rafter,
+                     rounded to 50. Refused: an apex haunch that overlaps the knee haunch, hw_apex < hw_rafter, a length
+                     without hw_apex. Not on end-rafter (bearing) end walls (endwall.py, user 2026-11-24 D4).
     flanges          span ≤ 20 m 200×10, ≤ 30 m 250×12, else 300×16 — the same plates on every member (splice rule)
     web thickness    6 mm if the segment's deepest web ≤ 600 mm, else 8 mm;  grade S355
                      (Phase 4 step 8: tw_column / tw_haunch / tw_rafter override the rule per member kind — the sizing loop)
@@ -41,6 +49,27 @@ class BuiltUpSizes:
     tw_column: float | None = None      # None → web_t(the segment's deepest web)
     tw_haunch: float | None = None
     tw_rafter: float | None = None
+    apex_haunch_length: float = 0.0     # 0 = no apex haunch (open item 17); mm along the rafter from the ridge end
+    hw_apex: float | None = None        # web depth at the ridge when the apex haunch is ON
+
+    @property
+    def apex(self) -> bool:
+        return bool(self.apex_haunch_length and self.apex_haunch_length > 0)
+
+
+def apex_defaults(span: float, hw_rafter: float) -> dict:
+    """The Building… defaults for a NEW building (user 2026-11-18): {apex_haunch_length, hw_apex}."""
+    half_up = lambda v: math.floor(v + 0.5)          # half up, as the browser's Math.round (Python's round is half-even)
+    return {"apex_haunch_length": max(1500.0, half_up(span / 15.0 / 100.0) * 100.0),
+            "hw_apex": half_up(1.5 * hw_rafter / 50.0) * 50.0}
+
+
+def with_apex_ratio(z: "BuiltUpSizes") -> "BuiltUpSizes":
+    """The sizing loop's fixed ratio (user 2026-11-18): hw_apex = 1.5 × hw_rafter rounded to 50 when the apex is ON."""
+    if not z.apex:
+        return z
+    from dataclasses import replace
+    return replace(z, hw_apex=apex_defaults(0.0, z.hw_rafter)["hw_apex"])
 
 
 def default_sizes(span: float) -> BuiltUpSizes:
@@ -73,6 +102,30 @@ def _taper_split(length: float, hw0: float, hw1: float, z: BuiltUpSizes, tw: flo
     return [_seg(length / n, hw0 + (hw1 - hw0) * i / n, hw0 + (hw1 - hw0) * (i + 1) / n, z, tw) for i in range(n)]
 
 
+def _rafter_rest(rest: float, z: BuiltUpSizes) -> list[dict]:
+    """The rafter past the knee haunch: equal shipping pieces ≤ 12 m; with the apex haunch ON the last piece ends in a
+    shop-welded tapered segment (joint "shop")."""
+    if not z.apex:
+        if z.hw_apex is not None:
+            raise ValueError("hw_apex is given without an apex haunch length")
+        return _split(rest, z.hw_rafter, z, z.tw_rafter)
+    La = float(z.apex_haunch_length)
+    if z.hw_apex is None:
+        raise ValueError("the apex haunch needs hw_apex (the web depth at the ridge)")
+    if z.hw_apex < z.hw_rafter:
+        raise ValueError(f"hw_apex ({z.hw_apex:g} mm) must not be less than hw_rafter ({z.hw_rafter:g} mm)")
+    n = max(1, math.ceil(rest / MAX_SEGMENT - 1e-9))
+    piece = rest / n
+    if La >= piece:
+        raise ValueError(f"the apex haunch ({La:g} mm) overlaps the knee haunch or a splice: the last rafter piece is "
+                         f"{piece:.0f} mm long")
+    segs = [_seg(piece, z.hw_rafter, z.hw_rafter, z, z.tw_rafter) for _ in range(n - 1)]
+    segs.append(_seg(piece - La, z.hw_rafter, z.hw_rafter, z, z.tw_rafter))
+    apex = _seg(La, z.hw_rafter, z.hw_apex, z, z.tw_rafter)
+    apex["joint"] = "shop"
+    return segs + [apex]
+
+
 def builtup_frame_members(span: float, eave: float, slope: float, x: float, line: str, z: BuiltUpSizes) -> list[dict]:
     """The four members of one frame line at x."""
     d_top = z.hw_knee + 2 * z.tf                       # column overall depth at the eave
@@ -83,7 +136,7 @@ def builtup_frame_members(span: float, eave: float, slope: float, x: float, line
     if z.haunch_length >= rafter_len:
         raise ValueError(f"the haunch ({z.haunch_length:g} mm) must be shorter than the rafter ({rafter_len:.0f} mm)")
     col_segs = _taper_split(eave, z.hw_base, z.hw_knee, z, z.tw_column)
-    raf_segs = [_seg(z.haunch_length, z.hw_knee, z.hw_rafter, z, z.tw_haunch)] + _split(rafter_len - z.haunch_length, z.hw_rafter, z, z.tw_rafter)
+    raf_segs = [_seg(z.haunch_length, z.hw_knee, z.hw_rafter, z, z.tw_haunch)] + _rafter_rest(rafter_len - z.haunch_length, z)
     out = []
     for side, y_col, rot, y_raf in (("A", 0.0, 270.0, y0), ("B", span, 90.0, span - y0)):
         out.append(dict(id=f"F{line}-C{side}", role="column", frame_line=line, side=side, rotation=rot,
@@ -107,4 +160,9 @@ def mark(segs: list[dict]) -> str:
 
 
 def sizes_dict(z: BuiltUpSizes) -> dict:
-    return asdict(z)
+    """The sizes as a dict; the apex fields only when the apex haunch is ON (requests without it stay as they were)."""
+    d = asdict(z)
+    if not z.apex and d.get("hw_apex") is None:
+        d.pop("apex_haunch_length", None)
+        d.pop("hw_apex", None)
+    return d

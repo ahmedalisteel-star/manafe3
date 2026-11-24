@@ -35,6 +35,7 @@ class FrameModelInfo:
     layout: FrameLayout
     marks: dict[str, str]          # FrameLayout mark → the Manafe3 member id (rigid links: "rigid")
     roles: dict[str, str]          # mark → "column A" | "rafter A" | … | "link"
+    shop: frozenset = frozenset()  # rafter nodes "R<side>S<k>" that are SHOP joints (the apex haunch, open item 17): no splice
 
 
 def _wi(seg: dict, hw: float) -> WeldedI:
@@ -67,6 +68,7 @@ def frame_line_model(members: list[dict], span: float, eave: float, slope: float
         return nodes[name]
 
     rafter_start, rafter_end = {}, {}
+    shop: set[str] = set()
     for side in "AB":
         r = by[("rafter", side)]
         y0, z0 = r["start"][1], r["start"][2]
@@ -95,6 +97,7 @@ def frame_line_model(members: list[dict], span: float, eave: float, slope: float
         for nm, p in zip(names, pts):
             node(nm, p)
         rafter_start[side], rafter_end[side] = names[0], names[-1]
+        shop.update(f"R{side}S{i}" for i in range(1, len(segs)) if segs[i].get("joint") == "shop")
         for i, s in enumerate(segs):
             pa, pb = nodes[names[i]], nodes[names[i + 1]]
             ln = math.dist(pa, pb)
@@ -134,4 +137,4 @@ def frame_line_model(members: list[dict], span: float, eave: float, slope: float
     settings = ModelSettings(base_fixity=BaseFixity.FIXED if base == "fixed" else BaseFixity.PINNED, max_taper_step=max_taper_step)
     layout = FrameLayout(members=tuple(fms), nodes=nodes, base_nodes=tuple(base_nodes), eave_nodes=tuple(eave_nodes),
                          ridge_nodes=("RIDGE",), geometry=geom, settings=settings)
-    return FrameModelInfo(layout=layout, marks=marks, roles=roles)
+    return FrameModelInfo(layout=layout, marks=marks, roles=roles, shop=frozenset(shop))

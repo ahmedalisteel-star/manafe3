@@ -42,6 +42,8 @@ A joint whose forces are not available reads NOT EVALUATED with the missing item
 
 from __future__ import annotations
 
+import dataclasses
+
 import math
 from dataclasses import asdict, dataclass
 
@@ -56,6 +58,9 @@ from ..peb.builtup_frame import builtup_frame_members, default_sizes
 
 BANNER = "NOT FOR ISSUE — connection joints and design forces (Phase 5 step 1); connections not designed"
 SECTION_LB = 1.0             # mm: "Lb = 0" for the section strength (available_strengths needs a length > 0)
+APEX_BASIS = ("Apex haunch (user decision 2026-11-24): the minimum design force at the ridge is based on the RAFTER "
+              "section just outside the apex haunch, not the deeper apex section; the joint is designed for the larger "
+              "of that and 100 % of the analysis forces.")
 CAPACITY_BASIS = ("section strength of the shallower section at the joint (smaller Zx): yielding and local buckling, "
                   "no lateral-torsional buckling (Lb = 0); Fy = the lowest plate of that piece; AISC 360-16 Ch. F, G2.1")
 #: Where the 50 % rule comes from — stated on every result.
@@ -154,6 +159,9 @@ def _frame_joints(b: BuildingInput, i: int, info) -> list[dict]:
     for s in "AB":
         k = 1
         while f"R{s}{k + 1}" in L:
+            if f"R{s}S{k}" in info.shop:      # the apex haunch's shop joint (open item 17): no splice, no end plate
+                k += 1
+                continue
             js.append({"id": f"F{n}-S{s}{k}", "type": "rafter_splice", "frame_line": n, "point": pt(f"R{s}S{k}"),
                        "ends": [(f"R{s}{k}", L[f"R{s}{k}"]), (f"R{s}{k + 1}", 0.0)]})
             k += 1
@@ -341,7 +349,23 @@ def frame_joint_capacities(joints: list[dict], info, out: dict, x_frame: float, 
                            for k, lbl, u in (("compression", "Pu", "kN"), ("uplift", "Tu", "kN"), ("shear", "Vu", "kN"), ("moment", "Mu", "kNm"))}
             j["status"] = EVALUATED
             continue
-        secs = [(mk, st, lay[mk].taper.at(st)) for mk, st in j["ends"]]
+        ends = j["ends"]
+        basis_note = None
+        if j["type"] == "ridge":
+            # user decision 2026-11-24 (open item 17, D3): with an apex haunch the 50 % minimum is based on the RAFTER
+            # section just outside the haunch (the end of the piece the apex segment is shop-welded to), not the deeper
+            # apex section; the joint is still designed for 100 % of the analysis forces (design_force takes the larger)
+            moved = []
+            for mk, st in ends:
+                side, k = mk[1], int(mk[2:])
+                if f"R{side}S{k - 1}" in info.shop:
+                    moved.append((f"R{side}{k - 1}", lay[f"R{side}{k - 1}"].length))
+                else:
+                    moved.append((mk, st))
+            if moved != list(ends):
+                basis_note = APEX_BASIS
+                ends = moved
+        secs = [(mk, st, lay[mk].taper.at(st)) for mk, st in ends]
         mk, st, sec = min(secs, key=lambda t: t[2].Zx)
         stg = strengths[mk]
         mat = _materials(stg["Fy"], stg["Fu"])
@@ -351,7 +375,7 @@ def frame_joint_capacities(joints: list[dict], info, out: dict, x_frame: float, 
                          "Fy": stg["Fy"], "Fy_from": stg["governed_by"], "Lb": 0.0,
                          "phiMn_pos": round(cp.Mc, 3), "phiMn_neg": round(cn.Mc, 3), "phiVn": round(cp.Vc, 3),
                          "citations": {k: v for k, v in cp.citations.items() if k in ("Flexure", "Shear")},
-                         "basis": CAPACITY_BASIS}
+                         "basis": CAPACITY_BASIS if basis_note is None else CAPACITY_BASIS + " " + basis_note}
         fm = f if (f is not None and settings.capacity_moment) else None
         fv = f if (f is not None and settings.capacity_shear) else None
         j["design"] = {
@@ -393,7 +417,8 @@ def placeholder_warnings(b: BuildingInput) -> list[str]:
     2026-11-11): frames on the span rules (sizes not given, or equal to default_sizes of the typed span), wind columns /
     end rafters on the generator's constant section. The 50 % rule then follows an undesigned section."""
     w = []
-    if b.sizes is None or b.sizes == default_sizes(b.span):
+    base = dataclasses.replace(b.sizes, apex_haunch_length=0.0, hw_apex=None) if b.sizes is not None else None
+    if base is None or base == default_sizes(b.span):   # the apex haunch fields alone do not make the frame sized
         w.append("Main frames have the span-rule PLACEHOLDER sizes (not sized by PEB > Design...): the capacity-based "
                  "connection forces follow an undesigned section - size the frames first.")
     if getattr(b, "wind_column", None) is None:

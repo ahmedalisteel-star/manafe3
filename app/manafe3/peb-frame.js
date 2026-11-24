@@ -64,6 +64,7 @@ export function buOf(sec) {
       length: Number(s.length), hwStart: Number(s.hw_start), hwEnd: Number(s.hw_end), tw: Number(s.tw),
       top: { b: Number(s.bf_top), t: Number(s.tf_top) }, bot: { b: Number(s.bf_bot), t: Number(s.tf_bot) },
       grade: String(s.grade || 'S355'), straight: String(s.straight || 'top'),
+      ...(s.joint === 'shop' ? { joint: 'shop' } : {}),   // open item 17: the apex segment, shop-welded (no splice)
     })),
   };
   const cs = Number(sec.cut_start || 0), ce = Number(sec.cut_end || 0), cu = Number(sec.cut_end_u || 0);
@@ -75,7 +76,10 @@ export function buOf(sec) {
 export const SIZE_FIELDS = ['hw_knee', 'hw_base', 'hw_rafter', 'haunch_length', 'bf', 'tf'];
 export function sizesOf(form) {
   const vals = SIZE_FIELDS.map((k) => String(form[k] ?? '').trim());
-  if (vals.every((v) => v === '')) return null;
+  if (vals.every((v) => v === '')) {
+    if (APEX_FIELDS.some((k) => String(form[k] ?? '').trim() !== '')) throw new Error('Apex haunch: fill in the frame sizes too (the apex haunch is sent with the sizes)');
+    return null;
+  }
   const out = {};
   SIZE_FIELDS.forEach((k, i) => {
     const v = Number(vals[i]);
@@ -90,9 +94,25 @@ export function sizesOf(form) {
     if (!Number.isFinite(v) || v <= 0) throw new Error(`Size ${k.replace('_', ' ')} must be a number above 0 (or empty for the rule)`);
     out[k] = v;
   }
+  // open item 17: the apex haunch — both fields or neither (empty = OFF, as every saved project)
+  const ap = APEX_FIELDS.map((k) => String(form[k] ?? '').trim());
+  if (ap.some((v) => v !== '')) {
+    if (ap.some((v) => v === '')) throw new Error('Apex haunch: give both its length and its web depth at the ridge (or leave both empty for none)');
+    APEX_FIELDS.forEach((k, i) => {
+      const v = Number(ap[i]);
+      if (!Number.isFinite(v) || v <= 0) throw new Error(`Apex haunch: ${k.replace(/_/g, ' ')} must be a number above 0`);
+      out[k] = v;
+    });
+  }
   return out;
 }
 export const TW_FIELDS = ['tw_column', 'tw_haunch', 'tw_rafter'];
+export const APEX_FIELDS = ['apex_haunch_length', 'hw_apex'];   // open item 17 (user 2026-11-18 / -24)
+/** The Building… defaults of a NEW building's apex haunch (user 2026-11-18): length span / 15 ≥ 1500 rounded to 100,
+ *  hw_apex 1.5 × hw_rafter rounded to 50 — the engine's apex_defaults, written out for the form. */
+export function apexDefaults(span, hwRafter) {
+  return { apex_haunch_length: Math.max(1500, Math.round(Number(span) / 15 / 100) * 100), hw_apex: Math.round(1.5 * Number(hwRafter) / 50) * 50 };
+}
 
 /** POST /peb/frame/defaults: the span rules' sizes, for the form. */
 export async function requestDefaults(span, fetchFn = globalThis.fetch, base = ENGINE_URL) {

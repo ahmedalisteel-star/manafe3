@@ -66,6 +66,7 @@ export function removeSegment(bu, i, L) {
   if (i > 0) { const p = b.segments[i - 1]; p.length += s.length; p.hwEnd = s.hwEnd; if (i + 1 < b.segments.length) b.segments[i + 1].hwStart = s.hwEnd; }
   else { const n = b.segments[1]; n.length += s.length; n.hwStart = s.hwStart; }
   b.segments.splice(i, 1);
+  delete b.segments[0].joint;   // open item 17: the first segment has no start joint
   return b;
 }
 
@@ -111,7 +112,8 @@ export function builtUpBlock(m, { edit, marks, built }) {
     const last = i === m.bu.segments.length - 1;
     const seg = h('fieldset', { class: 'm3-bu-seg', style: 'border:1px solid var(--cc-line, #ccc);margin:.4rem 0;padding:.3rem .5rem' });
     const asm = marks?.asmMark?.get(m.id + '.s' + (i + 1) + '.web');
-    seg.append(h('legend', { style: 'font-size:.85em;width:auto;margin:0;padding:0 .3rem', text: `Segment ${i + 1}${asm ? ' · ' + asm : ''} · x ${rows[i].x0}–${rows[i].x1} · d ${rows[i].dStart}→${rows[i].dEnd} · ${rows[i].kg} kg` }));
+    const shop = s.joint === 'shop' ? ` · shop-welded to segment ${i}` : '';   // open item 17
+    seg.append(h('legend', { style: 'font-size:.85em;width:auto;margin:0;padding:0 .3rem', text: `Segment ${i + 1}${shop}${asm ? ' · ' + asm : ''} · x ${rows[i].x0}–${rows[i].x1} · d ${rows[i].dStart}→${rows[i].dEnd} · ${rows[i].kg} kg` }));
     const grid = h('div', { style: 'display:grid;grid-template-columns:minmax(0,1fr);gap:.2rem' });
     const cell = 'display:grid;grid-template-columns:6.5em minmax(0,1fr);align-items:center;gap:.4rem;font-size:.85em;margin:0';
     const box1 = 'width:100%;min-width:0;padding:.1rem .3rem;font-size:1em';

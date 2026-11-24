@@ -9,7 +9,8 @@ Main frames — what is sized (the generator's own parameters, BuiltUpSizes; the
     hw_knee         the column's top and the haunch's deep end;  hw_base the column's base;  hw_rafter the rafter
     tw_column, tw_haunch, tw_rafter   the webs
     kept: hw_base ≥ 300 and hw_rafter ≥ 300 (the generator's minimums), hw_rafter and hw_base ≤ hw_knee, the haunch
-    length (span / 10) and the grade as given
+    length (span / 10) and the grade as given; with the apex haunch ON its length stays as given and hw_apex follows
+    1.5 × hw_rafter rounded to 50 (a fixed ratio, user 2026-11-18; hw_apex as a variable is on the roadmap)
 The loop (a design office's):
     1. analyse every DISTINCT frame line (the same loads → one solve) with the current sizes: the governing code's own
        solve (AISC: the DAM solve; ECP: ecp_checks.ecp_solve), and check them fully (+ serviceability, step 4)
@@ -38,7 +39,7 @@ from ..analysis.frame_model import frame_line_model
 from ..analysis.secondary_weight import secondary_kpa
 from ..analysis.solve import analyse_frame_line
 from ..peb.building import BuildingInput, peb_building, resolve
-from ..peb.builtup_frame import builtup_frame_members, web_t
+from ..peb.builtup_frame import builtup_frame_members, sizes_dict, web_t, with_apex_ratio
 from ..settings import analysis_workers
 from .cfs_section import parse_name
 from .serviceability import ServiceLimits, frame_serviceability
@@ -95,6 +96,8 @@ def step(z, var: str, d: int):
         if not (HW_MIN <= nv <= HW_MAX):
             return None
     z2 = dataclasses.replace(z, **{var: nv})
+    if var == "hw_rafter":
+        z2 = with_apex_ratio(z2)          # open item 17: hw_apex follows 1.5 × hw_rafter (fixed ratio, user 2026-11-18)
     if z2.hw_rafter > z2.hw_knee or z2.hw_base > z2.hw_knee:
         return None
     return z2
@@ -317,7 +320,7 @@ def size_frames(b: BuildingInput, li, *, code: str = "AISC", stability: str = "d
     for k in range(max_rounds):
         ev = evaluate(b, li, z, code=code, stability=stability, limits=limits, workers=workers)
         key = dataclasses.astuple(z)
-        rec = {"round": k + 1, "sizes": dataclasses.asdict(z), "max_ratio": round(float(ev["max_ratio"]), 4),
+        rec = {"round": k + 1, "sizes": sizes_dict(z), "max_ratio": round(float(ev["max_ratio"]), 4),
                "service_ratio": round(float(ev["service_ratio"]), 4), "kg_per_frame": round(float(ev["weight_kg_per_frame"]), 1)}
         hist.append(rec)
         if key in seen:                                     # a repeat: converged (the same set) or an oscillation
@@ -341,7 +344,7 @@ def size_frames(b: BuildingInput, li, *, code: str = "AISC", stability: str = "d
         final = ev
     ok = bool(final["max_ratio"] <= LIMIT and final["service_ratio"] <= LIMIT)
     f = lambda v, n=4: round(float(v), n)                              # plain floats (JSON)
-    return {"banner": BANNER, "code": code, "stability": stability, "target": target, "sizes": dataclasses.asdict(final["sizes"]),
+    return {"banner": BANNER, "code": code, "stability": stability, "target": target, "sizes": sizes_dict(final["sizes"]),
             "max_ratio": f(final["max_ratio"]), "service_ratio": f(final["service_ratio"]),
             "kg_per_frame": f(final["weight_kg_per_frame"], 1), "passed": ok, "converged": bool(any(h.get("converged") for h in hist)),
             "rounds": hist, "lines": [{"lines": l["lines"], "ratio": f(l["ratio"]), "service_ratio": f(l["service_ratio"]),

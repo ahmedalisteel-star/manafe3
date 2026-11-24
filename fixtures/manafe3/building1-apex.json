@@ -1,0 +1,30 @@
+{
+  "name": "Building 1 with the Phase 4 frame sizes applied + apex haunch",
+  "source": "Open item 17 (user decisions 2026-11-18 / -24): building1-sized.json with the apex haunch ON at the Building... defaults - apex_haunch_length = span / 15 = 1600 mm (>= 1500, rounded to 100), hw_apex = 1.5 x hw_rafter 300 = 450 mm (rounded to 50). Every other input as building1-sized.json (Phase 4 step 8 sizes). NOT FOR ISSUE.",
+  "loads": {
+    "V": 45,
+    "exposure": "C"
+  },
+  "building": {
+    "span": 24000,
+    "eave_height": 6000,
+    "roof_slope": 0.1,
+    "bay_spacing": 6000,
+    "n_bays": 4,
+    "roof_type": "through_fastened"
+  },
+  "sizes": {
+    "hw_knee": 475,
+    "hw_base": 300,
+    "hw_rafter": 300,
+    "haunch_length": 2400,
+    "bf": 200,
+    "tf": 10,
+    "grade": "S355",
+    "tw_column": 6,
+    "tw_haunch": 6,
+    "tw_rafter": 6,
+    "apex_haunch_length": 1600,
+    "hw_apex": 450
+  }
+}

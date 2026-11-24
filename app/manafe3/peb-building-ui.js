@@ -9,7 +9,7 @@
  * and the other buildings stay. The mapping is peb-building.js.
  */
 import { BUILDING_DEFAULTS, buildingRequest, keptLineProfiles, filterLineProfiles, GAUGES_CLEARED, requestBuilding, applyBuilding, removeBuilding, buildingsOf, membersOfBuilding, buildingOfMember, SIZE_FIELDS, SPAN_REFS, ROOF_TYPES, roofTypeFlag } from './peb-building.js';
-import { requestDefaults } from './peb-frame.js';
+import { requestDefaults, APEX_FIELDS, apexDefaults } from './peb-frame.js';
 import { STARTER } from './coldformed.js';
 import { pebMenuItem } from './peb-menu.js';
 import { onModelLoaded } from './panels.js';
@@ -29,7 +29,10 @@ const GROUPS = [
   ['Placement on site', [['origin_x', 'Origin X (mm)', 'where the building\'s first frame line meets its span reference line A'], ['origin_y', 'Origin Y (mm)'], ['origin_z', 'Origin Z (mm)', 'the building\'s ground level'],
     ['plan_rotation', 'Plan rotation (°)', 'about Z, counter-clockwise seen from above; 90 = frames along +Y. Any angle; grids are added for multiples of 90° only']]],
   ['Frame sizes (span rules, editable)', [['hw_knee', 'Knee web depth (mm)'], ['hw_base', 'Column base web (mm)'], ['hw_rafter', 'Rafter web depth (mm)'],
-    ['haunch_length', 'Haunch length (mm)'], ['bf', 'Flange width (mm)'], ['tf', 'Flange thickness (mm)'], ['grade', 'Grade', '', GRADES]]],
+    ['haunch_length', 'Haunch length (mm)'],
+    ['apex_haunch_length', 'Apex haunch length (mm)', 'along the rafter from the ridge; a new building starts with span / 15, at least 1500, rounded to 100 (default TO CONFIRM); empty = no apex haunch (saved projects)'],
+    ['hw_apex', 'Apex web depth at the ridge (mm)', 'a new building starts with 1.5 x the rafter web, rounded to 50 (default TO CONFIRM); the taper is shop-welded to the last rafter piece'],
+    ['bf', 'Flange width (mm)'], ['tf', 'Flange thickness (mm)'], ['grade', 'Grade', '', GRADES]]],
   ['Roof', [['roof_spacing_a', 'Purlin spacing A (mm)'], ['roof_spacing_b', 'Purlin spacing B (mm)'], ['roof_first_a', 'Eave strut A from eave (mm)'],
     ['roof_first_b', 'Eave strut B from eave (mm)'], ['apex_gap', 'Ridge purlin from apex (mm)', '150 to 300, along the roof']]],
   ['Walls', [['girt_spacing_a', 'Girt spacing A (mm)'], ['girt_spacing_b', 'Girt spacing B (mm)'], ['girt_first', 'First girt height (mm)'],
@@ -83,11 +86,20 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
   const ui = buildDialog();
   document.body.append(ui.dlg);
   const edited = new Set();
-  for (const k of SIZE_FIELDS) ui.inputs[k].addEventListener('input', () => edited.add(k));
+  for (const k of [...SIZE_FIELDS, ...APEX_FIELDS]) ui.inputs[k].addEventListener('input', () => edited.add(k));
   const fill = async () => {
-    try { const z = await requestDefaults(ui.inputs.span.value); for (const k of SIZE_FIELDS) if (!edited.has(k)) ui.inputs[k].value = String(Math.round(z[k] * 10) / 10); }
+    try {
+      const z = await requestDefaults(ui.inputs.span.value);
+      for (const k of SIZE_FIELDS) if (!edited.has(k)) ui.inputs[k].value = String(Math.round(z[k] * 10) / 10);
+      // open item 17: a NEW building starts with the apex haunch ON (a saved building's apex fields count as edited)
+      const ad = apexDefaults(ui.inputs.span.value, ui.inputs.hw_rafter.value);
+      for (const k of APEX_FIELDS) if (!edited.has(k)) ui.inputs[k].value = String(ad[k]);
+    }
     catch (err) { ui.note.textContent = err.message; }
   };
+  ui.inputs.hw_rafter.addEventListener('input', () => {   // hw_apex follows 1.5 × hw_rafter until it is typed in
+    if (!edited.has('hw_apex') && String(ui.inputs.apex_haunch_length.value).trim() !== '') ui.inputs.hw_apex.value = String(apexDefaults(0, ui.inputs.hw_rafter.value).hw_apex);
+  });
   ui.inputs.span.addEventListener('change', fill);
 
   const which = () => (ui.inputs.which.value === NEW ? null : ui.inputs.which.value);
@@ -98,6 +110,7 @@ export function mountPebBuilding({ model, edit, print, fit, selected }) {
     for (const [k, inp] of Object.entries(ui.inputs)) if (k !== 'which') inp.value = vals[k] ?? '';
     edited.clear();
     if (kept) SIZE_FIELDS.forEach((k) => { if (kept[k] !== undefined && kept[k] !== '') edited.add(k); });
+    if (kept) APEX_FIELDS.forEach((k) => edited.add(k));   // open item 17: a saved building keeps its apex fields (empty = OFF), never filled in
     const n = b ? membersOfBuilding(st, b.id).length : 0;
     ui.note.textContent = b ? `Editing ${b.name}: its ${n} generated members will be replaced (your own members and the other buildings stay). ` + NOTE : NOTE;
     ui.add.textContent = b ? 'Update building' : 'Make building';
