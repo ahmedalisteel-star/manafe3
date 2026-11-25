@@ -236,3 +236,26 @@ def test_kink_flange_braces_17b():
     ms, info = _frame_info(bb, 2)
     for kk in _kinks(ms, info):
         assert nearest_flange_brace(kk, out, 12000.0, 0.1)["eave"]["distance_along_rafter"] == pytest.approx(971.97, abs=0.1)
+
+
+@pytest.mark.slow
+def test_apex_building_analysis_collateral_statics_by_hand():
+    """The whole apex building through analyse_building (through the test runner's analysis cache when it is on; branch
+    test-speedup, user 2026-11-25). By hand, interior frame line 3, case C (collateral, unfactored): 0.10 kN/m² of plan ×
+    tributary 6.0 m = 0.6 kN/m on plan over both rafters, from the column's inner face to the ridge. Column depth at the eave
+    = hw_knee 475 + 2 × tf 10 = 495 → plan 2 × (12 000 − 495) = 23 010 mm → ΣV = 0.6 × 23.010 = 13.806 kN; the frame is
+    symmetric → VA = VB = 6.903 kN and ΣH = 0 (the thrusts cancel). What this cannot close: the statics do not depend on the
+    apex haunch (building1-sized gives the same ΣV); the haunch geometry itself is checked by the tests above."""
+    from engine.analysis.building_analysis import analyse_building
+    from engine.peb.loads_input import LoadsInput
+    b, fx = _fx("building1-apex.json")
+    b = resolve(b)[0]
+    an = analyse_building(b, LoadsInput(**fx["loads"]))
+    f3 = next(f for f in an["frames"] if f["line"] == "3")
+    res = f3["result"]
+    assert res["tributary_m"] == pytest.approx(6.0)
+    R = res["results"]["C"]["reactions"]
+    assert sum(v[1] for v in R.values()) == pytest.approx(0.10 * 6.0 * 2 * (12000 - 495) / 1000, abs=2e-3)   # 13.806 kN
+    assert R["BA"][1] == pytest.approx(6.903, abs=2e-3) and R["BB"][1] == pytest.approx(6.903, abs=2e-3)
+    assert sum(v[0] for v in R.values()) == pytest.approx(0.0, abs=2e-3)
+    assert an["input"]["span"] == 24000 and an["banner"].startswith("NOT FOR ISSUE")

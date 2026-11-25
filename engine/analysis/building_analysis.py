@@ -22,6 +22,7 @@ from ..peb.builtup_frame import builtup_frame_members, default_sizes
 from ..peb.loads_input import LoadsInput
 from ..design.inputs import section_strength
 from ..design.serviceability import ServiceLimits, frame_serviceability
+from . import analysis_cache
 from .brace_axial import brace_loads
 from .bracing_system import longitudinal_bracing
 from .endwall_analysis import _geom, end_rafter_frame, longitudinal_feed, wind_columns
@@ -97,6 +98,14 @@ def _signature(fl) -> tuple:
 
 def analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None,
                      limits: ServiceLimits | None = None) -> dict:
+    """The whole building. Through analysis_cache when the test runner turns it on (off in the app); workers is not in
+    the key — the result does not depend on it."""
+    return analysis_cache.cached("building", {"b": b, "li": li, "p_delta": p_delta, "step": step, "limits": limits},
+                                 lambda: _analyse_building(b, li, p_delta=p_delta, step=step, workers=workers, limits=limits))
+
+
+def _analyse_building(b: BuildingInput, li: LoadsInput, *, p_delta: bool = True, step: float = TAPER_STEP, workers: int | None = None,
+                      limits: ServiceLimits | None = None) -> dict:
     li.check()
     b.check()
     b, _ = resolve(b)                                   # steel span, explicit bays: every line below uses them

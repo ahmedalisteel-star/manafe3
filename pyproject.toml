@@ -39,5 +39,8 @@ ecp205-lrfd = { git = "https://github.com/ahmedalisteel-star/ecp205-lrfd", rev =
 
 [tool.pytest.ini_options]
 testpaths = ["engine/tests"]
-markers = ["slow: solves whole frame lines (minutes); start-work.ps1 skips them, end-work.ps1 runs everything"]
+markers = [
+    "slow: solves whole frame lines (minutes); start-work.ps1 skips them, end-work.ps1 runs everything",
+    "no_analysis_cache: always solve, never through the test runner's analysis cache (engine/analysis/analysis_cache.py)",
+]
 pythonpath = ["."]

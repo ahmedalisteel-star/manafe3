@@ -1,8 +1,10 @@
 # Manafe3: start a work session on this PC. Copyright 2026 Ahmed Ali. Licensed under the Apache License, Version 2.0 (see LICENSE).
 #   powershell -ExecutionPolicy Bypass -File .\start-work.ps1          (or .\start-work.ps1 if scripts are allowed)
 #   -SkipTests   pull and sync only
+#   -NoCache     solve every building analysis (no test analysis cache). A fully uncached run is REQUIRED before any
+#                upstream merge into main and once a week (user decision 2026-11-25).
 # Steps: git pull -> uv sync -> tests (engine pytest + npm test) -> print the current task from HANDOVER.md.
-param([switch]$SkipTests)
+param([switch]$SkipTests, [switch]$NoCache)
 $ErrorActionPreference = 'Continue'   # native tools write progress to stderr; exit codes are checked instead
 Set-Location -LiteralPath $PSScriptRoot
 
@@ -24,7 +26,8 @@ $failed = $false
 if (-not $SkipTests) {
   Step 'engine tests (fast set -m "not slow", one file at a time - end-work.ps1 runs everything)'
   $env:PYTHONIOENCODING = 'utf-8'
-  uv run python tools/run-tests-by-file.py -m "not slow"
+  $cacheArg = @(); if ($NoCache) { $cacheArg = @('--no-cache') }
+  uv run python tools/run-tests-by-file.py -m "not slow" @cacheArg
   if ($LASTEXITCODE -ne 0) { $failed = $true }
   Step 'app tests (npm test)'
   npm test --silent

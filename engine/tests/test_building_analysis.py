@@ -15,6 +15,9 @@ from engine.api import app
 from engine.peb.building import BuildingInput, peb_building
 from engine.peb.loads_input import LoadsInput
 
+# never through the test runner's analysis cache (branch test-speedup): the parallel-path test (workers=2) must really run the process pool
+pytestmark = pytest.mark.no_analysis_cache
+
 B1 = dict(span=24000, eave_height=6000, roof_slope=0.1, bay_spacing=6000, n_bays=4)
 LI = LoadsInput(V=45, exposure="C")
 

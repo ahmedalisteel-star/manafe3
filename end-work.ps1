@@ -4,8 +4,10 @@
 #   -Footer "..." extra lines at the end of the commit message, e.g. a Co-Authored-By trailer (optional)
 #   -DryRun       run the tests and stop: nothing is written, committed or pushed (exit 1 when a test fails)
 #   -OnlyTests "test_x*.py"  only these engine test files (negative controls); implies -DryRun
+#   -NoCache     solve every building analysis (no test analysis cache). A fully uncached run is REQUIRED before any
+#                upstream merge into main and once a week (user decision 2026-11-25).
 # Steps: tests (engine: one file at a time, tools/run-tests-by-file.py) -> update HANDOVER.md "Last session" -> git add -> commit -> git push. Nothing is pushed if a test fails.
-param([string]$Message, [string]$Next, [string]$Footer, [switch]$DryRun, [string]$OnlyTests)
+param([string]$Message, [string]$Next, [string]$Footer, [switch]$DryRun, [string]$OnlyTests, [switch]$NoCache)
 if ($OnlyTests) { $DryRun = $true }
 $ErrorActionPreference = 'Continue'   # native tools write progress to stderr; exit codes are checked instead
 Set-Location -LiteralPath $PSScriptRoot
@@ -18,8 +20,10 @@ if (-not $Message.Trim()) { Write-Host 'A message is needed.' -ForegroundColor R
 Step 'engine tests (every file on its own, slow included; tools/run-tests-by-file.py)'
 # one fresh Python process per test file, analyses serial (MANAFE3_WORKERS=1); it warns first when memory is short
 $env:PYTHONIOENCODING = 'utf-8'
-if ($OnlyTests) { uv run python tools/run-tests-by-file.py --only $OnlyTests | Tee-Object -Variable pyOut | Out-Host }
-else { uv run python tools/run-tests-by-file.py | Tee-Object -Variable pyOut | Out-Host }
+# the analysis cache is ON unless -NoCache (the cached = fresh control in test_analysis_cache.py always solves)
+$cacheArg = @(); if ($NoCache) { $cacheArg = @('--no-cache') }
+if ($OnlyTests) { uv run python tools/run-tests-by-file.py --only $OnlyTests @cacheArg | Tee-Object -Variable pyOut | Out-Host }
+else { uv run python tools/run-tests-by-file.py @cacheArg | Tee-Object -Variable pyOut | Out-Host }
 $pyRc = $LASTEXITCODE
 $pyOk = ($pyRc -eq 0)
 $py = ($pyOut | Out-String)

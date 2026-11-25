@@ -13,6 +13,9 @@ import pytest
 
 from engine.settings import analysis_workers
 
+# never through the test runner's analysis cache (branch test-speedup): the worker count is the subject here
+pytestmark = pytest.mark.no_analysis_cache
+
 
 def test_explicit_beats_environment(monkeypatch):
     monkeypatch.setenv("MANAFE3_WORKERS", "1")

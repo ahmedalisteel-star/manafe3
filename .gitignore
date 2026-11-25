@@ -10,6 +10,8 @@ dist/
 __pycache__/
 *.pyc
 .pytest_cache/
+# the test runner's analysis cache and file times (tools/run-tests-by-file.py)
+.cache/
 # client and project data never goes into git: keep it in the projects folder named in .env.local
 *.dwg
 *.pdf
